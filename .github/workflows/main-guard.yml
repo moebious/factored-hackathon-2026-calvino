@@ -1,0 +1,41 @@
+# Alarm for the "main only changes through pull requests" rule in AGENTS.md.
+# Local hooks can be bypassed (--no-verify) and branch protection is a
+# repository setting, so this check marks main red if a pushed commit is not
+# the result of a merged pull request.
+name: main-guard
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  main-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check every pushed commit came from a merged pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+          # The commits in this push, oldest first (just the head on a new branch).
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            shas="$AFTER"
+          else
+            shas=$(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --jq '.commits[].sha')
+          fi
+          fail=0
+          for sha in $shas; do
+            merged=$(gh api "repos/$REPO/commits/$sha/pulls" --jq '[.[] | select(.merged_at != null)] | length')
+            if [ "$merged" -eq 0 ]; then
+              echo "::error::Commit $sha reached main without a merged pull request"
+              fail=1
+            fi
+          done
+          exit "$fail"
