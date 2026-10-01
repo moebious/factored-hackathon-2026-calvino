@@ -12,13 +12,16 @@ Instructions for coding agents (and humans) working on this repository. Read thi
 
 ## Repository layout
 
-Planned. Directories are created as code lands; update this section when they do.
+Application directories are planned and created as code lands; update this section when they do.
 
 | Path | Contents |
 |---|---|
 | `src/calvino/` | Python package: harness (LangGraph graph), policy, classifiers (Laya), tools (MCP servers) |
 | `frontend/` | CopilotKit / AG-UI client |
-| `tests/` | Unit and integration tests, mirroring `src/calvino/` |
+| `tests/` | Unit and integration tests, mirroring `src/calvino/`; `tests/git/` tests the git rule scripts |
+| `scripts/` | Developer scripts; `scripts/git/` holds the commit-message checker shared by hooks and CI |
+| `.githooks/` | Versioned git hooks (`pre-commit`, `commit-msg`, `pre-push`), enabled with `git config core.hooksPath .githooks` |
+| `.worktrees/` | Linked worktrees in non-bare clones. **Git-ignored** |
 | `docs/` | Design, decisions, plan |
 | `data/` | Local datasets. **Git-ignored, never committed** |
 
@@ -32,6 +35,10 @@ Planned. Directories are created as code lands; update this section when they do
 6. **Tests.** Add or extend tests with every change. Every policy function and every tool permission check has unit tests that run without model calls. Tests must not need network access, a GPU or the real dataset.
 
 ## Git workflow
+
+Branching strategy: **GitHub Flow**. `main` is always releasable; all work happens on short-lived branches merged through pull requests. (GitFlow-style release branches are not used: there is one version line and no parallel maintenance.)
+
+These rules are enforced twice, by the same script (`scripts/git/check-commit-msg.sh`): locally by git hooks (see [Local setup](#local-setup)) and in CI by `.github/workflows/conventions.yml`. A pull request that breaks them fails its checks.
 
 ### Commits: Conventional Commits
 
@@ -73,7 +80,66 @@ Every commit message and every PR title follows [Conventional Commits 1.0.0](htt
 
 ### Branching
 
-Never commit on `main`: `main` changes only through merged pull requests. Every change starts on a short-lived branch (less than a day of work) from the latest `main`, named `<type>/<short-description>` with a Conventional Commits type, e.g. `feat/policy-gate`, `fix/laya-timeout`, `docs/data-contracts`. If a tool assigns a different branch name, use it and follow every other rule here.
+Never commit on `main`, locally or remotely: `main` changes only through merged pull requests. Every change starts on a short-lived branch (less than a day of work) from the latest `main`, in **its own worktree** (see below), named `<type>/<short-description>` with a Conventional Commits type, e.g. `feat/policy-gate`, `fix/laya-timeout`, `docs/data-contracts`. If a tool assigns a different branch name, use it and follow every other rule here.
+
+### Worktrees: one per branch
+
+Every branch is checked out in its own [git worktree](https://git-scm.com/docs/git-worktree), so branches never share a working directory, switching is instant, and parallel work (yours, or several coding agents') can't collide. The `main` checkout is read-only: it is only ever fast-forwarded, never committed to.
+
+**Recommended layout (maintainer machines): bare repository**, after [Git worktree like a boss](https://dev.to/metal3d/git-worktree-like-a-boss-2j1b):
+
+```bash
+mkdir factored-hackathon-2026-calvino && cd factored-hackathon-2026-calvino
+git clone --bare git@github.com:moebious/factored-hackathon-2026-calvino.git .bare
+printf "gitdir: ./.bare" > .git
+git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+git fetch origin
+git worktree add main                                         # read-only base
+git worktree add feat-policy-gate -b feat/policy-gate origin/main
+```
+
+```
+factored-hackathon-2026-calvino/
+├── .bare/              git history, shared by every worktree
+├── .git                file pointing to .bare
+├── main/               main, only fast-forwarded
+└── feat-policy-gate/   one directory per branch
+```
+
+**Existing clones and tool-provided checkouts:** keep the primary checkout on `main` and add worktrees under the git-ignored `.worktrees/` folder:
+
+```bash
+git worktree add .worktrees/policy-gate -b feat/policy-gate origin/main
+```
+
+Name the directory after the branch, with `/` replaced by `-` or without the type prefix.
+
+**Lifecycle:**
+
+```bash
+git worktree list                         # what is checked out where
+git worktree remove .worktrees/policy-gate   # after the PR is merged
+git branch -d feat/policy-gate
+git worktree prune                        # clean up after a directory was deleted by hand
+```
+
+Never delete a worktree with `rm -rf` alone; run `git worktree prune` afterwards, or use `git worktree remove`. A branch can only be checked out in one worktree at a time; git enforces this.
+
+### Day-to-day commits
+
+- **Commit when one coherent change works,** with its tests passing. Never push a commit that breaks the build or the tests.
+- **Fix mistakes with fixup commits,** then fold them in before pushing:
+  ```bash
+  git commit --fixup=<sha>
+  GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash origin/main   # non-interactive, safe for agents
+  ```
+  CI rejects any `fixup!` or `squash!` commit that reaches a pull request.
+- **Keep your branch current by rebasing** onto `main`, never by merging `main` into it:
+  ```bash
+  git fetch origin && git rebase origin/main
+  ```
+- **Rewrite only your own, unmerged branch.** Never rebase or rewrite `main` or a branch someone else works on.
+- **Push rewritten history with `--force-with-lease`, never `--force`,** so you can't overwrite work you haven't seen.
 
 ### Pull requests and merging
 
@@ -95,6 +161,14 @@ Never commit on `main`: `main` changes only through merged pull requests. Every 
 | `v0.4.0` | LangGraph harness: Router, Gate, Verifier, human interrupts; minimal UI, deployed at a public link |
 | `v0.5.0` | evaluation and analytics |
 | `v1.0.0` | hackathon submission |
+
+### Signing (maintainer)
+
+The maintainer signs commits and tags with an **SSH signing key** (`git config gpg.format ssh`, `user.signingkey`, `commit.gpgsign true`, `tag.gpgSign true`) so they show as Verified on GitHub. Squash merges done in the GitHub web interface are signed by GitHub. Coding-agent sessions cannot sign as the maintainer and leave signing off.
+
+### Repository settings (maintainer)
+
+Configured once on GitHub, listed here so they are not lost: squash merging only, defaulting to the PR title; automatically delete head branches; `main` protected with a ruleset (pull request required, `conventions` check required, no force pushes, no deletion); repository description, website and topics filled in. The `main-guard` workflow marks `main` red if a commit ever arrives without a merged pull request.
 
 ## Data and secrets
 
@@ -123,4 +197,32 @@ Tag factual claims in README and docs with their source: `[measured]` (we ran it
 
 ## Commands
 
-To be filled in as tooling lands: setup, run, test, lint. Keep these accurate; an agent should be able to run them as written.
+Keep these accurate; an agent should be able to run them as written. Setup, run and lint commands for the application will be added as tooling lands.
+
+### Local setup
+
+Run once per clone:
+
+Use the worktree layout from [Worktrees](#worktrees-one-per-branch), then:
+
+```bash
+git config core.hooksPath .githooks                     # enable the commit-msg, pre-commit and pre-push hooks
+git config user.name "Kevin Vicent"
+git config user.email "624602+moebious@users.noreply.github.com"
+```
+
+The hooks enforce the rules above locally:
+
+| Hook | Blocks |
+|---|---|
+| `pre-commit` | commits on `main`; commits from the primary checkout instead of a linked worktree; staged datasets, `.env` files, model weights and anything that looks like a credential |
+| `commit-msg` | messages that are not Conventional Commits or that contain AI-tool attribution |
+| `pre-push` | pushes to `main` |
+
+Hooks can be skipped with `--no-verify`; don't. CI (`conventions`, `main-guard`) and branch protection catch what hooks miss.
+
+### Tests
+
+```bash
+bash tests/git/test_git_rules.sh    # git rule scripts and hooks
+```
