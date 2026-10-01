@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Tests for scripts/git/check-commit-msg.sh and .githooks/pre-commit.
+# Plain bash, no dependencies; run from anywhere: bash tests/git/test_git_rules.sh
+set -uo pipefail
+
+root=$(cd "$(dirname "$0")/../.." && pwd)
+check="$root/scripts/git/check-commit-msg.sh"
+passed=0; failed=0
+
+expect() {  # $1 = pass|fail, $2 = description, rest = command
+    local want=$1 desc=$2; shift 2
+    if "$@" >/dev/null 2>&1; then got=pass; else got=fail; fi
+    if [ "$got" = "$want" ]; then passed=$((passed + 1))
+    else failed=$((failed + 1)); echo "FAIL: $desc (expected $want, got $got)"; fi
+}
+msg() { printf '%b' "$1" | "$check" -; }
+body() { printf '%b' "$1" | "$check" --no-subject -; }
+
+# Conventional Commits subjects
+expect pass "plain type"             msg "docs: add design document"
+expect pass "type with scope"        msg "feat(policy): add two-threshold gate"
+expect pass "breaking change marker" msg "feat(api)!: drop v1 endpoint"
+expect pass "subject with body"      msg "fix(classifiers): fall back to rules\n\nLaya timed out."
+expect pass "git template comments"  msg "# comment from git\nchore: bump version"
+expect fail "no type"                msg "Add design document"
+expect fail "unknown type"           msg "feature: add gate"
+expect fail "uppercase description"  msg "docs: Add design document"
+expect fail "trailing period"        msg "docs: add design document."
+expect fail "missing space"          msg "docs:add design document"
+expect fail "uppercase scope"        msg "feat(Policy): add gate"
+expect fail "over 72 characters"     msg "docs: $(printf 'a%.0s' $(seq 1 70))"
+expect fail "fixup commit"           msg "fixup! docs: add design document"
+
+# AI-tool attribution
+expect fail "co-author trailer"      msg "docs: add x\n\nCo-Authored-By: Claude <noreply@anthropic.com>"
+expect fail "session trailer"        msg "docs: add x\n\nClaude-Session: https://example.com"
+expect fail "generated footer in PR" body "## What\n\n🤖 Generated with [Claude Code](https://example.com)"
+expect pass "human co-author"        msg "docs: add x\n\nCo-Authored-By: Ana Perez <ana@example.com>"
+expect pass "clean PR description"   body "## What\n\nAdds the design document."
+
+# Hooks, run inside a throwaway repository with a primary checkout on main and
+# a linked worktree on a feature branch. The fake secrets below are split with
+# "" so this file itself never trips the hook it tests.
+tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+repo="$tmp/repo"; wt="$tmp/repo/.worktrees/feature"
+git init -q -b main "$repo"
+git -C "$repo" -c user.name=t -c user.email=t@example.com commit -q --allow-empty -m "chore: init"
+git -C "$repo" worktree add -q "$wt" -b feat/example
+hook() {  # $1 = directory, $2 = hook name
+    (cd "$1" && "$root/.githooks/$2")
+}
+staged_in() {  # $1 = directory, $2 = path, $3 = content
+    git -C "$1" reset -q 2>/dev/null || true
+    mkdir -p "$1/$(dirname "$2")"; printf '%s\n' "$3" > "$1/$2"
+    git -C "$1" add "$2" && hook "$1" pre-commit
+}
+staged() { staged_in "$wt" "$@"; }
+
+# Branch and worktree guards
+expect fail "commit on main"                 staged_in "$repo" "src/a.py" "x = 1"
+git -C "$repo" reset -q; git -C "$repo" switch -q -c feat/primary
+expect fail "commit from primary checkout"   staged_in "$repo" "src/a.py" "x = 1"
+git -C "$repo" reset -q; git -C "$repo" switch -q main
+push_to() { printf 'refs/heads/x 0000 %s 0000\n' "$1" | hook "$wt" pre-push; }
+expect fail "push to main"                   push_to refs/heads/main
+expect pass "push feature branch"            push_to refs/heads/feat/example
+
+# Secret and file guards, in the feature worktree
+expect pass "ordinary source file"   staged "src/app.py" "print('hello')"
+expect fail "dataset file"           staged "data/customers.csv" "id,name"
+expect fail "env file"               staged ".env" "TOKEN=x"
+expect fail "model weights"          staged "models/laya.safetensors" "weights"
+expect fail "AWS access key id"      staged "src/config.py" "KEY = 'AKIA""ABCDEFGHIJKLMNOP'"
+expect fail "private key"            staged "src/key.txt" "-----BEGIN OPENSSH ""PRIVATE KEY-----"
+expect fail "AWS secret key name"     staged "src/c.ini" "aws_secret_access""_key = x"
+expect pass "env var lookup"         staged "src/settings.py" "key = os.environ['AWS_ACCESS_KEY_ID']"
+
+echo "$passed passed, $failed failed"
+[ "$failed" -eq 0 ]
