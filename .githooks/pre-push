@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Refuses to push to main from a local clone. main only changes through
+# merged pull requests; branch protection on GitHub enforces the same rule.
+# Git passes "<local ref> <local sha> <remote ref> <remote sha>" lines on stdin.
+while read -r _ _ remote_ref _; do
+    case "$remote_ref" in
+        refs/heads/main|refs/heads/master)
+            echo "error: never push to ${remote_ref#refs/heads/}; open a pull request from a feature branch" >&2
+            exit 1 ;;
+    esac
+done
+exit 0
