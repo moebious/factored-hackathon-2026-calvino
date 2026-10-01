@@ -101,7 +101,7 @@ Models are spokes too: Laya (decisions), the agents' LLM and the LLM judge are c
 | Layer | Question | Mechanism | Outcomes |
 |---|---|---|---|
 | 1. Decision classifier | *Who* should act: agents or a human? | hard rules, then calibrated Laya probabilities, then the policy function | agents take charge · human needed (approve, request info, full transfer) |
-| 2. Verifier cascade | Is the agents' work *good enough*? | deterministic checks, then Laya, then an LLM judge for what remains `[hypothesis]` | accept · retry (bounded) · escalate to a human |
+| 2. Verifier cascade | Is the agents' work *good enough*? | deterministic checks, then Laya, then a batched LLM judge over a criteria rubric (see [4.4](#44-verifier-design-layer-2)) | accept · retry (bounded) · escalate to a human |
 
 **Trade-off:** a hub is a single point of control, so it is also a potential bottleneck and single point of failure. The hub keeps no state between requests (state lives in the checkpointer and the case file), so it scales horizontally; Laya calls are cheap; and every spoke has a defined behavior when the hub or a model is unreachable (fail closed for actions, fail open for model choice).
 
@@ -186,6 +186,35 @@ Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not
 
 Urgency (`score`) was flat at 1.62-1.78 for every input.
 
+### 4.4 Verifier design (layer 2)
+
+After *Designing Efficient Verifiers for Legal Agents* (LangChain Labs and Harvey). Their findings that shape this design `[vendor]`: rubric-based judging with a pass/fail verdict per criterion; judging the whole rubric in one **batch** call is about an order of magnitude cheaper than one call per criterion, with somewhat lower agreement; open models came close to a frontier reference at 60–1000× lower cost, while some cheap models were far too permissive (false-pass rates of 35–48%); even frontier judges agree only ~95.7% with each other; and prompting the judge to decompose each criterion into a checklist and to be cautious when unclear lowered false passes.
+
+**Rubric, not a single grade.** Each agent output type (answer, action confirmation, case summary for an operator) has a versioned rubric of pass/fail criteria, for example:
+
+| Criterion | Checked by |
+|---|---|
+| Every amount, date and merchant stated matches a tool result | deterministic |
+| Every action claimed as done was verified by reading it back | deterministic |
+| No data belonging to another customer | deterministic |
+| Reply is in the customer's language | deterministic, with Laya for mixed language |
+| Every factual claim is supported by tool results or policy documents | Laya, then LLM judge |
+| The customer's question is fully answered, or the gap is stated | LLM judge |
+| No invented policy, eligibility or promise | LLM judge |
+| Next step and any required confirmation are stated clearly | LLM judge |
+
+**Cascade, cheapest first.** Anything code can check is removed from the LLM rubric. Laya answers the simple grounding questions in one batched call. The LLM judge then labels **all remaining criteria in one batch call**, with checklist decomposition and an instruction to fail when unclear. Any failed criterion means retry once with the failure as feedback, then escalate to a human with the failed criteria in the case file.
+
+**Optimise for false passes.** A false pass sends an unsafe or wrong reply to a customer; a false fail costs a retry or an operator minute. Judge choice and prompt tuning minimise false passes first, then cost.
+
+**Validating the judge** (as the brief requires for any model used as a judge):
+
+- A labelled sample of agent outputs, judged per criterion by a human against the rubric (the gold set), plus a strong model judging per criterion as a reference.
+- Report for each candidate judge (cheap open model, frontier model) and mode (batch, per criterion): **agreement, false-pass rate, false-fail rate, cost per 1,000 criteria and latency**, with sample sizes.
+- Don't target 100% agreement: the reported ceiling between frontier judges is ~95.7% `[vendor]`.
+- Improve the judge from traces: review disagreements in the decision log and tune the prompt, re-measuring false passes each time.
+- The runtime judge should be an open model the bank can host, in line with keeping customer data in-house; a frontier model can serve as the offline reference.
+
 ## 5. Governance: constraints as enforceable controls
 
 If a constraint isn't met, there is no governance. Each constraint has a metric, an enforcement mechanism and an explicit trade-off.
@@ -249,6 +278,7 @@ All variants run on the same held-out split (by customer and by time), sliced by
 | Laya fine-tuned (Kaggle 2x T4) | effect of specialising on the domain; the main learned-component evidence |
 | Calibrated logistic regression | cheap learned alternative and Laya's fallback |
 | Bare LLM vs LLM + harness; ablations per harness part | the harness thesis |
+| Verifier: candidate judges × batch / per-criterion, against a human-labelled gold set | judge agreement, false-pass and false-fail rates, cost per 1,000 criteria (see 4.4) |
 
 **Reported outcomes (per the brief):** safe automated resolution (plus attempt rate), containment, escalation quality (missed / unnecessary), unsafe outcomes with counts and denominators, p50/p95 latency and cost per attempted case and per resolution.
 
@@ -277,6 +307,7 @@ What is built for the demo vs. designed only, and the work remaining before depl
 - S. Runkle, H. Lovell, *Building a Harness with Jev*, LangChain, 2026-09-17
 - *Building a Custom Harness with Pi and Jev* (DAIR.AI Academy)
 - Anthropic, *Harness design for long-running application development*
+- LangChain Labs and Harvey, *Designing Efficient Verifiers for Legal Agents*, 2026-06-02
 - Laya: https://huggingface.co/convaiinnovations/laya (Apache 2.0)
 - *Fairness in Generative AI*, Packt (to read; not yet used as a source)
 - Italo Calvino, *Invisible Cities*
