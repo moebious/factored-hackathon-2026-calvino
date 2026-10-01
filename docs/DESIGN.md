@@ -44,16 +44,105 @@ The same inputs and the same policy version always give the same verdict. Every 
 
 ## 4. Architecture
 
+### 4.0 Hub and spoke
+
+**Calvino is the hub**: the domain-specific harness at the center. Everything else is a spoke (channels, agents, humans, models, bank integrations) and **spokes never talk to each other directly**. Every handoff, tool call and decision passes through the hub, where it is classified, gated, verified and recorded. As in *Invisible Cities*, each city is self-contained and the empire knows it only through the accounts that reach the center.
+
+```mermaid
+flowchart TB
+    subgraph CH["Channel spokes"]
+        CA["Customer app<br/>Laya cards + glass box"]
+        OC["Operator console<br/>queue · case view · audit timeline"]
+    end
+
+    subgraph HUB["CALVINO hub: domain-specific harness (LangGraph)"]
+        ID["Session and identity<br/>never passed to a model"]
+        DC{"Decision classifier<br/>hard rules → Laya → policy"}
+        GATE["Gate<br/>before every tool call · fail closed"]
+        VER{"Verifier cascade<br/>deterministic → Laya → LLM judge"}
+        CASE[("Case file<br/>the only handoff format")]
+        LOG[("Audit log<br/>decisions.jsonl")]
+    end
+
+    subgraph AG["Agent spokes (LangGraph Deep Agents)"]
+        SC["Support chat"]
+        CB["Company brain<br/>policy and knowledge retrieval"]
+        CW["Coworker<br/>prepares cases for operators"]
+    end
+
+    subgraph HU["Human spokes"]
+        HA["Human agents and supervisors"]
+    end
+
+    subgraph INT["Integration spokes (MCP)"]
+        DSA["Dataset adapter (demo)"]
+        CORE["Bank core adapter (production)"]
+    end
+
+    CA --> ID --> DC
+    DC -- "agents take charge" --> SC
+    DC -- "human needed" --> CASE
+    SC <--> CB
+    SC -- "tool call" --> GATE
+    CW -- "tool call" --> GATE
+    GATE --> DSA
+    GATE -.-> CORE
+    SC -- "answer or action" --> VER
+    VER -- "accept" --> CA
+    VER -- "reject: retry or escalate" --> CASE
+    CASE --> CW
+    CASE --> OC --> HA
+    HA -- "approve / edit / take over" --> GATE
+    DC & GATE & VER --> LOG
+```
+
+Models are spokes too: Laya (decisions), the agents' LLM and the LLM judge are called only by the hub or by agents under the hub's gate. The **two classification layers** are the core of the design:
+
+| Layer | Question | Mechanism | Outcomes |
+|---|---|---|---|
+| 1. Decision classifier | *Who* should act: agents or a human? | hard rules, then calibrated Laya probabilities, then the policy function | agents take charge · human needed (approve, request info, full transfer) |
+| 2. Verifier cascade | Is the agents' work *good enough*? | deterministic checks, then Laya, then an LLM judge for what remains `[hypothesis]` | accept · retry (bounded) · escalate to a human |
+
+**Trade-off:** a hub is a single point of control, so it is also a potential bottleneck and single point of failure. The hub keeps no state between requests (state lives in the checkpointer and the case file), so it scales horizontally; Laya calls are cheap; and every spoke has a defined behavior when the hub or a model is unreachable (fail closed for actions, fail open for model choice).
+
+### 4.0.1 Offline ML pipeline
+
+```mermaid
+flowchart LR
+    RAW["Raw dataset"] --> CON["Data contracts<br/>quality report · lineage"] --> CLEAN["Cleaned parquet"]
+    CLEAN --> LAB["Labels and splits<br/>by customer and time"]
+    LAB --> FT["Fine-tune Laya<br/>full or LoRA · Kaggle GPU"]
+    LAB --> BASE["Baselines<br/>rules · majority · logistic regression"]
+    FT --> CAL["Calibrate<br/>temperatures · thresholds"]
+    CAL & BASE --> EVAL["Evaluation<br/>held-out ES · PT (synthetic) · fairness"]
+    EVAL --> REG["Versioned checkpoint<br/>Hugging Face Hub"] --> HUBREF["Loaded by the Calvino hub"]
+```
+
+Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not store the dataset in the model. At runtime, account data reaches agents only through the MCP tools, under the gate.
+
+### 4.0.2 Deployment
+
+| | Demo (hackathon) | Production reference (documented) |
+|---|---|---|
+| Customer app and console | Vercel | Bank web and mobile channels |
+| Calvino hub + Laya | Hugging Face Space (CPU, weights baked into the image, keep-alive ping) | Containers in a private AWS VPC behind API Gateway (container services rather than Lambda: Laya needs ~1 GB of model in memory and steady latency) |
+| LLM for agents and judge | provider and key: open decision | Amazon Bedrock inside the VPC boundary |
+| Bank integration | MCP dataset adapter over a small labeled sample | MCP adapter to the bank core |
+| State and audit | SQLite checkpointer, `decisions.jsonl` | managed database, append-only audit store |
+
+### 4.0.3 Components
+
 | Layer | Responsibility | Technology |
 |---|---|---|
-| Experience | Generative UI for clients and a manager/supervisor view | CopilotKit + AG-UI |
-| Orchestration | Agent loop: Router, Gate, Verifier; durable cases; human interrupts | LangGraph (checkpointer + `interrupt()`) |
-| Fast decisions | Typed, calibrated classification | Laya (`laya-multilingual`, self-hosted) |
+| Channels | Customer app with Laya-chosen cards and a glass-box panel; operator console (OpenBot-style queue, case view, audit timeline) | Next.js; CopilotKit/AG-UI for the console (Tier 2) |
+| Hub orchestration | Decision classifier, Gate, Verifier cascade, durable cases, human interrupts | LangGraph (checkpointer + `interrupt()`) |
+| Agents | Support chat, company brain, coworker | LangGraph Deep Agents (virtual file system only, no computer use) |
+| Fast decisions | Typed, calibrated classification | Laya (`laya-multilingual`, fine-tuned and calibrated, self-hosted) |
 | Policy | Thresholds, hard rules, permissions | Plain Python, versioned, unit tested |
-| Integration | Governed tools and data | MCP servers, REST APIs, CLI; A2A (design only) |
+| Integration | Governed access to bank data and actions | MCP servers (one adapter per bank core) |
 | Governance | Contracts, audit, redaction, lineage, tracing | data contracts, `decisions.jsonl`, traces |
 
-### 4.1 The three harness parts (after "Building a Custom Harness with Pi and Jev", ported to LangGraph + Laya)
+### 4.1 The hub's three checkpoints (after "Building a Custom Harness with Pi and Jev", ported to LangGraph + Laya)
 
 | Part | Hook | Laya questions | Policy | If Laya is down |
 |---|---|---|---|---|
