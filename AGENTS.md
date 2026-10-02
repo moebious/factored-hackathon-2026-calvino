@@ -21,9 +21,10 @@ Application directories are planned and created as code lands; update this secti
 
 | Path | Contents |
 |---|---|
-| `src/calvino/` | Python package: harness (LangGraph graph), policy, classifiers (Laya), tools (MCP servers) |
+| `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `policy`, `tools`, `verifier`, `classifiers` and `hub` subpackages |
 | `frontend/` | CopilotKit / AG-UI client |
-| `tests/` | Unit and integration tests, mirroring `src/calvino/`; `tests/git/` tests the git rule scripts |
+| `tests/` | `tests/calvino/` mirrors `src/calvino/` (pytest); `tests/git/` tests the git rule scripts |
+| `pyproject.toml`, `uv.lock` | Python project configuration and locked dependencies (managed with `uv`) |
 | `scripts/` | Developer scripts; `scripts/git/` holds the commit-message checker shared by hooks and CI |
 | `.githooks/` | Versioned git hooks (`pre-commit`, `commit-msg`, `pre-push`), enabled with `git config core.hooksPath .githooks` |
 | `.worktrees/` | Linked worktrees in non-bare clones. **Git-ignored** |
@@ -206,7 +207,7 @@ Tag factual claims in README and docs with their source: `[measured]` (we ran it
 
 ## Commands
 
-Keep these accurate; an agent should be able to run them as written. Setup, run and lint commands for the application will be added as tooling lands.
+Keep these accurate; an agent should be able to run them as written. Run commands for the application will be added as it lands.
 
 ### Local setup
 
@@ -230,8 +231,26 @@ The hooks enforce the rules above locally:
 
 Hooks can be skipped with `--no-verify`; don't. CI (`conventions`, `main-guard`) and branch protection catch what hooks miss.
 
+### Python setup
+
+Python 3.11 or newer and [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync                             # create .venv with the package and dev tools from uv.lock
+```
+
+### Lint
+
+```bash
+uv run ruff check .                 # lint
+uv run ruff format --check .        # formatting (uv run ruff format . to fix)
+```
+
 ### Tests
 
 ```bash
+uv run pytest                       # Python tests (no network, GPU or dataset needed)
 bash tests/git/test_git_rules.sh    # git rule scripts and hooks
 ```
+
+CI runs both on every pull request (`.github/workflows/tests.yml` and `conventions.yml`).
