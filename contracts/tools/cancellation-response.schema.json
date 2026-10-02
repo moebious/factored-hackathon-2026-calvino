@@ -1,0 +1,68 @@
+{
+  "$defs": {
+    "CancellationOutcome": {
+      "description": "camt.029 outcome of a cancellation request.",
+      "enum": [
+        "accepted",
+        "rejected"
+      ],
+      "title": "CancellationOutcome",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A cancellation request (camt.056) and its answer (camt.029).",
+  "properties": {
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "original_reference": {
+      "description": "Undrlyg/OrgnlTxRef",
+      "title": "Original Reference",
+      "type": "string"
+    },
+    "outcome": {
+      "$ref": "#/$defs/CancellationOutcome",
+      "description": "CxlStsRspn/Conf"
+    },
+    "reason": {
+      "description": "Case/Rsn",
+      "title": "Reason",
+      "type": "string"
+    },
+    "rejection_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "CxlStsRspn/RsnCd",
+      "title": "Rejection Reason"
+    },
+    "requested_by": {
+      "description": "Assgnr: the customer who asked",
+      "title": "Requested By",
+      "type": "string"
+    },
+    "simulated": {
+      "description": "True when the adapter did not move real money",
+      "title": "Simulated",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "original_reference",
+    "reason",
+    "requested_by",
+    "outcome",
+    "simulated",
+    "message"
+  ],
+  "title": "CancellationResponse",
+  "type": "object"
+}

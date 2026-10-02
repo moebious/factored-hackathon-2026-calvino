@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "CreditDebit": {
+      "description": "camt.053 ``CdtDbtInd``.",
+      "enum": [
+        "CRDT",
+        "DBIT"
+      ],
+      "title": "CreditDebit",
+      "type": "string"
+    },
+    "TransactionStatus": {
+      "description": "The dataset's ``transaction_status``. The only source of a payment's status (DATA.md):\na null ``response_code`` is a deliberate defect on about 5% of rows and never means a failure.\nModelled on the pacs.002 status codes (PDNG pending, ACSC settled, RJCT rejected).",
+      "enum": [
+        "Pending",
+        "Approved",
+        "Declined",
+        "Reversed"
+      ],
+      "title": "TransactionStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "An account entry (camt.053 ``Ntry`` / camt.054 notification).",
+  "properties": {
+    "amount": {
+      "description": "Ntry/Amt",
+      "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
+      "title": "Amount",
+      "type": "string"
+    },
+    "bank_transaction_code": {
+      "description": "Ntry/BkTxCd (domain-family-subfamily)",
+      "title": "Bank Transaction Code",
+      "type": "string"
+    },
+    "booking_date": {
+      "description": "Ntry/BookgDt",
+      "format": "date",
+      "title": "Booking Date",
+      "type": "string"
+    },
+    "country": {
+      "anyOf": [
+        {
+          "description": "ISO 3166-1 alpha-2 country",
+          "pattern": "^[A-Z]{2}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Transaction country",
+      "title": "Country"
+    },
+    "credit_debit": {
+      "$ref": "#/$defs/CreditDebit",
+      "description": "Ntry/CdtDbtInd"
+    },
+    "currency": {
+      "description": "Ntry/Amt@Ccy",
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "type": "string"
+    },
+    "entry_reference": {
+      "description": "Ntry/NtryRef",
+      "title": "Entry Reference",
+      "type": "string"
+    },
+    "merchant_category_code": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9]{4}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "ISO 18245 merchant category",
+      "title": "Merchant Category Code"
+    },
+    "remittance_information": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Ntry/NtryDtls/TxDtls/RmtInf/Ustrd",
+      "title": "Remittance Information"
+    },
+    "status": {
+      "$ref": "#/$defs/TransactionStatus",
+      "description": "Ntry/Sts"
+    },
+    "value_date": {
+      "description": "Ntry/ValDt",
+      "format": "date",
+      "title": "Value Date",
+      "type": "string"
+    }
+  },
+  "required": [
+    "entry_reference",
+    "amount",
+    "currency",
+    "credit_debit",
+    "status",
+    "booking_date",
+    "value_date",
+    "bank_transaction_code"
+  ],
+  "title": "AccountEntry",
+  "type": "object"
+}

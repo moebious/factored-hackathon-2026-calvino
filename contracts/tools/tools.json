@@ -1,0 +1,1133 @@
+[
+  {
+    "description": "The signed-in customer: name, country, segment and number of accounts.",
+    "input_schema": {
+      "properties": {},
+      "title": "get_customer_summaryArguments",
+      "type": "object"
+    },
+    "kind": "read",
+    "name": "get_customer_summary",
+    "output_schema": {
+      "additionalProperties": false,
+      "description": "The signed-in customer, as seen by the agent (no ISO message; a business-partner extract).",
+      "properties": {
+        "account_count": {
+          "minimum": 0,
+          "title": "Account Count",
+          "type": "integer"
+        },
+        "country": {
+          "description": "ISO 3166-1 alpha-2 country",
+          "pattern": "^[A-Z]{2}$",
+          "title": "Country",
+          "type": "string"
+        },
+        "customer_id": {
+          "title": "Customer Id",
+          "type": "string"
+        },
+        "display_name": {
+          "title": "Display Name",
+          "type": "string"
+        },
+        "segment": {
+          "title": "Segment",
+          "type": "string"
+        }
+      },
+      "required": [
+        "customer_id",
+        "display_name",
+        "country",
+        "segment",
+        "account_count"
+      ],
+      "title": "CustomerSummary",
+      "type": "object"
+    }
+  },
+  {
+    "description": "The signed-in customer's accounts.",
+    "input_schema": {
+      "properties": {},
+      "title": "list_accountsArguments",
+      "type": "object"
+    },
+    "kind": "read",
+    "name": "list_accounts",
+    "output_schema": {
+      "$defs": {
+        "Account": {
+          "additionalProperties": false,
+          "description": "A cash account (camt.052 ``Acct``).",
+          "properties": {
+            "account_id": {
+              "description": "Acct/Id",
+              "title": "Account Id",
+              "type": "string"
+            },
+            "account_type": {
+              "description": "Acct/Tp",
+              "title": "Account Type",
+              "type": "string"
+            },
+            "balance": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
+                  "type": "string"
+                }
+              ],
+              "description": "Bal/Amt",
+              "title": "Balance"
+            },
+            "currency": {
+              "description": "Acct/Ccy",
+              "pattern": "^[A-Z]{3}$",
+              "title": "Currency",
+              "type": "string"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "account_id",
+            "account_type",
+            "currency",
+            "status",
+            "balance"
+          ],
+          "title": "Account",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "result": {
+          "items": {
+            "$ref": "#/$defs/Account"
+          },
+          "title": "Result",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "title": "list_accountsOutput",
+      "type": "object"
+    }
+  },
+  {
+    "description": "Entries on one of the customer's accounts, optionally between two booking dates.",
+    "input_schema": {
+      "properties": {
+        "account_id": {
+          "title": "Account Id",
+          "type": "string"
+        },
+        "date_from": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date From"
+        },
+        "date_to": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date To"
+        }
+      },
+      "required": [
+        "account_id"
+      ],
+      "title": "get_account_entriesArguments",
+      "type": "object"
+    },
+    "kind": "read",
+    "name": "get_account_entries",
+    "output_schema": {
+      "$defs": {
+        "AccountEntry": {
+          "additionalProperties": false,
+          "description": "An account entry (camt.053 ``Ntry`` / camt.054 notification).",
+          "properties": {
+            "amount": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
+                  "type": "string"
+                }
+              ],
+              "description": "Ntry/Amt",
+              "title": "Amount"
+            },
+            "bank_transaction_code": {
+              "description": "Ntry/BkTxCd (domain-family-subfamily)",
+              "title": "Bank Transaction Code",
+              "type": "string"
+            },
+            "booking_date": {
+              "description": "Ntry/BookgDt",
+              "format": "date",
+              "title": "Booking Date",
+              "type": "string"
+            },
+            "country": {
+              "anyOf": [
+                {
+                  "description": "ISO 3166-1 alpha-2 country",
+                  "pattern": "^[A-Z]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Transaction country",
+              "title": "Country"
+            },
+            "credit_debit": {
+              "$ref": "#/$defs/CreditDebit",
+              "description": "Ntry/CdtDbtInd"
+            },
+            "currency": {
+              "description": "Ntry/Amt@Ccy",
+              "pattern": "^[A-Z]{3}$",
+              "title": "Currency",
+              "type": "string"
+            },
+            "entry_reference": {
+              "description": "Ntry/NtryRef",
+              "title": "Entry Reference",
+              "type": "string"
+            },
+            "merchant_category_code": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "ISO 18245 merchant category",
+              "title": "Merchant Category Code"
+            },
+            "remittance_information": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Ntry/NtryDtls/TxDtls/RmtInf/Ustrd",
+              "title": "Remittance Information"
+            },
+            "status": {
+              "$ref": "#/$defs/TransactionStatus",
+              "description": "Ntry/Sts"
+            },
+            "value_date": {
+              "description": "Ntry/ValDt",
+              "format": "date",
+              "title": "Value Date",
+              "type": "string"
+            }
+          },
+          "required": [
+            "entry_reference",
+            "amount",
+            "currency",
+            "credit_debit",
+            "status",
+            "booking_date",
+            "value_date",
+            "bank_transaction_code"
+          ],
+          "title": "AccountEntry",
+          "type": "object"
+        },
+        "CreditDebit": {
+          "description": "camt.053 ``CdtDbtInd``.",
+          "enum": [
+            "CRDT",
+            "DBIT"
+          ],
+          "title": "CreditDebit",
+          "type": "string"
+        },
+        "TransactionStatus": {
+          "description": "The dataset's ``transaction_status``. The only source of a payment's status (DATA.md):\na null ``response_code`` is a deliberate defect on about 5% of rows and never means a failure.\nModelled on the pacs.002 status codes (PDNG pending, ACSC settled, RJCT rejected).",
+          "enum": [
+            "Pending",
+            "Approved",
+            "Declined",
+            "Reversed"
+          ],
+          "title": "TransactionStatus",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "result": {
+          "items": {
+            "$ref": "#/$defs/AccountEntry"
+          },
+          "title": "Result",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "title": "get_account_entriesOutput",
+      "type": "object"
+    }
+  },
+  {
+    "description": "One entry of the customer's, by its entry reference.",
+    "input_schema": {
+      "properties": {
+        "entry_reference": {
+          "title": "Entry Reference",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_reference"
+      ],
+      "title": "get_entry_detailArguments",
+      "type": "object"
+    },
+    "kind": "read",
+    "name": "get_entry_detail",
+    "output_schema": {
+      "$defs": {
+        "CreditDebit": {
+          "description": "camt.053 ``CdtDbtInd``.",
+          "enum": [
+            "CRDT",
+            "DBIT"
+          ],
+          "title": "CreditDebit",
+          "type": "string"
+        },
+        "TransactionStatus": {
+          "description": "The dataset's ``transaction_status``. The only source of a payment's status (DATA.md):\na null ``response_code`` is a deliberate defect on about 5% of rows and never means a failure.\nModelled on the pacs.002 status codes (PDNG pending, ACSC settled, RJCT rejected).",
+          "enum": [
+            "Pending",
+            "Approved",
+            "Declined",
+            "Reversed"
+          ],
+          "title": "TransactionStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "An account entry (camt.053 ``Ntry`` / camt.054 notification).",
+      "properties": {
+        "amount": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
+              "type": "string"
+            }
+          ],
+          "description": "Ntry/Amt",
+          "title": "Amount"
+        },
+        "bank_transaction_code": {
+          "description": "Ntry/BkTxCd (domain-family-subfamily)",
+          "title": "Bank Transaction Code",
+          "type": "string"
+        },
+        "booking_date": {
+          "description": "Ntry/BookgDt",
+          "format": "date",
+          "title": "Booking Date",
+          "type": "string"
+        },
+        "country": {
+          "anyOf": [
+            {
+              "description": "ISO 3166-1 alpha-2 country",
+              "pattern": "^[A-Z]{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Transaction country",
+          "title": "Country"
+        },
+        "credit_debit": {
+          "$ref": "#/$defs/CreditDebit",
+          "description": "Ntry/CdtDbtInd"
+        },
+        "currency": {
+          "description": "Ntry/Amt@Ccy",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "entry_reference": {
+          "description": "Ntry/NtryRef",
+          "title": "Entry Reference",
+          "type": "string"
+        },
+        "merchant_category_code": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{4}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 18245 merchant category",
+          "title": "Merchant Category Code"
+        },
+        "remittance_information": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Ntry/NtryDtls/TxDtls/RmtInf/Ustrd",
+          "title": "Remittance Information"
+        },
+        "status": {
+          "$ref": "#/$defs/TransactionStatus",
+          "description": "Ntry/Sts"
+        },
+        "value_date": {
+          "description": "Ntry/ValDt",
+          "format": "date",
+          "title": "Value Date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_reference",
+        "amount",
+        "currency",
+        "credit_debit",
+        "status",
+        "booking_date",
+        "value_date",
+        "bank_transaction_code"
+      ],
+      "title": "AccountEntry",
+      "type": "object"
+    }
+  },
+  {
+    "description": "The status of one payment and, when known, why.",
+    "input_schema": {
+      "properties": {
+        "entry_reference": {
+          "title": "Entry Reference",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_reference"
+      ],
+      "title": "get_payment_statusArguments",
+      "type": "object"
+    },
+    "kind": "read",
+    "name": "get_payment_status",
+    "output_schema": {
+      "$defs": {
+        "TransactionStatus": {
+          "description": "The dataset's ``transaction_status``. The only source of a payment's status (DATA.md):\na null ``response_code`` is a deliberate defect on about 5% of rows and never means a failure.\nModelled on the pacs.002 status codes (PDNG pending, ACSC settled, RJCT rejected).",
+          "enum": [
+            "Pending",
+            "Approved",
+            "Declined",
+            "Reversed"
+          ],
+          "title": "TransactionStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The status of one payment (pacs.002 ``TxInfAndSts``).",
+      "properties": {
+        "original_reference": {
+          "description": "OrgnlTxId",
+          "title": "Original Reference",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "StsRsnInf/Rsn",
+          "title": "Reason"
+        },
+        "status": {
+          "$ref": "#/$defs/TransactionStatus",
+          "description": "TxSts"
+        }
+      },
+      "required": [
+        "original_reference",
+        "status"
+      ],
+      "title": "PaymentStatus",
+      "type": "object"
+    }
+  },
+  {
+    "description": "The customer's Declined, Pending and Reversed transactions, optionally by date.",
+    "input_schema": {
+      "properties": {
+        "date_from": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date From"
+        },
+        "date_to": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date To"
+        }
+      },
+      "title": "list_problem_transactionsArguments",
+      "type": "object"
+    },
+    "kind": "read",
+    "name": "list_problem_transactions",
+    "output_schema": {
+      "$defs": {
+        "AccountEntry": {
+          "additionalProperties": false,
+          "description": "An account entry (camt.053 ``Ntry`` / camt.054 notification).",
+          "properties": {
+            "amount": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
+                  "type": "string"
+                }
+              ],
+              "description": "Ntry/Amt",
+              "title": "Amount"
+            },
+            "bank_transaction_code": {
+              "description": "Ntry/BkTxCd (domain-family-subfamily)",
+              "title": "Bank Transaction Code",
+              "type": "string"
+            },
+            "booking_date": {
+              "description": "Ntry/BookgDt",
+              "format": "date",
+              "title": "Booking Date",
+              "type": "string"
+            },
+            "country": {
+              "anyOf": [
+                {
+                  "description": "ISO 3166-1 alpha-2 country",
+                  "pattern": "^[A-Z]{2}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Transaction country",
+              "title": "Country"
+            },
+            "credit_debit": {
+              "$ref": "#/$defs/CreditDebit",
+              "description": "Ntry/CdtDbtInd"
+            },
+            "currency": {
+              "description": "Ntry/Amt@Ccy",
+              "pattern": "^[A-Z]{3}$",
+              "title": "Currency",
+              "type": "string"
+            },
+            "entry_reference": {
+              "description": "Ntry/NtryRef",
+              "title": "Entry Reference",
+              "type": "string"
+            },
+            "merchant_category_code": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9]{4}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "ISO 18245 merchant category",
+              "title": "Merchant Category Code"
+            },
+            "remittance_information": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Ntry/NtryDtls/TxDtls/RmtInf/Ustrd",
+              "title": "Remittance Information"
+            },
+            "status": {
+              "$ref": "#/$defs/TransactionStatus",
+              "description": "Ntry/Sts"
+            },
+            "value_date": {
+              "description": "Ntry/ValDt",
+              "format": "date",
+              "title": "Value Date",
+              "type": "string"
+            }
+          },
+          "required": [
+            "entry_reference",
+            "amount",
+            "currency",
+            "credit_debit",
+            "status",
+            "booking_date",
+            "value_date",
+            "bank_transaction_code"
+          ],
+          "title": "AccountEntry",
+          "type": "object"
+        },
+        "CreditDebit": {
+          "description": "camt.053 ``CdtDbtInd``.",
+          "enum": [
+            "CRDT",
+            "DBIT"
+          ],
+          "title": "CreditDebit",
+          "type": "string"
+        },
+        "TransactionStatus": {
+          "description": "The dataset's ``transaction_status``. The only source of a payment's status (DATA.md):\na null ``response_code`` is a deliberate defect on about 5% of rows and never means a failure.\nModelled on the pacs.002 status codes (PDNG pending, ACSC settled, RJCT rejected).",
+          "enum": [
+            "Pending",
+            "Approved",
+            "Declined",
+            "Reversed"
+          ],
+          "title": "TransactionStatus",
+          "type": "string"
+        }
+      },
+      "properties": {
+        "result": {
+          "items": {
+            "$ref": "#/$defs/AccountEntry"
+          },
+          "title": "Result",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "title": "list_problem_transactionsOutput",
+      "type": "object"
+    }
+  },
+  {
+    "description": "Cancel a Pending transfer (simulated). Needs a hub-issued confirmation token.",
+    "input_schema": {
+      "properties": {
+        "confirmation_token": {
+          "title": "Confirmation Token",
+          "type": "string"
+        },
+        "entry_reference": {
+          "title": "Entry Reference",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "reason": {
+          "default": "Customer request",
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_reference",
+        "idempotency_key",
+        "confirmation_token"
+      ],
+      "title": "request_cancellationArguments",
+      "type": "object"
+    },
+    "kind": "write",
+    "name": "request_cancellation",
+    "output_schema": {
+      "$defs": {
+        "CancellationOutcome": {
+          "description": "camt.029 outcome of a cancellation request.",
+          "enum": [
+            "accepted",
+            "rejected"
+          ],
+          "title": "CancellationOutcome",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A cancellation request (camt.056) and its answer (camt.029).",
+      "properties": {
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "original_reference": {
+          "description": "Undrlyg/OrgnlTxRef",
+          "title": "Original Reference",
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "#/$defs/CancellationOutcome",
+          "description": "CxlStsRspn/Conf"
+        },
+        "reason": {
+          "description": "Case/Rsn",
+          "title": "Reason",
+          "type": "string"
+        },
+        "rejection_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "CxlStsRspn/RsnCd",
+          "title": "Rejection Reason"
+        },
+        "requested_by": {
+          "description": "Assgnr: the customer who asked",
+          "title": "Requested By",
+          "type": "string"
+        },
+        "simulated": {
+          "description": "True when the adapter did not move real money",
+          "title": "Simulated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "original_reference",
+        "reason",
+        "requested_by",
+        "outcome",
+        "simulated",
+        "message"
+      ],
+      "title": "CancellationResponse",
+      "type": "object"
+    }
+  },
+  {
+    "description": "Retry a Declined transfer as a new payment (simulated). Needs a confirmation token.",
+    "input_schema": {
+      "properties": {
+        "confirmation_token": {
+          "title": "Confirmation Token",
+          "type": "string"
+        },
+        "entry_reference": {
+          "title": "Entry Reference",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "title": "Idempotency Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_reference",
+        "idempotency_key",
+        "confirmation_token"
+      ],
+      "title": "retry_paymentArguments",
+      "type": "object"
+    },
+    "kind": "write",
+    "name": "retry_payment",
+    "output_schema": {
+      "$defs": {
+        "PaymentStatus": {
+          "additionalProperties": false,
+          "description": "The status of one payment (pacs.002 ``TxInfAndSts``).",
+          "properties": {
+            "original_reference": {
+              "description": "OrgnlTxId",
+              "title": "Original Reference",
+              "type": "string"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "StsRsnInf/Rsn",
+              "title": "Reason"
+            },
+            "status": {
+              "$ref": "#/$defs/TransactionStatus",
+              "description": "TxSts"
+            }
+          },
+          "required": [
+            "original_reference",
+            "status"
+          ],
+          "title": "PaymentStatus",
+          "type": "object"
+        },
+        "TransactionStatus": {
+          "description": "The dataset's ``transaction_status``. The only source of a payment's status (DATA.md):\na null ``response_code`` is a deliberate defect on about 5% of rows and never means a failure.\nModelled on the pacs.002 status codes (PDNG pending, ACSC settled, RJCT rejected).",
+          "enum": [
+            "Pending",
+            "Approved",
+            "Declined",
+            "Reversed"
+          ],
+          "title": "TransactionStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The new payment created by retrying a declined one.",
+      "properties": {
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "new_payment": {
+          "$ref": "#/$defs/PaymentStatus"
+        },
+        "original_reference": {
+          "title": "Original Reference",
+          "type": "string"
+        },
+        "simulated": {
+          "description": "True when the adapter did not move real money",
+          "title": "Simulated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "original_reference",
+        "new_payment",
+        "simulated",
+        "message"
+      ],
+      "title": "RetryResult",
+      "type": "object"
+    }
+  },
+  {
+    "description": "Open a case for a person to review. Needs a hub-issued confirmation token.",
+    "input_schema": {
+      "properties": {
+        "confirmation_token": {
+          "title": "Confirmation Token",
+          "type": "string"
+        },
+        "entry_reference": {
+          "title": "Entry Reference",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_reference",
+        "reason",
+        "idempotency_key",
+        "confirmation_token"
+      ],
+      "title": "open_investigationArguments",
+      "type": "object"
+    },
+    "kind": "write",
+    "name": "open_investigation",
+    "output_schema": {
+      "$defs": {
+        "InvestigationStatus": {
+          "description": "Status of an investigation case (camt.027 request, camt.029 resolution).",
+          "enum": [
+            "Open",
+            "InReview",
+            "Resolved",
+            "Closed"
+          ],
+          "title": "InvestigationStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "An investigation case (camt.027 claim, camt.029 resolution).",
+      "properties": {
+        "case_id": {
+          "description": "Assgnmt/Id",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "next_step": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "What happens next, in words for the customer",
+          "title": "Next Step"
+        },
+        "opened_at": {
+          "description": "Assgnmt/CreDtTm",
+          "format": "date-time",
+          "title": "Opened At",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Case/Rsn",
+          "title": "Reason",
+          "type": "string"
+        },
+        "related_entry_reference": {
+          "description": "Undrlyg/OrgnlTxRef",
+          "title": "Related Entry Reference",
+          "type": "string"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "RslvdCase/Rslvn",
+          "title": "Resolution"
+        },
+        "status": {
+          "$ref": "#/$defs/InvestigationStatus",
+          "description": "Sts/Conf"
+        }
+      },
+      "required": [
+        "case_id",
+        "related_entry_reference",
+        "reason",
+        "status",
+        "opened_at"
+      ],
+      "title": "Investigation",
+      "type": "object"
+    }
+  },
+  {
+    "description": "The status and next step of the customer's own case.",
+    "input_schema": {
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id"
+      ],
+      "title": "get_investigation_statusArguments",
+      "type": "object"
+    },
+    "kind": "read",
+    "name": "get_investigation_status",
+    "output_schema": {
+      "$defs": {
+        "InvestigationStatus": {
+          "description": "Status of an investigation case (camt.027 request, camt.029 resolution).",
+          "enum": [
+            "Open",
+            "InReview",
+            "Resolved",
+            "Closed"
+          ],
+          "title": "InvestigationStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "An investigation case (camt.027 claim, camt.029 resolution).",
+      "properties": {
+        "case_id": {
+          "description": "Assgnmt/Id",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "next_step": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "What happens next, in words for the customer",
+          "title": "Next Step"
+        },
+        "opened_at": {
+          "description": "Assgnmt/CreDtTm",
+          "format": "date-time",
+          "title": "Opened At",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Case/Rsn",
+          "title": "Reason",
+          "type": "string"
+        },
+        "related_entry_reference": {
+          "description": "Undrlyg/OrgnlTxRef",
+          "title": "Related Entry Reference",
+          "type": "string"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "RslvdCase/Rslvn",
+          "title": "Resolution"
+        },
+        "status": {
+          "$ref": "#/$defs/InvestigationStatus",
+          "description": "Sts/Conf"
+        }
+      },
+      "required": [
+        "case_id",
+        "related_entry_reference",
+        "reason",
+        "status",
+        "opened_at"
+      ],
+      "title": "Investigation",
+      "type": "object"
+    }
+  }
+]

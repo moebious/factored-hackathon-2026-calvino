@@ -1,0 +1,79 @@
+{
+  "$defs": {
+    "InvestigationStatus": {
+      "description": "Status of an investigation case (camt.027 request, camt.029 resolution).",
+      "enum": [
+        "Open",
+        "InReview",
+        "Resolved",
+        "Closed"
+      ],
+      "title": "InvestigationStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "An investigation case (camt.027 claim, camt.029 resolution).",
+  "properties": {
+    "case_id": {
+      "description": "Assgnmt/Id",
+      "title": "Case Id",
+      "type": "string"
+    },
+    "next_step": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "What happens next, in words for the customer",
+      "title": "Next Step"
+    },
+    "opened_at": {
+      "description": "Assgnmt/CreDtTm",
+      "format": "date-time",
+      "title": "Opened At",
+      "type": "string"
+    },
+    "reason": {
+      "description": "Case/Rsn",
+      "title": "Reason",
+      "type": "string"
+    },
+    "related_entry_reference": {
+      "description": "Undrlyg/OrgnlTxRef",
+      "title": "Related Entry Reference",
+      "type": "string"
+    },
+    "resolution": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "RslvdCase/Rslvn",
+      "title": "Resolution"
+    },
+    "status": {
+      "$ref": "#/$defs/InvestigationStatus",
+      "description": "Sts/Conf"
+    }
+  },
+  "required": [
+    "case_id",
+    "related_entry_reference",
+    "reason",
+    "status",
+    "opened_at"
+  ],
+  "title": "Investigation",
+  "type": "object"
+}

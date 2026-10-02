@@ -1,0 +1,47 @@
+{
+  "$defs": {
+    "TransactionStatus": {
+      "description": "The dataset's ``transaction_status``. The only source of a payment's status (DATA.md):\na null ``response_code`` is a deliberate defect on about 5% of rows and never means a failure.\nModelled on the pacs.002 status codes (PDNG pending, ACSC settled, RJCT rejected).",
+      "enum": [
+        "Pending",
+        "Approved",
+        "Declined",
+        "Reversed"
+      ],
+      "title": "TransactionStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The status of one payment (pacs.002 ``TxInfAndSts``).",
+  "properties": {
+    "original_reference": {
+      "description": "OrgnlTxId",
+      "title": "Original Reference",
+      "type": "string"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "StsRsnInf/Rsn",
+      "title": "Reason"
+    },
+    "status": {
+      "$ref": "#/$defs/TransactionStatus",
+      "description": "TxSts"
+    }
+  },
+  "required": [
+    "original_reference",
+    "status"
+  ],
+  "title": "PaymentStatus",
+  "type": "object"
+}

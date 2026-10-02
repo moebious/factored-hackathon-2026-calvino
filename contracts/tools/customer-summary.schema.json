@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "description": "The signed-in customer, as seen by the agent (no ISO message; a business-partner extract).",
+  "properties": {
+    "account_count": {
+      "minimum": 0,
+      "title": "Account Count",
+      "type": "integer"
+    },
+    "country": {
+      "description": "ISO 3166-1 alpha-2 country",
+      "pattern": "^[A-Z]{2}$",
+      "title": "Country",
+      "type": "string"
+    },
+    "customer_id": {
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "display_name": {
+      "title": "Display Name",
+      "type": "string"
+    },
+    "segment": {
+      "title": "Segment",
+      "type": "string"
+    }
+  },
+  "required": [
+    "customer_id",
+    "display_name",
+    "country",
+    "segment",
+    "account_count"
+  ],
+  "title": "CustomerSummary",
+  "type": "object"
+}
