@@ -75,6 +75,10 @@ Every commit message and every PR title follows [Conventional Commits 1.0.0](htt
 
 Never commit on `main`: `main` changes only through merged pull requests. Every change starts on a short-lived branch (less than a day of work) from the latest `main`, named `<type>/<short-description>` with a Conventional Commits type, e.g. `feat/policy-gate`, `fix/laya-timeout`, `docs/data-contracts`. If a tool assigns a different branch name, use it and follow every other rule here.
 
+### Pushing: the maintainer decides
+
+Coding agents never push on their own initiative. They commit locally and **push only when the maintainer explicitly approves that specific push**. "Push" covers anything that changes the remote: pushing commits, force-pushing or rewriting history, creating or deleting branches, pushing tags, and opening, updating, retargeting or closing pull requests. Approval for one push does not carry over to the next. When work is ready, the agent says what it would push, where, and why, and waits.
+
 ### Pull requests and merging
 
 - Small, frequent pull requests into `main`: one topic, ideally less than a day of work.
