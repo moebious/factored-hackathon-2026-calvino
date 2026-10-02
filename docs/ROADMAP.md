@@ -36,7 +36,7 @@ Needs dataset access.
 
 | Stream | Branch | Builds | Done when |
 |---|---|---|---|
-| **F. Contact-reason analysis** | `eval/contact-reasons` | demand, first-contact resolution, escalation and handle time by reason, country and segment; complaint analysis; charts | the maintainer chooses the workflow, recorded in DECISIONS.md |
+| **F. Contact-reason analysis** · [TSD-006](specs/TSD-006-contact-reason-analysis.md) | `eval/contact-reasons` | demand, first-contact resolution, escalation and handle time by reason, country and segment; complaint analysis; charts | the maintainer chooses the workflow, recorded in DECISIONS.md |
 | **G. Contracts and quality report** | `data/contracts` | raw and clean contracts, validator, quality report, lineage | report generated on the cleaned layer |
 | **H. Labels and splits** | `data/labels-splits` | labels, splits by customer and by time, gold-set rubric and first labels, freshness fixture | splits documented; leakage tests pass |
 
