@@ -21,13 +21,30 @@ CACHE = ROOT / "cache"
 # Columns kept for the big tables; None keeps everything.
 KEEP = {
     "digital_events": [
-        "event_id", "event_date", "customer_id", "session_id", "event_type",
-        "event_category", "channel", "platform", "page_url", "page_title",
-        "action", "element_id", "product_id", "event_value", "ip_country",
+        "event_id",
+        "event_date",
+        "customer_id",
+        "session_id",
+        "event_type",
+        "event_category",
+        "channel",
+        "platform",
+        "page_url",
+        "page_title",
+        "action",
+        "element_id",
+        "product_id",
+        "event_value",
+        "ip_country",
     ],
     "transactions": None,
     "call_transcripts": [
-        "transcript_id", "interaction_id", "customer_id", "agent_id", "process_date",
+        "transcript_id",
+        "interaction_id",
+        "customer_id",
+        "agent_id",
+        "process_date",
+        "customer_text",
     ],
     "campaign_sends": ["send_id", "campaign_id", "customer_id", "send_date"],
 }
@@ -43,10 +60,7 @@ def main(tables: list[str]) -> None:
     for table in tables:
         files = source_files(table)
         usecols = KEEP.get(table)
-        frames = [
-            pd.read_csv(f, encoding="utf-8-sig", dtype=str, usecols=usecols)
-            for f in files
-        ]
+        frames = [pd.read_csv(f, encoding="utf-8-sig", dtype=str, usecols=usecols) for f in files]
         df = pd.concat(frames, ignore_index=True)
         df.to_parquet(CACHE / f"{table}.parquet", index=False)
         print(f"{table}: {len(files)} files, {len(df)} raw rows, {len(df.columns)} columns")
