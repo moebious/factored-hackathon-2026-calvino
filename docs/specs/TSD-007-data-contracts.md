@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft |
+| Status | implemented |
 | Branch | `feat/data-contracts` |
 | Task | [T-102](../tasks/T-102-data-contracts.md) |
 | Depends on | TSD-000 |

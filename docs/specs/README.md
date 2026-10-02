@@ -13,7 +13,7 @@
 | [TSD-004](TSD-004-verifier.md) | Verifier framework | 0 | draft | TSD-000 |
 | [TSD-005](TSD-005-laya-service.md) | Laya service and calibration | 0 | draft | TSD-000 |
 | [TSD-006](TSD-006-contact-reason-analysis.md) | Contact-reason analysis and workflow decision rule | 1 | superseded by decision 17 | dataset access |
-| [TSD-007](TSD-007-data-contracts.md) | Data contracts, validator and lineage (T-102) | 1 | draft | TSD-000 |
+| [TSD-007](TSD-007-data-contracts.md) | Data contracts, validator and lineage (T-102) | 1 | implemented | TSD-000 |
 
 Specs for later tasks are written from their task cards ([tasks/](../tasks/README.md)) as each task's first step; the workflow they build is decision 17 ([DESIGN.md 6.1](../DESIGN.md#61-the-workflow-stuck-payments-end-to-end)).
 
