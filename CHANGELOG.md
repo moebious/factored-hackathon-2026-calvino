@@ -13,6 +13,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Branch names are checked against `<type>/<short-description>` by the `pre-push` hook and the `conventions` CI job; tool-specific notes removed from AGENTS.md and HANDOFF.
 - Agents never open pull requests (AGENTS.md); the attribution checker also blocks Factory Droid trailers and footers; HANDOFF wording is agent-neutral.
 - HANDOFF records the independent baseline finding (Transaccional calls are resolved first time 91.5% of the time) and the follow-up it needs.
 - PLAN gains the cut order and protected measurements; the task backlog gains shared-file and pull-request rules and a session prompt template; HANDOFF records the analyst's round-two asks and three new pitfalls.
