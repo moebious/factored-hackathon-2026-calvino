@@ -30,9 +30,22 @@ jobs:
           else
             shas=$(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --jq '.commits[].sha')
           fi
+          # GitHub links a commit to its pull request a few seconds after the merge, so a
+          # commit with no merged pull request is asked about again before it counts as a
+          # bypass: up to 6 attempts, 10 seconds apart. A real bypass still fails, about a
+          # minute later.
+          merged_prs() {
+            gh api "repos/$REPO/commits/$1/pulls" --jq '[.[] | select(.merged_at != null)] | length'
+          }
           fail=0
           for sha in $shas; do
-            merged=$(gh api "repos/$REPO/commits/$sha/pulls" --jq '[.[] | select(.merged_at != null)] | length')
+            attempt=1
+            merged=$(merged_prs "$sha")
+            while [ "$merged" -eq 0 ] && [ "$attempt" -lt 6 ]; do
+              sleep 10
+              attempt=$((attempt + 1))
+              merged=$(merged_prs "$sha")
+            done
             if [ "$merged" -eq 0 ]; then
               echo "::error::Commit $sha reached main without a merged pull request"
               fail=1
