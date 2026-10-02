@@ -1,5 +1,24 @@
 """Policy engine (TSD-001): hard rules and the versioned thresholds that turn calibrated scores
-into deterministic verdicts.
-
-Empty until its specification is implemented.
+into deterministic verdicts. No model calls; thresholds and limits live in ``policy/v1.yaml``.
 """
+
+from calvino.policy.config import DEFAULT_POLICY_PATH, Policy, load_policy
+from calvino.policy.gate import GateDecision, decide_gate
+from calvino.policy.inputs import ActionName, Facts, GateAction, Scores
+from calvino.policy.replay import replay_decision
+from calvino.policy.route import RouteDecision, decide_route
+
+__all__ = [
+    "DEFAULT_POLICY_PATH",
+    "ActionName",
+    "Facts",
+    "GateAction",
+    "GateDecision",
+    "Policy",
+    "RouteDecision",
+    "Scores",
+    "decide_gate",
+    "decide_route",
+    "load_policy",
+    "replay_decision",
+]

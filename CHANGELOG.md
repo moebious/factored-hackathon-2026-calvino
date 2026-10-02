@@ -11,6 +11,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Analysis scripts (`scripts/analysis/`) and tests (`tests/analysis/`): table fetch from the data bucket, Parquet cache, verification of the data analyst's decision-matrix numbers, a data-quality report and an independent T-104 headline baseline.
 - Aggregate reports on the full dataset (`reports/contact-reasons/`, `reports/data-quality/`, `reports/baseline/`): W1/W2 transaction mapping, ten data-quality findings with chance checks, and headline interaction and complaint metrics.
 
+- Policy engine (TSD-001): `calvino.policy` with `decide_route`, `decide_gate` and `replay_decision`, the versioned `policy/v1.yaml` (thresholds as hypotheses, per-currency limits as policy assumptions), fail-closed handling of missing or malformed inputs, and records that hold every input read so decisions replay from the log.
+
 ### Changed
 
 - The baseline finding and the data-quality findings reach the tasks: DATA.md gains baseline rows and handling rules (status from `transaction_status`, `Mexico` merged into MX, USD conversion, complaint linking, no BRL); decision 17 gains a note; PITCH slide 1, DESIGN.md 7 and T-303 target matching the human 91.5% on calls; PLAN cuts the flywheel first and never the investigate stage; TSD-002, T-102, T-203 and T-206 carry the matching rules.
