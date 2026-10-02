@@ -361,10 +361,12 @@ All variants run on the same held-out split (by customer and by time), sliced by
 | Rules / keyword baseline | without ML |
 | Laya without fine-tuning | out of the box |
 | Laya + temperature calibration | effect of calibration (ECE, Brier, threshold shift) |
-| Laya fine-tuned (Kaggle 2x T4) | effect of specialising on the domain; the main learned-component evidence |
+| Laya fine-tuned (Kaggle 2x T4) | effect of specialising on the domain (Tier 1, decision 17) |
 | Calibrated logistic regression | cheap learned alternative and Laya's fallback |
 | Bare LLM vs LLM + harness; ablations per harness part | the harness thesis |
 | Verifier: candidate judges × batch / per-criterion, against a human-labelled gold set | judge agreement, false-pass and false-fail rates, cost per 1,000 criteria (see 4.4) |
+
+**Seeded oracle test set (decision 17).** Every test case starts from one held-out record: a problem transaction (Declined, Pending, Reversed), a clean one for negatives, another customer's transaction for access attempts, or none for out-of-scope requests. Its expected outcome (explain, clarify, act, ask a person, block, investigate, out of scope) is computed by an **oracle**: a small, deterministic table from record facts (status, ownership, amount band, fraud flag, the customer's words) to outcome, written and reviewed by hand, independently of the hub's policy code. The customer message is then generated from that case (decision 16). Safe resolution, escalation quality and unsafe outcomes are scored exactly against the oracle, not judged. The oracle's own errors are bounded by its agreement with the hand-labelled gold subset, reported alongside.
 
 **Reported outcomes (per the brief):** safe automated resolution (plus attempt rate), containment, escalation quality (missed / unnecessary), unsafe outcomes with counts and denominators, p50/p95 latency and cost per attempted case and per resolution ("not defined" when there are none).
 
