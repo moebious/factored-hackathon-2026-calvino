@@ -82,7 +82,8 @@ Every commit message and every PR title follows [Conventional Commits 1.0.0](htt
 ### Authorship
 
 - Commits are authored and committed with the **maintainer's identity**: `Kevin Vicent <624602+moebious@users.noreply.github.com>`. Set it in the repository's local git config before committing.
-- **No AI-tool attribution** anywhere in the history or on pull requests: no `Co-Authored-By` trailers for tools, no session links, no "Generated with ..." lines in commit messages, PR titles or PR descriptions.
+- **No AI-tool attribution** anywhere in the history or on pull requests: no `Co-Authored-By` trailers for tools, no session links, no "Generated with ..." lines in commit messages, PR titles or PR descriptions. Turn off any agent tool's own co-author or attribution setting.
+- **Agents never open pull requests.** After the maintainer approves a push, the agent gives the compare link (`https://github.com/moebious/factored-hackathon-2026-calvino/compare/main...<branch>?expand=1`) and a description following `.github/pull_request_template.md`; the maintainer opens the PR. PR-creation tools can append an attribution footer the agent cannot remove at creation.
 
 ### Branching
 
@@ -227,7 +228,7 @@ The hooks enforce the rules above locally:
 |---|---|
 | `pre-commit` | commits on `main`; commits from the primary checkout instead of a linked worktree; staged datasets, `.env` files, model weights and anything that looks like a credential |
 | `commit-msg` | messages that are not Conventional Commits or that contain AI-tool attribution |
-| `pre-push` | pushes to `main` |
+| `pre-push` | pushes to `main`; branch names that are not `<type>/<short-description>` (also checked in CI) |
 
 Hooks can be skipped with `--no-verify`; don't. CI (`conventions`, `main-guard`) and branch protection catch what hooks miss.
 

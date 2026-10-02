@@ -22,11 +22,12 @@ jobs:
       - name: Test the rule scripts
         run: bash tests/git/test_git_rules.sh
 
-      - name: Check PR title, description and commits
+      - name: Check branch name, PR title, description and commits
         # Untrusted PR text is passed through env vars, never interpolated
         # into the script, to rule out script injection.
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_BODY: ${{ github.event.pull_request.body }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -34,6 +35,11 @@ jobs:
           set -uo pipefail
           check=scripts/git/check-commit-msg.sh
           fail=0
+
+          branch_re='^(feat|fix|docs|test|refactor|perf|build|ci|chore|style|revert)/[a-z0-9][a-z0-9._-]*$'
+          if ! printf '%s' "$HEAD_REF" | grep -qE "$branch_re"; then
+            echo "error: branch '$HEAD_REF' does not match <type>/<short-description> (see AGENTS.md)"; fail=1
+          fi
 
           echo "PR title: $PR_TITLE"
           printf '%s\n' "$PR_TITLE" | "$check" - || fail=1

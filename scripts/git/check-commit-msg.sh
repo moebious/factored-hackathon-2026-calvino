@@ -16,7 +16,7 @@ msg=$(cat "${1:--}")
 types='feat|fix|docs|test|refactor|perf|build|ci|chore|style|revert'
 # Lowercase start and no trailing period, per the description rules in AGENTS.md.
 subject_re="^(${types})(\([a-z0-9-]+\))?!?: [^A-Z].*[^.]$"
-attribution_re='Co-Authored-By:.*(Claude|anthropic|Copilot|openai|Cursor)|Claude-Session:|Generated (with|by) \[?(Claude|Copilot|Cursor)'
+attribution_re='Co-Authored-By:.*(Claude|anthropic|Copilot|openai|Cursor|factory|droid)|Claude-Session:|Generated (with|by) \[?(Claude|Copilot|Cursor|Factory|Droid)'
 fail=0
 
 if [ "$check_subject" -eq 1 ]; then
