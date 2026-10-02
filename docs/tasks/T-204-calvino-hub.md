@@ -16,7 +16,7 @@
 
 **Outputs.** a LangGraph graph with the checkpointer, `interrupt()` for human steps, every decision logged
 
-**Open parameters.** [workflow] routes and questions
+**Open parameters.** none: the five stages and Laya's questions are in DESIGN.md 6.1
 
 **Done when.** end-to-end tests with fakes cover the normal, ambiguous, out-of-scope and human-needed paths (PRD AC-1 to AC-4)
 

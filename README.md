@@ -4,11 +4,25 @@
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 
-> **Project status:** design phase, built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon) (submission: 2026-10-05). The architecture is documented; the code is not written yet. Sections below say plainly what exists and what is planned.
+> **Project status:** design phase, built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon) (submission: 2026-10-05). The architecture and the workflow are decided and documented; the code is not written yet. Sections below say plainly what exists and what is planned.
 
 **An AI-first banking customer service system where a domain-specific harness, not the model, decides what is safe to automate and when a human is needed.**
 
 > Laya is System 1, Calvino is System 1.5, agents are System 2, and humans are System 3. Calvino, the hub, decides who acts, gates every action, verifies agents' work and learns from every human decision.
+
+## The workflow: stuck payments, end to end
+
+A customer's payment or transfer was declined, is pending, or was reversed, and they ask where their money is. It is the bank's largest contact category (35% of calls are transactional) and 8% of all transactions end in one of those statuses `[measured]`. Calvino takes the request through five stages:
+
+| Stage | What the customer gets | What Calvino uses |
+|---|---|---|
+| **Explain** | the status from the bank's records, what it means, the next step | hard rules, Laya, governed read tools, the agent, the verifiers |
+| **Clarify** | one question, or a pick-list of their recent problem payments | Laya's confidence and the policy; nothing is done on a guess |
+| **Act** | cancel a pending transfer or retry a declined one (simulated) | the Gate: allow, ask a person, or block |
+| **Investigate** | a case number and a person with the full case file | the human intervention classifier, the case file, a durable case |
+| **Follow up** | later, a verified answer to "how is my case going?" | the case resumes from its saved state |
+
+Disputes, unrecognised charges and fraud signals go to a person; Calvino never refunds or moves money on its own. Results will be measured against the bank's own human baseline on a held-out test set whose correct outcome is known for every case. Details: [decision 17](docs/DECISIONS.md) and [DESIGN.md 6.1](docs/DESIGN.md#61-the-workflow-stuck-payments-end-to-end).
 
 ## Description
 
@@ -30,7 +44,7 @@ Inside Calvino, the core principle is **probabilities in, deterministic verdicts
 - **Human intervention classifier.** Before involving a person, the harness asks whether it's worth it, and how: approve one action, request information, or transfer the whole case.
 - **Mode classifier.** Sends each request to a fixed deterministic flow, the AI agent, or a human.
 - **Router, Gate and Verifier.** The harness picks the model for each request, checks every tool call before it runs, and verifies the final answer is grounded before the customer sees it.
-- **Durable cases.** Disputes that last days pause for human approval and resume with full state.
+- **Durable cases.** Investigations that last days pause for a person and resume with full state, even after a restart.
 - **Generative UI.** Clients and managers see outcomes (cards, confirm buttons, case status), not the machinery.
 - **Spanish and Portuguese,** with fairness checks across dialects, countries and customer segments.
 

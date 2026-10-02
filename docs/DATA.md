@@ -6,7 +6,7 @@
 
 Synthetic **LATAM Bank** dataset, version 1.0.0, supplied by the organizers: 13 tables, 23,495,188 rows in the `data/` prefix `[measured]` (the data dictionary says about 19 million), Mexico, Colombia and Argentina, June 2023 to June 2026. Currencies MXN, COP, ARS and USD. All text is Spanish (Mexican, Colombian, Argentine variants). **No Portuguese.**
 
-Deliberate quality problems: about 2% duplicate records, about 5% nulls in nullable fields, late-arriving partitions, schema evolution, and a small share of orphan foreign keys. The duplicates are data-quality duplicates, not customer-facing duplicate charges.
+Deliberate quality problems, as described by the organizers: about 2% duplicate records, about 5% nulls in nullable fields, late-arriving partitions, schema evolution, and a small share of orphan foreign keys. On the `data/` prefix we measured no duplicate primary keys, orphans only in one link (see Findings), and nulls of about 5% `[measured]`; the described duplicates may sit in the dated backup, which we have not read.
 
 Large fact tables are partitioned by `process_date`.
 

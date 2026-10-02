@@ -13,7 +13,7 @@ Context: Factored AI & Data Hackathon 2026, "Build an AI-first banking customer 
 - Customer service demand is high and repetitive, yet a share of contacts needs judgment, verification or accountability that automation alone can't provide.
 - Fully automated assistants fail in two costly ways: **unsafe outcomes** (wrong answers, unauthorized disclosures or actions) and **unnecessary escalations** (human time spent on cases that didn't need it).
 - Decisions made inside model prose can't be audited, replayed or explained to a regulator.
-- Customers write in regional Spanish and in Portuguese, and service quality must not depend on who they are or how they speak.
+- Customers write in regional Spanish and in Portuguese (for example Brazilian residents banking in Mexico, Colombia or Argentina, with accounts in local currency), and service quality must not depend on who they are or how they speak.
 
 The workflow is stuck payments: payments and transfers that are Declined, Pending or Reversed, from the first question to the investigation and its follow-up (decision 17). Transaccional is the largest contact category (35% of calls) and 8% of transactions end in one of those statuses `[measured]`.
 

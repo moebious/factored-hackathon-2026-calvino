@@ -16,7 +16,7 @@
 
 **Outputs.** a prepared dataset and notebook configuration; a versioned checkpoint on the Hugging Face Hub (maintainer uploads)
 
-**Open parameters.** [workflow] question set
+**Open parameters.** none: the question set is in DESIGN.md 6.1
 
 **Done when.** the checkpoint is evaluated by T-201 on the same held-out split
 

@@ -16,7 +16,7 @@
 
 **Outputs.** label definitions, splits by customer and by time, written leakage rules, the gold-set rubric and the first ~50 gold labels
 
-**Open parameters.** [workflow] which labels (route, needs-a-human, intent options); [data] class balance
+**Open parameters.** class balance; the labels follow Laya's questions in DESIGN.md 6.1
 
 **Done when.** splits documented and reproducible; leakage tests pass (no customer in two splits, no future data in training, dataset transcripts never used as model input)
 

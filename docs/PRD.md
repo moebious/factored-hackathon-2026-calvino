@@ -2,7 +2,7 @@
 
 *What Calvino does and how we know it works. Why it exists is in [BRD.md](BRD.md); how it is designed is in [DESIGN.md](DESIGN.md); how each part is built is in [specs/](specs/).*
 
-The workflow is stuck payments, end to end (decision 17; [DESIGN.md 6.1](DESIGN.md#61-the-workflow-stuck-payments-end-to-end)). Details still to be specified for it (exact intents, tools and cards) are marked **[workflow]**.
+The workflow is stuck payments, end to end (decision 17; [DESIGN.md 6.1](DESIGN.md#61-the-workflow-stuck-payments-end-to-end)). Its intents are Laya's questions in DESIGN.md 6.1, its tools are in TSD-002, and its cards are in FR-7.
 
 ## 1. Users
 
@@ -23,6 +23,8 @@ The workflow is stuck payments, end to end (decision 17; [DESIGN.md 6.1](DESIGN.
 | UC-4 | **Human needed** | a hard rule, the decision classifier or a failed verification sends the case to a person with a complete case file; the customer is told what happens next |
 | UC-5 | **Confirmed action** | a consequential action is shown as a card with a confirm button bound to that exact action; it runs only after confirmation and is reported only after it is verified |
 | UC-6 | **Operator review** | an operator opens a case, sees the case file and the audit trail, and approves, edits or takes over |
+| UC-8 | **Case follow-up** | days later the customer asks about their investigation; the case resumes from its saved state and the customer gets a verified status and next step |
+| UC-9 | **Operator decisions improve the system** (offline) | operator approvals and denials become labels; a recalibrated policy version is replayed on the log, and the verdicts that change are shown |
 | UC-7 | **Adversarial and failure cases** | prompt injection, another customer's data, expired session, tool failure, missing data and mixed language are refused or handled safely, and logged |
 
 ## 3. Functional requirements
@@ -35,13 +37,15 @@ The workflow is stuck payments, end to end (decision 17; [DESIGN.md 6.1](DESIGN.
 | FR-4 | Gate every tool call; consequential actions require a confirmation bound to the action | UC-5, UC-7 |
 | FR-5 | Access bank data only through governed tools that check ownership | UC-1, UC-5, UC-7 |
 | FR-6 | Verify every agent output against a rubric before the customer sees it; retry once, then escalate | UC-1, UC-4 |
-| FR-7 | Show results as cards chosen from a fixed catalog **[workflow]**, filled only from verified data | UC-1, UC-2, UC-5 |
+| FR-7 | Show results as cards chosen from a fixed catalog, filled only from verified data: payment status, problem-payment picker, action confirmation (cancel or retry), action result, case opened, case status, handoff notice, out of scope | UC-1, UC-2, UC-5, UC-8 |
 | FR-8 | Offer clarification choices when confidence is in the uncertain band | UC-2 |
 | FR-9 | Produce a case file for every handoff: request, verified facts, actions taken, evidence, open questions | UC-4, UC-6 |
 | FR-10 | Let operators approve, edit or take over a case, always through the Gate | UC-6 |
 | FR-11 | Record every decision (inputs summary, scores, rule fired, verdict, versions) in the audit log | all |
 | FR-12 | Show the reasoning behind each turn in a glass-box panel: scores, rules, tool results, verifier verdicts | all |
-| FR-13 | Offer scenario shortcuts covering UC-1 to UC-4 and UC-7, and a Spanish / Portuguese toggle | all |
+| FR-13 | Offer scenario shortcuts covering UC-1 to UC-5, UC-7 and UC-8, and a Spanish / Portuguese toggle | all |
+| FR-14 | Keep cases durable: a case waiting for a person survives a restart and resumes with full state | UC-4, UC-8 |
+| FR-15 | Replay the decision log under a new policy version and list the verdicts that change | UC-9 |
 
 ## 4. Non-functional requirements
 

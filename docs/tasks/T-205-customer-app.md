@@ -16,7 +16,7 @@
 
 **Outputs.** 6–8 cards, clarification chips, confirm buttons bound to actions, the glass-box panel, scenario buttons, ES / PT toggle
 
-**Open parameters.** [workflow] the card catalog
+**Open parameters.** none: the card catalog is PRD FR-7
 
 **Done when.** every PRD use case UC-1 to UC-5 and UC-7 can be shown from a scenario button
 
