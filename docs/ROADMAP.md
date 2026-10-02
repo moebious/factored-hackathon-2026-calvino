@@ -4,11 +4,12 @@ How Calvino gets built: in waves of parallel work, each piece one branch, one wo
 
 ## Working principles
 
-1. **One session = one PR = one topic.** Every unit of work has a branch, a "done when" and tests. Work that does not end in a mergeable PR is not started.
-2. **Synthetic fixtures first.** Engineering that doesn't need the real data starts immediately, against small, labelled synthetic fixtures.
-3. **Limited parallelism.** Four or five streams at a time. The maintainer approves every push and merges every PR, so more parallel streams than can be reviewed only creates a queue.
-4. **Shared interfaces before parallel work.** The scaffolding PR (A0) merges first and fixes the package layout, the decision-record schema and the test setup that every other stream builds on.
-5. **Gates, not dates.** A wave starts when the work it depends on is merged; a tier starts when the previous one is merged, deployed and evaluated.
+1. **Spec first.** Each stream has a technical specification before work starts; later waves get theirs just before they begin.
+2. **One session = one PR = one topic.** Every unit of work has a branch, a "done when" and tests. Work that does not end in a mergeable PR is not started.
+3. **Synthetic fixtures first.** Engineering that doesn't need the real data starts immediately, against small, labelled synthetic fixtures.
+4. **Limited parallelism.** Four or five streams at a time. The maintainer approves every push and merges every PR, so more parallel streams than can be reviewed only creates a queue.
+5. **Shared interfaces before parallel work.** The scaffolding PR (A0) merges first and fixes the package layout, the decision-record schema and the test setup that every other stream builds on.
+6. **Gates, not dates.** A wave starts when the work it depends on is merged; a tier starts when the previous one is merged, deployed and evaluated.
 
 ## Prerequisites (maintainer)
 
@@ -18,16 +19,16 @@ How Calvino gets built: in waves of parallel work, each piece one branch, one wo
 
 ## Wave 0: foundations without real data
 
-Ready-to-use session prompts: [sessions/WAVE-0.md](sessions/WAVE-0.md).
+Each stream is specified in a technical specification in [specs/](specs/README.md). A work session starts with one line: *"Implement `docs/specs/TSD-NNN-….md`, following AGENTS.md."*
 
 | Stream | Branch | Builds | Done when |
 |---|---|---|---|
-| **A0. Scaffolding** (first, small) | `build/python-scaffold` | `pyproject.toml`, `src/calvino/` package, pytest, ruff, CI test job, decision-record schema | CI runs lint and tests on an empty-but-real package |
-| **A. Policy engine** | `feat/policy-engine` | hard rules, two-threshold verdicts, out-of-scope outcome, decision log writer | fully unit-tested, no model calls; same inputs give the same verdict |
-| **B. MCP tools** | `feat/mcp-tools` | MCP server, ISO 20022-aligned tool contracts, ownership and scope checks, idempotent write tools, adapter conformance suite, dataset adapter on a fixture | conformance and unauthorized-access tests pass |
-| **C. Deployment skeleton** | `build/deploy-skeleton` | Hugging Face Space container (Laya preloaded, weights baked in), Vercel app with `/api` rewrite and warm-up screen, keep-alive workflow | runs locally end to end; deploy steps documented for the maintainer |
-| **D. Verifier framework** | `feat/verifier` | rubric format, code checks, batched-judge interface with a mock model, fixed aggregation rule | rubric tests pass with mocked verdicts |
-| **E. Laya service and calibration** | `feat/laya-service` | Laya client (multilingual pinned, neutral-key choices), temperature scaling, ECE / Brier / reliability plot | works end to end on a synthetic labelled set |
+| **A0. Scaffolding** (first, small) · [TSD-000](specs/TSD-000-scaffolding.md) | `build/python-scaffold` | `pyproject.toml`, `src/calvino/` package, pytest, ruff, CI test job, decision-record schema | CI runs lint and tests on an empty-but-real package |
+| **A. Policy engine** · [TSD-001](specs/TSD-001-policy-engine.md) | `feat/policy-engine` | hard rules, two-threshold verdicts, out-of-scope outcome, decision log writer | fully unit-tested, no model calls; same inputs give the same verdict |
+| **B. MCP tools** · [TSD-002](specs/TSD-002-mcp-tools.md) | `feat/mcp-tools` | MCP server, ISO 20022-aligned tool contracts, ownership and scope checks, idempotent write tools, adapter conformance suite, dataset adapter on a fixture | conformance and unauthorized-access tests pass |
+| **C. Deployment skeleton** · [TSD-003](specs/TSD-003-deployment.md) | `build/deploy-skeleton` | Hugging Face Space container (Laya preloaded, weights baked in), Vercel app with `/api` rewrite and warm-up screen, keep-alive workflow | runs locally end to end; deploy steps documented for the maintainer |
+| **D. Verifier framework** · [TSD-004](specs/TSD-004-verifier.md) | `feat/verifier` | rubric format, code checks, batched-judge interface with a mock model, fixed aggregation rule | rubric tests pass with mocked verdicts |
+| **E. Laya service and calibration** · [TSD-005](specs/TSD-005-laya-service.md) | `feat/laya-service` | Laya client (multilingual pinned, neutral-key choices), temperature scaling, ECE / Brier / reliability plot | works end to end on a synthetic labelled set |
 
 ## Wave 1: data
 
