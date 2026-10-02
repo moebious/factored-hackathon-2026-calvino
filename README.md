@@ -93,7 +93,11 @@ Each milestone is tagged as a version (`v0.1.0` design → `v1.0.0` submission);
 
 ## Documentation
 
-- [docs/DESIGN.md](docs/DESIGN.md): architecture, governance, fairness, evaluation plan
+- [docs/BRD.md](docs/BRD.md): business requirements: problem, goals and KPIs, scope
+- [docs/PRD.md](docs/PRD.md): product requirements: use cases, requirements, acceptance criteria
+- [docs/DESIGN.md](docs/DESIGN.md): software design: architecture, governance, fairness, evaluation plan
+- [docs/specs/](docs/specs/README.md): technical specifications, one per work stream
+- [docs/ROADMAP.md](docs/ROADMAP.md): work streams and the order they are built in
 - [docs/DECISIONS.md](docs/DECISIONS.md): decision log
 - [docs/PLAN.md](docs/PLAN.md): build plan, risks, blockers
 - [CHANGELOG.md](CHANGELOG.md): changes per version

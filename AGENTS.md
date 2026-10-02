@@ -6,9 +6,12 @@ Instructions for coding agents (and humans) working on this repository. Read thi
 
 **Project Calvino** is an AI-first banking customer service system built around a domain-specific harness: a System One model (Laya) gives calibrated probabilities, a deterministic policy turns them into verdicts, an LLM handles only the language work, and humans step in where accountability is required.
 
+- Business requirements: [docs/BRD.md](docs/BRD.md)
+- Product requirements: [docs/PRD.md](docs/PRD.md)
 - Design: [docs/DESIGN.md](docs/DESIGN.md)
+- Technical specifications: [docs/specs/](docs/specs/README.md) (implement one spec per pull request)
 - Decision log: [docs/DECISIONS.md](docs/DECISIONS.md)
-- Build plan: [docs/PLAN.md](docs/PLAN.md)
+- Build plan: [docs/PLAN.md](docs/PLAN.md) and roadmap: [docs/ROADMAP.md](docs/ROADMAP.md)
 
 ## Repository layout
 
@@ -22,7 +25,7 @@ Application directories are planned and created as code lands; update this secti
 | `scripts/` | Developer scripts; `scripts/git/` holds the commit-message checker shared by hooks and CI |
 | `.githooks/` | Versioned git hooks (`pre-commit`, `commit-msg`, `pre-push`), enabled with `git config core.hooksPath .githooks` |
 | `.worktrees/` | Linked worktrees in non-bare clones. **Git-ignored** |
-| `docs/` | Design, decisions, plan |
+| `docs/` | Requirements (BRD, PRD), design, specifications, decisions, plan, roadmap |
 | `data/` | Local datasets. **Git-ignored, never committed** |
 
 ## Repository standards
