@@ -18,35 +18,33 @@ Keep this section current; it is the first thing a new session trusts.
 
 | Area | State |
 |---|---|
-| Concept | frozen: thesis (Systems 1 → 3), architecture, governance, verifiers, decisions 1–17 |
-| Repository | `v0.1.0` released (design, decisions, requirements, specs, task backlog, enforced git workflow); since then decisions 16–17, the full-data findings and the Python scaffold are merged |
+| Concept | frozen: thesis (Systems 1 → 3), architecture, governance, verifiers, decisions 1–26. Positioning: a control layer for banking customer service; under the hood, a harness for probabilistic decisions (DESIGN 2) |
+| Repository | `v0.1.0` released; since then decisions 16–26, the full-data findings and their handling rules (#19), the Python scaffold, the policy engine (#20) and the MCP tools (#21) are merged |
 | Data findings `[measured]` | `contact_reason` repeats the six values of `reason_category`; the 171,321 transcripts hold only 42 distinct customer texts, the same under every category; all 36 transaction type × channel pairs occur, so fields look independently generated |
 | Classifier text | team-generated, not the dataset transcripts (decision 16) |
 | Workflow | **stuck payments, end to end** (decision 17, [DESIGN 6.1](DESIGN.md#61-the-workflow-stuck-payments-end-to-end)): explain, clarify, act under the Gate, investigate, follow up. |
 | Data evidence | the analyst's pilot figures reconcile with the full data (same rates); links between tables are at chance. In progress: the analyst runs the full-data pipeline, the T-104 baseline and six corrections; an analysis session writes the data-quality report and an independent baseline cross-check |
 | Team | the maintainer governs the repository alone (all commits and PRs); a data analyst owns the data layer and delivers queries, scripts and aggregate tables for the maintainer to integrate |
 | Data access | read-only dataset credentials live in the cloud environment's variables; the access key id there had a one-character typo, so check it is 20 characters before relying on it |
-| Code | **TSD-000 done:** `uv` project, `calvino.records` (shared types) and `calvino.decision_log`, CI running ruff and pytest. **TSD-001 (policy engine) implemented:** `calvino.policy` with `decide_route`, `decide_gate`, `replay_decision` and `policy/v1.yaml`. **TSD-002 (MCP tools) implemented:** `calvino.tools` (ten tools, `BankTools`, dataset adapter, HMAC confirmation tokens), JSON Schemas in `contracts/tools/`, the synthetic fixture in `tests/fixtures/bank/`. Next: TSD-003, -004 and -005 in parallel agent sessions (any agent that reads AGENTS.md, local or cloud) |
-| LLM provider | open (decision 6); the maintainer is arranging it. Blocks the message set (T-106) and the agent |
+| Code | **Merged:** TSD-000 (scaffold, `calvino.records`, `calvino.decision_log`, CI); TSD-001 (`calvino.policy`: `decide_route`, `decide_gate`, `replay_decision`, `policy/v1.yaml`); TSD-002 (`calvino.tools`: ten tools, `BankTools`, dataset adapter, hub-attached sessions, single-use confirmation tokens, JSON Schemas in `contracts/tools/`, fixture in `tests/fixtures/bank/`). **Waiting for the maintainer's push approval in their sessions:** TSD-004 (verifier) and TSD-003 (deployment); both must rebase on `main` and split commits for the size check first. **Being fixed after review:** TSD-005 (Laya service): wrap the real `laya` API, skip real-model tests when absent, move `FakeLaya` to tests with a startup guard, real Spanish and Portuguese synthetic calibration set. **Unreviewed:** branch `data/contracts` (analyst's T-102 work, authored by the analyst): review against T-102 and DATA.md, then re-commit as the maintainer in small commits, crediting the analyst |
+| LLM provider | decided (decision 20): open models only, a Qwen model for the agent and a DeepSeek model as the judge; Hugging Face Inference Providers proposed, pending the maintainer's account with billing and a spending cap (OpenRouter is the fallback) |
 | Hosting | decided: Vercel (UI) + Hugging Face Space (backend) at `calvino.rubrica.dev`; accounts not created yet |
 
 ## 2.1 Next actions
 
-In order. Item 9 can start at once.
+In order. Items 3, 4 and 6 can start at once.
 
 | # | Action | Owner | Blocked by |
 |---|---|---|---|
-| 1 | Confirm the data-quality and baseline task in the analysis session so it runs | maintainer | — |
-| 2 | Collect the analyst's round-two delivery (see [2.2](#22-what-the-analyst-was-asked-for-round-two)) and integrate it | maintainer, analyst | — |
-| 3 | Compare the analyst's baseline with the analysis session's cross-check before publishing any baseline figure | maintainer, next session | 1, 2 |
-| 4 | Choose the LLM provider and add its key to the environment | maintainer | — |
-| 5 | Create the Hugging Face Space and Vercel accounts; add `HF_TOKEN` | maintainer | — |
-| 6 | Fix the dataset access key id in the environment (must be 20 characters) | maintainer | — |
-| 7 | Repository settings: squash merging only, automatic deletion of head branches | maintainer | — |
-| 8 | ~~Implement TSD-000 (scaffolding)~~ done | — | — |
-| 9 | Implement TSD-001, TSD-002, TSD-003, TSD-004 and TSD-005 in parallel sessions, one worktree each; if usage is tight, run TSD-001, -002 and -005 first | parallel sessions | — |
-| 9b | ~~Record the baseline finding~~ done: DATA.md (findings and handling rules), DESIGN.md 7, PITCH slide 1, a note on decision 17, PLAN's cut order (flywheel, replay, follow-up; investigate never cut), T-303's target, and the data-quality rules in TSD-002, T-102, T-203 and T-206 | — | — |
-| 10 | Message set (T-106), workflow tools (T-206), then the hub, the customer app, deployment, durable cases, policy replay, the flywheel turn and the evaluation with its ablation, per the backlog | sessions | 3, 4, 5 |
+| 1 | Create the Hugging Face account and Space; enable Inference Providers billing with a spending cap; check the Qwen and DeepSeek models are available; add `HF_TOKEN` (confirms decision 20). Create the Vercel project | maintainer | — |
+| 2 | Ask the organizers whether the dataset key should be rotated (it appeared in a planning document pasted into an external chat); fix the access key id in the environment (must be 20 characters) | maintainer | — |
+| 3 | Approve the pushes of TSD-004 and TSD-003 after each rebases on `main` and splits its commits; TSD-005 after its fixes; review each branch against its spec's "done when" | maintainer, next session | — |
+| 4 | Review `data/contracts` against T-102 and DATA.md; re-commit it as the maintainer in small commits, crediting the analyst | next session | — |
+| 5 | Collect the analyst's round-two delivery (see [2.2](#22-what-the-analyst-was-asked-for-round-two)) and compare its baseline with the analysis session's cross-check before publishing any baseline figure | maintainer, analyst | — |
+| 6 | Acceptance scenarios (decision 23): the oracle table, `tests/scenarios/` with AC-1 to AC-8 and the CI scoreboard | next session | — |
+| 7 | Message set (T-106), then the hub (T-204, with per-stage tools, the playbook file and trusted test sessions), the support agent, the customer app, deployment, durable cases and the evaluation with its bare-LLM ablation, per the backlog | sessions | 1, 6 |
+| 8 | `policy/v2.yaml` with per-language thresholds (decision 22), when the hub reads per-language scores | session | 7 |
+| 9 | Repository settings: squash merging only, automatic deletion of head branches; delete merged remote branches | maintainer | — |
 
 ## 2.2 What the analyst was asked for (round two)
 
@@ -58,9 +56,9 @@ The analyst delivers files to the maintainer, who integrates them; the analyst d
 4. **Review of the data-quality report** written by the analysis session, adding anything their validator found.
 5. **Delivery folder:** `scripts/` (pipeline, baseline, permutation test), `tests/` with synthetic fixtures, `reports/baseline/` and `reports/data-quality/` (aggregates only), and a notes file. Credentials from environment variables; no storage names; an evidence label on every number.
 
-Before any baseline figure is published, compare it with the analysis session's independent cross-check (next action 3).
+Before any baseline figure is published, compare it with the analysis session's independent cross-check (next action 5).
 
-## 2.3 Baseline finding (recorded, next action 9b)
+## 2.3 Baseline finding (recorded)
 
 From the analysis session's independent T-104 baseline on the full data `[measured]`, pending the analyst's own figures:
 
@@ -105,6 +103,9 @@ Beyond AGENTS.md, learned while shaping the project:
 | The dataset's text is templated and its fields look independently generated | never train on the transcripts; check any link between tables (time windows, joins) against a shuffled baseline before treating it as evidence |
 | Teammate material can contain unmeasured figures, fields the dataset lacks, or storage names | verify every number on the full data before reuse; never copy storage names into the repository |
 | PRs so far were merged with a merge commit, not a squash | until the repository allows squash only, remind the maintainer to pick "Squash and merge" |
+| Sessions on cheaper models produced plausible but wrong work: the first TSD-002 put the customer id in the model-visible tool arguments and crashed on start; the first TSD-005 guessed Laya's API and its tests failed on a clean checkout | review every branch on a fresh checkout against its spec and the design rules before the PR, closest for security and model integration |
+| A session pushed before rebasing on a `main` that had moved, so the PR conflicted | before approving a push, ask for `git fetch origin && git rebase origin/main` and a re-run of the checks |
+| Planning drafts contained unmeasured figures (33 ms latency, F1 scores), BRL and PIX for a dataset without them, and dataset credentials | check every figure and field against DATA.md and the reports; never paste credentials into documents or chats; rotate a key that was exposed |
 
 ## 5. Environment notes
 

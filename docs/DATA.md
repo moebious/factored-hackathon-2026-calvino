@@ -77,4 +77,4 @@ A teammate's pilot lakehouse covers a two-week window (17–30 June 2023): 878,3
 - A complaint is linked to activity by customer and time window, never by `origin_interaction_id`, and any such link is checked against a shuffled baseline before it is reported.
 - Synthetic data uses MXN, COP, ARS or USD and the countries MX, CO, AR (US only as a foreign label); never BRL or Brazilian customers.
 
-The baseline rows above come from the analysis session's independent run (`reports/baseline/`); they are published only after comparison with the analyst's own figures (HANDOFF next action 3).
+The baseline rows above come from the analysis session's independent run (`reports/baseline/`); they are published only after comparison with the analyst's own figures (HANDOFF next action 5).
