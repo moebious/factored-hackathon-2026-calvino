@@ -2,7 +2,7 @@
 
 ![Status: design phase](https://img.shields.io/badge/status-design%20phase-orange)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
-![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 
 > **Project status:** design phase, built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon) (submission: 2026-10-05). The architecture and the workflow are decided and documented; the code is not written yet. Sections below say plainly what exists and what is planned.
 
@@ -80,11 +80,18 @@ flowchart LR
 
 ## Installation
 
-Not runnable yet; setup steps will land with the first code.
+The Python package is scaffolded (shared types and the decision log); the application itself is not runnable yet.
 
-### Requirements (planned)
+```bash
+git clone https://github.com/moebious/factored-hackathon-2026-calvino.git
+cd factored-hackathon-2026-calvino
+uv sync              # installs the package and dev tools into .venv from uv.lock
+uv run pytest        # runs the tests (no network, GPU or dataset needed)
+```
 
-- Python 3.10 or newer
+### Requirements
+
+- Python 3.11 or newer and [uv](https://docs.astral.sh/uv/)
 - About 1 GB of disk for the Laya multilingual checkpoint (downloaded on first use)
 - A GPU is optional: Laya runs on CPU at roughly 0.2–0.4 s per call `[measured]`, ~33 ms on GPU `[vendor]`
 - Access to the hackathon dataset, configured through environment variables (never committed)

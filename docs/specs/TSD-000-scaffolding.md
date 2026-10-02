@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft |
+| Status | implemented |
 | Branch | `build/python-scaffold` |
 | Depends on | foundation PRs merged |
 | Required by | TSD-001 to TSD-005 |
@@ -34,13 +34,13 @@ tests/              mirrors src/calvino/
 
 | Type | Kind | Values or fields |
 |---|---|---|
-| `Route` | enum | `agents`, `human`, `out_of_scope` |
+| `Route` | enum | `agents`, `clarify`, `human`, `out_of_scope` (`clarify` added for the policy's uncertain band and the workflow's clarify stage, decision 17) |
 | `GateVerdict` | enum | `allow`, `ask`, `block` |
 | `HumanAction` | enum | `none`, `approve_action`, `request_info`, `full_transfer` |
 | `Stage` | enum | `hard_rules`, `classifier`, `gate`, `verifier`, `human` |
 | `DecisionRecord` | pydantic model | `decision_id`, `timestamp`, `stage`, `session_ref` (a hash, never the token), `inputs_summary` (already redacted), `scores` (name → float), `rule_id` (optional), `policy_version`, `verdict`, `latency_ms`, `cost_usd`, `versions` (model, checkpoint, prompt, rubric) |
 
-**Decision log:** an append-only JSONL writer for `DecisionRecord` (`decisions.jsonl`, git-ignored) and a reader that yields records back for replay.
+**Decision log** (`calvino.decision_log`): an append-only JSONL writer for `DecisionRecord` (`decisions.jsonl`, git-ignored) and a reader that yields records back for replay.
 
 ## Tests and acceptance
 

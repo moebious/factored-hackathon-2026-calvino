@@ -5,6 +5,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- Python package scaffold (TSD-000): `uv` project, shared types (`Route`, `GateVerdict`, `HumanAction`, `Stage`, `DecisionRecord`), the append-only decision log with a reader for replay, and a CI job running ruff and pytest.
+
 ### Changed
 
 - Workflow chosen (decision 17): stuck payments, end to end (explain, clarify, act under the Gate, investigate, follow up); the pre-registered rule (TSD-006) is marked superseded, and Tier 0 gains durable cases, policy replay, one flywheel turn and a bare-LLM ablation.
