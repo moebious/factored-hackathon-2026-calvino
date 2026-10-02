@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Local guard for the git workflow in AGENTS.md:
+# - commits only on feature branches, never on main;
+# - commits only from a linked worktree (one worktree per branch);
+# - git-secrets-style check: no staged datasets, environment files, model
+#   weights or anything that looks like a credential (this repo is public).
+set -euo pipefail
+fail=0
+
+branch=$(git symbolic-ref --quiet --short HEAD || true)
+case "$branch" in
+    main|master)
+        echo "error: do not commit on '$branch'; create a feature branch in its own worktree:" >&2
+        echo "  git worktree add .worktrees/<name> -b <type>/<description> origin/main" >&2
+        exit 1 ;;
+esac
+
+# In a linked worktree the per-worktree git dir differs from the shared one.
+# The bare-repository layout makes every checkout a linked worktree.
+git_dir=$(cd "$(git rev-parse --git-dir)" && pwd -P)
+common_dir=$(cd "$(git rev-parse --git-common-dir)" && pwd -P)
+if [ "$git_dir" = "$common_dir" ]; then
+    echo "error: commit from a linked worktree, not the primary checkout (see AGENTS.md, Worktrees):" >&2
+    echo "  git worktree add .worktrees/<name> ${branch:-<branch>}" >&2
+    exit 1
+fi
+
+blocked_paths='^data/|(^|/)\.env($|\.)|\.(safetensors|onnx|pt|bin|pem|key)$'
+if staged=$(git diff --cached --name-only --diff-filter=ACMR | grep -E "$blocked_paths"); then
+    echo "error: these files must never be committed:" >&2
+    echo "$staged" | sed 's/^/  /' >&2
+    fail=1
+fi
+
+# Added lines only, so removing a leaked secret is never blocked.
+# "access_?key" is written that way so this file never matches itself.
+secrets_re='AKIA[0-9A-Z]{16}|aws_secret_access_?key|-----BEGIN [A-Z ]*PRIVATE KEY-----|(api|secret)_?key[[:space:]]*[:=][[:space:]]*["'"'"'][A-Za-z0-9_\-]{16,}'
+if git diff --cached -U0 | grep '^+' | grep -v '^+++' | grep -qiE "$secrets_re"; then
+    echo "error: staged changes look like they contain a credential" >&2
+    fail=1
+fi
+
+exit "$fail"

@@ -1,0 +1,46 @@
+# Enforces the git workflow rules in AGENTS.md on every pull request, using
+# the same script as the local commit-msg hook: Conventional Commits for the
+# PR title (it becomes the squash commit on main) and every commit, and no
+# AI-tool attribution in commits or the PR description.
+name: conventions
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  conventions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Test the rule scripts
+        run: bash tests/git/test_git_rules.sh
+
+      - name: Check PR title, description and commits
+        # Untrusted PR text is passed through env vars, never interpolated
+        # into the script, to rule out script injection.
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -uo pipefail
+          check=scripts/git/check-commit-msg.sh
+          fail=0
+
+          echo "PR title: $PR_TITLE"
+          printf '%s\n' "$PR_TITLE" | "$check" - || fail=1
+          printf '%s\n' "$PR_BODY" | "$check" --no-subject - || { echo "  in: PR description"; fail=1; }
+
+          for sha in $(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA"); do
+            git log -1 --format=%B "$sha" | "$check" - || { echo "  in: commit $(git rev-parse --short "$sha")"; fail=1; }
+          done
+
+          exit "$fail"

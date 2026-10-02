@@ -104,7 +104,7 @@ Open an issue on [GitHub](https://github.com/moebious/factored-hackathon-2026-ca
 
 ## Contributing
 
-Contributions and feedback are welcome. Work happens on feature branches and reaches `main` through small pull requests (squash-merged). Repository standards, the git workflow, commit conventions and design rules, for humans and coding agents alike, are in [AGENTS.md](AGENTS.md). Setup and test commands will be listed in [AGENTS.md](AGENTS.md#commands) as tooling lands.
+Contributions and feedback are welcome. Work happens on feature branches and reaches `main` through small pull requests (squash-merged). Repository standards, the git workflow, commit conventions and design rules, for humans and coding agents alike, are in [AGENTS.md](AGENTS.md). Every branch gets its own git worktree and nothing is committed on `main`. After cloning, set up the worktree layout and enable the repository's git hooks with `git config core.hooksPath .githooks`; setup and test commands are listed in [AGENTS.md](AGENTS.md#commands).
 
 ## Authors and acknowledgment
 

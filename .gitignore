@@ -248,3 +248,6 @@ decisions.jsonl
 *.pt
 *.bin
 checkpoints/
+
+# Linked worktrees for clones that are not using the bare layout
+.worktrees/
