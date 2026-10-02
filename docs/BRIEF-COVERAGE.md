@@ -12,7 +12,7 @@ Status: **designed** · **built** · **measured** · **gap**.
 | Use data and tools securely | DESIGN 4.0, 5.2; TSD-002 | T-002 security tests | designed |
 | Complete service workflows | DESIGN 4, 6; PRD UC-1, UC-5 | T-204, T-301 | designed |
 | Involve human agents when needed | DESIGN 2 (System 3), 4.2, 6; PRD UC-4, UC-6 | T-204, T-302 | designed |
-| A focused problem, why it matters, a baseline | TSD-006; BRD 2–3 | T-101, T-104 | designed (rule fixed, data pending) |
+| A focused problem, why it matters, a baseline | decision 17; BRD 2–3; DATA.md findings | T-101, T-104 | problem measured; baseline in progress |
 | Improvement in service quality and operational efficiency | BRD 3; DESIGN 7 | T-303 | designed |
 
 ## Think beyond the demo
@@ -29,7 +29,7 @@ Status: **designed** · **built** · **measured** · **gap**.
 | Brief asks | Where | Evidence | Status |
 |---|---|---|---|
 | Working prototype, production readiness, honest remaining work | PLAN; DESIGN 4.0.2, 9 | T-304, T-501 | designed |
-| One coherent workflow, depth over breadth | TSD-006; PLAN ladder | T-101 | designed |
+| One coherent workflow, depth over breadth | decision 17; DESIGN 6.1; PLAN ladder | T-101 | decided |
 | Normal path / ambiguous or unsupported / human intervention | PRD UC-1 to UC-4, AC-1 to AC-4 | T-204, T-205 | designed |
 | Spanish and Portuguese, limitations reported | DESIGN 5.1, 8.1 | T-203, T-303 | designed |
 
@@ -37,7 +37,7 @@ Status: **designed** · **built** · **measured** · **gap**.
 
 | # | Brief asks | Where | Evidence | Status |
 |---|---|---|---|---|
-| 1 | Contact reasons, demand, data quality, constraints | decision 17; DATA.md findings; DESIGN 8 | T-101, T-102 | designed |
+| 1 | Contact reasons, demand, data quality, constraints | decision 17; DATA.md findings; DESIGN 8 | T-101, T-102 | measured (findings); contracts in progress |
 | 2 | Context, clarification, grounded answers, verified actions only | DESIGN 4.4; PRD FR-6 to FR-8 | T-204, T-301 | designed |
 | 3 | Answer / confirm / abstain / transfer; policy outside the model; handoff packet | DESIGN 2, 4.1–4.2; PRD FR-2 to FR-4, FR-9 | T-001, T-204, T-302 | designed |
 | 4 | Contracts, quality checks, lineage, freshness; learned component vs baseline; labels, leakage, thresholds, splits | DESIGN 7, 8, 8.2; decision 16 | T-102, T-103, T-105, T-106, T-201 | designed |

@@ -9,8 +9,8 @@ Phases run in order; each one ends with its pull requests merged and, where list
 | # | Goal | Done when | Branch types | Version |
 |---|---|---|---|---|
 | 1 | **Foundation**: design, decisions, repository standards and git workflow | scaffolding and enforcement PRs merged | `docs/`, `ci/` | `v0.1.0` |
-| 2 | **Data**: pipeline with contracts and quality checks, contact-reason analysis, workflow choice, labels and splits | the workflow is chosen from the data and labelled, leakage-free splits exist | `data/` | `v0.2.0` |
-| 3 | **Classifiers, policy and tools**: Laya zero-shot, calibrated (and fine-tuned, if pursued) vs baselines; Portuguese test set; policy engine with unit tests; MCP server with the dataset adapter, ISO 20022-aligned contracts and conformance tests | classifier results reported on held-out data, including Portuguese; policy and tool permission checks fully unit tested | `feat/`, `eval/`, `data/` | `v0.3.0` |
+| 2 | **Data**: pipeline with contracts and quality checks, the data-quality report, the human baseline, labels, splits and the seeded message set | quality report and baseline on the full data; every test case has a seed record and an oracle outcome; leakage-free splits exist | `data/`, `eval/` | `v0.2.0` |
+| 3 | **Classifiers, policy and tools**: Laya zero-shot and calibrated vs baselines (fine-tuning is Tier 1); Portuguese test set; policy engine with unit tests; MCP server with the dataset adapter, ISO 20022-aligned contracts and conformance tests | classifier results reported on held-out data, including Portuguese; policy and tool permission checks fully unit tested | `feat/`, `eval/`, `data/` | `v0.3.0` |
 | 4 | **Hub and deployment**: Calvino hub (decision classifier, Gate, verifier cascade, human interrupt), support chat agent; customer app with Laya cards and glass box; handoff queue; deployed at `calvino.rubrica.dev` | normal, ambiguous, unsupported and human-handoff paths run end to end on the deployed link, in Spanish and Portuguese; keep-alive, baked weights and a warm-up screen in place | `feat/`, `build/` | `v0.4.0` |
 | 5 | **Evaluation and analytics**: evaluation run including failure cases; metrics and visualizations for decision support; README usage | metrics from the brief reported with sample sizes and limitations | `eval/`, `docs/` | `v0.5.0` |
 | 6 | **Submission**: slides, video pitch, final checks, email submission | all four deliverables sent | `docs/`, `fix/` | `v1.0.0` |
@@ -21,14 +21,14 @@ A deployed, working link is a required deliverable, so phase 4 includes the cust
 
 Small PRs, in this order of priority if time runs short:
 
-1. `eval/contact-reasons`: contact-reason analysis (volume, first-contact resolution, escalation, handle time, by country, channel and segment) and complaint analysis. Produces the charts reused in the slides and analytics.
-2. **Workflow decision**, recorded in DECISIONS.md.
-3. `data/labels-splits`: labels, splits by customer and by time, leakage rules, the labelling rubric and the first ~50 gold labels.
-4. `data/contracts`: raw and clean contracts for the tables in use, validator, quality report, lineage.
-5. `eval/baseline`: the human baseline for the chosen workflow.
+1. ~~Contact-reason analysis and workflow decision~~: done (decision 17; DATA.md findings).
+2. `eval/baseline`: the human baseline on the full data (the analyst), cross-checked by an analysis session.
+3. `data/contracts`: raw and clean contracts, validator, the data-quality report, lineage (the analyst's pipeline).
+4. `data/labels-splits`: labels, splits by customer and by time, leakage rules, the labelling rubric and the first ~50 gold labels.
+5. `data/message-set`: seeded test cases with oracle outcomes and generated messages (T-106).
 6. `data/freshness-fixture`: the labelled update-correctness fixture.
 
-Tables in use: `call_center_interactions`, `call_transcripts`, `complaints`, `customers`, `transactions`, `products` (and `satisfaction_surveys` if CSAT enters the baseline). The cleaned parquet is the clean layer; it is not redone.
+Tables in use: `transactions`, `complaints`, `call_center_interactions`, `customers`, `products`, `daily_exchange_rates` (and `satisfaction_surveys` if CSAT enters the baseline). `call_transcripts` is used only for the data-quality finding (decision 16). The analyst's Parquet lakehouse is the clean layer.
 
 ## Ladder
 
@@ -58,8 +58,8 @@ Judging dimensions: technical judgment, AI engineering, data engineering, machin
 
 | Risk | Mitigation |
 |---|---|
-| Laya zero-shot quality on ES/PT | calibration + fine-tuning; logistic-regression fallback |
-| No GPU in the dev container | fine-tune on Kaggle; report CPU latency honestly |
+| Laya zero-shot quality on ES/PT | calibration; logistic-regression fallback; fine-tuning in Tier 1 |
+| No GPU in the dev container | report CPU latency honestly; fine-tune on Kaggle if Tier 1 is reached |
 | Synthetic labels too easy or noisy; team-generated text too easy (decision 16) | separate generation prompts for train and test, adversarial rewordings, a hand-written subset, time split, gold set |
 | Scope creep | the ladder and its gates; one workflow, built in depth |
 | Demo link asleep or slow during judging | keep-alive ping, weights baked into the image, warm-up screen; UI on Vercel always loads |
@@ -71,4 +71,5 @@ Judging dimensions: technical judgment, AI engineering, data engineering, machin
 - [x] Hosting: Vercel (UI) + Hugging Face Space (backend) at `calvino.rubrica.dev` (decision #10)
 - [ ] DNS record for `calvino.rubrica.dev` (maintainer, when the app is ready)
 - [ ] LLM provider and API key (needed in phase 4; maintainer, in progress)
-- [ ] Laya fine-tuning on a GPU (Kaggle), if pursued in phase 3
+- [ ] Hugging Face Space and Vercel accounts, `HF_TOKEN` (maintainer)
+- [ ] Laya fine-tuning on a GPU (Kaggle): Tier 1 only

@@ -2,7 +2,7 @@
 
 *Software Design Document (SDD): how the system is designed. Requirements are in [BRD.md](BRD.md) (why) and [PRD.md](PRD.md) (what); build specifications are in [specs/](specs/README.md).*
 
-> **Status:** draft v0.1 (2026-10-01), open for revision. The workflow is stuck payments, end to end (decision 17, [section 6.1](#61-the-workflow-stuck-payments-end-to-end)); data contracts are still open. Decisions are logged in [DECISIONS.md](DECISIONS.md).
+> **Status:** v0.2 (2026-10-02). The workflow is stuck payments, end to end (decision 17, [section 6.1](#61-the-workflow-stuck-payments-end-to-end)); data contracts are still open. Decisions are logged in [DECISIONS.md](DECISIONS.md).
 >
 > **Evidence labels:** `[measured]` we ran it ourselves · `[vendor]` published by the model's author, not reproduced by us · `[read from chart]` approximate value read from a published chart · `[hypothesis]` design assumption still to be tested.
 > **Context:** Factored AI & Data Hackathon 2026, "Build an AI-first banking customer service system."
@@ -157,7 +157,7 @@ flowchart LR
     RAW["Raw dataset"] --> CON["Data contracts<br/>quality report · lineage"] --> CLEAN["Cleaned parquet"]
     CLEAN --> LAB["Labels and splits<br/>by customer and time"]
     MSG["Team-generated messages<br/>ES · PT, labelled synthetic"] --> LAB
-    LAB --> FT["Fine-tune Laya<br/>full or LoRA · Kaggle GPU"]
+    LAB --> FT["Fine-tune Laya (Tier 1)<br/>full or LoRA · Kaggle GPU"]
     LAB --> BASE["Baselines<br/>rules · majority · logistic regression"]
     FT --> CAL["Calibrate<br/>temperatures · thresholds"]
     CAL & BASE --> EVAL["Evaluation<br/>held-out ES · PT (synthetic) · fairness"]
@@ -181,13 +181,17 @@ Classifier text is **team-generated** (decision 16): the dataset's transcripts a
 
 | Layer | Responsibility | Technology |
 |---|---|---|
-| Channels | Customer app with Laya-chosen cards and a glass-box panel; operator console (OpenBot-style queue, case view, audit timeline) | Next.js; CopilotKit/AG-UI for the console (Tier 2) |
+| Project | Package, dependencies, lint, tests, CI | Python 3.11, `uv`, pydantic v2, ruff, pytest, GitHub Actions |
+| Channels | Customer app with Laya-chosen cards and a glass-box panel; operator console (OpenBot-style queue, case view, audit timeline) | Next.js on Vercel; CopilotKit/AG-UI for the console (Tier 2) |
+| API | The hub's HTTP surface for the apps | FastAPI on a Hugging Face Space (Docker, persistent storage) |
 | Hub orchestration | Decision classifier, Gate, Verifier cascade, durable cases, human interrupts | LangGraph (checkpointer + `interrupt()`) |
 | Agents | Support chat, company brain, coworker | LangGraph Deep Agents (virtual file system only, no computer use) |
-| Fast decisions | Typed, calibrated classification | Laya (`laya-multilingual`, fine-tuned and calibrated, self-hosted) |
+| Fast decisions | Typed, calibrated classification | Laya (`laya-multilingual`, calibrated, self-hosted; fine-tuning in Tier 1) |
 | Policy | Thresholds, hard rules, permissions | Plain Python, versioned, unit tested |
-| Integration | Governed access to bank data and actions | MCP servers (one adapter per bank core) |
-| Governance | Contracts, audit, redaction, lineage, tracing | data contracts, `decisions.jsonl`, traces |
+| Integration | Governed access to bank data and actions | MCP servers with the official MCP Python SDK (one adapter per bank core) |
+| Data | Clean layer, contracts, quality report, baseline | Parquet lakehouse queried with DuckDB (the analyst's pipeline) |
+| Governance | Contracts, audit, redaction, lineage, tracing | data contracts, `decisions.jsonl` (`calvino.decision_log`), traces |
+| LLM | Agents and the judge | provider open (decision 6); Amazon Bedrock in the production reference |
 
 ### 4.1 The hub's three checkpoints (after "Building a Custom Harness with Pi and Jev", ported to LangGraph + Laya)
 

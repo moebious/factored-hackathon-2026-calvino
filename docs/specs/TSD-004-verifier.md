@@ -43,6 +43,12 @@ The first rubric, `customer-answer`, follows the criteria table in DESIGN.md 4.4
 - On failure: retry once with the failed criteria as feedback, then escalate with the failed criteria in the case file.
 - Every verdict is logged as a `DecisionRecord` with the rubric and prompt versions.
 
+## Workflow context (decision 17)
+
+- The `customer-answer` rubric adds the stuck-payments criteria: the stated status, amount, date and merchant match the tool result; the next step is valid for that status; no promise of a refund, credit or money movement; any claimed action was confirmed by a read-back; no other customer's data; the reply is in the customer's language.
+- Every criterion verdict records the checker that decided it (code, Laya or judge), so the end-to-end evaluation (T-303) can measure the false-pass rate per checker against hand labels.
+- The LLM provider is not chosen yet: the judge stays behind its interface, with `MockJudge` in tests.
+
 ## Tests and acceptance
 
 - Each code check, passing and failing.

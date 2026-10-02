@@ -1,6 +1,6 @@
 # Tasks: backlog and orchestration
 
-*Every piece of remaining work, with its dependencies, so new sessions can pick it up. Wave 0 tasks have full specifications; later tasks have task cards that are completed into a specification as their first step, once the facts they depend on (the workflow choice, the data) are known.*
+*Every piece of remaining work, with its dependencies, so new sessions can pick it up. Wave 0 tasks have full specifications; later tasks have task cards that are turned into a specification as their first step. The workflow is chosen (decision 17), so every card can be specified now.*
 
 ## How work is picked up
 
@@ -27,7 +27,7 @@ Status: `todo`, `spec` (specification written, awaiting approval), `doing`, `rev
 
 | ID | Task | Wave | Depends on | Blocked by | Model | Parallel | Status |
 |---|---|---|---|---|---|---|---|
-| [T-000](../specs/TSD-000-scaffolding.md) | Python scaffolding and shared types | 0 | docs PRs merged | — | standard | no (first) | review |
+| [T-000](../specs/TSD-000-scaffolding.md) | Python scaffolding and shared types | 0 | docs PRs merged | — | standard | no (first) | done |
 | [T-001](../specs/TSD-001-policy-engine.md) | Policy engine | 0 | T-000 | — | standard | yes | spec |
 | [T-002](../specs/TSD-002-mcp-tools.md) | MCP tools and ISO 20022-aligned contracts | 0 | T-000 | — | standard | yes | spec |
 | [T-003](../specs/TSD-003-deployment.md) | Deployment skeleton | 0 | T-000 | — | standard | yes | spec |
@@ -35,8 +35,8 @@ Status: `todo`, `spec` (specification written, awaiting approval), `doing`, `rev
 | [T-005](../specs/TSD-005-laya-service.md) | Laya service and calibration | 0 | T-000 | — | standard | yes | spec |
 | [T-101](T-101-contact-reason-analysis.md) | Contact-reason analysis and workflow decision | 1 | — | dataset access | judgment checkpoint | yes | done (decision 17) |
 | [T-102](T-102-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | todo |
-| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | workflow decision | judgment checkpoint | no | todo |
-| [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | workflow decision | standard | yes | todo |
+| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | todo |
+| [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | — | standard | yes | todo |
 | [T-105](T-105-freshness-fixture.md) | Update-correctness fixture | 1 | T-102 | — | standard | yes | todo |
 | [T-106](T-106-message-set.md) | Team-generated customer message set | 1 | T-103 | LLM provider | standard + maintainer review | no | todo |
 | [T-201](T-201-classifier-evaluation.md) | Classifier evaluation and thresholds | 2 | T-005, T-106 | — | judgment checkpoint | no | todo |
@@ -44,7 +44,7 @@ Status: `todo`, `spec` (specification written, awaiting approval), `doing`, `rev
 | [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | todo |
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | todo |
-| [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | workflow decision | standard | yes | todo |
+| [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | — | standard | yes | todo |
 | [T-301](T-301-support-agent.md) | Support agent and company brain | 3 | T-204, T-206 | LLM provider | standard | no | todo |
 | [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo |
 | [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | todo |

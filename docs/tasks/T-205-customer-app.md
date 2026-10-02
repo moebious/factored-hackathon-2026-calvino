@@ -14,7 +14,7 @@
 
 **Inputs.** the hub API (mock it until T-204 lands); the card catalog
 
-**Outputs.** 6–8 cards, clarification chips, confirm buttons bound to actions, the glass-box panel, scenario buttons, ES / PT toggle
+**Outputs.** the 8 cards in PRD FR-7, the problem-payment picker for clarification, confirm buttons bound to actions, the glass-box panel, scenario buttons, ES / PT toggle
 
 **Open parameters.** none: the card catalog is PRD FR-7
 

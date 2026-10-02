@@ -12,11 +12,11 @@
 
 **Goal.** Make data preparation checkable: contracts at every boundary, a quality report, lineage.
 
-**Inputs.** the cleaned layer (or raw data); the data dictionary summary in DATA.md
+**Inputs.** the analyst's Parquet lakehouse (`clean_all_tables.py --all` on the full `data/` prefix; the two-week pilot window is a development subset only); the findings in DATA.md
 
 **Outputs.** raw and clean contracts in `contracts/data/`, a validator, a generated quality report, lineage records
 
-**Open parameters.** [data] the cleaned layer's exact schema
+**Open parameters.** the cleaned layer's exact schema (from the analyst's delivery); known defects are reported, not cleaned away (for example the `service_agents` branch link)
 
 **Done when.** the validator runs on the tables in use and the report shows violation counts per rule; tests on a synthetic fixture
 

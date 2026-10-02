@@ -1,10 +1,10 @@
 # Project Calvino
 
-![Status: design phase](https://img.shields.io/badge/status-design%20phase-orange)
+![Status: build phase](https://img.shields.io/badge/status-build%20phase-orange)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 
-> **Project status:** design phase, built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon) (submission: 2026-10-05). The architecture and the workflow are decided and documented; the code is not written yet. Sections below say plainly what exists and what is planned.
+> **Project status:** build phase, built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon) (submission: 2026-10-05). The architecture and the workflow are decided and documented, and the Python package is scaffolded; the features are being built. Sections below say plainly what exists and what is planned.
 
 **An AI-first banking customer service system where a domain-specific harness, not the model, decides what is safe to automate and when a human is needed.**
 
@@ -78,6 +78,20 @@ flowchart LR
     P --> D[(decisions.jsonl<br/>audit log)]
 ```
 
+## Tech stack
+
+| Part | Technology |
+|---|---|
+| Package and tooling | Python 3.11, `uv`, pydantic v2, ruff, pytest, GitHub Actions |
+| Hub and agents | LangGraph (checkpointer and `interrupt()`), LangGraph Deep Agents |
+| System 1 | [Laya](https://huggingface.co/convaiinnovations/laya) `laya-multilingual`, self-hosted and calibrated |
+| Tools | MCP servers (official Python SDK) with ISO 20022-aligned contracts |
+| API and hosting | FastAPI on a Hugging Face Space with persistent storage; Next.js on Vercel at `calvino.rubrica.dev` |
+| Data | Parquet lakehouse queried with DuckDB |
+| LLM for agents and the judge | provider still open (decision 6); Amazon Bedrock in the production reference |
+
+Details in [DESIGN.md 4.0.3](docs/DESIGN.md#403-components).
+
 ## Installation
 
 The Python package is scaffolded (shared types and the decision log); the application itself is not runnable yet.
@@ -98,17 +112,20 @@ uv run pytest        # runs the tests (no network, GPU or dataset needed)
 
 ## Usage
 
-Coming with the prototype: a demo conversation for each path (normal resolution, ambiguous request, human handoff), in Spanish and Portuguese, plus an evaluation command that reproduces the reported metrics.
+Coming with the prototype: a demo conversation for each stage of the workflow (explain, clarify, act, investigate, follow up), in Spanish and Portuguese, plus an evaluation command that reproduces the reported metrics.
 
 ## Roadmap
 
 - [x] Design document, decision log and repository standards
-- [ ] Data pipeline with contracts and quality checks
-- [ ] Laya classifiers: zero-shot baseline, calibration, fine-tuning
-- [ ] LangGraph harness: Router, Gate, Verifier, human interrupts
-- [ ] Mock banking tools behind an MCP server, with authentication
-- [ ] Generative UI (CopilotKit / AG-UI)
-- [ ] Evaluation against baselines, including fairness and failure cases
+- [x] Workflow chosen from the data: stuck payments, end to end (decision 17)
+- [x] Python package scaffold with shared types, decision log and CI
+- [ ] Data pipeline with contracts, the data-quality report and the human baseline
+- [ ] Laya classifiers: zero-shot and calibrated vs baselines (fine-tuning in Tier 1)
+- [ ] Policy engine, Gate and verifier cascade
+- [ ] Stuck-payments tools behind an MCP server, ISO 20022-aligned, with ownership checks
+- [ ] LangGraph hub with durable cases, human interrupts and policy replay
+- [ ] Customer app with Laya-chosen cards and a glass box, deployed at `calvino.rubrica.dev`
+- [ ] Evaluation on a seeded oracle test set: both baselines, a bare-LLM ablation, the verifier's false-pass rate, fairness and failure cases
 
 Each milestone is tagged as a version (`v0.1.0` design → `v1.0.0` submission); see [AGENTS.md](AGENTS.md#git-workflow) and [CHANGELOG.md](CHANGELOG.md). Details: [docs/PLAN.md](docs/PLAN.md).
 
