@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import math
+from pathlib import Path
 
 import pytest
 
 from calvino.data import RULES, TABLES, Severity, rules_for, validate_records
+from calvino.data.schemas import build_schema_files
 
 TX = {
     "transaction_id": "T1",
@@ -100,3 +103,27 @@ def test_exchange_rate_must_be_positive():
 def test_unnamed_columns_are_ignored():
     result = validate_records("customers", [{"customer_id": "C1", "country": "México", "x": 1}])
     assert result.valid == 1
+
+
+def test_exported_schemas_are_up_to_date():
+    out = Path(__file__).resolve().parents[3] / "contracts" / "data"
+    for name, content in build_schema_files().items():
+        assert (out / name).read_text(encoding="utf-8") == content, (
+            f"{name} is stale: run uv run python scripts/export_data_schemas.py"
+        )
+
+
+def test_schema_carries_keys_and_rules():
+    schema = json.loads(build_schema_files()["complaints.schema.json"])
+    extra = schema["x-calvino"]
+    assert extra["primary_key"] == ["complaint_id"]
+    assert {r["id"] for r in extra["rules"]} == {"CP-AMOUNT-NO-CURRENCY", "CP-ORIGIN-NULL"}
+
+
+def test_lineage_names_scripts_that_exist():
+    root = Path(__file__).resolve().parents[3]
+    lineage = json.loads((root / "contracts" / "data" / "lineage.json").read_text("utf-8"))
+    for step in lineage["steps"]:
+        script = step.get("script", "")
+        if script.startswith("scripts/"):
+            assert (root / script).is_file(), script

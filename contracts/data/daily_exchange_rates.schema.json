@@ -1,0 +1,60 @@
+{
+  "properties": {
+    "date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "format": "date-time",
+          "type": "string"
+        }
+      ],
+      "title": "Date"
+    },
+    "source_currency": {
+      "title": "Source Currency",
+      "type": "string"
+    },
+    "target_currency": {
+      "title": "Target Currency",
+      "type": "string"
+    },
+    "exchange_rate": {
+      "exclusiveMinimum": 0,
+      "title": "Exchange Rate",
+      "type": "number"
+    }
+  },
+  "required": [
+    "date",
+    "source_currency",
+    "target_currency",
+    "exchange_rate"
+  ],
+  "title": "daily_exchange_rates",
+  "type": "object",
+  "x-calvino": {
+    "primary_key": [
+      "date",
+      "source_currency",
+      "target_currency"
+    ],
+    "required_columns": [
+      "date",
+      "source_currency",
+      "target_currency",
+      "exchange_rate"
+    ],
+    "foreign_keys": [],
+    "rules": [
+      {
+        "id": "FX-RATE-POSITIVE",
+        "severity": "error",
+        "violation": "exchange_rate <= 0",
+        "meaning": "exchange rates are strictly positive"
+      }
+    ]
+  }
+}

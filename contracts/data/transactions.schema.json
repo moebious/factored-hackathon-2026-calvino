@@ -1,0 +1,198 @@
+{
+  "properties": {
+    "transaction_id": {
+      "minLength": 1,
+      "title": "Transaction Id",
+      "type": "string"
+    },
+    "customer_id": {
+      "minLength": 1,
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "product_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Product Id"
+    },
+    "transaction_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transaction Date"
+    },
+    "transaction_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transaction Type"
+    },
+    "transaction_status": {
+      "title": "Transaction Status",
+      "type": "string"
+    },
+    "amount": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Amount"
+    },
+    "currency": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Currency"
+    },
+    "amount_usd": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Amount Usd"
+    },
+    "response_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Response Code"
+    },
+    "transaction_country": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transaction Country"
+    },
+    "is_fraud": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Is Fraud"
+    },
+    "channel": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Channel"
+    }
+  },
+  "required": [
+    "transaction_id",
+    "customer_id",
+    "transaction_status"
+  ],
+  "title": "transactions",
+  "type": "object",
+  "x-calvino": {
+    "primary_key": [
+      "transaction_id"
+    ],
+    "required_columns": [
+      "transaction_id",
+      "customer_id",
+      "transaction_status"
+    ],
+    "foreign_keys": [
+      {
+        "column": "customer_id",
+        "references": "customers.customer_id",
+        "severity": "error"
+      },
+      {
+        "column": "product_id",
+        "references": "products.product_id",
+        "severity": "error"
+      }
+    ],
+    "rules": [
+      {
+        "id": "TX-STATUS",
+        "severity": "error",
+        "violation": "transaction_status NOT IN ('Approved', 'Declined', 'Pending', 'Reversed')",
+        "meaning": "status is one of Approved, Declined, Pending, Reversed"
+      },
+      {
+        "id": "TX-CURRENCY",
+        "severity": "error",
+        "violation": "currency NOT IN ('MXN', 'COP', 'ARS', 'USD')",
+        "meaning": "currency is MXN, COP, ARS or USD"
+      },
+      {
+        "id": "TX-RESPONSE-CODE-NULL",
+        "severity": "known_defect",
+        "violation": "response_code IS NULL",
+        "meaning": "null response_code: about 5% in every status, never a failure signal"
+      },
+      {
+        "id": "TX-COUNTRY-MEXICO",
+        "severity": "known_defect",
+        "violation": "transaction_country = 'Mexico'",
+        "meaning": "unaccented 'Mexico' label, merged into México (ISO 3166 MX) when used"
+      }
+    ]
+  }
+}

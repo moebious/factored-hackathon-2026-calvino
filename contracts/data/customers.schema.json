@@ -1,0 +1,73 @@
+{
+  "properties": {
+    "customer_id": {
+      "minLength": 1,
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "country": {
+      "title": "Country",
+      "type": "string"
+    },
+    "segment": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Segment"
+    },
+    "detected_accent": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Detected Accent"
+    },
+    "credit_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Credit Score"
+    }
+  },
+  "required": [
+    "customer_id",
+    "country"
+  ],
+  "title": "customers",
+  "type": "object",
+  "x-calvino": {
+    "primary_key": [
+      "customer_id"
+    ],
+    "required_columns": [
+      "customer_id",
+      "country"
+    ],
+    "foreign_keys": [],
+    "rules": [
+      {
+        "id": "CU-COUNTRY",
+        "severity": "error",
+        "violation": "country NOT IN ('México', 'Colombia', 'Argentina')",
+        "meaning": "customers are in México, Colombia or Argentina; there are no Brazilian customers"
+      }
+    ]
+  }
+}
