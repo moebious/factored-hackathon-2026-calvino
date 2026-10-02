@@ -123,5 +123,14 @@ expect pass "warn mode exits zero"          size_check --warn "HEAD~1..HEAD"
 expect pass "warn mode prints a warning"    bash -c 'cd "$0" && COMMIT_MAX_LINES=10 "$1" --warn HEAD~1..HEAD 2>&1 | grep -q "^warning: commit"' "$sz" "$root/scripts/git/check-commit-size.sh"
 expect pass "empty range"                   size_check "HEAD..HEAD"
 
+# The same check inside the pre-push hook: it compares against origin/main.
+git -C "$sz" update-ref refs/remotes/origin/main "$base"
+push_size() {  # $1 = commit to push
+    printf 'refs/heads/feat/x %s refs/heads/feat/x 0000\n' "$1" |
+        (cd "$sz" && COMMIT_MAX_FILES=3 COMMIT_MAX_LINES=10 "$root/.githooks/pre-push")
+}
+expect pass "push a small commit"            push_size "$(git -C "$sz" rev-list --reverse "$base..HEAD" | head -n 1)"
+expect fail "push a branch with a big commit" push_size "$(git -C "$sz" rev-parse HEAD)"
+
 echo "$passed passed, $failed failed"
 [ "$failed" -eq 0 ]
