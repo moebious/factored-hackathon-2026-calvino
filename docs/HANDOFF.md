@@ -45,7 +45,6 @@ In order. Item 9 can start at once.
 | 7 | Repository settings: squash merging only, automatic deletion of head branches | maintainer | — |
 | 8 | ~~Implement TSD-000 (scaffolding)~~ done | — | — |
 | 9 | Implement TSD-001, TSD-002, TSD-003, TSD-004 and TSD-005 in parallel sessions, one worktree each; if usage is tight, run TSD-001, -002 and -005 first | parallel sessions | — |
-| 9a | Ask the analysis session to push its branch `claude/stoic-brown-73h4w3` (verification scripts, chance tests, data-quality report, baseline cross-check), then bring its scripts and aggregate reports into a PR under `scripts/analysis/` and `reports/` | maintainer, next session | — |
 | 9b | Record the baseline finding (below) in one docs PR: a DATA.md finding; reframe PITCH slide 1; a note on decision 17 that the superseded rule's room-to-improve gate (G2) would have rejected Transaccional on first-contact resolution; reorder the cut order to flywheel, replay, follow-up, with the investigate stage never cut | next session | — |
 | 10 | Message set (T-106), workflow tools (T-206), then the hub, the customer app, deployment, durable cases, policy replay, the flywheel turn and the evaluation with its ablation, per the backlog | sessions | 3, 4, 5 |
 
@@ -104,8 +103,6 @@ Beyond AGENTS.md, learned while shaping the project:
 | Laya's first call loads the checkpoint (20–25 s on CPU) | preload at startup; never load on the first request |
 | The dataset's text is templated and its fields look independently generated | never train on the transcripts; check any link between tables (time windows, joins) against a shuffled baseline before treating it as evidence |
 | Teammate material can contain unmeasured figures, fields the dataset lacks, or storage names | verify every number on the full data before reuse; never copy storage names into the repository |
-| (Claude Code cloud sessions) The environment's git proxy refuses to delete remote branches (the connection drops) | ask the maintainer to delete merged branches on GitHub; don't retry |
-| (Claude Code cloud sessions) A stop hook asks for unpushed commits to be pushed | the push still needs the maintainer's explicit approval; say what is waiting and ask |
 | PRs so far were merged with a merge commit, not a squash | until the repository allows squash only, remind the maintainer to pick "Squash and merge" |
 
 ## 5. Environment notes

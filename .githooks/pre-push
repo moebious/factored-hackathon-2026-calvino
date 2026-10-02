@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
-# Refuses to push to main from a local clone. main only changes through
-# merged pull requests; branch protection on GitHub enforces the same rule.
+# Refuses to push to main from a local clone, and refuses branch names that do
+# not follow AGENTS.md (<type>/<short-description>, with a Conventional Commits
+# type). main only changes through merged pull requests; branch protection and
+# the conventions CI job enforce the same rules on GitHub.
 # Git passes "<local ref> <local sha> <remote ref> <remote sha>" lines on stdin.
-while read -r _ _ remote_ref _; do
+# Keep the type list in sync with scripts/git/check-commit-msg.sh.
+branch_re='^(feat|fix|docs|test|refactor|perf|build|ci|chore|style|revert)/[a-z0-9][a-z0-9._-]*$'
+zero=0000000000000000000000000000000000000000
+while read -r _ local_sha remote_ref _; do
     case "$remote_ref" in
         refs/heads/main|refs/heads/master)
             echo "error: never push to ${remote_ref#refs/heads/}; open a pull request from a feature branch" >&2
             exit 1 ;;
+        refs/heads/*)
+            # Deleting a remote branch is allowed whatever its name.
+            [ "$local_sha" = "$zero" ] && continue
+            name=${remote_ref#refs/heads/}
+            if ! printf '%s' "$name" | grep -qE "$branch_re"; then
+                echo "error: branch '$name' does not match <type>/<short-description> (see AGENTS.md)" >&2
+                exit 1
+            fi ;;
     esac
 done
 exit 0

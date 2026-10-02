@@ -63,9 +63,16 @@ expect fail "commit on main"                 staged_in "$repo" "src/a.py" "x = 1
 git -C "$repo" reset -q; git -C "$repo" switch -q -c feat/primary
 expect fail "commit from primary checkout"   staged_in "$repo" "src/a.py" "x = 1"
 git -C "$repo" reset -q; git -C "$repo" switch -q main
-push_to() { printf 'refs/heads/x 0000 %s 0000\n' "$1" | hook "$wt" pre-push; }
+push_to() { printf 'refs/heads/x 1111 %s 0000\n' "$1" | hook "$wt" pre-push; }
+delete_remote() { printf '(delete) 0000000000000000000000000000000000000000 %s 0000\n' "$1" | hook "$wt" pre-push; }
 expect fail "push to main"                   push_to refs/heads/main
 expect pass "push feature branch"            push_to refs/heads/feat/example
+expect pass "push branch with dots, digits"  push_to refs/heads/docs/v0.2-notes
+expect fail "push tool-named branch"         push_to refs/heads/claude/stoic-brown-73h4w3
+expect fail "push branch without type"       push_to refs/heads/policy-gate
+expect fail "push uppercase branch"          push_to refs/heads/feat/Policy-Gate
+expect pass "push a tag"                     push_to refs/tags/v0.2.0
+expect pass "delete an odd remote branch"    delete_remote refs/heads/claude/old
 
 # Secret and file guards, in the feature worktree
 expect pass "ordinary source file"   staged "src/app.py" "print('hello')"
