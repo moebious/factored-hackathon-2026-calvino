@@ -16,7 +16,7 @@
 
 **Outputs.** raw and clean contracts in `contracts/data/`, a validator, a generated quality report, lineage records
 
-**Open parameters.** the cleaned layer's exact schema (from the analyst's delivery); known defects are reported, not cleaned away (for example the `service_agents` branch link)
+**Open parameters.** the cleaned layer's exact schema (from the analyst's delivery); known defects are reported, not cleaned away (for example the `service_agents` branch link). Contracts encode the handling rules in DATA.md: `Mexico` merged into `México` (ISO 3166 MX); a null `response_code` allowed in every status and never read as a failure; `claimed_amount` checked per currency and converted to USD before aggregation; complaints carry no `origin_interaction_id`
 
 **Done when.** the validator runs on the tables in use and the report shows violation counts per rule; tests on a synthetic fixture
 

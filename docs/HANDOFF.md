@@ -45,7 +45,7 @@ In order. Item 9 can start at once.
 | 7 | Repository settings: squash merging only, automatic deletion of head branches | maintainer | — |
 | 8 | ~~Implement TSD-000 (scaffolding)~~ done | — | — |
 | 9 | Implement TSD-001, TSD-002, TSD-003, TSD-004 and TSD-005 in parallel sessions, one worktree each; if usage is tight, run TSD-001, -002 and -005 first | parallel sessions | — |
-| 9b | Record the baseline finding (below) in one docs PR: a DATA.md finding; reframe PITCH slide 1; a note on decision 17 that the superseded rule's room-to-improve gate (G2) would have rejected Transaccional on first-contact resolution; reorder the cut order to flywheel, replay, follow-up, with the investigate stage never cut | next session | — |
+| 9b | ~~Record the baseline finding~~ done: DATA.md (findings and handling rules), DESIGN.md 7, PITCH slide 1, a note on decision 17, PLAN's cut order (flywheel, replay, follow-up; investigate never cut), T-303's target, and the data-quality rules in TSD-002, T-102, T-203 and T-206 | — | — |
 | 10 | Message set (T-106), workflow tools (T-206), then the hub, the customer app, deployment, durable cases, policy replay, the flywheel turn and the evaluation with its ablation, per the backlog | sessions | 3, 4, 5 |
 
 ## 2.2 What the analyst was asked for (round two)
@@ -60,7 +60,7 @@ The analyst delivers files to the maintainer, who integrates them; the analyst d
 
 Before any baseline figure is published, compare it with the analysis session's independent cross-check (next action 3).
 
-## 2.3 Baseline finding to record (next action 9b)
+## 2.3 Baseline finding (recorded, next action 9b)
 
 From the analysis session's independent T-104 baseline on the full data `[measured]`, pending the analyst's own figures:
 

@@ -14,7 +14,7 @@
 
 **Inputs.** the running system; the seeded test set with oracle outcomes (T-106); the Portuguese set; adversarial cases
 
-**Outputs.** safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, p50/p95 latency and cost per case and per resolution; repeated runs; judge validation with the verifier's false-pass rate on hand labels; a bare-LLM ablation on the same adversarial set (unsafe outcomes, bare vs Calvino); error analysis; by language and segment; compared with both baselines (Transaccional calls, Transactions-category complaints)
+**Outputs.** safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, p50/p95 latency and cost per case and per resolution; repeated runs; judge validation with the verifier's false-pass rate on hand labels; a bare-LLM ablation on the same adversarial set (unsafe outcomes, bare vs Calvino); error analysis; by language and segment; compared with both baselines (Transaccional calls, Transactions-category complaints). On calls the target is to match the human first-contact resolution of 91.5% `[measured]` with zero unsafe outcomes, at lower latency and cost; investigation time savings are reported as projected only
 
 **Open parameters.** none
 

@@ -60,6 +60,8 @@ Measured on the full `data/` prefix. Deduplication on primary keys removes nothi
 | Anonymous events | `digital_events.customer_id` is null on 3,745,446 rows (24%) | a quarter of the telemetry cannot be attributed |
 | Mixed currencies | `claimed_amount` is in MXN, COP, ARS and USD; only 1,308 of 3,335 Transactions claims carry an amount | convert with `daily_exchange_rates` before summing or averaging |
 | Foreign countries as labels | `transaction_country` has Brazil, USA, Spain and a "Mexico" variant next to "México", about 0.9% each, spread evenly over customers of every country | no foreign markets; normalise the spelling |
+| Human baseline (calls) | Transaccional calls: first-contact resolution 91.5%, escalation 9.9%, follow-up 22.1%, median handle time 205 s (all calls: 76.7%, 10.0%, 34.8%, 291 s); the same in every country | the target is to **match** the human 91.5% with zero unsafe outcomes at lower time and cost, not to beat it; the room to improve is in investigations |
+| Human baseline (complaints) | Transactions-category complaints: 74.5% still open, SLA breached on 20.2%, median 15 days to resolve among resolved ones | investigations are where the improvement story sits; time savings there can only be projected, never measured |
 | No card details | no card table and no EMV, 3DS, CVV, PAN or BIN fields; cards exist only as a product type | rules and checks use the fields that exist |
 
 A teammate's pilot lakehouse covers a two-week window (17–30 June 2023): 878,336 rows with every dimension table and the fact tables for that window. Its rates match the full data (problem transactions 7.87% vs 8.0%), so it serves as a development subset; every published figure comes from the full data.
@@ -69,3 +71,10 @@ A teammate's pilot lakehouse covers a two-week window (17–30 June 2023): 878,3
 - Download only the tables a task needs, into the git-ignored `data/` folder.
 - Outputs committed to the repository are aggregates only, never records.
 - Test fixtures are small, synthetic and labelled synthetic.
+- Payment status comes from `transaction_status` only; a null `response_code` never means a failure.
+- Country labels map to ISO 3166 codes, and `Mexico` is merged into `México` (MX). For Mexican customers this turns about 18,400 rows domestic; no rule depends on it, because the foreign share carries no signal.
+- Amounts are converted to USD with `daily_exchange_rates` (rate on the date, or the nearest earlier one) before any sum or average across currencies.
+- A complaint is linked to activity by customer and time window, never by `origin_interaction_id`, and any such link is checked against a shuffled baseline before it is reported.
+- Synthetic data uses MXN, COP, ARS or USD and the countries MX, CO, AR (US only as a foreign label); never BRL or Brazilian customers.
+
+The baseline rows above come from the analysis session's independent run (`reports/baseline/`); they are published only after comparison with the analyst's own figures (HANDOFF next action 3).
