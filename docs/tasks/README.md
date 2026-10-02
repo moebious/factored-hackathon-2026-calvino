@@ -20,6 +20,21 @@ If GitHub Issues are used for tracking, create one issue per task with its ID in
 - Shared interfaces come first: TSD-000 merges before any other Wave 0 work.
 - Sessions never edit the same file in parallel without coordinating through the maintainer; when two tasks must touch the same file (for example DECISIONS.md), the second rebases on the first.
 - Stacked pull requests stay drafts until GitHub retargets them to `main`.
+- **Shared files:** each PR adds one line to `CHANGELOG.md` under `Unreleased` and updates only its own rows in `docs/specs/README.md` and this backlog. Dependencies are added with `uv add`; if a rebase conflicts on `uv.lock`, run `uv lock` and commit the result, never a hand-merged lockfile.
+- **Pull requests:** after the maintainer approves the push, the session gives the compare link (`https://github.com/moebious/factored-hackathon-2026-calvino/compare/main...<branch>?expand=1`) and a description that follows `.github/pull_request_template.md`. The maintainer opens the PR, so no tool adds an attribution footer that fails the `conventions` check.
+- **Rebasing after another PR merges** rewrites the branch, so it needs a `--force-with-lease` push, which also needs the maintainer's approval.
+
+### Session prompt template
+
+Paste as the first message of a new session; replace the spec, branch and worktree:
+
+```text
+Implement docs/specs/TSD-NNN-<name>.md, following AGENTS.md. Start by reading docs/HANDOFF.md, AGENTS.md, the spec (including its "Workflow context" section), and the DESIGN.md sections and decisions it references.
+
+Rules: branch <type>/<name> in its own worktree (.worktrees/<name>) from origin/main (if the worktree already exists, work in it); Conventional Commits authored as the maintainer (git config user.name "Kevin Vicent", user.email "624602+moebious@users.noreply.github.com"); no AI-tool attribution anywhere; enable hooks with git config core.hooksPath .githooks. Tests need no network, GPU or dataset. Run uv run ruff check ., uv run ruff format --check ., uv run pytest and bash tests/git/test_git_rules.sh before reporting.
+
+Follow the shared-file and pull-request rules in docs/tasks/README.md. Never push without my explicit approval for that specific push. When done, report test results and the diff summary, and propose the push.
+```
 
 ## Backlog
 
