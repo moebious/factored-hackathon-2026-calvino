@@ -11,7 +11,7 @@
 
 | # | Slide | Content | Evidence shown |
 |---|---|---|---|
-| 1 | **The problem** | Customer service in a LATAM bank: demand concentrated in [workflow]; today's resolution and escalation rates; what unsafe automation and unnecessary escalation cost | contact-reason chart and the human baseline `[result]` (T-101, T-104) |
+| 1 | **The problem** | Customer service in a LATAM bank: demand concentrated in stuck payments (35% of calls transactional, 8% of transactions declined, pending or reversed); today's resolution and escalation rates; what unsafe automation and unnecessary escalation cost | contact-reason chart and the human baseline `[result]` (T-101, T-104) |
 | 2 | **The idea** | Agent = Model + Harness; Calvino as the hub; the four systems as an escalation ladder; probabilities in, deterministic verdicts out | the architecture diagram |
 | 3 | **How it stays safe** | Hard rules first; calibrated thresholds chosen by expected cost; Gate before every action; verifier cascade with rubrics; humans with a complete case file | the threshold frontier, judge false-pass rate `[result]` |
 | 4 | **Results** | Safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, latency and cost per case, by language | results table `[result]` (T-303), labelled offline / simulated |

@@ -18,7 +18,7 @@ Keep this section current; it is the first thing a new session trusts.
 
 | Area | State |
 |---|---|
-| Concept | frozen: thesis (Systems 1 → 3), architecture, governance, verifiers, decisions 1–15 |
+| Concept | frozen: thesis (Systems 1 → 3), architecture, governance, verifiers, decisions 1–17 |
 | Repository | `v0.1.0` released (design, decisions, requirements, specs, task backlog, enforced git workflow) |
 | Data findings `[measured]` | `contact_reason` repeats the six values of `reason_category`; the 171,321 transcripts hold only 42 distinct customer texts, the same under every category; all 36 transaction type × channel pairs occur, so fields look independently generated |
 | Classifier text | team-generated, not the dataset transcripts (decision 16) |

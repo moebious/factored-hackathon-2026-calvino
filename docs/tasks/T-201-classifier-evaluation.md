@@ -16,7 +16,7 @@
 
 **Outputs.** results for majority, rules, logistic regression, Laya zero-shot and calibrated (and fine-tuned if available); calibration per language; threshold frontier and chosen operating point
 
-**Open parameters.** [workflow] the decision questions; the cost assumptions (state them)
+**Open parameters.** the cost assumptions (state them); the decision questions are in DESIGN.md 6.1
 
 **Done when.** results table with sample sizes on held-out data; thresholds written into the policy configuration with their justification
 

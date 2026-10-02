@@ -223,7 +223,7 @@ Classifier text is **team-generated** (decision 16): the dataset's transcripts a
 9. **Injection:** Laya is one signal (~0.71-0.76 on held-out jailbreaks `[vendor]`). Deterministic guards and the tool-call gate stay load-bearing.
 10. **Serving:** in-process, or `laya-serve` only with `LAYA_API_KEY` and a private bind. Preload checkpoints at startup.
 
-**Smoke test `[measured]` (2026-10-01, CPU, zero-shot, n=5, a sanity check, not evidence):**
+**Smoke test `[measured]` (2026-10-01, CPU, zero-shot, n=5, a sanity check, not evidence; run before the workflow was chosen, so its intents are generic):**
 
 | Input | Intent | needs_human | Latency |
 |---|---|---|---|
@@ -345,6 +345,16 @@ Decision 17. A customer's payment or transfer is Declined, Pending or Reversed, 
 | **Follow up** | later, "how is my case?" answered with a verified status | the case resumes from its checkpoint; a tool reads the investigation status; the verifier checks the reply |
 | **Learn** (offline) | — | operator approvals and denials become labels; one flywheel turn recalibrates a threshold; replaying `decisions.jsonl` under the new policy shows which verdicts change |
 
+**Laya's questions for this workflow** (following the usage rules in 4.3: choice questions, at most 10 options, neutral keys for yes/no, no `score` questions):
+
+| Question | Options |
+|---|---|
+| Workflow area | stuck payment · dispute or unrecognised charge · fraud or stolen access · other banking · out of scope |
+| Intent within a stuck payment | status · cancel · retry · open a case · case status · talk to a person |
+| Clear enough to act on | two options with neutral keys |
+| Needs a person | two options with neutral keys |
+| Injection or manipulation | two options with neutral keys |
+
 **Out of the workflow:** unrecognised charges, disputes and fraud signals go to a person; Calvino never refunds, credits or moves money on its own.
 
 **Baselines:** Transaccional calls (resolution, escalation, follow-up, handle time) for the explain and act stages; Transactions-category complaints (resolution days, SLA breaches, compensation) for the investigate stage. The data cannot link a call to its transaction, so both are category-level.
@@ -366,7 +376,7 @@ All variants run on the same held-out split (by customer and by time), sliced by
 | Bare LLM vs LLM + harness; ablations per harness part | the harness thesis |
 | Verifier: candidate judges × batch / per-criterion, against a human-labelled gold set | judge agreement, false-pass and false-fail rates, cost per 1,000 criteria (see 4.4) |
 
-**Seeded oracle test set (decision 17).** Every test case starts from one held-out record: a problem transaction (Declined, Pending, Reversed), a clean one for negatives, another customer's transaction for access attempts, or none for out-of-scope requests. Its expected outcome (explain, clarify, act, ask a person, block, investigate, out of scope) is computed by an **oracle**: a small, deterministic table from record facts (status, ownership, amount band, fraud flag, the customer's words) to outcome, written and reviewed by hand, independently of the hub's policy code. The customer message is then generated from that case (decision 16). Safe resolution, escalation quality and unsafe outcomes are scored exactly against the oracle, not judged. The oracle's own errors are bounded by its agreement with the hand-labelled gold subset, reported alongside.
+**Seeded oracle test set (decision 17).** Every test case starts from one held-out record: a problem transaction (Declined, Pending, Reversed), a clean one for negatives, another customer's transaction for access attempts, or none for out-of-scope requests. Its expected outcome (explain, clarify, act, ask a person, block, investigate, out of scope) is computed by an **oracle**: a small, deterministic table from record facts (status, ownership, amount band, fraud flag, the customer's words) to outcome, written and reviewed by hand, independently of the hub's policy code and before any threshold is tuned. The customer message is then generated from that case (decision 16). Safe resolution, escalation quality and unsafe outcomes are scored exactly against the oracle, not judged. The oracle's own errors are bounded by its agreement with the hand-labelled gold subset, reported alongside.
 
 **Reported outcomes (per the brief):** safe automated resolution (plus attempt rate), containment, escalation quality (missed / unnecessary), unsafe outcomes with counts and denominators, p50/p95 latency and cost per attempted case and per resolution ("not defined" when there are none).
 

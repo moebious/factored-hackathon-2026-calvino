@@ -16,7 +16,7 @@
 
 **Outputs.** first-contact resolution, escalation, follow-up, handle time and (if available) CSAT, overall and by country and segment
 
-**Open parameters.** [workflow]
+**Open parameters.** none: Transaccional calls and Transactions-category complaints (decision 17)
 
 **Done when.** numbers with counts and denominators in `reports/baseline/`, reproducible from one command
 

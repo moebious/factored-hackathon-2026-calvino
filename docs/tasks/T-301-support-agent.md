@@ -16,7 +16,7 @@
 
 **Outputs.** a Deep Agents worker; policy retrieval as a tool or subagent; prompts versioned
 
-**Open parameters.** [workflow]
+**Open parameters.** the agent prompts for the explain, clarify, act and follow-up stages (DESIGN.md 6.1)
 
 **Done when.** the verifier passes its outputs on the scripted scenarios in Spanish and Portuguese
 
