@@ -249,6 +249,17 @@ After *Designing Efficient Verifiers for Legal Agents* (LangChain Labs and Harve
 - Improve the judge from traces: review disagreements in the decision log and tune the prompt, re-measuring false passes each time.
 - The runtime judge should be an open model the bank can host, in line with keeping customer data in-house; a frontier model can serve as the offline reference.
 
+**A mixture of financial verifiers, tiered by risk.**
+
+| Risk (from System 1.5) | Verification |
+|---|---|
+| Low (balance answer, status inquiry) | the cascade above, with one batched judge call |
+| High (disputes above a threshold, card blocks, anything moving money) | a panel of **specialist verifiers** in parallel (amounts and transactions · policy and regulation · customer-data privacy · promises and tone), each judging its own criteria one by one and allowed to look up evidence (for example, the actual policy rule) |
+
+Panel rules: verifiers see the output and the evidence, never the worker's reasoning; each returns structured pass/fail verdicts per criterion; the hub combines them with a fixed rule (any failed criterion fails the output), not a model; a fixed number of verifiers, one turn each, with a timeout that counts as a failure. Specialists report to the hub, never to each other.
+
+**Offline verifier lab.** A multi-agent workflow outside the request path: it mines the decision log for disagreements between judges and human labels, proposes rubric and prompt changes, and re-measures each change on the gold set, with false passes as the target.
+
 ## 5. Governance: constraints as enforceable controls
 
 If a constraint isn't met, there is no governance. Each constraint has a metric, an enforcement mechanism and an explicit trade-off.
@@ -359,10 +370,8 @@ What is built for the demo vs. designed only, and the work remaining before depl
 
 ## 10. Open decisions
 
-1. **Workflow**: undecided. Candidates are in the shortlist we discussed. To be decided against `contact_reason` volumes and resolution/escalation rates.
-2. **Data contracts**: next section to be drafted.
-3. **LLM provider**: decide later (provider-agnostic interface).
-4. **Demo UI depth**: decide later.
+1. **Workflow:** to be decided in phase 2 from contact-reason volumes and resolution / escalation rates, also weighing ISO 20022 fit (payments vs cards).
+2. **LLM provider and key** for the agents and the judge (maintainer, in progress). Bedrock is the production reference.
 
 ## References
 
