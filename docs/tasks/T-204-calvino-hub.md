@@ -10,7 +10,7 @@
 | Can run in parallel | no |
 | References | DESIGN.md 2, 4; PRD FR-1 to FR-11 |
 
-**Goal.** Wire System 1.5: identity → hard rules → decision classifier → Gate → verification → case file, with a human interrupt.
+**Goal.** Wire System 1.5 for the stuck-payments workflow (decision 17): identity → hard rules → Laya → policy verdict → tools → agent → verification, with the clarify, act (Gate), investigate (human interrupt and case file) and follow-up (resume) stages.
 
 **Inputs.** the policy engine, MCP tools, verifier and Laya client
 

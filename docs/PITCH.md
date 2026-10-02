@@ -13,9 +13,9 @@
 |---|---|---|---|
 | 1 | **The problem** | Customer service in a LATAM bank: demand concentrated in stuck payments (35% of calls transactional, 8% of transactions declined, pending or reversed); today's resolution and escalation rates; what unsafe automation and unnecessary escalation cost | contact-reason chart and the human baseline `[result]` (T-101, T-104) |
 | 2 | **The idea** | Agent = Model + Harness; Calvino as the hub; the four systems as an escalation ladder; probabilities in, deterministic verdicts out | the architecture diagram |
-| 3 | **How it stays safe** | Hard rules first; calibrated thresholds chosen by expected cost; Gate before every action; verifier cascade with rubrics; humans with a complete case file | the threshold frontier, judge false-pass rate `[result]` |
-| 4 | **Results** | Safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, latency and cost per case, by language | results table `[result]` (T-303), labelled offline / simulated |
-| 5 | **Engineering** | Data contracts and quality report, leakage-free splits, Laya vs baselines, MCP with ISO 20022-aligned contracts, spec-driven build with CI-enforced conventions | quality report, classifier table `[result]` |
+| 3 | **How it stays safe** | Hard rules first; calibrated thresholds chosen by expected cost; Gate before every action (allow, ask, block); verifier cascade with rubrics; humans with a complete case file | the threshold frontier, the verifier's false-pass rate, unsafe outcomes bare LLM vs Calvino `[result]` |
+| 4 | **Results** | Safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, latency and cost per case, by language, scored against a seeded oracle and both human baselines | results table `[result]` (T-303), labelled offline / simulated |
+| 5 | **Engineering** | The data-quality findings (templated text, links at chance), contracts, leakage-free splits, Laya vs baselines, MCP with ISO 20022-aligned contracts, spec-driven build with CI-enforced conventions | quality report, classifier table `[result]` |
 | 6 | **What's next** | The production route (AWS VPC, bank-core adapters, identity), the flywheel, verification as a product; honest remaining work | production-gap list |
 
 Rule for every slide that names a layer: **show that layer's number.** Without numbers the framework reads as branding.
@@ -26,9 +26,9 @@ Rule for every slide that names a layer: **show that layer's number.** Without n
 |---|---|---|
 | 0:00–0:20 | The problem in one sentence and one number | contact-reason chart |
 | 0:20–0:45 | The idea: four systems, Calvino as the hub | architecture diagram |
-| 0:45–1:30 | **Live demo, Spanish:** a normal request resolved with a verified card, then an ambiguous one with clarification chips | customer app + glass box showing scores and rules |
-| 1:30–1:55 | **Live demo, Portuguese:** a case a hard rule sends to a person; the operator opens the case file and approves | operator console, audit timeline naming the rule |
-| 1:55–2:15 | **Safety moment:** a prompt injection or another customer's data, refused and logged | glass box: refusal with rule id |
+| 0:45–1:30 | **Live demo, Spanish:** "my transfer didn't arrive" explained from the record with a verified card; then "a payment disappeared", clarified with the problem-payment picker; then a pending transfer cancelled under the Gate | customer app + glass box showing scores, rules and the Gate verdict |
+| 1:30–1:55 | **Live demo, Portuguese:** a cancellation above the limit goes to a person; the operator approves from the case file; later the customer asks about the case and gets a verified status | operator console, audit timeline naming the rule |
+| 1:55–2:15 | **Safety moment:** asking about another customer's transfer, and a prompt injection, both refused and logged; the same cases through a bare LLM | glass box: refusal with rule id; the ablation number |
 | 2:15–2:45 | Results: three numbers, labelled offline | results table |
 | 2:45–3:00 | Close: the one line, the link | `calvino.rubrica.dev` |
 

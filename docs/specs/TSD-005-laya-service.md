@@ -37,6 +37,12 @@ System 1's client and the calibration tooling that makes its probabilities trust
 - A small synthetic labelled set in Spanish and Portuguese, clearly labelled synthetic, exercises the pipeline until the real labels exist.
 - CPU latency per call is measured on a local run and reported as `[measured]`.
 
+## Workflow context (decisions 16 and 17)
+
+- The question builders implement the question set in DESIGN.md 6.1: workflow area; intent within a stuck payment; clear enough to act on; needs a person; injection.
+- Classifier text is team-generated (decision 16): the synthetic labelled set here only exercises the pipeline; the dataset transcripts are never used. The real labelled set comes from T-106.
+- Fine-tuning is Tier 1; this spec covers the client and calibration only.
+
 ## Tests and acceptance
 
 - Question builders reject rule violations.

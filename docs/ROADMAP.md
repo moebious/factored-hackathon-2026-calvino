@@ -13,7 +13,7 @@ How Calvino gets built: in waves of parallel work, each piece one branch, one wo
 
 ## Prerequisites (maintainer)
 
-- [ ] Merge the foundation PRs (scaffolding, git workflow enforcement, concept).
+- [x] Merge the foundation PRs (git workflow enforcement, concept, `v0.1.0`) and the Python scaffold (TSD-000).
 - [ ] Environment variables for agent sessions: dataset access (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `CALVINO_DATA_BUCKET`), the LLM provider key, `HF_TOKEN`.
 - [ ] Hugging Face Space and Vercel project created; DNS for `calvino.rubrica.dev` when the app is ready.
 
@@ -23,12 +23,12 @@ Each stream is specified in a technical specification in [specs/](specs/README.m
 
 | Stream | Branch | Builds | Done when |
 |---|---|---|---|
-| **A0. Scaffolding** (first, small) · [TSD-000](specs/TSD-000-scaffolding.md) | `build/python-scaffold` | `pyproject.toml`, `src/calvino/` package, pytest, ruff, CI test job, decision-record schema | CI runs lint and tests on an empty-but-real package |
-| **A. Policy engine** · [TSD-001](specs/TSD-001-policy-engine.md) | `feat/policy-engine` | hard rules, two-threshold verdicts, out-of-scope outcome, decision log writer | fully unit-tested, no model calls; same inputs give the same verdict |
-| **B. MCP tools** · [TSD-002](specs/TSD-002-mcp-tools.md) | `feat/mcp-tools` | MCP server, ISO 20022-aligned tool contracts, ownership and scope checks, idempotent write tools, adapter conformance suite, dataset adapter on a fixture | conformance and unauthorized-access tests pass |
-| **C. Deployment skeleton** · [TSD-003](specs/TSD-003-deployment.md) | `build/deploy-skeleton` | Hugging Face Space container (Laya preloaded, weights baked in), Vercel app with `/api` rewrite and warm-up screen, keep-alive workflow | runs locally end to end; deploy steps documented for the maintainer |
-| **D. Verifier framework** · [TSD-004](specs/TSD-004-verifier.md) | `feat/verifier` | rubric format, code checks, batched-judge interface with a mock model, fixed aggregation rule | rubric tests pass with mocked verdicts |
-| **E. Laya service and calibration** · [TSD-005](specs/TSD-005-laya-service.md) | `feat/laya-service` | Laya client (multilingual pinned, neutral-key choices), temperature scaling, ECE / Brier / reliability plot | works end to end on a synthetic labelled set |
+| **A0. Scaffolding** (done) · [TSD-000](specs/TSD-000-scaffolding.md) | `build/python-scaffold` | `pyproject.toml`, `src/calvino/` package, pytest, ruff, CI test job, decision-record schema | CI runs lint and tests on an empty-but-real package |
+| **A. Policy engine** · [TSD-001](specs/TSD-001-policy-engine.md) | `feat/policy-engine` | hard rules, two-threshold verdicts with the clarify band, out-of-scope outcome, Gate verdicts for cancel, retry and open investigation, per-currency limits | fully unit-tested, no model calls; same inputs give the same verdict |
+| **B. MCP tools** · [TSD-002](specs/TSD-002-mcp-tools.md) | `feat/mcp-tools` | MCP server, ISO 20022-aligned tool contracts (camt.053/054, pacs.002, camt.027/029/056), the stuck-payments tools, ownership and eligibility checks, idempotent simulated writes, adapter conformance suite, dataset adapter on a fixture | conformance and unauthorized-access tests pass |
+| **C. Deployment skeleton** · [TSD-003](specs/TSD-003-deployment.md) | `build/deploy-skeleton` | Hugging Face Space container (Laya preloaded, weights baked in, persistent storage for checkpoints and the decision log), Vercel app with `/api` rewrite and warm-up screen, keep-alive workflow | runs locally end to end; deploy steps documented for the maintainer |
+| **D. Verifier framework** · [TSD-004](specs/TSD-004-verifier.md) | `feat/verifier` | rubric format with the stuck-payments criteria, code checks, batched-judge interface with a mock model, fixed aggregation rule, per-criterion checker recorded for the false-pass measurement | rubric tests pass with mocked verdicts |
+| **E. Laya service and calibration** · [TSD-005](specs/TSD-005-laya-service.md) | `feat/laya-service` | Laya client (multilingual pinned, neutral-key choices) with the question set in DESIGN 6.1, temperature scaling, ECE / Brier / reliability plot | works end to end on a synthetic labelled set |
 
 ## Wave 1: data
 
@@ -36,34 +36,37 @@ Needs dataset access.
 
 | Stream | Branch | Builds | Done when |
 |---|---|---|---|
-| **F. Contact-reason analysis** · [TSD-006](specs/TSD-006-contact-reason-analysis.md) | `eval/contact-reasons` | demand, first-contact resolution, escalation and handle time by reason, country and segment; complaint analysis; charts | the maintainer chooses the workflow, recorded in DECISIONS.md |
-| **G. Contracts and quality report** | `data/contracts` | raw and clean contracts, validator, quality report, lineage | report generated on the cleaned layer |
-| **H. Labels and splits** | `data/labels-splits` | labels, splits by customer and by time, gold-set rubric and first labels, freshness fixture | splits documented; leakage tests pass |
+| **F. Workflow decision** (done) | — | full-data verification and chance tests; decision 17 (TSD-006 superseded) | recorded in DECISIONS.md |
+| **G. Contracts, quality report and baseline** | `data/contracts`, `eval/baseline` | the analyst's full-data pipeline and validator, the data-quality report, the human baseline (T-104) with an independent cross-check | report and baseline generated on the full data |
+| **H. Labels, splits and message set** | `data/labels-splits`, `data/message-set` | labels and gold-set rubric (T-103); seeded test cases with oracle outcomes and generated Spanish messages (T-106); freshness fixture | every test case has a seed record and an oracle outcome; leakage tests pass |
 
 ## Wave 2: classifiers, hub and customer app
 
-Needs F and H (I, J) or Wave 0 (K, L).
+Needs H (I, J) or Wave 0 (K, L).
 
 | Stream | Branch | Builds |
 |---|---|---|
-| **I. Classifier evaluation** | `eval/classifiers` | majority, rules, logistic regression, Laya zero-shot and calibrated; thresholds by expected cost; calibration per language. In parallel, the maintainer runs Laya fine-tuning on Kaggle |
-| **J. Portuguese test set** | `data/pt-test-set` | translated held-out cases and cases written in Portuguese, labelled synthetic |
-| **K. Calvino hub** | `feat/hub` | LangGraph hub wiring A, B, D and E: identity → hard rules → decision classifier → Gate → verification → case file, with a human interrupt |
-| **L. Customer app** | `feat/customer-app` | Laya card catalog (6–8 cards), clarification chips, glass box, scenario buttons, ES / PT toggle |
+| **I. Classifier evaluation** | `eval/classifiers` | majority, rules, logistic regression, Laya zero-shot and calibrated; thresholds by expected cost; calibration per language and dialect (fine-tuning is Tier 1) |
+| **J. Portuguese test set** | `data/pt-test-set` | translated held-out messages and cases written in Portuguese, seeded like the Spanish set, local currencies only, labelled synthetic |
+| **K. Calvino hub** | `feat/hub` | LangGraph hub wiring A, B, D and E through the five stages of decision 17: explain, clarify, act under the Gate, investigate (human interrupt, case file), follow up (resume) |
+| **L. Customer app** | `feat/customer-app` | the 8-card catalog in PRD FR-7, problem-payment picker, glass box, scenario buttons, ES / PT toggle |
 
 ## Wave 3: end-to-end core (Tier 0)
 
 | Stream | Branch | Builds |
 |---|---|---|
-| **M. Support agent and company brain** | `feat/support-agent` | Deep Agents worker for the chosen workflow; policy retrieval |
-| **N. Handoff queue and audit timeline** | `feat/console-queue` | operator view of cases, approvals, timeline with the rule named on every refusal |
-| **O. Evaluation harness** | `eval/end-to-end` | the brief's outcome metrics, adversarial cases, repeated runs, judge validation, error analysis |
+| **M. Support agent** | `feat/support-agent` | Deep Agents worker for the explain, clarify, act and follow-up stages |
+| **N. Handoff queue and audit timeline** | `feat/console-queue` | operator view of approvals and investigations, timeline with the rule named on every refusal |
+| **O. Evaluation harness** | `eval/end-to-end` | the brief's outcome metrics scored against the seeded oracle, both baselines, the bare-LLM ablation, the verifier's false-pass rate, repeated runs, error analysis |
+| **P. Durable cases** | `feat/durable-cases` | a case survives a restart and resumes (T-401) |
+| **Q. Policy replay** | `feat/policy-replay` | replay the log under a new policy version (T-408) |
+| **R. One flywheel turn** | `eval/flywheel` | recalibration from operator labels, measured on the frozen set (T-407) |
 
 **Gate:** deployed at `calvino.rubrica.dev`, results in the README. Tag `v0.4.0`.
 
 ## Wave 4: depth (Tier 1)
 
-One stream each: durable cases (pause, restart, resume with approval) · risk-tiered verifier panel · coworker agent · analytics tab · fairness and counterfactual tests · second MCP adapter and the swap demo · one offline flywheel turn · console policy page with rule-and-replay.
+One stream each: Laya fine-tuning · risk-tiered verifier panel · coworker agent · analytics tab · counterfactual fairness tests · second MCP adapter and the swap demo.
 
 ## Wave 5: submission
 

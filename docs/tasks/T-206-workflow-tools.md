@@ -5,7 +5,7 @@
 | Wave | 2 |
 | Branch | `feat/workflow-tools` |
 | Depends on | T-002, T-101 |
-| Blocked by | workflow decision |
+| Blocked by | — |
 | Model | standard model |
 | Can run in parallel | yes |
 | References | TSD-002; decision 12 |

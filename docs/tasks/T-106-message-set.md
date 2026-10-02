@@ -10,7 +10,7 @@
 | Can run in parallel | no |
 | References | decision 16; DESIGN.md 7, 8, 8.1; DATA.md findings |
 
-**Goal.** Provide the customer text the classifiers are calibrated, fine-tuned and evaluated on, since the dataset's transcripts are templated (decision 16).
+**Goal.** Provide the customer text the classifiers are calibrated and evaluated on (and fine-tuned on, in Tier 1), since the dataset's transcripts are templated (decision 16).
 
 **Inputs.** the label definitions and rubric from T-103; held-out records for the workflow (problem transactions, clean transactions, other customers' transactions, complaints) on synthetic personas, never copied customer records
 

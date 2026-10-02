@@ -12,9 +12,9 @@
 | [TSD-003](TSD-003-deployment.md) | Deployment skeleton | 0 | draft | TSD-000 |
 | [TSD-004](TSD-004-verifier.md) | Verifier framework | 0 | draft | TSD-000 |
 | [TSD-005](TSD-005-laya-service.md) | Laya service and calibration | 0 | draft | TSD-000 |
-| [TSD-006](TSD-006-contact-reason-analysis.md) | Contact-reason analysis and workflow decision rule | 1 | draft, rule fixed before the data | dataset access |
+| [TSD-006](TSD-006-contact-reason-analysis.md) | Contact-reason analysis and workflow decision rule | 1 | superseded by decision 17 | dataset access |
 
-Specs for later waves are written just before their wave, once the workflow choice settles their details.
+Specs for later tasks are written from their task cards ([tasks/](../tasks/README.md)) as each task's first step; the workflow they build is decision 17 ([DESIGN.md 6.1](../DESIGN.md#61-the-workflow-stuck-payments-end-to-end)).
 
 ## Implementing a spec
 

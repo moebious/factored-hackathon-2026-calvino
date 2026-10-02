@@ -32,4 +32,11 @@
 | **Evidence labels** | `[measured]`, `[vendor]`, `[read from chart]`, `[hypothesis]` on claims in the docs |
 | **Result labels** | offline (held-out data), simulated (scripted conversations), projected (business estimate) |
 | **Tier 0 / 1 / 2** | the build ladder: submittable core, depth, integration standards |
+| **Stuck payment** | a payment or transfer that is Declined, Pending or Reversed: the workflow Calvino serves (decision 17) |
+| **Problem transaction** | a transaction in one of those statuses; 8.0% of the dataset |
+| **Seeded oracle test set** | test cases that each start from a held-out record and carry the expected outcome computed by a hand-written table (the oracle), so outcomes are scored exactly |
+| **Bare-LLM ablation** | the same adversarial cases run through an LLM without the harness, to measure what Calvino adds |
+| **False-pass rate** | the share of failing outputs a verifier lets through, measured against hand labels |
+| **Policy replay** | re-running the decision log under a new policy version to see which verdicts change |
+| **Pilot window** | the analyst's two-week development subset (17–30 June 2023); never the source of a published number |
 | **BRD / PRD / TSD** | business requirements (why), product requirements (what), technical specification (how one part is built) |

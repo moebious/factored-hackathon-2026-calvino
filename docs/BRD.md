@@ -66,6 +66,6 @@ Every KPI is compared against the **human baseline** from the dataset (resolutio
 | Assumption or risk | Response |
 |---|---|
 | The synthetic labels reflect what agents did, not what was needed | a hand-labelled gold set and reported agreement |
-| Open models may underperform on Spanish and Portuguese | calibration, fine-tuning, and a simpler learned baseline as fallback |
+| Open models may underperform on Spanish and Portuguese | calibration and a simpler learned baseline as fallback; fine-tuning in Tier 1 |
 | No Portuguese in the dataset | a clearly labelled synthetic Portuguese test set, with the limitation reported |
 | Scope grows beyond what can be finished | the tier ladder and its gates in [PLAN.md](PLAN.md) |

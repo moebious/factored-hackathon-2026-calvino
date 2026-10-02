@@ -35,6 +35,12 @@ Make the deployment path real before the features exist, so every later PR can b
 - No secrets in the repository; all keys come from Space secrets and Vercel environment variables.
 - **State survives restarts.** A Space's own disk is wiped on restart, so the LangGraph checkpointer and `decisions.jsonl` live on durable storage: the Space's persistent storage mounted at `/data`, or an external database whose URL comes from an environment variable. The location is configuration, never code. Durable cases (T-401) and policy replay (T-408) depend on it.
 
+## Workflow context (decision 17)
+
+- Durable cases and policy replay are Tier 0, so persistent storage for checkpoints and `decisions.jsonl` is required, not optional.
+- The Laya service (TSD-005) may land after this spec: model loading sits behind a small loader interface with a fake for tests, and the real `laya` package is loaded only in the container.
+- The hosting accounts may not exist yet; done means a local Docker run plus `docs/DEPLOY.md`.
+
 ## Tests and acceptance
 
 - API tests with a fake Laya.

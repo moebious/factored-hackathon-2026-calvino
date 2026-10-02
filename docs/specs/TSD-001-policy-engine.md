@@ -39,6 +39,15 @@ System 1.5's deterministic decision logic: turn calibrated scores and facts into
 - Thresholds are compared on calibrated probabilities only; never on `action.act_probability`.
 - Every call returns and logs a `DecisionRecord` with the rule or thresholds that produced it and the policy version.
 
+## Workflow context (decision 17)
+
+This spec predates the workflow choice; these points complete it:
+
+- `decide_gate` covers the actions `request_cancellation`, `retry_payment` and `open_investigation` (TSD-002), with all three verdicts: **allow** (owner verified, eligible status, amount under the limit), **ask** (above the limit, `human_action = approve_action`), **block** (fraud signal, not the owner, ineligible status, missing inputs).
+- `decide_route` uses `Route.clarify` for the uncertain band and `out_of_scope` for requests outside the workflow; the inputs are Laya's questions in DESIGN.md 6.1.
+- Limits are per currency (MXN, COP, ARS, USD) in `policy/v1.yaml`. They are policy assumptions, marked as such, never as measurements.
+- Records use `calvino.records.session_ref_for` and are written with `calvino.decision_log`.
+
 ## Tests and acceptance
 
 - Each hard rule fires and wins over any score.

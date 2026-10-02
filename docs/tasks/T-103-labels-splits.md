@@ -5,7 +5,7 @@
 | Wave | 1 |
 | Branch | `data/labels-splits` |
 | Depends on | T-101 |
-| Blocked by | workflow decision |
+| Blocked by | — |
 | Model | strong model or maintainer review (judgment checkpoint) |
 | Can run in parallel | no |
 | References | DESIGN.md 7; TSD-006 outputs |
