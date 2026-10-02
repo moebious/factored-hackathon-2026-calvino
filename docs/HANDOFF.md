@@ -18,7 +18,7 @@ Keep this section current; it is the first thing a new session trusts.
 
 | Area | State |
 |---|---|
-| Concept | frozen: thesis (Systems 1 → 3), architecture, governance, verifiers, decisions 1–26. Positioning: a control layer for banking customer service; under the hood, a harness for probabilistic decisions (DESIGN 2) |
+| Concept | frozen: thesis (Systems 1 → 3), architecture, governance, verifiers, decisions 1–26. Positioning: an evolutionary, AI-powered decision engine for banking customer service (README, PITCH, DESIGN 2); the README avoids the word "gate" |
 | Repository | `v0.1.0` released; since then decisions 16–26, the full-data findings and their handling rules (#19), the Python scaffold, the policy engine (#20) and the MCP tools (#21) are merged |
 | Data findings `[measured]` | `contact_reason` repeats the six values of `reason_category`; the 171,321 transcripts hold only 42 distinct customer texts, the same under every category; all 36 transaction type × channel pairs occur, so fields look independently generated |
 | Classifier text | team-generated, not the dataset transcripts (decision 16) |

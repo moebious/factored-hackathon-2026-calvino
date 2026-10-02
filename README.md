@@ -1,171 +1,55 @@
 # Project Calvino
 
-![Status: build phase](https://img.shields.io/badge/status-build%20phase-orange)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 
-> **Project status:** build phase, built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon) (submission: 2026-10-05). The architecture and the workflow are decided and documented, and the Python package is scaffolded; the features are being built. Sections below say plainly what exists and what is planned.
+**An evolutionary, AI-powered decision engine for banking customer service: it answers payment questions safely, takes an action only when the policy allows it, and hands investigations to people with a complete file.**
 
-**An AI-first banking customer service system where a domain-specific harness, not the model, decides what is safe to automate and when a human is needed.**
+Models suggest, a versioned policy decides, people approve what matters, and their decisions improve the next version. Why each of those words: [DESIGN.md 2](docs/DESIGN.md#2-thesis). Built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon).
 
-> Laya is System 1, Calvino is System 1.5, agents are System 2, and humans are System 3. Calvino, the hub, decides who acts, gates every action, verifies agents' work and learns from every human decision.
+## The workflow: stuck payments
 
-## The workflow: stuck payments, end to end
-
-A customer's payment or transfer was declined, is pending, or was reversed, and they ask where their money is. It is the bank's largest contact category (35% of calls are transactional) and 8% of all transactions end in one of those statuses `[measured]`. Calvino takes the request through five stages:
-
-| Stage | What the customer gets | What Calvino uses |
-|---|---|---|
-| **Explain** | the status from the bank's records, what it means, the next step | hard rules, Laya, governed read tools, the agent, the verifiers |
-| **Clarify** | one question, or a pick-list of their recent problem payments | Laya's confidence and the policy; nothing is done on a guess |
-| **Act** | cancel a pending transfer or retry a declined one (simulated) | the Gate: allow, ask a person, or block |
-| **Investigate** | a case number and a person with the full case file | the human intervention classifier, the case file, a durable case |
-| **Follow up** | later, a verified answer to "how is my case going?" | the case resumes from its saved state |
-
-Disputes, unrecognised charges and fraud signals go to a person; Calvino never refunds or moves money on its own. Results will be measured against the bank's own human baseline on a held-out test set whose correct outcome is known for every case. Details: [decision 17](docs/DECISIONS.md) and [DESIGN.md 6.1](docs/DESIGN.md#61-the-workflow-stuck-payments-end-to-end).
-
-## Description
-
-Banks want AI to resolve customer requests, but a language model on its own can't be trusted to decide what it is allowed to do, whether its answer is grounded, or when a person should take over. Project Calvino puts those decisions in the **harness**: the code around the model.
-
-The idea follows the definition **Agent = Model + Harness** ([The Anatomy of an Agent Harness](https://www.langchain.com/blog/the-anatomy-of-an-agent-harness)). The model provides the intelligence; the harness makes it useful and safe. Calvino splits the work four ways:
-
-| Who | Does what | Example |
-|---|---|---|
-| **Deterministic code** | Anything with exact rules, money or permissions | authentication, record ownership, limits, confirmations |
-| **System One model** ([Laya](https://huggingface.co/convaiinnovations/laya)) | Fast, calibrated judgments with typed answers, no generated text | intent, "does this need a human?", injection risk |
-| **LLM** | Open-ended language | clarifying questions, explanations, handoff summaries |
-| **Human** | Judgment with accountability | approvals, high-value disputes, vulnerable customers |
-
-Inside Calvino, the core principle is **probabilities in, deterministic verdicts out.** Laya returns calibrated probabilities; a versioned, unit-tested policy function turns them into a verdict; hard rules (fraud signals, amount limits, an explicit request for a person) always win. Every verdict is logged and can be replayed.
-
-### Planned features
-
-- **Human intervention classifier.** Before involving a person, the harness asks whether it's worth it, and how: approve one action, request information, or transfer the whole case.
-- **Mode classifier.** Sends each request to a fixed deterministic flow, the AI agent, or a human.
-- **Router, Gate and Verifier.** The harness picks the model for each request, checks every tool call before it runs, and verifies the final answer is grounded before the customer sees it.
-- **Durable cases.** Investigations that last days pause for a person and resume with full state, even after a restart.
-- **Generative UI.** Clients and managers see outcomes (cards, confirm buttons, case status), not the machinery.
-- **Spanish and Portuguese,** with fairness checks across dialects, countries and customer segments.
-
-### How it differs
-
-- **From "LLM does everything":** decisions are cheap, typed and calibrated instead of parsed from prose, and nothing with consequences rests on a single probability.
-- **From hosted classifiers such as TypeSafe Jev:** Laya is open-weight (Apache 2.0) and self-hosted, so customer text never leaves the bank, and it can be fine-tuned and recalibrated on the bank's own data.
-
-### Why "Calvino"?
-
-After Italo Calvino's *Invisible Cities*. Each harness is a self-contained city with its own rules; state passes between cities only through defined contracts; and, like Marco Polo describing cities to the Khan, the interface turns hidden machinery into an account the reader can follow.
-
-## Visuals
-
-Architecture (planned). Screenshots and a demo recording will be added once the prototype runs.
+| Stage | The customer gets |
+|---|---|
+| **Explain** | the status of a declined, pending or reversed payment, from the bank's records |
+| **Clarify** | one question, or a pick-list of their problem payments; nothing runs on a guess |
+| **Act** | a cancelled or retried transfer, only when the policy allows it (simulated) |
+| **Investigate** | a case number, while a person gets the full case file |
+| **Follow up** | a verified answer to "how is my case?" |
 
 ```mermaid
 flowchart LR
-    C[Client / manager<br/>generative UI] --> R[Router]
-    R -->|deterministic flow| P[Policy + tools]
-    R -->|AI agent| A[LLM]
-    A --> G[Gate]
-    G -->|allow| P
-    G -->|ask| H[Human review]
-    G -->|block| X[Refuse safely]
-    P --> V[Verifier]
-    V --> C
-    L[(Laya<br/>calibrated probabilities)] -.-> R
-    L -.-> G
-    L -.-> V
-    P --> D[(decisions.jsonl<br/>audit log)]
+    M([Customer message]) --> R[Hard rules]
+    R -->|none fires| L[Laya<br/>probabilities]
+    L --> P[Policy<br/>verdict]
+    P -->|answer or act| A[Agent and<br/>bank tools]
+    A --> V[Verifier]
+    V -->|passes| Y([Verified reply])
+    P -->|unclear| Q([One clarifying question])
+    R -->|a rule fires| H([A person, with the case file])
+    P -->|needs a person| H
+    V -->|fails twice| H
+    H -.->|decisions become labels| N[Next policy version]
 ```
 
-## Tech stack
+Disputes and fraud always go to a person, and Calvino never moves money. One customer's journey through every part: [DESIGN.md 6.2](docs/DESIGN.md#62-one-journey-end-to-end).
 
-| Part | Technology |
-|---|---|
-| Package and tooling | Python 3.11, `uv`, pydantic v2, ruff, pytest, GitHub Actions |
-| Hub and agents | LangGraph (checkpointer and `interrupt()`), LangGraph Deep Agents |
-| System 1 | [Laya](https://huggingface.co/convaiinnovations/laya) `laya-multilingual`, self-hosted and calibrated |
-| Tools | MCP servers (official Python SDK) with ISO 20022-aligned contracts |
-| API and hosting | FastAPI on a Hugging Face Space with persistent storage; Next.js on Vercel at `calvino.rubrica.dev` |
-| Data | Parquet lakehouse queried with DuckDB |
-| LLM for agents and the judge | provider still open (decision 6); Amazon Bedrock in the production reference |
+## Quick start
 
-Details in [DESIGN.md 4.0.3](docs/DESIGN.md#403-components).
-
-## Installation
-
-The Python package is scaffolded (shared types and the decision log); the application itself is not runnable yet.
+Python 3.11+ and [uv](https://docs.astral.sh/uv/):
 
 ```bash
 git clone https://github.com/moebious/factored-hackathon-2026-calvino.git
 cd factored-hackathon-2026-calvino
-uv sync              # installs the package and dev tools into .venv from uv.lock
-uv run pytest        # runs the tests (no network, GPU or dataset needed)
+uv sync                                                                   # package and dev tools from uv.lock
+uv run pytest                                                             # tests: no network, GPU or dataset
+uv run python scripts/validate_data_contracts.py --dir tests/fixtures/lakehouse   # audit the synthetic tables
 ```
 
-### Requirements
+## Start here
 
-- Python 3.11 or newer and [uv](https://docs.astral.sh/uv/)
-- About 1 GB of disk for the Laya multilingual checkpoint (downloaded on first use)
-- A GPU is optional: Laya runs on CPU at roughly 0.2–0.4 s per call `[measured]`, ~33 ms on GPU `[vendor]`
-- Access to the hackathon dataset, configured through environment variables (never committed)
+[HANDOFF.md](docs/HANDOFF.md) for the current state, [DESIGN.md](docs/DESIGN.md) for the architecture, [AGENTS.md](AGENTS.md) for how to work in this repository (small squash-merged pull requests, Conventional Commits).
 
-## Usage
+## Credits and license
 
-Coming with the prototype: a demo conversation for each stage of the workflow (explain, clarify, act, investigate, follow up), in Spanish and Portuguese, plus an evaluation command that reproduces the reported metrics.
-
-## Roadmap
-
-- [x] Design document, decision log and repository standards
-- [x] Workflow chosen from the data: stuck payments, end to end (decision 17)
-- [x] Python package scaffold with shared types, decision log and CI
-- [ ] Data pipeline with contracts, the data-quality report and the human baseline
-- [ ] Laya classifiers: zero-shot and calibrated vs baselines (fine-tuning in Tier 1)
-- [ ] Policy engine, Gate and verifier cascade
-- [ ] Stuck-payments tools behind an MCP server, ISO 20022-aligned, with ownership checks
-- [ ] LangGraph hub with durable cases, human interrupts and policy replay
-- [ ] Customer app with Laya-chosen cards and a glass box, deployed at `calvino.rubrica.dev`
-- [ ] Evaluation on a seeded oracle test set: both baselines, a bare-LLM ablation, the verifier's false-pass rate, fairness and failure cases
-
-Each milestone is tagged as a version (`v0.1.0` design → `v1.0.0` submission); see [AGENTS.md](AGENTS.md#git-workflow) and [CHANGELOG.md](CHANGELOG.md). Details: [docs/PLAN.md](docs/PLAN.md).
-
-## Documentation
-
-- [docs/BRD.md](docs/BRD.md): business requirements: problem, goals and KPIs, scope
-- [docs/PRD.md](docs/PRD.md): product requirements: use cases, requirements, acceptance criteria
-- [docs/DESIGN.md](docs/DESIGN.md): software design: architecture, governance, fairness, evaluation plan
-- [docs/specs/](docs/specs/README.md): technical specifications, one per work stream
-- [docs/ROADMAP.md](docs/ROADMAP.md): work streams and the order they are built in
-- [docs/tasks/](docs/tasks/README.md): backlog of every remaining task and how sessions pick them up
-- [docs/HANDOFF.md](docs/HANDOFF.md): start here when joining the project
-- [docs/BRIEF-COVERAGE.md](docs/BRIEF-COVERAGE.md): every requirement in the brief mapped to the design
-- [docs/DATA.md](docs/DATA.md), [docs/GLOSSARY.md](docs/GLOSSARY.md), [docs/references/](docs/references/README.md), [docs/PITCH.md](docs/PITCH.md)
-- [docs/DECISIONS.md](docs/DECISIONS.md): decision log
-- [docs/PLAN.md](docs/PLAN.md): build plan, risks, blockers
-- [CHANGELOG.md](CHANGELOG.md): changes per version
-
-Claims in the docs carry evidence labels: `[measured]` (we ran it), `[vendor]` (published by a model's author, not reproduced), `[read from chart]`, `[hypothesis]`.
-
-## Support
-
-Open an issue on [GitHub](https://github.com/moebious/factored-hackathon-2026-calvino/issues).
-
-## Contributing
-
-Contributions and feedback are welcome. Work happens on feature branches and reaches `main` through small pull requests (squash-merged). Repository standards, the git workflow, commit conventions and design rules, for humans and coding agents alike, are in [AGENTS.md](AGENTS.md). Every branch gets its own git worktree and nothing is committed on `main`. After cloning, set up the worktree layout and enable the repository's git hooks with `git config core.hooksPath .githooks`; setup and test commands are listed in [AGENTS.md](AGENTS.md#commands).
-
-## Authors and acknowledgment
-
-**Author:** Kevin Vicent.
-
-Built on ideas and tools from:
-- [Factored](https://www.factored.ai), for the challenge and the synthetic LATAM Bank dataset
-- [Laya](https://huggingface.co/convaiinnovations/laya) by Convai Innovations
-- *The Anatomy of an Agent Harness* (V. Trivedy) and *Building a Harness with Jev* (S. Runkle, H. Lovell), LangChain
-- *Building a Custom Harness with Pi and Jev*, DAIR.AI Academy
-- *Harness design for long-running application development*, Anthropic
-- Italo Calvino, *Invisible Cities*
-
-## License
-
-[MIT](LICENSE) © 2026 Kevin Vicent. Third-party models and libraries keep their own licenses (Laya: Apache 2.0).
+By Kevin Vicent. Thanks to [Factored](https://www.factored.ai) for the challenge and the synthetic LATAM Bank dataset, and to Convai Innovations for [Laya](https://huggingface.co/convaiinnovations/laya). [MIT](LICENSE) © 2026 Kevin Vicent; Laya is Apache 2.0.

@@ -4,8 +4,8 @@
 
 ## The one line
 
-> **Calvino is a control layer for banking customer service: it answers payment questions safely, acts only under a Gate, and hands investigations to people with a complete file.**
-> Under the hood it is a harness for probabilistic decisions: probabilities in, deterministic verdicts out. Laya is System 1, Calvino is System 1.5, agents are System 2, and humans are System 3.
+> **Calvino is an evolutionary, AI-powered decision engine for banking customer service: it answers payment questions safely, takes an action only when the policy allows it, and hands investigations to people with a complete file.**
+> Decision engine: every consequential choice is a verdict from a versioned, deterministic policy. AI-powered: Laya's calibrated probabilities and an LLM's checked replies feed it without deciding. Evolutionary: people's decisions become labels, and each improvement ships as a new policy version after replay and evaluation. Laya is System 1, Calvino is System 1.5, agents are System 2, and humans are System 3.
 
 ## Slides
 
@@ -47,6 +47,6 @@ Rule for every slide that names a layer: **show that layer's number.** Without n
 - Showing vendor benchmark numbers as our results.
 - Over-claiming novelty for Systems 1 and 2; the novelty is System 1.5, the financial verifiers and the governed flywheel.
 - Unmeasured figures (for example "33 ms" or F1 scores from planning drafts); every number carries its evidence label.
-- Calling the judge or the panel a decision engine: decisions come from Laya's probabilities and the policy; the judge only checks language, and the panel can only veto.
+- Calling the judge or the panel the decision maker: decisions come from Laya's probabilities and the policy; the judge only checks language, and the panel can only veto.
 - "It evolves itself": it improves from human decisions, under version control, with replay and evaluation before each change.
 - Roles mixed up: an operator approves actions the Gate sends to a person; a supervisor sees what was automated and audits a sample; disputes and fraud always go to a person.
