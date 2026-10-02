@@ -33,6 +33,8 @@ Implement docs/specs/TSD-NNN-<name>.md, following AGENTS.md. Start by reading do
 
 Rules: branch <type>/<name> in its own worktree (.worktrees/<name>) from origin/main (if the worktree already exists, work in it); Conventional Commits authored as the maintainer (git config user.name "Kevin Vicent", user.email "624602+moebious@users.noreply.github.com"); no AI-tool attribution anywhere; enable hooks with git config core.hooksPath .githooks. Tests need no network, GPU or dataset. Run uv run ruff check ., uv run ruff format --check ., uv run pytest and bash tests/git/test_git_rules.sh before reporting.
 
+Before writing code, post your commit plan (an ordered list of small logical commits, each with its scope) and wait for my adjustments; then commit each step when it works, within the size limits in AGENTS.md.
+
 Follow the shared-file and pull-request rules in docs/tasks/README.md. Never push without my explicit approval for that specific push. When done, report test results and the diff summary, and propose the push.
 ```
 

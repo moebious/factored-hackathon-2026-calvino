@@ -14,6 +14,7 @@
 
 - [ ] PR title and every commit follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (`type(scope): description`)
 - [ ] One topic; branch named `<type>/<short-description>`
+- [ ] Small logical commits that follow the agreed commit plan (any `Size-exception:` footer has a reason)
 - [ ] Tests added or updated, and passing
 - [ ] `CHANGELOG.md` updated under `Unreleased`
 - [ ] README / docs updated if behaviour or setup changed
