@@ -175,7 +175,7 @@ Classifier text is **team-generated** (decision 16): the dataset's transcripts a
 | Calvino hub + Laya | Hugging Face Space (CPU, weights baked into the image, keep-alive ping) | Containers in a private AWS VPC behind API Gateway (container services rather than Lambda: Laya needs ~1 GB of model in memory and steady latency) |
 | LLM for agents and judge | provider and key: open decision | Amazon Bedrock inside the VPC boundary |
 | Bank integration | MCP dataset adapter over a small labeled sample | MCP adapter to the bank core |
-| State and audit | SQLite checkpointer, `decisions.jsonl` | managed database, append-only audit store |
+| State and audit | SQLite checkpointer and `decisions.jsonl` on the Space's persistent storage (or an external database), so cases survive restarts | managed database, append-only audit store |
 
 ### 4.0.3 Components
 
