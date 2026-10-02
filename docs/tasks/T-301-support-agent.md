@@ -12,7 +12,7 @@
 
 **Goal.** The System 2 worker for the chosen workflow, grounded in tools and policy documents.
 
-**Inputs.** the hub, the tools, policy documents for retrieval
+**Inputs.** the hub, the tools, policy documents for retrieval, the playbook `playbooks/stuck-payments.yaml` (decision 24); the agent's model is an open Qwen model (decision 20)
 
 **Outputs.** a Deep Agents worker; policy retrieval as a tool or subagent; prompts versioned
 

@@ -66,6 +66,12 @@ In this project the flywheel is demonstrated as **one offline turn** (human-labe
 
 **Where the novelty is.** Fast/slow agent designs and "System One" decision models already exist. Calvino's contribution is System 1.5, a governed bridge with calibrated thresholds and a deterministic policy for a regulated domain; the mixture of financial verifiers; and the flywheel with its safeguards.
 
+**What Calvino is.** A control layer for banking customer service: it answers payment questions safely, acts only under a Gate, and hands investigations to people with a complete file. Under the hood it is a **harness for probabilistic decisions**: probabilities in, deterministic verdicts out. Against three published definitions of a harness:
+
+- *A layer of code, rules, tools and workflows that makes a general model reliable in one domain* (J. Avedra): Calvino is tuned to one vertical's tools, workflow and failure modes. It departs on purpose from that post's self-editing harness: agents never edit prompts, policy or routing; improvement goes through versioned files, replay and evaluation.
+- *Tools and engines, rules, checks* (Obversa): each engine has one job (Laya classifies, the policy decides, the LLM writes, the judge checks, people approve); the stages run in order with per-stage tool lists and a versioned playbook (decision 24); a checker from another model family fails a stage with findings (decision 20). Unlike document workflows, a person is at the end of every *consequential* action, not of every case.
+- *System prompt, tools, agentic loop, translation layer across models* (C. Daymond, Earendil): all four are present, but the post's harness lets the model decide when and how to use tools; in Calvino the Router and the Gate decide, and the model can propose an action but never authorize it.
+
 ## 3. Where AI is appropriate and where it isn't
 
 | Mechanism | Use when | Examples |
@@ -191,7 +197,7 @@ Classifier text is **team-generated** (decision 16): the dataset's transcripts a
 | Integration | Governed access to bank data and actions | MCP servers with the official MCP Python SDK (one adapter per bank core) |
 | Data | Clean layer, contracts, quality report, baseline | Parquet lakehouse queried with DuckDB (the analyst's pipeline) |
 | Governance | Contracts, audit, redaction, lineage, tracing | data contracts, `decisions.jsonl` (`calvino.decision_log`), traces |
-| LLM | Agents and the judge | provider open (decision 6); Amazon Bedrock in the production reference |
+| LLM | Agents and the judge | open models (decision 20): a Qwen model for the agent, a DeepSeek model as the judge, via Hugging Face Inference Providers (proposed); Amazon Bedrock in the production reference |
 
 ### 4.1 The hub's three checkpoints (after "Building a Custom Harness with Pi and Jev", ported to LangGraph + Laya)
 
@@ -266,7 +272,7 @@ After *Designing Efficient Verifiers for Legal Agents* (LangChain Labs and Harve
 - Report for each candidate judge (cheap open model, frontier model) and mode (batch, per criterion): **agreement, false-pass rate, false-fail rate, cost per 1,000 criteria and latency**, with sample sizes.
 - Don't target 100% agreement: the reported ceiling between frontier judges is ~95.7% `[vendor]`.
 - Improve the judge from traces: review disagreements in the decision log and tune the prompt, re-measuring false passes each time.
-- The runtime judge should be an open model the bank can host, in line with keeping customer data in-house; a frontier model can serve as the offline reference.
+- The runtime judge is an open model the bank can host, in line with keeping customer data in-house, and from a **different model family than the agent** it checks (decision 20); a frontier model can serve as the offline reference. Avoid permissive judges: in the study, the cheapest model wrongly passed 35–48% of criteria `[vendor]`.
 
 **A mixture of financial verifiers, tiered by risk.**
 
@@ -275,7 +281,7 @@ After *Designing Efficient Verifiers for Legal Agents* (LangChain Labs and Harve
 | Low (balance answer, status inquiry) | the cascade above, with one batched judge call |
 | High (disputes above a threshold, card blocks, anything moving money) | a panel of **specialist verifiers** in parallel (amounts and transactions · policy and regulation · customer-data privacy · promises and tone), each judging its own criteria one by one and allowed to look up evidence (for example, the actual policy rule) |
 
-Panel rules: verifiers see the output and the evidence, never the worker's reasoning; each returns structured pass/fail verdicts per criterion; the hub combines them with a fixed rule (any failed criterion fails the output), not a model; a fixed number of verifiers, one turn each, with a timeout that counts as a failure. Specialists report to the hub, never to each other.
+Panel rules (decision 21: the panel can only veto, and runs only on cases the Gate already sends to a person): verifiers see the output and the evidence, never the worker's reasoning; each returns structured pass/fail verdicts per criterion; the hub combines them with a fixed rule (any failed criterion fails the output), not a model; a fixed number of verifiers, one turn each, with a timeout that counts as a failure. Specialists report to the hub, never to each other.
 
 **Offline verifier lab.** A multi-agent workflow outside the request path: it mines the decision log for disagreements between judges and human labels, proposes rubric and prompt changes, and re-measures each change on the gold set, with false passes as the target.
 
@@ -291,7 +297,7 @@ If a constraint isn't met, there is no governance. Each constraint has a metric,
 | Reliability | safe-resolution rate, unsafe-outcome rate, fallback success | fail closed / fail open, bounded retries, Verifier | more abstention |
 | Scalability | throughput, p95 under load, review-queue depth | stateless workers + checkpointer, cheap Laya calls, bounded queues | infrastructure |
 | Cost | cost per attempted case and per successful resolution | Router, Laya instead of LLM decisions, prompt caching, per-case budget | cheap tier may lower accuracy |
-| Latency | p50/p95 per turn and end to end | batched Laya questions, timeouts, preload | each check adds ~0.2-0.4 s on CPU `[measured]` |
+| Latency | p50/p95 per turn and end to end, reported twice: model compute time and end-to-end time including the network, after one discarded warm-up request | batched Laya questions, timeouts, preload | each check adds ~0.2-0.4 s on CPU `[measured]`; a sleeping Space adds a cold start, reported separately |
 | Effectiveness | safe automated resolution vs human baseline (`was_resolved`, `was_escalated`, handle time) | Verifier + evaluation suite | - |
 | Human perspective | missed / unnecessary transfers, reviewer agreement, override rate | generative UI, handoff packet, review queue, manager view | human time is the scarcest resource |
 
@@ -308,10 +314,23 @@ Customers with the same need get the same quality of outcome, regardless of who 
 - **Counterfactual consistency:** change only the dialect, name, gender or language, and the verdict must stay the same. Measure the flip rate.
 - **Legitimate differences** (e.g. segment benefits) are documented policy, not model behavior.
 - **Known gap:** Laya zero-shot is ~0.5 on Spanish/Portuguese intent vs ~0.8 English on MASSIVE `[vendor]` `[read from chart]`. All our customers are non-English, so this must be re-measured on our data.
+- **Pass/fail lines** (decision 25) `[hypothesis]`: an error-rate gap under 5 percentage points between any two groups, and under 2% of verdicts flipping in counterfactual pairs. Groups under 30 cases are flagged, not failed. Gender and age exist only counterfactually (the dataset has neither). Group attributes are never decision inputs, except documented segment benefits.
+- **Justified group thresholds** (decision 22): Portuguese, evaluated only on synthetic data, starts with a stricter margin to act and to clarify, and is relaxed only when calibration per language shows it is as reliable as Spanish.
+
+**Language coverage and limitations** (reported in the README with the results):
+
+| | Spanish | Portuguese |
+|---|---|---|
+| Source of customer text | team-generated from dataset scenarios, Mexican, Colombian and Argentine variants (decision 16) | translated from held-out Spanish messages plus a smaller set written directly in Portuguese, all synthetic (T-203) |
+| Used for | calibration, thresholds, evaluation; fine-tuning in Tier 1 | evaluation only, never training or calibration |
+| Customers and money | personas in MX, CO, AR; MXN, COP, ARS, USD | the same personas and currencies; no BRL, PIX or boleto, because the dataset has no Brazilian customers |
+| Known gaps | dataset text is templated; no real customer messages | no native data; real Brazilian usage and slang are not represented |
+| Safeguard | calibration per language | stricter thresholds until measured (decision 22) |
 
 ### 5.2 Security and integration
 
 - The customer's session token is attached by the harness and **never passes through the model**. MCP servers check ownership.
+- **Authentication in the demo** uses a trusted test session issued by the hub (signed, expiring) for each synthetic persona; a customer number or national ID typed in the chat never proves identity, as the brief requires.
 - An allowlisted, versioned tool registry with a permission scope per tool. No general-purpose code execution.
 - Confirmations are **typed UI events bound to the exact action payload**, not free-text "yes."
 - PII redaction before the LLM; masked card numbers (PCI DSS). Data-protection and residency rules for MX/CO/AR are noted for production.
@@ -360,6 +379,43 @@ Decision 17. A customer's payment or transfer is Declined, Pending or Reversed, 
 | Injection or manipulation | two options with neutral keys |
 
 **Out of the workflow:** unrecognised charges, disputes and fraud signals go to a person; Calvino never refunds, credits or moves money on its own.
+
+**Playbook and per-stage tools** (decision 24). `playbooks/stuck-payments.yaml`, versioned like the policy, maps each status (Pending, Declined, Reversed) to what to explain, which actions to offer and when to escalate; the agent's prompt and the verifier's "valid next step" criterion both read it. Each stage sees only its tools:
+
+| Stage | Tools it may call |
+|---|---|
+| Explain, clarify, follow up | read-only: `get_customer_summary`, `list_accounts`, `get_account_entries`, `get_entry_detail`, `get_payment_status`, `list_problem_transactions`, `get_investigation_status` |
+| Act | the reads, plus `request_cancellation` and `retry_payment` |
+| Investigate | the reads, plus `open_investigation` |
+
+**Edge cases the scenarios must cover** (from the September 29 planning draft): an exchange-rate discrepancy on a foreign payment (clarify, not fraud); a hostile message about a trivial fee (no escalation on insults alone); empty, emoji-only or garbled messages (clarify or refuse, never guess).
+
+### 6.2 One journey, end to end
+
+A synthetic customer, Ana (Mexico City), has a 3,200 MXN transfer Pending and a 1,450 MXN payment Reversed. Laya scores here are illustrative values that pass `policy/v1`, not measurements.
+
+**Preconditions.** Ana is authenticated and her session lives in the hub; Laya is preloaded and calibrated; `policy/v1` is loaded; `CALVINO_CONFIRMATION_KEY` is set on hub and tools; the bank adapter is reachable; the agent's model and a judge from another family are reachable; durable storage is mounted. Each has a failure mode: a missing session or key makes tools refuse (`TOOL-NO-SESSION`, `TOOL-CONFIG`), missing scores send the case to a person (`FC-SCORES`), an unreachable judge leaves the reply unverified and escalated.
+
+| # | Stage | What happens | Input → output |
+|---|---|---|---|
+| 1 | Explain | Ana writes "Mi transferencia de ayer no ha llegado" | text + session (out of band) → a turn with a hashed `session_ref` |
+| 2 | | Hard rules run first; none fires | `Facts` → no rule |
+| 3 | | Laya answers five questions in one call | text → calibrated probabilities (e.g. needs a person 0.08, clear 0.91, confidence 0.88) |
+| 4 | | `decide_route` picks the agent path | scores + facts → `agents`, `RT-ACT`, logged |
+| 5 | | The agent reads the core | `list_problem_transactions`, `get_payment_status` → `AccountEntry` (camt.053/054 shape), `PaymentStatus` (pacs.002 shape) |
+| 6 | | The verifier checks the draft | draft + evidence + rubric → every criterion passes |
+| 7 | | Ana sees a *payment status* card with "wait" and "cancel" | verified facts, glass box with scores and rule |
+| 8 | Act | Ana asks to cancel; `decide_gate` rules | `request_cancellation`, 3,200 MXN, Pending, owner verified → `allow`, `GATE-ALLOW` (under the 8,500 MXN limit) |
+| 9 | | Ana confirms on an *action confirmation* card | a typed confirm event → a token bound to her, this action, transfer, amount and currency; five minutes, single use |
+| 10 | | The cancellation runs and is read back | camt.056 request → camt.029 answer, `simulated: true`; `get_payment_status` confirms |
+| 11 | | *Action result* card, verified | read-back checked; no promise of refunds |
+| 12 | Clarify | "¿Y el otro pago que se regresó?" | confidence 0.52 → `clarify` (`RT-CLARIFY-CONFIDENCE`); *problem-payment picker* card |
+| 13 | Investigate | She cannot explain the reversal | `open_investigation` after a Gate `allow` and her confirmation → durable case (camt.027 shape), *case opened* card; the operator gets the case file |
+| 14 | Follow up | Days later: "¿Cómo va mi caso?" | the case resumes from its checkpoint; `get_investigation_status` → *case status* card |
+| 15 | Learn (offline) | Operators' decisions become labels | a new policy version, replayed and evaluated, approved by risk before going live |
+
+**Branches.** A request for a person, a fraud signal, a regulator complaint or a vulnerable customer: hard rule, straight to the queue (`HR-*`). An amount over the gate limit: `ask`, an operator approves (`GATE-LIMIT`). An ineligible status: refused (`GATE-INELIGIBLE`, `TOOL-INELIGIBLE`). Another customer's data or an injection: refused and logged (`TOOL-NOT-OWNER`, `GATE-INJECTION`, `RT-INJECTION`). A dispute or unrecognised charge: a person (`RT-DISPUTE-FRAUD`). Out of scope: an honest reply and a path to a person (`RT-OUT-OF-SCOPE`). A wrong amount in the draft: one retry, then a person. Laya down: a person (`FC-SCORES`).
+
 
 **Baselines:** Transaccional calls (resolution, escalation, follow-up, handle time) for the explain and act stages; Transactions-category complaints (resolution days, SLA breaches, compensation) for the investigate stage. The data cannot link a call to its transaction, so both are category-level. Transaccional calls are resolved on first contact 91.5% of the time `[measured]`, so on calls the target is to **match** that rate with zero unsafe outcomes at lower time and cost; the improvement story is the investigate stage, where 74.5% of Transactions-category complaints are still open `[measured]` and any time saving is projected, never measured.
 
@@ -421,9 +477,11 @@ Synthetic LATAM Bank dataset v1.0.0: 13 tables, ~19M rows, MX/CO/AR, Jun 2023 - 
 
 What is built for the demo vs. designed only, and the work remaining before deployment, is tracked in [PLAN.md](PLAN.md) and will be summarised here at submission.
 
+**Integration directions** (decision 26). Outbound, Calvino reaches bank cores only through MCP adapters (decision 9). Inbound, in production, the bank's channels and other systems can call Calvino as an MCP server to get governed answers and verdicts; the demo's app uses HTTP. Agent-to-agent (A2A) traffic, if used, goes only between the hub and a spoke or an external agent, never peer to peer.
+
 ## 10. Open decisions
 
-1. **LLM provider and key** for the agents and the judge (maintainer, in progress). Bedrock is the production reference.
+1. **Inference account for the open models** (decision 20): confirm Hugging Face Inference Providers with billing and a spending cap, or fall back to OpenRouter. Bedrock is the production reference.
 
 ## References
 
@@ -432,6 +490,9 @@ What is built for the demo vs. designed only, and the work remaining before depl
 - *Building a Custom Harness with Pi and Jev* (DAIR.AI Academy)
 - Anthropic, *Harness design for long-running application development*
 - LangChain Labs and Harvey, *Designing Efficient Verifiers for Legal Agents*, 2026-06-02
+- J. Avedra, *Domain-specific harness*: https://www.jamalavedra.com/blog/domain-specific-harness
+- Obversa, *Domain-specific harness* (glossary): https://docs.obversa.ai/glossary/domain-specific-harness
+- C. Daymond, *What is a harness?*, Earendil: https://earendil.com/posts/what-is-a-harness/
 - Laya: https://huggingface.co/convaiinnovations/laya (Apache 2.0)
 - *Fairness in Generative AI*, Packt (to read; not yet used as a source)
 - Italo Calvino, *Invisible Cities*

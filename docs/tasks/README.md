@@ -22,6 +22,7 @@ If GitHub Issues are used for tracking, create one issue per task with its ID in
 - Stacked pull requests stay drafts until GitHub retargets them to `main`.
 - **Shared files:** each PR adds one line to `CHANGELOG.md` under `Unreleased` and updates only its own rows in `docs/specs/README.md` and this backlog. Dependencies are added with `uv add`; if a rebase conflicts on `uv.lock`, run `uv lock` and commit the result, never a hand-merged lockfile.
 - **Pull requests:** after the maintainer approves the push, the session gives the compare link (`https://github.com/moebious/factored-hackathon-2026-calvino/compare/main...<branch>?expand=1`) and a description that follows `.github/pull_request_template.md`. The maintainer opens the PR, so no tool adds an attribution footer that fails the `conventions` check.
+- **Acceptance scenarios (decision 23):** `tests/scenarios/` holds AC-1 to AC-8 as seeded scenarios that run in CI with a scoreboard. A task's "done when" includes the scenarios it makes pass; a scenario that passes is never allowed to fail again.
 - **Rebasing after another PR merges** rewrites the branch, so it needs a `--force-with-lease` push, which also needs the maintainer's approval.
 
 ### Session prompt template
@@ -42,47 +43,49 @@ Follow the shared-file and pull-request rules in docs/tasks/README.md. Never pus
 
 Status: `todo`, `spec` (specification written, awaiting approval), `doing`, `review` (PR open), `done`.
 
-| ID | Task | Wave | Depends on | Blocked by | Model | Parallel | Status |
-|---|---|---|---|---|---|---|---|
-| [T-000](../specs/TSD-000-scaffolding.md) | Python scaffolding and shared types | 0 | docs PRs merged | — | standard | no (first) | done |
-| [T-001](../specs/TSD-001-policy-engine.md) | Policy engine | 0 | T-000 | — | standard | yes | review |
-| [T-002](../specs/TSD-002-mcp-tools.md) | MCP tools and ISO 20022-aligned contracts | 0 | T-000 | — | standard | yes | review |
-| [T-003](../specs/TSD-003-deployment.md) | Deployment skeleton | 0 | T-000 | — | standard | yes | spec |
-| [T-004](../specs/TSD-004-verifier.md) | Verifier framework | 0 | T-000 | — | standard | yes | spec |
-| [T-005](../specs/TSD-005-laya-service.md) | Laya service and calibration | 0 | T-000 | — | standard | yes | spec |
-| [T-101](T-101-contact-reason-analysis.md) | Contact-reason analysis and workflow decision | 1 | — | dataset access | judgment checkpoint | yes | done (decision 17) |
-| [T-102](T-102-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | todo |
-| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | todo |
-| [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | — | standard | yes | todo |
-| [T-105](T-105-freshness-fixture.md) | Update-correctness fixture | 1 | T-102 | — | standard | yes | todo |
-| [T-106](T-106-message-set.md) | Team-generated customer message set | 1 | T-103 | LLM provider | standard + maintainer review | no | todo |
-| [T-201](T-201-classifier-evaluation.md) | Classifier evaluation and thresholds | 2 | T-005, T-106 | — | judgment checkpoint | no | todo |
-| [T-202](T-202-laya-fine-tuning.md) | Laya fine-tuning on Kaggle | Tier 1 | T-106 | GPU (maintainer runs the notebook) | standard | yes | todo |
-| [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo |
-| [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | todo |
-| [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | todo |
-| [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | — | standard | yes | todo |
-| [T-301](T-301-support-agent.md) | Support agent and company brain | 3 | T-204, T-206 | LLM provider | standard | no | todo |
-| [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo |
-| [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | todo |
-| [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | todo |
-| [T-401](T-401-durable-cases.md) | Durable cases | 3 | T-204, T-302 | — | standard | yes | todo |
-| [T-402](T-402-verifier-panel.md) | Risk-tiered verifier panel | 4 | T-004, T-303 | Tier 0 gate | standard | yes | todo |
-| [T-403](T-403-coworker-agent.md) | Coworker agent | 4 | T-302 | Tier 0 gate | standard | yes | todo |
-| [T-404](T-404-analytics-tab.md) | Analytics tab | 4 | T-303 | Tier 0 gate | standard | yes | todo |
-| [T-405](T-405-fairness-tests.md) | Fairness and counterfactual tests | 4 | T-303, T-203 | Tier 0 gate | standard | yes | todo |
-| [T-406](T-406-second-adapter.md) | Second MCP adapter and swap demo | 4 | T-206 | Tier 0 gate | standard | yes | todo |
-| [T-407](T-407-flywheel-turn.md) | One offline flywheel turn | 3 | T-201, T-303 | — | standard | yes | todo |
-| [T-408](T-408-policy-replay.md) | Console policy page with rule-and-replay | 3 | T-302 | — | standard | yes | todo |
-| [T-501](T-501-readme-results.md) | README usage and results report | 5 | T-303 | — | standard | yes | todo |
-| [T-502](T-502-release.md) | Release notes and tags | 5 | T-501 | maintainer approval | standard | yes | todo |
-| [T-503](T-503-slides.md) | Slides | 5 | T-303 | — | judgment checkpoint | yes | todo |
-| [T-504](T-504-video.md) | Video pitch (3 minutes or less) | 5 | T-304, T-503 | maintainer records | judgment checkpoint | yes | todo |
-| [T-505](T-505-submission.md) | Submission | 5 | T-501 to T-504 | maintainer sends | standard | no | todo |
-| [T-601](T-601-ag-ui-console.md) | AG-UI endpoint and CopilotKit console | Tier 2 | Tier 1 gate | — | standard | yes | todo |
-| [T-602](T-602-verifier-streaming.md) | Live verifier streaming | Tier 2 | T-601 | — | standard | yes | todo |
-| [T-603](T-603-verifier-lab.md) | Offline verifier lab | Tier 2 | T-303 | — | standard | yes | todo |
-| [T-604](T-604-iso20022-xml.md) | ISO 20022 XML validation | Tier 2 | T-206 | — | standard | yes | todo |
+Owner: **analyst** (data analysis and MLOps; delivers files that the maintainer reviews and commits under the maintainer's identity, crediting the analyst in the pull request) or **maintainer** (the core system and delivery). T-106 is shared: the analyst picks the seed records and writes the datasheet; the maintainer writes the oracle and generates the messages.
+
+| ID | Task | Wave | Depends on | Blocked by | Model | Parallel | Status | Owner |
+|---|---|---|---|---|---|---|---|---|
+| [T-000](../specs/TSD-000-scaffolding.md) | Python scaffolding and shared types | 0 | docs PRs merged | — | standard | no (first) | done | maintainer |
+| [T-001](../specs/TSD-001-policy-engine.md) | Policy engine | 0 | T-000 | — | standard | yes | done | maintainer |
+| [T-002](../specs/TSD-002-mcp-tools.md) | MCP tools and ISO 20022-aligned contracts | 0 | T-000 | — | standard | yes | done | maintainer |
+| [T-003](../specs/TSD-003-deployment.md) | Deployment skeleton | 0 | T-000 | — | standard | yes | doing | maintainer |
+| [T-004](../specs/TSD-004-verifier.md) | Verifier framework | 0 | T-000 | — | standard | yes | doing | maintainer |
+| [T-005](../specs/TSD-005-laya-service.md) | Laya service and calibration | 0 | T-000 | — | standard | yes | doing | analyst |
+| [T-101](T-101-contact-reason-analysis.md) | Contact-reason analysis and workflow decision | 1 | — | dataset access | judgment checkpoint | yes | done (decision 17) | maintainer |
+| [T-102](T-102-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | todo | analyst |
+| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | todo | analyst |
+| [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | — | standard | yes | todo | analyst |
+| [T-105](T-105-freshness-fixture.md) | Update-correctness fixture | 1 | T-102 | — | standard | yes | todo | analyst |
+| [T-106](T-106-message-set.md) | Team-generated customer message set | 1 | T-103 | LLM provider | standard + maintainer review | no | todo | analyst + maintainer |
+| [T-201](T-201-classifier-evaluation.md) | Classifier evaluation and thresholds | 2 | T-005, T-106 | — | judgment checkpoint | no | todo | analyst |
+| [T-202](T-202-laya-fine-tuning.md) | Laya fine-tuning on Kaggle | Tier 1 | T-106 | GPU (maintainer runs the notebook) | standard | yes | todo | analyst |
+| [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo | analyst |
+| [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | todo | maintainer |
+| [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | todo | maintainer |
+| [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | — | standard | yes | todo | maintainer |
+| [T-301](T-301-support-agent.md) | Support agent and company brain | 3 | T-204, T-206 | LLM provider | standard | no | todo | maintainer |
+| [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo | maintainer |
+| [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | todo | maintainer |
+| [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | todo | maintainer |
+| [T-401](T-401-durable-cases.md) | Durable cases | 3 | T-204, T-302 | — | standard | yes | todo | maintainer |
+| [T-402](T-402-verifier-panel.md) | Risk-tiered verifier panel | 4 | T-004, T-303 | Tier 0 gate | standard | yes | todo | maintainer |
+| [T-403](T-403-coworker-agent.md) | Coworker agent | 4 | T-302 | Tier 0 gate | standard | yes | todo | maintainer |
+| [T-404](T-404-analytics-tab.md) | Analytics tab | 4 | T-303 | Tier 0 gate | standard | yes | todo | analyst |
+| [T-405](T-405-fairness-tests.md) | Fairness and counterfactual tests | 4 | T-303, T-203 | Tier 0 gate | standard | yes | todo | analyst |
+| [T-406](T-406-second-adapter.md) | Second MCP adapter and swap demo | 4 | T-206 | Tier 0 gate | standard | yes | todo | maintainer |
+| [T-407](T-407-flywheel-turn.md) | One offline flywheel turn | 3 | T-201, T-303 | — | standard | yes | todo | analyst |
+| [T-408](T-408-policy-replay.md) | Console policy page with rule-and-replay | 3 | T-302 | — | standard | yes | todo | maintainer |
+| [T-501](T-501-readme-results.md) | README usage and results report | 5 | T-303 | — | standard | yes | todo | maintainer |
+| [T-502](T-502-release.md) | Release notes and tags | 5 | T-501 | maintainer approval | standard | yes | todo | maintainer |
+| [T-503](T-503-slides.md) | Slides | 5 | T-303 | — | judgment checkpoint | yes | todo | maintainer |
+| [T-504](T-504-video.md) | Video pitch (3 minutes or less) | 5 | T-304, T-503 | maintainer records | judgment checkpoint | yes | todo | maintainer |
+| [T-505](T-505-submission.md) | Submission | 5 | T-501 to T-504 | maintainer sends | standard | no | todo | maintainer |
+| [T-601](T-601-ag-ui-console.md) | AG-UI endpoint and CopilotKit console | Tier 2 | Tier 1 gate | — | standard | yes | todo | maintainer |
+| [T-602](T-602-verifier-streaming.md) | Live verifier streaming | Tier 2 | T-601 | — | standard | yes | todo | maintainer |
+| [T-603](T-603-verifier-lab.md) | Offline verifier lab | Tier 2 | T-303 | — | standard | yes | todo | maintainer |
+| [T-604](T-604-iso20022-xml.md) | ISO 20022 XML validation | Tier 2 | T-206 | — | standard | yes | todo | maintainer |
 
 The rule for T-101 is pre-registered; its status moves to `doing` when the analysis starts.
 

@@ -2,6 +2,8 @@
 
 How Calvino gets built: in waves of parallel work, each piece one branch, one worktree and one pull request. The product design is in [DESIGN.md](DESIGN.md); phases, tiers and their gates are in [PLAN.md](PLAN.md); the rules every contributor and coding agent follows are in [AGENTS.md](../AGENTS.md).
 
+**Owners:** each task's owner (analyst or maintainer) is in the backlog in [tasks/README.md](tasks/README.md).
+
 ## Working principles
 
 1. **Spec first.** Each stream has a technical specification before work starts; later waves get theirs just before they begin.
@@ -16,6 +18,7 @@ How Calvino gets built: in waves of parallel work, each piece one branch, one wo
 - [x] Merge the foundation PRs (git workflow enforcement, concept, `v0.1.0`) and the Python scaffold (TSD-000).
 - [ ] Environment variables for agent sessions: dataset access (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `CALVINO_DATA_BUCKET`), the LLM provider key, `HF_TOKEN`.
 - [ ] Hugging Face Space and Vercel project created; DNS for `calvino.rubrica.dev` when the app is ready.
+- [ ] Hugging Face Inference Providers for the open models (decision 20): billing enabled with a spending cap, the Qwen and DeepSeek models available; `HF_TOKEN` also serves them, and `CALVINO_CONFIRMATION_KEY` is set for the tools.
 
 ## Wave 0: foundations without real data
 
