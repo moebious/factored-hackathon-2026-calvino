@@ -18,6 +18,6 @@
 
 **Open parameters.** none
 
-**Done when.** results with sample sizes and any disparity investigated
+**Done when.** results with sample sizes, checked against the lines in decision 25 (error-rate gap under 5 points, flips under 2%; groups under 30 cases flagged), and any disparity investigated
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.

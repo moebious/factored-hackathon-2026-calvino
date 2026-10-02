@@ -10,7 +10,7 @@
 | Can run in parallel | yes |
 | References | DESIGN.md 4.4; decision 14 |
 
-**Goal.** Specialist verifiers judging per criterion for high-risk actions.
+**Goal.** Specialist verifiers judging per criterion for high-risk actions. The panel can only veto (decision 21): it runs on cases the Gate sends to a person, specialists never see each other or debate, a fixed rule combines their verdicts, and all-pass still goes to the person.
 
 **Inputs.** the verifier framework; risk tiers from the policy
 
