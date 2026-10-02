@@ -18,6 +18,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- README rewritten to be short and current (positioning, workflow, how it works, status, quick start, docs map); the specs index is shorter, with tasks and current statuses.
 - `main-guard` asks again, up to six times ten seconds apart, before treating a commit without a merged pull request as a bypass: GitHub links commits to their pull request a few seconds after the merge, which turned `main` red after #24.
 - Decisions 20–26: open models with a judge from another family, a veto-only verifier panel, stricter Portuguese thresholds until measured, acceptance scenarios in CI, the playbook file with per-stage tools, fairness lines, and integration directions with A2A only through the hub; ideas from the September 29 planning draft that were replaced are listed with reasons. DESIGN gains the positioning against three harness definitions, a full journey (6.2), the language coverage table, the latency split and the trusted test session; the backlog gains owners; T-303 lists every case the brief requires; PITCH sharpens positioning and limits; HANDOFF records the current state and new pitfalls.
 - Agents plan their commits before coding and prefer small logical commits: AGENTS.md, the session prompt template and the PR template say so, and `scripts/git/check-commit-size.sh` enforces 15 files and 800 changed lines per commit (lock files and generated paths not counted; a `Size-exception:` footer opts out) in the `pre-push` hook and the `conventions` CI job.
