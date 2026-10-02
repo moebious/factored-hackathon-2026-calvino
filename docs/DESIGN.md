@@ -188,8 +188,10 @@ Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not
 |---|---|---|
 | Question | How should this request be handled? | Is a human worth involving, and how? |
 | When | Start of each request | Before consequential actions, after tool failures, before the final answer |
-| Output | `deterministic_flow` / `ai_agent` / `human` | `none` / `approve_action` / `request_info` / `full_transfer` |
+| Output | `deterministic_flow` / `ai_agent` / `human` / `out_of_scope` | `none` / `approve_action` / `request_info` / `full_transfer` |
 | Fallback | rules-based classifier, else `ai_agent` | escalate |
+
+**Unsupported requests** (`out_of_scope`: outside the chosen workflow, or something the bank does not offer) get a short, honest reply saying what Calvino can't do here, the right channel for it, and an offer to reach a person. No agent is started and nothing is guessed.
 
 **Hard rules run before Laya and always win.** Some cases go to a human regardless of probability: confirmed fraud signals, amounts above a limit, complaints received through the regulator, vulnerable-customer signals, repeated authentication failures, an explicit request for a person. Laya decides the gray zone.
 
@@ -283,6 +285,13 @@ Customers with the same need get the same quality of outcome, regardless of who 
 - An allowlisted, versioned tool registry with a permission scope per tool. No general-purpose code execution.
 - Confirmations are **typed UI events bound to the exact action payload**, not free-text "yes."
 - PII redaction before the LLM; masked card numbers (PCI DSS). Data-protection and residency rules for MX/CO/AR are noted for production.
+- **External model boundary:** Laya runs self-hosted, so customer text never leaves for System 1. The agents' LLM and the judge receive only redacted, minimal context. The dataset is synthetic, but the boundary is designed as if it were real: which fields may leave, to which provider, is part of the tool contracts.
+
+### 5.3 Operations
+
+- **Data retention:** the decision log keeps decisions, scores, rules and tool outcomes, with PII redacted or tokenised; raw conversation text is kept only as long as the case is open plus a configurable retention period. Demo data is reset on restart.
+- **Capacity** `[hypothesis]`: Laya on CPU handles roughly 2–5 decisions per second per core at the measured 0.2–0.5 s per call; the hub holds no state between requests and scales horizontally; the binding limits are LLM rate limits and human review capacity. Measured load figures will replace these estimates.
+- **Monitoring:** per-decision latency and cost, verdict mix (automated / clarified / escalated), verifier false-pass sampling, review-queue depth, calibration drift per language.
 
 ## 6. Durable cases and human-in-the-loop
 
@@ -312,7 +321,11 @@ All variants run on the same held-out split (by customer and by time), sliced by
 | Bare LLM vs LLM + harness; ablations per harness part | the harness thesis |
 | Verifier: candidate judges × batch / per-criterion, against a human-labelled gold set | judge agreement, false-pass and false-fail rates, cost per 1,000 criteria (see 4.4) |
 
-**Reported outcomes (per the brief):** safe automated resolution (plus attempt rate), containment, escalation quality (missed / unnecessary), unsafe outcomes with counts and denominators, p50/p95 latency and cost per attempted case and per resolution.
+**Reported outcomes (per the brief):** safe automated resolution (plus attempt rate), containment, escalation quality (missed / unnecessary), unsafe outcomes with counts and denominators, p50/p95 latency and cost per attempted case and per resolution ("not defined" when there are none).
+
+**Every result states** the number and mix of cases, label quality, the **model, checkpoint and prompt versions**, and **repeated-run variability** for anything generative (each System 2 evaluation is run several times). Failures are included, followed by an **error analysis** of the main failure groups.
+
+**Result labels:** each number is marked as **offline** (measured on held-out data), **simulated** (scripted conversations) or **projected** (an estimate of business impact). No offline comparison is described as a production improvement; the flywheel result is offline.
 
 **Adversarial cases:** wrong or missing data, expired sessions, unauthorized access, prompt injection, tool failures, multilingual ambiguity.
 
@@ -321,6 +334,24 @@ All variants run on the same held-out split (by customer and by time), sliced by
 ## 8. Data
 
 Synthetic LATAM Bank dataset v1.0.0: 13 tables, ~19M rows, MX/CO/AR, Jun 2023 - Jun 2026, Spanish only. Deliberate quality issues: ~2% duplicates, ~5% nulls, late arrivals, schema evolution, orphan foreign keys. **No Portuguese:** a clearly labeled synthetic Portuguese test set is required, and coverage is reported as a limitation. Raw data is never committed (`data/` is git-ignored).
+
+### 8.1 Provenance
+
+| Data | Origin |
+|---|---|
+| LATAM Bank dataset | **synthetic**, supplied by the organizers |
+| Cleaned layer (parquet) | **derived** from the dataset by the team |
+| Portuguese test set | **team-generated, synthetic**: translated from held-out Spanish cases, plus cases written directly in Portuguese |
+| Gold labels (needs-a-human, verifier rubric) | **team-generated**, by hand, against a written rubric |
+| Freshness and adversarial fixtures | **team-generated, synthetic**, labelled as fixtures |
+| Demo personas and session tokens | **team-generated, synthetic** |
+
+### 8.2 Contracts, lineage and freshness
+
+- **Contracts** are versioned files, separate from the cleaning code, checked at every boundary: a **raw contract** (what is accepted, and what happens to each known quality issue: drop, quarantine or flag) and a **clean contract** (what downstream code may rely on). A validator writes a quality report with violation counts per rule and table.
+- **Tool contracts** extend the same idea to the integration boundary: MCP tool inputs and outputs follow ISO 20022-aligned shapes.
+- **Lineage:** every derived output records its source file hashes, the contract version and the git commit that produced it.
+- **Freshness:** data is batch-processed by `process_date` partition. Late-arriving partitions are reprocessed within a defined window and affected outputs are rebuilt. Because the supplied data is static, update correctness is demonstrated on a **clearly labelled test fixture** with late and corrected records.
 
 ## 9. Production gap
 
