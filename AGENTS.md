@@ -2,6 +2,8 @@
 
 Instructions for coding agents (and humans) working on this repository. Read this before making changes.
 
+**New session? Start with [docs/HANDOFF.md](docs/HANDOFF.md):** current state, the maintainer's preferences, pitfalls already hit, and where everything is.
+
 ## Project
 
 **Project Calvino** is an AI-first banking customer service system built around a domain-specific harness: a System One model (Laya) gives calibrated probabilities, a deterministic policy turns them into verdicts, an LLM handles only the language work, and humans step in where accountability is required.
