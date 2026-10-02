@@ -37,7 +37,7 @@ In order. Item 9 can start at once.
 | # | Action | Owner | Blocked by |
 |---|---|---|---|
 | 1 | Confirm the data-quality and baseline task in the analysis session so it runs | maintainer | — |
-| 2 | Collect the analyst's round-two delivery (full-data pipeline, corrections, baseline, scripts and tests) and integrate it | maintainer, analyst | — |
+| 2 | Collect the analyst's round-two delivery (see [2.2](#22-what-the-analyst-was-asked-for-round-two)) and integrate it | maintainer, analyst | — |
 | 3 | Compare the analyst's baseline with the analysis session's cross-check before publishing any baseline figure | maintainer, next session | 1, 2 |
 | 4 | Choose the LLM provider and add its key to the environment | maintainer | — |
 | 5 | Create the Hugging Face Space and Vercel accounts; add `HF_TOKEN` | maintainer | — |
@@ -45,7 +45,20 @@ In order. Item 9 can start at once.
 | 7 | Repository settings: squash merging only, automatic deletion of head branches | maintainer | — |
 | 8 | ~~Implement TSD-000 (scaffolding)~~ done | — | — |
 | 9 | Implement TSD-001, TSD-002, TSD-003, TSD-004 and TSD-005 in parallel sessions, one worktree each; if usage is tight, run TSD-001, -002 and -005 first | parallel sessions | — |
+| 9a | Ask the analysis session to push its branch `claude/stoic-brown-73h4w3` (verification scripts, chance tests, data-quality report, baseline cross-check), then bring its scripts and aggregate reports into a PR under `scripts/analysis/` and `reports/` | maintainer, next session | — |
 | 10 | Message set (T-106), workflow tools (T-206), then the hub, the customer app, deployment, durable cases, policy replay, the flywheel turn and the evaluation with its ablation, per the backlog | sessions | 3, 4, 5 |
+
+## 2.2 What the analyst was asked for (round two)
+
+The analyst delivers files to the maintainer, who integrates them; the analyst does not commit. Due before the build reaches the evaluation.
+
+1. **Full-data run:** `clean_all_tables.py --all` on the `data/` prefix; row counts per table checked against DATA.md. The two-week pilot window (17–30 June 2023) stays a labelled development subset; every published number comes from the full data.
+2. **Six corrections to the analyst's write-up:** null `response_code` values move from workflow evidence to data quality; claimed amounts averaged per currency and converted to USD (mixing currencies gives about 2,600, about 680 in USD); web errors reported as a rate per page, not as "payment errors"; limits labelled as policy assumptions; the IP-country mismatch kept only as a demo rule; the Portuguese set uses MXN, COP, ARS or USD, never BRL.
+3. **T-104 human baseline on the full data:** for calls (all and Transaccional; by country, channel and segment), first-contact resolution, escalation, follow-up, handle and wait time with nulls counted; for complaints (all and Transactions; by country and case type), resolution days, SLA breaches, compensation and claimed amounts. Cells under 30 cases are flagged.
+4. **Review of the data-quality report** written by the analysis session, adding anything their validator found.
+5. **Delivery folder:** `scripts/` (pipeline, baseline, permutation test), `tests/` with synthetic fixtures, `reports/baseline/` and `reports/data-quality/` (aggregates only), and a notes file. Credentials from environment variables; no storage names; an evidence label on every number.
+
+Before any baseline figure is published, compare it with the analysis session's independent cross-check (next action 3).
 
 ## 3. Maintainer preferences
 
@@ -75,6 +88,9 @@ Beyond AGENTS.md, learned while shaping the project:
 | Laya's first call loads the checkpoint (20–25 s on CPU) | preload at startup; never load on the first request |
 | The dataset's text is templated and its fields look independently generated | never train on the transcripts; check any link between tables (time windows, joins) against a shuffled baseline before treating it as evidence |
 | Teammate material can contain unmeasured figures, fields the dataset lacks, or storage names | verify every number on the full data before reuse; never copy storage names into the repository |
+| The cloud environment's git proxy refuses to delete remote branches (the connection drops) | ask the maintainer to delete merged branches on GitHub; don't retry |
+| A stop hook asks for unpushed commits to be pushed | the push still needs the maintainer's explicit approval; say what is waiting and ask |
+| PRs so far were merged with a merge commit, not a squash | until the repository allows squash only, remind the maintainer to pick "Squash and merge" |
 
 ## 5. Environment notes
 

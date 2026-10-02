@@ -41,6 +41,25 @@ Each tier starts only when the one before it is merged, deployed and evaluated.
 | **2: Integration standards** | AG-UI endpoint and CopilotKit console; live verifier streaming; offline verifier lab; ISO 20022 XML validation | Tier 1 demoed on the deployed link |
 | **3: Documented only** | A2A, more verticals and bank cores, enterprise identity provider, data residency, OpenDots-style channels | stays documentation |
 
+## Cut order and protected measurements
+
+If time runs short before submission, cut in this order, one item at a time, and record each cut in the README's remaining-work list:
+
+1. The follow-up stage (UC-8): the case resumes, but the "how is my case?" reply is not built.
+2. The flywheel turn (T-407).
+3. Policy replay (T-408).
+4. UI polish beyond the card catalog and the glass box.
+
+**Never cut** these three measurements: together they turn "safe automation" from a claim into evidence, and a demo without them scores far lower than a plainer demo with them.
+
+- **Unsafe outcomes** on the seeded oracle test set, with counts and denominators.
+- **The bare-LLM ablation:** the same adversarial cases with and without the harness.
+- **The verifier's false-pass rate** against hand labels.
+
+**Checkpoint:** if the hub does not run the explain, clarify, act and investigate stages end to end by the end of the second-to-last working day, apply the cut order and switch the customer app to a minimal page so the deployed link still works.
+
+**Score targets** from the audits: about 9 with all of Tier 0 and the three measurements; about 8 with the core stages and the measurements; about 6 for a working demo without them `[hypothesis]`.
+
 ## Submission deliverables
 
 From the [hackathon page](https://www.factored.ai/careers/ai-data-hackathon), sent by email to the organizers:
