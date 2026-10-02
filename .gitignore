@@ -217,8 +217,9 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Local datasets (never commit)
-data/
+# Local datasets (never commit). Anchored to the root, so the calvino.data package
+# and its tests are not ignored.
+/data/
 
 # ---- Project Calvino ----------------------------------------------------
 # OS files
