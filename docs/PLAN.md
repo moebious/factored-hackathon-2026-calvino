@@ -1,6 +1,6 @@
 # Project Calvino: Build Plan
 
-Internal plan for the hackathon build. The product design lives in [DESIGN.md](DESIGN.md); how the work is split into parallel streams is in [ROADMAP.md](ROADMAP.md).
+Internal plan for the hackathon build. Requirements are in [BRD.md](BRD.md) and [PRD.md](PRD.md), the design in [DESIGN.md](DESIGN.md), build specifications in [specs/](specs/README.md); how the work is split into parallel streams is in [ROADMAP.md](ROADMAP.md).
 
 ## Phases
 

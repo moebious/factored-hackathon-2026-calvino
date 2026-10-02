@@ -1,5 +1,7 @@
 # Project Calvino: Design
 
+*Software Design Document (SDD): how the system is designed. Requirements are in [BRD.md](BRD.md) (why) and [PRD.md](PRD.md) (what); build specifications are in [specs/](specs/README.md).*
+
 > **Status:** draft v0.1 (2026-10-01), open for revision. Workflow choice and data contracts are still open (see [Open decisions](#10-open-decisions)). Decisions are logged in [DECISIONS.md](DECISIONS.md).
 >
 > **Evidence labels:** `[measured]` we ran it ourselves · `[vendor]` published by the model's author, not reproduced by us · `[read from chart]` approximate value read from a published chart · `[hypothesis]` design assumption still to be tested.
