@@ -20,11 +20,21 @@
 
 ## 2. Thesis
 
-**Agent = Model + Harness.** The model provides the intelligence, and the harness makes it useful and safe. In a bank, the advantage that's hard to copy lives in the harness.
+> **Laya is System 1, Calvino is System 1.5, agents are System 2, and humans are System 3.**
+> Calvino is the bridge: it turns fast, repeatable signals into governed verdicts, contains the non-determinism of generative agents with a mixture of efficient financial verifiers, and turns every governed run into data that improves System 1 and the verifiers.
 
-> **Laya at every decision point, deterministic rules at every commitment point, an LLM only where language is the task, and humans where accountability is required.**
+Inspired by Kahneman's System 1 (fast, automatic) and System 2 (slow, deliberate). This is an engineering analogy, not a claim about cognition: Systems 1.5 and 3 are this project's extensions.
 
-The probabilistic signal never decides on its own:
+| System | Component | Role | Property | Evidence it holds |
+|---|---|---|---|---|
+| **1** | **Laya** | fast perception: intent, risk, whether a human is needed | non-generative and **repeatable**: one forward pass, no sampling, so the same input always gives the same calibrated probabilities | calibration (ECE, Brier), overall and per language |
+| **1.5** | **Calvino**, the hub | the bridge: turns System 1 signals into deterministic verdicts, routes work to agents or humans, gates every action, records everything | **deterministic and governed**: versioned policy, fails closed, every decision replayable | replaying the log gives the same verdicts; unsafe outcomes with their denominators |
+| **2** | **Agents** (support chat, company brain, coworker) checked by a **mixture of efficient financial verifiers** | slow, generative work | generative, so not deterministic, but **contained**: fixed rubrics, structured verdicts, fixed aggregation rules | verifier false-pass rate, judge agreement, re-run variability |
+| **3** | **Humans** | accountable judgment: approvals, exceptions, edge cases, empathy | the final authority; slowest and most expensive | escalation quality: missed and unnecessary transfers |
+
+**An escalation ladder.** Each step up is slower and more expensive, and holds more responsibility. Calvino resolves each case at the **lowest system that can do it safely** and passes it up when confidence or policy requires. Levels can be skipped: a hard rule (fraud signal, explicit request for a person) goes straight from System 1.5 to System 3.
+
+**The rule inside System 1.5: probabilities in, deterministic verdicts out.** The probabilistic signal never decides on its own:
 
 ```
 Laya probabilities  ->  policy function (thresholds + hard rules)  ->  verdict
@@ -32,6 +42,27 @@ Laya probabilities  ->  policy function (thresholds + hard rules)  ->  verdict
 ```
 
 The same inputs and the same policy version always give the same verdict. Every verdict can be replayed from `decisions.jsonl`.
+
+**Containing System 2.** Worker agents stay generative; the verifiers make their output predictable *at the boundary* (see [4.4](#44-verifier-design-layer-2)). Anything outside the rubric is rejected, independent judges reduce the variance of the final verdict (any failed criterion fails the output), and every verdict is logged, so the remaining non-determinism is **measured, not assumed away**.
+
+**A data flywheel: System 3 teaches System 1.**
+
+```
+governed decisions -> audit log -> human decisions -> gold labels -> recalibrated / fine-tuned Laya, tuned judge prompts
+        ^                                                                                         |
+        +-----------------------------------------------------------------------------------------+
+```
+
+A flywheel can feed on its own mistakes, so it runs with safeguards:
+
+- **Only human-confirmed labels** go back into training or calibration. Model and verifier outputs alone never do.
+- A **frozen held-out set** never enters the loop and measures whether each new version really improves.
+- **Audit sampling** of auto-resolved cases, so automated decisions also receive human labels, not just escalated ones.
+- A **fairness check per version** (language, dialect, segment) before anything is promoted.
+
+In this project the flywheel is demonstrated as **one offline turn** (human-labelled cases → recalibration → measured change on the frozen set) and labelled as offline, not as a production result.
+
+**Where the novelty is.** Fast/slow agent designs and "System One" decision models already exist. Calvino's contribution is System 1.5, a governed bridge with calibrated thresholds and a deterministic policy for a regulated domain; the mixture of financial verifiers; and the flywheel with its safeguards.
 
 ## 3. Where AI is appropriate and where it isn't
 
@@ -157,8 +188,10 @@ Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not
 |---|---|---|
 | Question | How should this request be handled? | Is a human worth involving, and how? |
 | When | Start of each request | Before consequential actions, after tool failures, before the final answer |
-| Output | `deterministic_flow` / `ai_agent` / `human` | `none` / `approve_action` / `request_info` / `full_transfer` |
+| Output | `deterministic_flow` / `ai_agent` / `human` / `out_of_scope` | `none` / `approve_action` / `request_info` / `full_transfer` |
 | Fallback | rules-based classifier, else `ai_agent` | escalate |
+
+**Unsupported requests** (`out_of_scope`: outside the chosen workflow, or something the bank does not offer) get a short, honest reply saying what Calvino can't do here, the right channel for it, and an offer to reach a person. No agent is started and nothing is guessed.
 
 **Hard rules run before Laya and always win.** Some cases go to a human regardless of probability: confirmed fraud signals, amounts above a limit, complaints received through the regulator, vulnerable-customer signals, repeated authentication failures, an explicit request for a person. Laya decides the gray zone.
 
@@ -252,6 +285,13 @@ Customers with the same need get the same quality of outcome, regardless of who 
 - An allowlisted, versioned tool registry with a permission scope per tool. No general-purpose code execution.
 - Confirmations are **typed UI events bound to the exact action payload**, not free-text "yes."
 - PII redaction before the LLM; masked card numbers (PCI DSS). Data-protection and residency rules for MX/CO/AR are noted for production.
+- **External model boundary:** Laya runs self-hosted, so customer text never leaves for System 1. The agents' LLM and the judge receive only redacted, minimal context. The dataset is synthetic, but the boundary is designed as if it were real: which fields may leave, to which provider, is part of the tool contracts.
+
+### 5.3 Operations
+
+- **Data retention:** the decision log keeps decisions, scores, rules and tool outcomes, with PII redacted or tokenised; raw conversation text is kept only as long as the case is open plus a configurable retention period. Demo data is reset on restart.
+- **Capacity** `[hypothesis]`: Laya on CPU handles roughly 2–5 decisions per second per core at the measured 0.2–0.5 s per call; the hub holds no state between requests and scales horizontally; the binding limits are LLM rate limits and human review capacity. Measured load figures will replace these estimates.
+- **Monitoring:** per-decision latency and cost, verdict mix (automated / clarified / escalated), verifier false-pass sampling, review-queue depth, calibration drift per language.
 
 ## 6. Durable cases and human-in-the-loop
 
@@ -281,7 +321,11 @@ All variants run on the same held-out split (by customer and by time), sliced by
 | Bare LLM vs LLM + harness; ablations per harness part | the harness thesis |
 | Verifier: candidate judges × batch / per-criterion, against a human-labelled gold set | judge agreement, false-pass and false-fail rates, cost per 1,000 criteria (see 4.4) |
 
-**Reported outcomes (per the brief):** safe automated resolution (plus attempt rate), containment, escalation quality (missed / unnecessary), unsafe outcomes with counts and denominators, p50/p95 latency and cost per attempted case and per resolution.
+**Reported outcomes (per the brief):** safe automated resolution (plus attempt rate), containment, escalation quality (missed / unnecessary), unsafe outcomes with counts and denominators, p50/p95 latency and cost per attempted case and per resolution ("not defined" when there are none).
+
+**Every result states** the number and mix of cases, label quality, the **model, checkpoint and prompt versions**, and **repeated-run variability** for anything generative (each System 2 evaluation is run several times). Failures are included, followed by an **error analysis** of the main failure groups.
+
+**Result labels:** each number is marked as **offline** (measured on held-out data), **simulated** (scripted conversations) or **projected** (an estimate of business impact). No offline comparison is described as a production improvement; the flywheel result is offline.
 
 **Adversarial cases:** wrong or missing data, expired sessions, unauthorized access, prompt injection, tool failures, multilingual ambiguity.
 
@@ -290,6 +334,24 @@ All variants run on the same held-out split (by customer and by time), sliced by
 ## 8. Data
 
 Synthetic LATAM Bank dataset v1.0.0: 13 tables, ~19M rows, MX/CO/AR, Jun 2023 - Jun 2026, Spanish only. Deliberate quality issues: ~2% duplicates, ~5% nulls, late arrivals, schema evolution, orphan foreign keys. **No Portuguese:** a clearly labeled synthetic Portuguese test set is required, and coverage is reported as a limitation. Raw data is never committed (`data/` is git-ignored).
+
+### 8.1 Provenance
+
+| Data | Origin |
+|---|---|
+| LATAM Bank dataset | **synthetic**, supplied by the organizers |
+| Cleaned layer (parquet) | **derived** from the dataset by the team |
+| Portuguese test set | **team-generated, synthetic**: translated from held-out Spanish cases, plus cases written directly in Portuguese |
+| Gold labels (needs-a-human, verifier rubric) | **team-generated**, by hand, against a written rubric |
+| Freshness and adversarial fixtures | **team-generated, synthetic**, labelled as fixtures |
+| Demo personas and session tokens | **team-generated, synthetic** |
+
+### 8.2 Contracts, lineage and freshness
+
+- **Contracts** are versioned files, separate from the cleaning code, checked at every boundary: a **raw contract** (what is accepted, and what happens to each known quality issue: drop, quarantine or flag) and a **clean contract** (what downstream code may rely on). A validator writes a quality report with violation counts per rule and table.
+- **Tool contracts** extend the same idea to the integration boundary: MCP tool inputs and outputs follow ISO 20022-aligned shapes.
+- **Lineage:** every derived output records its source file hashes, the contract version and the git commit that produced it.
+- **Freshness:** data is batch-processed by `process_date` partition. Late-arriving partitions are reprocessed within a defined window and affected outputs are rebuilt. Because the supplied data is static, update correctness is demonstrated on a **clearly labelled test fixture** with late and corrected records.
 
 ## 9. Production gap
 

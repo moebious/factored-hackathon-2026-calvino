@@ -8,6 +8,8 @@
 
 **An AI-first banking customer service system where a domain-specific harness, not the model, decides what is safe to automate and when a human is needed.**
 
+> Laya is System 1, Calvino is System 1.5, agents are System 2, and humans are System 3. Calvino, the hub, decides who acts, gates every action, verifies agents' work and learns from every human decision.
+
 ## Description
 
 Banks want AI to resolve customer requests, but a language model on its own can't be trusted to decide what it is allowed to do, whether its answer is grounded, or when a person should take over. Project Calvino puts those decisions in the **harness**: the code around the model.
@@ -21,7 +23,7 @@ The idea follows the definition **Agent = Model + Harness** ([The Anatomy of an 
 | **LLM** | Open-ended language | clarifying questions, explanations, handoff summaries |
 | **Human** | Judgment with accountability | approvals, high-value disputes, vulnerable customers |
 
-The core principle: **probabilities in, deterministic verdicts out.** Laya returns calibrated probabilities; a versioned, unit-tested policy function turns them into a verdict; hard rules (fraud signals, amount limits, an explicit request for a person) always win. Every verdict is logged and can be replayed.
+Inside Calvino, the core principle is **probabilities in, deterministic verdicts out.** Laya returns calibrated probabilities; a versioned, unit-tested policy function turns them into a verdict; hard rules (fraud signals, amount limits, an explicit request for a person) always win. Every verdict is logged and can be replayed.
 
 ### Planned features
 
