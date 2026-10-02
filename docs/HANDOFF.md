@@ -20,7 +20,7 @@ Keep this section current; it is the first thing a new session trusts.
 |---|---|
 | Concept | frozen: thesis (Systems 1 → 3), architecture, governance, verifiers, decisions 1–15 |
 | Repository | foundation, standards and git workflow enforcement merged on `main`; documentation PRs stacked in order |
-| Workflow choice | **open** (decision 5): to be decided with the pre-registered rule in [TSD-006](specs/TSD-006-contact-reason-analysis.md) |
+| Workflow choice | **open** (decision 5): to be decided with the pre-registered rule in [TSD-006](specs/TSD-006-contact-reason-analysis.md), as amended after step 1 found coarse reasons and templated transcripts (amendment 1; decision 16) |
 | Data access | read-only dataset credentials live in the cloud environment's variables; the access key id there had a one-character typo, so check it is 20 characters before relying on it |
 | Code | none yet; the first build task is [TSD-000](specs/TSD-000-scaffolding.md) |
 | LLM provider | open (decision 6); the maintainer is arranging it |

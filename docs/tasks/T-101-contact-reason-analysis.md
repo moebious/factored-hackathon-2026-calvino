@@ -12,9 +12,9 @@
 
 **Goal.** Choose the workflow from the data by applying the pre-registered rule.
 
-**Inputs.** the dataset (interactions, transcripts, complaints, customers; transactions and products for grounding counts)
+**Inputs.** the dataset (interactions, complaints, customers, transactions for the W1/W2 attribution; products for grounding counts; transcripts only for the template check)
 
-**Outputs.** blind mapping, evidence tables and charts in `reports/contact-reasons/`; decision 16 in DECISIONS.md closing decision 5
+**Outputs.** category and transaction-type mappings, evidence tables and charts in `reports/contact-reasons/`; a new decision in DECISIONS.md closing decision 5
 
 **Open parameters.** none: the rule is fixed in TSD-006
 

@@ -37,10 +37,10 @@ Status: **designed** · **built** · **measured** · **gap**.
 
 | # | Brief asks | Where | Evidence | Status |
 |---|---|---|---|---|
-| 1 | Contact reasons, demand, data quality, constraints | TSD-006; DESIGN 8 | T-101, T-102 | designed |
+| 1 | Contact reasons, demand, data quality, constraints | TSD-006 (amendment 1); DESIGN 8 (transcript finding) | T-101, T-102 | designed |
 | 2 | Context, clarification, grounded answers, verified actions only | DESIGN 4.4; PRD FR-6 to FR-8 | T-204, T-301 | designed |
 | 3 | Answer / confirm / abstain / transfer; policy outside the model; handoff packet | DESIGN 2, 4.1–4.2; PRD FR-2 to FR-4, FR-9 | T-001, T-204, T-302 | designed |
-| 4 | Contracts, quality checks, lineage, freshness; learned component vs baseline; labels, leakage, thresholds, splits | DESIGN 7, 8.2 | T-102, T-103, T-105, T-201 | designed |
+| 4 | Contracts, quality checks, lineage, freshness; learned component vs baseline; labels, leakage, thresholds, splits | DESIGN 7, 8, 8.2; decision 16 | T-102, T-103, T-105, T-106, T-201 | designed |
 | 5 | Held-out evaluation with failure cases; outcomes, latency, cost | DESIGN 7; PRD AC-6, AC-7 | T-303 | designed |
 | 6 | Tracing, bounded retries, safe fallback, reproducible setup; capacity, monitoring, access, retention; explanations from records | DESIGN 4.1, 5.3, 9 | T-204, T-501 | designed |
 

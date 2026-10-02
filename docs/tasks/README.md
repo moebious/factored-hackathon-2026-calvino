@@ -38,9 +38,10 @@ Status: `todo`, `spec` (specification written, awaiting approval), `doing`, `rev
 | [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | workflow decision | judgment checkpoint | no | todo |
 | [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | workflow decision | standard | yes | todo |
 | [T-105](T-105-freshness-fixture.md) | Update-correctness fixture | 1 | T-102 | — | standard | yes | todo |
-| [T-201](T-201-classifier-evaluation.md) | Classifier evaluation and thresholds | 2 | T-005, T-103 | — | judgment checkpoint | no | todo |
-| [T-202](T-202-laya-fine-tuning.md) | Laya fine-tuning on Kaggle | 2 | T-103 | GPU (maintainer runs the notebook) | standard | yes | todo |
-| [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-103 | — | standard | yes | todo |
+| [T-106](T-106-message-set.md) | Team-generated customer message set | 1 | T-103 | LLM provider | standard + maintainer review | no | todo |
+| [T-201](T-201-classifier-evaluation.md) | Classifier evaluation and thresholds | 2 | T-005, T-106 | — | judgment checkpoint | no | todo |
+| [T-202](T-202-laya-fine-tuning.md) | Laya fine-tuning on Kaggle | 2 | T-106 | GPU (maintainer runs the notebook) | standard | yes | todo |
+| [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | todo |
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | todo |
 | [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | workflow decision | standard | yes | todo |
@@ -72,7 +73,7 @@ The rule for T-101 is pre-registered; its status moves to `doing` when the analy
 
 ```
 Wave 0:  T-000 ─► T-001 · T-002 · T-003 · T-004 · T-005          (no data needed)
-Wave 1:  T-101 (workflow decision) ─► T-103 · T-104 ;  T-102 ─► T-105
+Wave 1:  T-101 (workflow decision) ─► T-103 ─► T-106 ;  T-104 ;  T-102 ─► T-105
 Wave 2:  T-201 · T-202 · T-203 · T-204 · T-205 · T-206
 Wave 3:  T-301 · T-302 · T-303 · T-304        ── Tier 0 gate: deployed, results in README ──
 Wave 4:  T-401 … T-408                          (Tier 1, only after the gate)
