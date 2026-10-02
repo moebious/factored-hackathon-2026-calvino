@@ -5,6 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+
+- Workflow decision rule (TSD-006) amended before any metric was computed: the data has six coarse contact reasons and templated transcripts, so W1 and W2 are attributed from the customer's problem transactions, and the gates and labels criterion are adapted.
+- Classifier text is team-generated (decision 16): the dataset transcripts hold 42 distinct texts shared by every category and are not used as model input; the finding is recorded in DESIGN and DATA, and task T-106 builds the message set.
+
 ## [0.1.0] - 2026-10-02
 
 ### Added
