@@ -83,50 +83,62 @@ In this project the flywheel is demonstrated as **one offline turn** (human-labe
 
 ```mermaid
 flowchart TB
-    subgraph CH["Channel spokes"]
-        CA["Customer app<br/>Laya cards + glass box"]
-        OC["Operator console<br/>queue · case view · audit timeline"]
+    subgraph CH["Channels"]
+        CA["Customer app · calvino.rubrica.dev<br/>Laya cards · glass box · ES / PT"]
+        OC["Operator console<br/>queue · case file · audit timeline"]
     end
 
-    subgraph HUB["CALVINO hub: domain-specific harness (LangGraph)"]
+    subgraph S15["System 1.5 · CALVINO hub (LangGraph) · every decision logged to decisions.jsonl"]
         ID["Session and identity<br/>never passed to a model"]
-        DC{"Decision classifier<br/>hard rules → Laya → policy"}
+        HR["Hard rules<br/>always win"]
+        DC{"Decision classifier<br/>policy over calibrated scores"}
         GATE["Gate<br/>before every tool call · fail closed"]
-        VER{"Verifier cascade<br/>deterministic → Laya → LLM judge"}
+        VER{"Verification<br/>any failed criterion fails"}
         CASE[("Case file<br/>the only handoff format")]
-        LOG[("Audit log<br/>decisions.jsonl")]
     end
 
-    subgraph AG["Agent spokes (LangGraph Deep Agents)"]
-        SC["Support chat"]
-        CB["Company brain<br/>policy and knowledge retrieval"]
-        CW["Coworker<br/>prepares cases for operators"]
+    subgraph S1["System 1"]
+        LAYA["Laya · self-hosted, calibrated<br/>repeatable typed decisions"]
     end
 
-    subgraph HU["Human spokes"]
-        HA["Human agents and supervisors"]
+    subgraph S2["System 2 · generative, contained"]
+        AG["Agents · Deep Agents<br/>support chat · company brain · coworker"]
+        MV["Mixture of financial verifiers<br/>code checks · batched judge (low risk)<br/>specialist panel (high risk)"]
     end
 
-    subgraph INT["Integration spokes (MCP)"]
-        DSA["Dataset adapter (demo)"]
-        CORE["Bank core adapter (production)"]
+    subgraph S3["System 3"]
+        HA["Humans · accountable judgment<br/>agents and supervisors"]
     end
 
-    CA --> ID --> DC
-    DC -- "agents take charge" --> SC
+    subgraph INT["Integration · MCP · ISO 20022-aligned contracts"]
+        AD["Adapters<br/>dataset (demo) · second (swap test) · bank core (production)"]
+    end
+
+    subgraph FLY["Offline data flywheel · System 3 teaches System 1"]
+        GOLD[("Gold labels<br/>human-confirmed only")]
+        TUNE["Calibrate / fine-tune Laya<br/>verifier lab tunes rubrics"]
+        FROZEN[("Frozen held-out set<br/>measures every version")]
+    end
+
+    CA --> ID --> HR --> DC
+    LAYA -. "calibrated scores" .-> DC
+    LAYA -. "action risk" .-> GATE
+    DC -- "agents take charge" --> AG
+    DC -- "out of scope" --> CA
+    HR -- "fraud · limits · asks for a person" --> CASE
     DC -- "human needed" --> CASE
-    SC <--> CB
-    SC -- "tool call" --> GATE
-    CW -- "tool call" --> GATE
-    GATE --> DSA
-    GATE -.-> CORE
-    SC -- "answer or action" --> VER
+    AG -- "tool call" --> GATE --> AD
+    AG -- "output" --> VER
+    VER <--> MV
     VER -- "accept" --> CA
-    VER -- "reject: retry or escalate" --> CASE
-    CASE --> CW
+    VER -- "reject · retry once, then escalate" --> CASE
     CASE --> OC --> HA
-    HA -- "approve / edit / take over" --> GATE
-    DC & GATE & VER --> LOG
+    HA -- "approve · edit · take over" --> GATE
+    HA -- "decisions become labels" --> GOLD
+    GOLD --> TUNE
+    FROZEN -.-> TUNE
+    TUNE -- "new versions" --> LAYA
+    TUNE -.-> MV
 ```
 
 Models are spokes too: Laya (decisions), the agents' LLM and the LLM judge are called only by the hub or by agents under the hub's gate. The **two classification layers** are the core of the design:

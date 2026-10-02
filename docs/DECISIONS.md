@@ -19,3 +19,25 @@ Short, dated records of design decisions. Newest last. Each entry says what was 
 | 13 | 2026-10-02 | **Calvino is the hub** of a hub-and-spoke architecture; spokes never talk directly. LangGraph and Deep Agents throughout (Pi dropped); AWS (VPC, API Gateway, containers, Bedrock) as the documented production reference | One governed place for decisions, gating, verification and audit; one runtime and language | accepted |
 | 14 | 2026-10-02 | **Verifiers:** rubric cascade (code → Laya → one batched LLM judge) for every output; a risk-tiered panel of specialist verifiers judging per criterion for high-risk actions (Tier 1); an offline verifier lab that tunes rubrics from traces; an open model as the runtime judge | Efficient verification after the LangChain and Harvey study, optimised for false passes | accepted |
 | 15 | 2026-10-02 | **Agent scope:** support chat fully built (Tier 0); company brain as a retrieval tool or subagent (Tier 0–1); coworker preparing cases for operators (Tier 1) | Depth on one workflow; every agent serves an explicit brief item | accepted |
+
+## Alternatives considered and rejected
+
+Recorded so they are not re-proposed without new information. Reopening one needs a new decision entry above.
+
+| Alternative | Rejected because | Related decision |
+|---|---|---|
+| TypeSafe **Jev** as the System One model | closed, hosted API: customer text would leave the bank; can't be fine-tuned or recalibrated on our data | 2 |
+| **Pi SDK** (TypeScript) harness alongside Python agents | a second language and runtime for one person to maintain; LangGraph covers the same hooks | 1, 13 |
+| **QLoRA** for fine-tuning Laya | built for very large generative models; Laya is a 322M-parameter encoder, where full fine-tuning or LoRA is simpler and safer | 13 |
+| **AWS Lambda** for the hub and Laya | CPU only, cold starts, about 1 GB of model to load; containers serve it with steady latency | 13 |
+| **LLM-generated UI** (free-form generative components) | an LLM choosing the interface is the free-form behaviour Calvino avoids; a fixed card catalog chosen by Laya keeps the UI a verdict | 10 |
+| **OpenBot / OpenDots machinery** (computer per agent, browser, terminal, sandboxes, Postgres, CopilotKit Intelligence) | too heavy to host for the demo, alpha software, and general-purpose computer access widens the attack surface of a banking agent; only the philosophy is kept | 11 |
+| **Agentic verifiers** for every output | adds cost and latency and makes false-pass rates hard to measure; kept only as a risk-tiered panel for high-risk actions | 14 |
+| Several **LLM agents debating** or negotiating verdicts | verdicts are combined by a fixed rule in the hub, never by a model; spokes don't talk to each other | 13, 14 |
+| **Cloudflare Agents SDK** | not needed alongside LangGraph Deep Agents | 13 |
+| **Gradio / Streamlit-only** demo as the final UI | doesn't show the thesis; kept only as a fallback if the card UI slips | 10 |
+| **Card disputes as the ISO 20022 showcase** | card networks still mostly use ISO 8583; ISO 20022 fits payments and investigations better | 12 |
+| Buying **calvino.sh** for the demo | `calvino.rubrica.dev` is already owned | 10 |
+| Individual **ADR files** instead of this log | churn for a short project; this table records the same decision, reason and status | — |
+| Renaming DESIGN.md to **SDD.md** | no benefit, link churn, and "SDD" also means spec-driven development; the file is labelled as the software design document instead | — |
+| Classic **GitFlow**, `--no-ff` merges, Git LFS, shared aliases | see decision 7 | 7 |

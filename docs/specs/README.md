@@ -12,6 +12,7 @@
 | [TSD-003](TSD-003-deployment.md) | Deployment skeleton | 0 | draft | TSD-000 |
 | [TSD-004](TSD-004-verifier.md) | Verifier framework | 0 | draft | TSD-000 |
 | [TSD-005](TSD-005-laya-service.md) | Laya service and calibration | 0 | draft | TSD-000 |
+| [TSD-006](TSD-006-contact-reason-analysis.md) | Contact-reason analysis and workflow decision rule | 1 | draft, rule fixed before the data | dataset access |
 
 Specs for later waves are written just before their wave, once the workflow choice settles their details.
 

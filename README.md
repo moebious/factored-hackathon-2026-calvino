@@ -98,6 +98,10 @@ Each milestone is tagged as a version (`v0.1.0` design → `v1.0.0` submission);
 - [docs/DESIGN.md](docs/DESIGN.md): software design: architecture, governance, fairness, evaluation plan
 - [docs/specs/](docs/specs/README.md): technical specifications, one per work stream
 - [docs/ROADMAP.md](docs/ROADMAP.md): work streams and the order they are built in
+- [docs/tasks/](docs/tasks/README.md): backlog of every remaining task and how sessions pick them up
+- [docs/HANDOFF.md](docs/HANDOFF.md): start here when joining the project
+- [docs/BRIEF-COVERAGE.md](docs/BRIEF-COVERAGE.md): every requirement in the brief mapped to the design
+- [docs/DATA.md](docs/DATA.md), [docs/GLOSSARY.md](docs/GLOSSARY.md), [docs/references/](docs/references/README.md), [docs/PITCH.md](docs/PITCH.md)
 - [docs/DECISIONS.md](docs/DECISIONS.md): decision log
 - [docs/PLAN.md](docs/PLAN.md): build plan, risks, blockers
 - [CHANGELOG.md](CHANGELOG.md): changes per version
