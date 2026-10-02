@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Wave | 4 |
+| Wave | 3 (Tier 0 for decision 17) |
 | Branch | `feat/policy-replay` |
 | Depends on | T-302 |
-| Blocked by | Tier 0 gate |
+| Blocked by | — |
 | Model | standard model |
 | Can run in parallel | yes |
 | References | decision 11 |

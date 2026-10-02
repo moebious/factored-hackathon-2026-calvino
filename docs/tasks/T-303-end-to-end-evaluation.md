@@ -12,12 +12,12 @@
 
 **Goal.** Produce the brief's evidence.
 
-**Inputs.** the running system; held-out cases; the Portuguese set; adversarial cases
+**Inputs.** the running system; the seeded test set with oracle outcomes (T-106); the Portuguese set; adversarial cases
 
-**Outputs.** safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, p50/p95 latency and cost per case and per resolution; repeated runs; judge validation; error analysis; by language and segment
+**Outputs.** safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, p50/p95 latency and cost per case and per resolution; repeated runs; judge validation with the verifier's false-pass rate on hand labels; a bare-LLM ablation on the same adversarial set (unsafe outcomes, bare vs Calvino); error analysis; by language and segment; compared with both baselines (Transaccional calls, Transactions-category complaints)
 
 **Open parameters.** none
 
-**Done when.** results labelled offline / simulated / projected, with sample sizes and limitations, in the README and a report
+**Done when.** outcome metrics are scored against the oracle outcomes, with the oracle's agreement with the gold subset reported; results labelled offline / simulated / projected, with sample sizes and limitations, in the README and a report
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.

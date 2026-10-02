@@ -33,10 +33,12 @@ Make the deployment path real before the features exist, so every later PR can b
 
 - Demo passcode and a simple rate limit on the API.
 - No secrets in the repository; all keys come from Space secrets and Vercel environment variables.
+- **State survives restarts.** A Space's own disk is wiped on restart, so the LangGraph checkpointer and `decisions.jsonl` live on durable storage: the Space's persistent storage mounted at `/data`, or an external database whose URL comes from an environment variable. The location is configuration, never code. Durable cases (T-401) and policy replay (T-408) depend on it.
 
 ## Tests and acceptance
 
 - API tests with a fake Laya.
+- A restart test: write a checkpoint and a decision record, restart the container with the same storage, and read both back.
 - Documented local run: `docker build` and `docker run` serve `/ready` and the demo endpoint; the frontend shows the warm-up screen, then the result, against the local backend.
 
 **Done when** the local end-to-end run works, and `docs/DEPLOY.md` lists the exact maintainer steps: Space secrets, Vercel project and environment variables, and the CNAME record for `calvino.rubrica.dev`.

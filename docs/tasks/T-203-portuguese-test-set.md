@@ -4,15 +4,15 @@
 |---|---|
 | Wave | 2 |
 | Branch | `data/pt-test-set` |
-| Depends on | T-103 |
+| Depends on | T-106 |
 | Blocked by | — |
 | Model | standard model |
 | Can run in parallel | yes |
 | References | DESIGN.md 5.1, 8.1 |
 
-**Goal.** Make Portuguese measurable: a synthetic test set built from held-out cases.
+**Goal.** Make Portuguese measurable: a synthetic test set built from held-out Spanish messages.
 
-**Inputs.** held-out Spanish cases with labels
+**Inputs.** held-out Spanish messages with labels (T-106)
 
 **Outputs.** ~150–200 translated cases (labels carried over, pairs kept for counterfactual checks) and ~20–30 cases written directly in Portuguese, all labelled synthetic
 

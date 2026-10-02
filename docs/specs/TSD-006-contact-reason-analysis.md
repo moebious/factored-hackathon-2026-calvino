@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft · **decision rule fixed before any data was examined** |
+| Status | **superseded by decision 17** (2026-10-02) · kept as the record of the rule fixed before any data was examined |
 | Branch | `eval/contact-reasons` |
 | Depends on | TSD-000 (for the package), dataset access |
 | Required by | everything workflow-specific (labels, tools, cards, evaluation) |
@@ -104,4 +104,14 @@ Weighted score on a 1–5 scale. Data criteria are scaled **across the candidate
 
 ## Deviations
 
-None yet. Any change to the mapping procedure, gates, weights or priors after the analysis starts is listed here with its reason.
+None: the rule was not applied.
+
+## Superseded (2026-10-02)
+
+Step 1 showed the rule could not run as written, and the data was then explored before any amendment could be fixed, so applying it would no longer be blind. The workflow was chosen as decision 17 instead, on single-table volumes and design fit. What step 1 and the verification found `[measured]`:
+
+- `contact_reason` repeats the six values of `reason_category`; there is no finer reason.
+- The 171,321 transcripts hold 42 distinct customer texts, the same under every category; complaint descriptions have 5 values, one per category.
+- Fields behave as independently generated: all 36 transaction type × channel pairs occur, and links between tables are at chance under 100 within-customer timestamp shuffles (calls after a problem transaction within 7 days: 1.48% observed, 1.48% shuffled; web errors within 15 minutes of a problem transaction: 16 observed, about 14 expected).
+
+Details are in [DATA.md](../DATA.md) and decision 17.

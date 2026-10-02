@@ -15,7 +15,7 @@ Context: Factored AI & Data Hackathon 2026, "Build an AI-first banking customer 
 - Decisions made inside model prose can't be audited, replayed or explained to a regulator.
 - Customers write in regional Spanish and in Portuguese, and service quality must not depend on who they are or how they speak.
 
-Which workflow carries the most demand and the most avoidable cost is established from the data in phase 2 (see [PLAN.md](PLAN.md)).
+The workflow is stuck payments: payments and transfers that are Declined, Pending or Reversed, from the first question to the investigation and its follow-up (decision 17). Transaccional is the largest contact category (35% of calls) and 8% of transactions end in one of those statuses `[measured]`.
 
 ## 3. Business goals and KPIs
 

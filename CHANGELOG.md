@@ -7,6 +7,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Workflow chosen (decision 17): stuck payments, end to end (explain, clarify, act under the Gate, investigate, follow up); the pre-registered rule (TSD-006) is marked superseded, and Tier 0 gains durable cases, policy replay, one flywheel turn and a bare-LLM ablation.
+- Classifier text is team-generated (decision 16): the dataset transcripts hold 42 distinct texts shared by every category; task T-106 builds the message set.
+- DATA.md records measured row counts and the full-data quality findings.
+- Evaluation scored against a seeded oracle; TSD-002 specifies the stuck-payments tools; TSD-003 keeps cases and decisions on persistent storage.
 - Handoff guide refreshed with the current state, the measured data findings, the pending workflow verification and an ordered list of next actions.
 
 ## [0.1.0] - 2026-10-02

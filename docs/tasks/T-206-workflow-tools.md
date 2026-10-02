@@ -10,13 +10,13 @@
 | Can run in parallel | yes |
 | References | TSD-002; decision 12 |
 
-**Goal.** Extend the MCP tools and the dataset adapter for the chosen workflow.
+**Goal.** Extend the MCP tools and the dataset adapter for stuck payments (decision 17; DESIGN.md 6.1).
 
 **Inputs.** TSD-002 contracts; the chosen workflow; the cleaned layer
 
-**Outputs.** any extra tools, the ISO 20022 field mapping for the dataset adapter, a small demo data sample (labelled)
+**Outputs.** the tools specified in TSD-002 backed by the full cleaned layer instead of the fixture; the ISO 20022 field mapping for the dataset adapter; a small demo data sample (labelled) with personas that cover every Gate outcome
 
-**Open parameters.** [workflow]
+**Open parameters.** the action limits (policy assumptions, set in the policy module)
 
 **Done when.** conformance and security suites pass with the new tools
 

@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| Wave | 4 |
+| Wave | 3 (Tier 0 for decision 17) |
 | Branch | `eval/flywheel` |
 | Depends on | T-201, T-303 |
-| Blocked by | Tier 0 gate |
+| Blocked by | — |
 | Model | standard model |
 | Can run in parallel | yes |
 | References | DESIGN.md 2 |

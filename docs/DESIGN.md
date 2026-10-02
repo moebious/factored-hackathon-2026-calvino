@@ -2,7 +2,7 @@
 
 *Software Design Document (SDD): how the system is designed. Requirements are in [BRD.md](BRD.md) (why) and [PRD.md](PRD.md) (what); build specifications are in [specs/](specs/README.md).*
 
-> **Status:** draft v0.1 (2026-10-01), open for revision. Workflow choice and data contracts are still open (see [Open decisions](#10-open-decisions)). Decisions are logged in [DECISIONS.md](DECISIONS.md).
+> **Status:** draft v0.1 (2026-10-01), open for revision. The workflow is stuck payments, end to end (decision 17, [section 6.1](#61-the-workflow-stuck-payments-end-to-end)); data contracts are still open. Decisions are logged in [DECISIONS.md](DECISIONS.md).
 >
 > **Evidence labels:** `[measured]` we ran it ourselves · `[vendor]` published by the model's author, not reproduced by us · `[read from chart]` approximate value read from a published chart · `[hypothesis]` design assumption still to be tested.
 > **Context:** Factored AI & Data Hackathon 2026, "Build an AI-first banking customer service system."
@@ -156,6 +156,7 @@ Models are spokes too: Laya (decisions), the agents' LLM and the LLM judge are c
 flowchart LR
     RAW["Raw dataset"] --> CON["Data contracts<br/>quality report · lineage"] --> CLEAN["Cleaned parquet"]
     CLEAN --> LAB["Labels and splits<br/>by customer and time"]
+    MSG["Team-generated messages<br/>ES · PT, labelled synthetic"] --> LAB
     LAB --> FT["Fine-tune Laya<br/>full or LoRA · Kaggle GPU"]
     LAB --> BASE["Baselines<br/>rules · majority · logistic regression"]
     FT --> CAL["Calibrate<br/>temperatures · thresholds"]
@@ -163,7 +164,7 @@ flowchart LR
     EVAL --> REG["Versioned checkpoint<br/>Hugging Face Hub"] --> HUBREF["Loaded by the Calvino hub"]
 ```
 
-Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not store the dataset in the model. At runtime, account data reaches agents only through the MCP tools, under the gate.
+Classifier text is **team-generated** (decision 16): the dataset's transcripts are templated, so the messages Laya learns and is evaluated on are drafted from dataset scenarios and reviewed by hand, while the dataset supplies structured context and outcomes. Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not store the dataset in the model. At runtime, account data reaches agents only through the MCP tools, under the gate.
 
 ### 4.0.2 Deployment
 
@@ -174,7 +175,7 @@ Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not
 | Calvino hub + Laya | Hugging Face Space (CPU, weights baked into the image, keep-alive ping) | Containers in a private AWS VPC behind API Gateway (container services rather than Lambda: Laya needs ~1 GB of model in memory and steady latency) |
 | LLM for agents and judge | provider and key: open decision | Amazon Bedrock inside the VPC boundary |
 | Bank integration | MCP dataset adapter over a small labeled sample | MCP adapter to the bank core |
-| State and audit | SQLite checkpointer, `decisions.jsonl` | managed database, append-only audit store |
+| State and audit | SQLite checkpointer and `decisions.jsonl` on the Space's persistent storage (or an external database), so cases survive restarts | managed database, append-only audit store |
 
 ### 4.0.3 Components
 
@@ -217,7 +218,7 @@ Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not
 4. **Avoid `score` questions for decisions that matter** (weakest question type `[vendor]`; our urgency test was flat `[measured]`). Use ordered `choice` questions instead.
 5. **Ask critical yes/no questions as two-option choices with neutral keys** (yes/no answers can follow their labels instead of the input).
 6. **Never gate on `action.act_probability`** (no signal). Gate on calibrated probabilities and `confidence`.
-7. **Keep choice questions to 10 options or fewer;** go coarse to fine (`reason_category` -> `contact_reason`).
+7. **Keep choice questions to 10 options or fewer;** go coarse to fine (workflow area, then intent). The dataset has only one reason level (six categories), so finer intents come from our own label set.
 8. **Known weak spot:** routing-style questions on the multilingual checkpoint (0.123 held-out in Laya's benchmarks `[vendor]`). Measure before trusting; keep a rules-based fallback.
 9. **Injection:** Laya is one signal (~0.71-0.76 on held-out jailbreaks `[vendor]`). Deterministic guards and the tool-call gate stay load-bearing.
 10. **Serving:** in-process, or `laya-serve` only with `LAYA_API_KEY` and a private bind. Preload checkpoints at startup.
@@ -331,6 +332,25 @@ Lessons from Anthropic's long-running harness design, applied:
 
 Human-in-the-loop layers: **confirm** (client, UI) -> **approve** (gray band, review queue) -> **escalate** (full transfer with the case file) -> **audit** (random sample of auto-resolved cases). Every human decision becomes a label used to recalibrate thresholds.
 
+### 6.1 The workflow: stuck payments, end to end
+
+Decision 17. A customer's payment or transfer is Declined, Pending or Reversed, and they ask where their money is. Each stage exercises a different part of Calvino:
+
+| Stage | The customer sees | What runs |
+|---|---|---|
+| **Explain** | the status of their transaction, what it means and the next step | hard rules → Laya (workflow, clarity, needs-a-person) → policy verdict → MCP read tools with ownership checks → agent → verifier cascade |
+| **Clarify** | one question, or a card of their recent problem transactions to choose from | Laya confidence below the threshold → clarification; the Gate refuses to act on a guess |
+| **Act** | an offer to cancel a pending transfer or retry a declined one | the **Gate** with all three outcomes: allow (owner verified, eligible status, amount under the limit), ask a person (above the limit: `approve_action` interrupt), block (fraud signal, not the owner, ineligible status). Simulated by the dataset adapter, shaped as an ISO 20022 cancellation request (camt.056) and its answer (camt.029) |
+| **Investigate** | a case number and a promise that a person has the full file | human intervention classifier → case file → operator queue → durable case (checkpoint plus `interrupt()`), shaped as an investigation (camt.027) |
+| **Follow up** | later, "how is my case?" answered with a verified status | the case resumes from its checkpoint; a tool reads the investigation status; the verifier checks the reply |
+| **Learn** (offline) | — | operator approvals and denials become labels; one flywheel turn recalibrates a threshold; replaying `decisions.jsonl` under the new policy shows which verdicts change |
+
+**Out of the workflow:** unrecognised charges, disputes and fraud signals go to a person; Calvino never refunds, credits or moves money on its own.
+
+**Baselines:** Transaccional calls (resolution, escalation, follow-up, handle time) for the explain and act stages; Transactions-category complaints (resolution days, SLA breaches, compensation) for the investigate stage. The data cannot link a call to its transaction, so both are category-level.
+
+**Headline evidence:** safe automated resolution with its attempt rate, unsafe outcomes against a bare LLM on the same adversarial set, and the verifier's false-pass rate on hand labels.
+
 ## 7. Evaluation plan
 
 All variants run on the same held-out split (by customer and by time), sliced by dialect, country, segment and language.
@@ -341,10 +361,12 @@ All variants run on the same held-out split (by customer and by time), sliced by
 | Rules / keyword baseline | without ML |
 | Laya without fine-tuning | out of the box |
 | Laya + temperature calibration | effect of calibration (ECE, Brier, threshold shift) |
-| Laya fine-tuned (Kaggle 2x T4) | effect of specialising on the domain; the main learned-component evidence |
+| Laya fine-tuned (Kaggle 2x T4) | effect of specialising on the domain (Tier 1, decision 17) |
 | Calibrated logistic regression | cheap learned alternative and Laya's fallback |
 | Bare LLM vs LLM + harness; ablations per harness part | the harness thesis |
 | Verifier: candidate judges × batch / per-criterion, against a human-labelled gold set | judge agreement, false-pass and false-fail rates, cost per 1,000 criteria (see 4.4) |
+
+**Seeded oracle test set (decision 17).** Every test case starts from one held-out record: a problem transaction (Declined, Pending, Reversed), a clean one for negatives, another customer's transaction for access attempts, or none for out-of-scope requests. Its expected outcome (explain, clarify, act, ask a person, block, investigate, out of scope) is computed by an **oracle**: a small, deterministic table from record facts (status, ownership, amount band, fraud flag, the customer's words) to outcome, written and reviewed by hand, independently of the hub's policy code. The customer message is then generated from that case (decision 16). Safe resolution, escalation quality and unsafe outcomes are scored exactly against the oracle, not judged. The oracle's own errors are bounded by its agreement with the hand-labelled gold subset, reported alongside.
 
 **Reported outcomes (per the brief):** safe automated resolution (plus attempt rate), containment, escalation quality (missed / unnecessary), unsafe outcomes with counts and denominators, p50/p95 latency and cost per attempted case and per resolution ("not defined" when there are none).
 
@@ -354,11 +376,13 @@ All variants run on the same held-out split (by customer and by time), sliced by
 
 **Adversarial cases:** wrong or missing data, expired sessions, unauthorized access, prompt injection, tool failures, multilingual ambiguity.
 
-**Labels:** `was_escalated`, `requires_followup`, `was_resolved`, complaint status / SLA / compensation (proxy labels: they show what agents *did*, not what was *needed*), plus a hand-labeled gold set of ~150-300 cases with a written rubric. Agreement between proxy and gold labels is reported.
+**Labels:** `was_escalated`, `requires_followup`, `was_resolved`, complaint status / SLA / compensation (proxy labels: they show what agents *did*, not what was *needed*), plus a hand-labeled gold set of ~150-300 cases with a written rubric. Agreement between proxy and gold labels is reported. The proxy labels measure the human baseline; classifiers are trained and evaluated on the team-generated message set, whose labels come from its written rubric (decision 16). Train and test messages come from separate generation prompts, with adversarial rewordings and a hand-written subset, so a score cannot come from learning one generator's style.
 
 ## 8. Data
 
 Synthetic LATAM Bank dataset v1.0.0: 13 tables, ~19M rows, MX/CO/AR, Jun 2023 - Jun 2026, Spanish only. Deliberate quality issues: ~2% duplicates, ~5% nulls, late arrivals, schema evolution, orphan foreign keys. **No Portuguese:** a clearly labeled synthetic Portuguese test set is required, and coverage is reported as a limitation. Raw data is never committed (`data/` is git-ignored).
+
+**Data-quality finding `[measured]`:** `contact_reason` has the same six values as `reason_category`, and the 171,321 transcripts hold only 42 distinct customer texts, the same under every category. Transcripts therefore carry no label information and are not used as model input (decision 16). The workflow was chosen on single-table volumes and design fit (decision 17); see [DATA.md](DATA.md) for the full findings.
 
 ### 8.1 Provenance
 
@@ -366,7 +390,8 @@ Synthetic LATAM Bank dataset v1.0.0: 13 tables, ~19M rows, MX/CO/AR, Jun 2023 - 
 |---|---|
 | LATAM Bank dataset | **synthetic**, supplied by the organizers |
 | Cleaned layer (parquet) | **derived** from the dataset by the team |
-| Portuguese test set | **team-generated, synthetic**: translated from held-out Spanish cases, plus cases written directly in Portuguese |
+| Customer messages for the classifiers (Spanish) | **team-generated, synthetic**: drafted with an LLM from dataset scenarios, reviewed by hand; replaces the templated dataset transcripts (decision 16) |
+| Portuguese test set | **team-generated, synthetic**: translated from held-out Spanish messages, plus cases written directly in Portuguese |
 | Gold labels (needs-a-human, verifier rubric) | **team-generated**, by hand, against a written rubric |
 | Freshness and adversarial fixtures | **team-generated, synthetic**, labelled as fixtures |
 | Demo personas and session tokens | **team-generated, synthetic** |
@@ -384,8 +409,7 @@ What is built for the demo vs. designed only, and the work remaining before depl
 
 ## 10. Open decisions
 
-1. **Workflow:** to be decided in phase 2 from contact-reason volumes and resolution / escalation rates, also weighing ISO 20022 fit (payments vs cards).
-2. **LLM provider and key** for the agents and the judge (maintainer, in progress). Bedrock is the production reference.
+1. **LLM provider and key** for the agents and the judge (maintainer, in progress). Bedrock is the production reference.
 
 ## References
 

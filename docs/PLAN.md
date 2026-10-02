@@ -36,8 +36,8 @@ Each tier starts only when the one before it is merged, deployed and evaluated.
 
 | Tier | Contents | Gate to move up |
 |---|---|---|
-| **0: Submittable core** | everything in phases 2–5 above, with the verifier cascade (one batched judge) and the operator handoff queue with the audit timeline | all four deliverables could be sent as they are |
-| **1: Depth** | durable cases (pause, restart, resume with approval); Laya fine-tuning; risk-tiered verifier panel; coworker agent; analytics tab; fairness and counterfactual tests; second MCP adapter; console policy page with rule-and-replay | core evaluated, numbers in the README |
+| **0: Submittable core** | everything in phases 2–5 above, with the verifier cascade (one batched judge), the operator handoff queue with the audit timeline, and, for the stuck-payments workflow (decision 17): durable cases, policy replay, one offline flywheel turn and a bare-LLM ablation | all four deliverables could be sent as they are |
+| **1: Depth** | Laya fine-tuning; risk-tiered verifier panel; coworker agent; analytics tab; counterfactual fairness tests; second MCP adapter | core evaluated, numbers in the README |
 | **2: Integration standards** | AG-UI endpoint and CopilotKit console; live verifier streaming; offline verifier lab; ISO 20022 XML validation | Tier 1 demoed on the deployed link |
 | **3: Documented only** | A2A, more verticals and bank cores, enterprise identity provider, data residency, OpenDots-style channels | stays documentation |
 
@@ -60,14 +60,14 @@ Judging dimensions: technical judgment, AI engineering, data engineering, machin
 |---|---|
 | Laya zero-shot quality on ES/PT | calibration + fine-tuning; logistic-regression fallback |
 | No GPU in the dev container | fine-tune on Kaggle; report CPU latency honestly |
-| Synthetic labels too easy or noisy | text-only features, time split, adversarial rewordings, gold set |
+| Synthetic labels too easy or noisy; team-generated text too easy (decision 16) | separate generation prompts for train and test, adversarial rewordings, a hand-written subset, time split, gold set |
 | Scope creep | the ladder and its gates; one workflow, built in depth |
 | Demo link asleep or slow during judging | keep-alive ping, weights baked into the image, warm-up screen; UI on Vercel always loads |
 | Public link spends LLM credits | spending cap on the key, demo passcode, rate limit |
 
 ## Blockers and open decisions
 
-- [ ] Workflow choice (made in phase 2, from the data)
+- [x] Workflow choice: stuck payments, end to end (decision 17)
 - [x] Hosting: Vercel (UI) + Hugging Face Space (backend) at `calvino.rubrica.dev` (decision #10)
 - [ ] DNS record for `calvino.rubrica.dev` (maintainer, when the app is ready)
 - [ ] LLM provider and API key (needed in phase 4; maintainer, in progress)
