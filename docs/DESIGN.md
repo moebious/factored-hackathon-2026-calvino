@@ -124,6 +124,7 @@ Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not
 
 | | Demo (hackathon) | Production reference (documented) |
 |---|---|---|
+| Public link | `calvino.rubrica.dev` (custom subdomain on Vercel; `/api/*` rewritten to the backend, so judges see one URL) | Bank-owned domain |
 | Customer app and console | Vercel | Bank web and mobile channels |
 | Calvino hub + Laya | Hugging Face Space (CPU, weights baked into the image, keep-alive ping) | Containers in a private AWS VPC behind API Gateway (container services rather than Lambda: Laya needs ~1 GB of model in memory and steady latency) |
 | LLM for agents and judge | provider and key: open decision | Amazon Bedrock inside the VPC boundary |
