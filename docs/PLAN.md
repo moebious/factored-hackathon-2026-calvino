@@ -45,10 +45,12 @@ Each tier starts only when the one before it is merged, deployed and evaluated.
 
 If time runs short before submission, cut in this order, one item at a time, and record each cut in the README's remaining-work list:
 
-1. The follow-up stage (UC-8): the case resumes, but the "how is my case?" reply is not built.
-2. The flywheel turn (T-407).
-3. Policy replay (T-408).
+1. The flywheel turn (T-407).
+2. Policy replay (T-408).
+3. The follow-up stage (UC-8): the case resumes, but the "how is my case?" reply is not built.
 4. UI polish beyond the card catalog and the glass box.
+
+**Never cut the investigate stage:** humans already resolve 91.5% of Transaccional calls on first contact `[measured]`, so investigations are where Calvino's improvement story sits (DATA.md, decision 17).
 
 **Never cut** these three measurements: together they turn "safe automation" from a claim into evidence, and a demo without them scores far lower than a plainer demo with them.
 

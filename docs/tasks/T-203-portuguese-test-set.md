@@ -18,6 +18,8 @@
 
 **Open parameters.** none
 
+**Constraints.** amounts in MXN, COP, ARS or USD and customers in MX, CO or AR: the data has no BRL and no Brazilian customer (DATA.md), so Portuguese speakers are modelled as customers of those countries
+
 **Done when.** never used for training or calibration; limitations documented
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.

@@ -361,7 +361,7 @@ Decision 17. A customer's payment or transfer is Declined, Pending or Reversed, 
 
 **Out of the workflow:** unrecognised charges, disputes and fraud signals go to a person; Calvino never refunds, credits or moves money on its own.
 
-**Baselines:** Transaccional calls (resolution, escalation, follow-up, handle time) for the explain and act stages; Transactions-category complaints (resolution days, SLA breaches, compensation) for the investigate stage. The data cannot link a call to its transaction, so both are category-level.
+**Baselines:** Transaccional calls (resolution, escalation, follow-up, handle time) for the explain and act stages; Transactions-category complaints (resolution days, SLA breaches, compensation) for the investigate stage. The data cannot link a call to its transaction, so both are category-level. Transaccional calls are resolved on first contact 91.5% of the time `[measured]`, so on calls the target is to **match** that rate with zero unsafe outcomes at lower time and cost; the improvement story is the investigate stage, where 74.5% of Transactions-category complaints are still open `[measured]` and any time saving is projected, never measured.
 
 **Headline evidence:** safe automated resolution with its attempt rate, unsafe outcomes against a bare LLM on the same adversarial set, and the verifier's false-pass rate on hand labels.
 

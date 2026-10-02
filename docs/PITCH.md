@@ -11,7 +11,7 @@
 
 | # | Slide | Content | Evidence shown |
 |---|---|---|---|
-| 1 | **The problem** | Customer service in a LATAM bank: demand concentrated in stuck payments (35% of calls transactional, 8% of transactions declined, pending or reversed); today's resolution and escalation rates; what unsafe automation and unnecessary escalation cost | contact-reason chart and the human baseline `[result]` (T-101, T-104) |
+| 1 | **The problem** | Customer service in a LATAM bank: demand concentrated in stuck payments (35% of calls transactional, 8% of transactions declined, pending or reversed). The calls are high-volume and easy (humans resolve 91.5% on first contact), so automation must **match** people with zero unsafe outcomes at lower time and cost; the slow part is investigations (74.5% of transaction complaints still open, a median of 15 days to resolve) | contact-reason chart and the human baseline (T-101, T-104) `[measured]`, after comparison with the analyst's figures |
 | 2 | **The idea** | Agent = Model + Harness; Calvino as the hub; the four systems as an escalation ladder; probabilities in, deterministic verdicts out | the architecture diagram |
 | 3 | **How it stays safe** | Hard rules first; calibrated thresholds chosen by expected cost; Gate before every action (allow, ask, block); verifier cascade with rubrics; humans with a complete case file | the threshold frontier, the verifier's false-pass rate, unsafe outcomes bare LLM vs Calvino `[result]` |
 | 4 | **Results** | Safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, latency and cost per case, by language, scored against a seeded oracle and both human baselines | results table `[result]` (T-303), labelled offline / simulated |
@@ -24,7 +24,7 @@ Rule for every slide that names a layer: **show that layer's number.** Without n
 
 | Time | Beat | On screen |
 |---|---|---|
-| 0:00–0:20 | The problem in one sentence and one number | contact-reason chart |
+| 0:00–0:20 | The problem in one sentence and two numbers: people already resolve 91.5% of these calls, but investigations stay open for weeks | contact-reason chart and baseline |
 | 0:20–0:45 | The idea: four systems, Calvino as the hub | architecture diagram |
 | 0:45–1:30 | **Live demo, Spanish:** "my transfer didn't arrive" explained from the record with a verified card; then "a payment disappeared", clarified with the problem-payment picker; then a pending transfer cancelled under the Gate | customer app + glass box showing scores, rules and the Gate verdict |
 | 1:30–1:55 | **Live demo, Portuguese:** a cancellation above the limit goes to a person; the operator approves from the case file; later the customer asks about the case and gets a verified status | operator console, audit timeline naming the rule |

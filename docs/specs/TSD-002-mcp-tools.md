@@ -49,6 +49,7 @@ Codes: ISO 4217 (currency), ISO 3166 (country), ISO 18245 (merchant category).
 - Every tool checks that the requested record belongs to the session's customer and refuses otherwise, naming the rule.
 - Write tools are idempotent; repeating a request with the same key returns the first result.
 - **Eligibility lives in the tool, limits in the policy.** A tool refuses, naming the rule, when the record is ineligible: cancellation only for a Pending transfer, retry only for a Declined one, neither for a fraud-flagged transaction. Amount limits and the decision to ask a person belong to the Gate (TSD-001); the confirmation token is issued only after an `allow` verdict or a person's approval.
+- **Status comes from `transaction_status` only.** A null `response_code` occurs in every status, Approved included (DATA.md), so it never marks a payment as failed; the fixture includes an Approved entry with a null response code. Fixture countries are MX, CO, AR (US only as a foreign label) and currencies MXN, COP, ARS, USD.
 - Simulated writes change only the adapter's own action log, never the dataset, and every result says it is simulated.
 - Built with the official MCP Python SDK.
 
