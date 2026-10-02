@@ -13,6 +13,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Policy engine (TSD-001): `calvino.policy` with `decide_route`, `decide_gate` and `replay_decision`, the versioned `policy/v1.yaml` (thresholds as hypotheses, per-currency limits as policy assumptions), fail-closed handling of missing or malformed inputs, and records that hold every input read so decisions replay from the log.
 
+- MCP tools (TSD-002): `calvino.tools` with ten stuck-payments tools built on the official MCP SDK, the `BankAdapter` protocol and a dataset adapter over a synthetic fixture, ISO 20022-aligned contracts as JSON Schema in `contracts/tools/`, a session attached by the hub (never a tool argument), single-use expiring confirmation tokens bound to one action, customer-scoped idempotency keys, stable refusal rule ids, and an adapter conformance suite.
+
 ### Changed
 
 - Agents plan their commits before coding and prefer small logical commits: AGENTS.md, the session prompt template and the PR template say so, and `scripts/git/check-commit-size.sh` enforces 15 files and 800 changed lines per commit (lock files and generated paths not counted; a `Size-exception:` footer opts out) in the `pre-push` hook and the `conventions` CI job.

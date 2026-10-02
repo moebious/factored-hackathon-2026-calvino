@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | [TSD-000](TSD-000-scaffolding.md) | Python scaffolding and shared types | 0 (first) | implemented | foundation PRs merged |
 | [TSD-001](TSD-001-policy-engine.md) | Policy engine | 0 | implemented | TSD-000 |
-| [TSD-002](TSD-002-mcp-tools.md) | MCP tools and ISO 20022-aligned contracts | 0 | draft | TSD-000 |
+| [TSD-002](TSD-002-mcp-tools.md) | MCP tools and ISO 20022-aligned contracts | 0 | implemented | TSD-000 |
 | [TSD-003](TSD-003-deployment.md) | Deployment skeleton | 0 | draft | TSD-000 |
 | [TSD-004](TSD-004-verifier.md) | Verifier framework | 0 | draft | TSD-000 |
 | [TSD-005](TSD-005-laya-service.md) | Laya service and calibration | 0 | draft | TSD-000 |
