@@ -4,7 +4,7 @@
 |---|---|
 | Wave | 2 |
 | Branch | `eval/laya-finetune` |
-| Depends on | T-103 |
+| Depends on | T-106 |
 | Blocked by | GPU (maintainer runs the notebook) |
 | Model | standard model |
 | Can run in parallel | yes |

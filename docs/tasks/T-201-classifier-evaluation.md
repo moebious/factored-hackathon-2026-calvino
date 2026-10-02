@@ -4,7 +4,7 @@
 |---|---|
 | Wave | 2 |
 | Branch | `eval/classifiers` |
-| Depends on | T-005, T-103 |
+| Depends on | T-005, T-106 |
 | Blocked by | — |
 | Model | strong model or maintainer review (judgment checkpoint) |
 | Can run in parallel | no |
@@ -12,7 +12,7 @@
 
 **Goal.** Measure System 1 against baselines and choose thresholds by expected cost.
 
-**Inputs.** labels and splits; the Laya client and calibration code
+**Inputs.** the team-generated message set and its splits (T-106); the Laya client and calibration code
 
 **Outputs.** results for majority, rules, logistic regression, Laya zero-shot and calibrated (and fine-tuned if available); calibration per language; threshold frontier and chosen operating point
 

@@ -20,8 +20,8 @@ Large fact tables are partitioned by `process_date`.
 | `service_agents` | 1.2 K | dimension | not used (possibly agent specialty for routing context) |
 | `marketing_campaigns` | 200 | dimension | not used |
 | `transactions` | 5 M | fact | grounding answers and actions: status, type, merchant, fraud flag |
-| `call_center_interactions` | 800 K | fact | **contact reasons, resolution, escalation, handle time, sentiment**: the baseline and labels |
-| `call_transcripts` | 200 K | fact | **customer text** for classifiers; beware derived fields (`detected_intents`, `detected_keywords`, `main_topics`) as leakage |
+| `call_center_interactions` | 800 K | fact | **contact reasons (six coarse categories), resolution, escalation, handle time, sentiment**: the baseline and proxy labels |
+| `call_transcripts` | 200 K | fact | **templated:** 42 distinct customer texts, the same under every category; not used as model input (decision 16), reported as a data-quality finding |
 | `satisfaction_surveys` | 250 K | fact | CSAT for the baseline, if used |
 | `digital_events` | 10 M | fact | not used |
 | `complaints` | 80 K | fact | complaint categories, SLA, resolution, compensation; demand evidence and grounding for complaint follow-up |
@@ -30,8 +30,8 @@ Large fact tables are partitioned by `process_date`.
 
 ## Key columns
 
-- `call_center_interactions`: `contact_reason`, `reason_category`, `channel`, `was_resolved`, `was_escalated`, `requires_followup`, `duration_seconds`, `wait_time_seconds`, `detected_sentiment`, `customer_detected_accent`, `has_transcript`.
-- `call_transcripts`: `interaction_id`, `customer_text`, `agent_text`, `detected_language`, `detected_accent`, `detected_intents` (leakage risk).
+- `call_center_interactions`: `contact_reason` and `reason_category` (the same six values: Comercial, Producto, Queja, Retención, Transaccional, Técnico), `channel`, `was_resolved`, `was_escalated`, `requires_followup`, `duration_seconds`, `wait_time_seconds`, `detected_sentiment`, `customer_detected_accent`, `has_transcript`.
+- `call_transcripts`: `interaction_id`, `customer_text`, `agent_text`, `detected_language` (only `es`), `detected_accent`, `detected_intents` (one value), `main_topics` (the six categories).
 - `transactions`: `transaction_type` (Deposit, Withdrawal, Transfer, Payment, Purchase, Adjustment), `transaction_status` (Approved, Declined, Pending, Reversed), `is_fraud`, `fraud_score`, `merchant_name`, `channel`.
 - `complaints`: `case_type`, `category`, `subcategory`, `status`, `priority`, `sla_breached`, `resolution_days`, `compensation_granted`, `is_repeat_complainer`.
 - `customers`: `segment` (Premium, Plus, Basic, Student), `country`, `detected_accent`, `credit_score`.
@@ -39,6 +39,11 @@ Large fact tables are partitioned by `process_date`.
 ## Storage layout
 
 The bucket holds a `data/` folder (the current data) and a dated backup folder. Use `data/` only. The maintainer also has a cleaned layer (parquet) from earlier work, which can serve as the clean layer once its schema is described by the contracts (T-102).
+
+## Findings `[measured]`
+
+- **One reason level.** `contact_reason` repeats `reason_category`; there is no finer contact reason. `complaints` adds 4 case types × 5 categories with one subcategory each ("Cargo no reconocido" under Transactions).
+- **Templated transcripts.** 171,321 transcripts hold 42 distinct `customer_text` values (digits masked), built from two fixed openings (both balance enquiries) and generic closers, identical across all six categories. Classifier text is therefore team-generated (decision 16).
 
 ## Handling rules
 

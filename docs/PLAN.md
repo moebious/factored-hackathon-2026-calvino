@@ -60,7 +60,7 @@ Judging dimensions: technical judgment, AI engineering, data engineering, machin
 |---|---|
 | Laya zero-shot quality on ES/PT | calibration + fine-tuning; logistic-regression fallback |
 | No GPU in the dev container | fine-tune on Kaggle; report CPU latency honestly |
-| Synthetic labels too easy or noisy | text-only features, time split, adversarial rewordings, gold set |
+| Synthetic labels too easy or noisy; team-generated text too easy (decision 16) | separate generation prompts for train and test, adversarial rewordings, a hand-written subset, time split, gold set |
 | Scope creep | the ladder and its gates; one workflow, built in depth |
 | Demo link asleep or slow during judging | keep-alive ping, weights baked into the image, warm-up screen; UI on Vercel always loads |
 | Public link spends LLM credits | spending cap on the key, demo passcode, rate limit |

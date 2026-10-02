@@ -156,6 +156,7 @@ Models are spokes too: Laya (decisions), the agents' LLM and the LLM judge are c
 flowchart LR
     RAW["Raw dataset"] --> CON["Data contracts<br/>quality report · lineage"] --> CLEAN["Cleaned parquet"]
     CLEAN --> LAB["Labels and splits<br/>by customer and time"]
+    MSG["Team-generated messages<br/>ES · PT, labelled synthetic"] --> LAB
     LAB --> FT["Fine-tune Laya<br/>full or LoRA · Kaggle GPU"]
     LAB --> BASE["Baselines<br/>rules · majority · logistic regression"]
     FT --> CAL["Calibrate<br/>temperatures · thresholds"]
@@ -163,7 +164,7 @@ flowchart LR
     EVAL --> REG["Versioned checkpoint<br/>Hugging Face Hub"] --> HUBREF["Loaded by the Calvino hub"]
 ```
 
-Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not store the dataset in the model. At runtime, account data reaches agents only through the MCP tools, under the gate.
+Classifier text is **team-generated** (decision 16): the dataset's transcripts are templated, so the messages Laya learns and is evaluated on are drafted from dataset scenarios and reviewed by hand, while the dataset supplies structured context and outcomes. Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not store the dataset in the model. At runtime, account data reaches agents only through the MCP tools, under the gate.
 
 ### 4.0.2 Deployment
 
@@ -217,7 +218,7 @@ Fine-tuning teaches Laya to make **decisions on our kind of input**; it does not
 4. **Avoid `score` questions for decisions that matter** (weakest question type `[vendor]`; our urgency test was flat `[measured]`). Use ordered `choice` questions instead.
 5. **Ask critical yes/no questions as two-option choices with neutral keys** (yes/no answers can follow their labels instead of the input).
 6. **Never gate on `action.act_probability`** (no signal). Gate on calibrated probabilities and `confidence`.
-7. **Keep choice questions to 10 options or fewer;** go coarse to fine (`reason_category` -> `contact_reason`).
+7. **Keep choice questions to 10 options or fewer;** go coarse to fine (workflow area, then intent). The dataset has only one reason level (six categories), so finer intents come from our own label set.
 8. **Known weak spot:** routing-style questions on the multilingual checkpoint (0.123 held-out in Laya's benchmarks `[vendor]`). Measure before trusting; keep a rules-based fallback.
 9. **Injection:** Laya is one signal (~0.71-0.76 on held-out jailbreaks `[vendor]`). Deterministic guards and the tool-call gate stay load-bearing.
 10. **Serving:** in-process, or `laya-serve` only with `LAYA_API_KEY` and a private bind. Preload checkpoints at startup.
@@ -354,11 +355,13 @@ All variants run on the same held-out split (by customer and by time), sliced by
 
 **Adversarial cases:** wrong or missing data, expired sessions, unauthorized access, prompt injection, tool failures, multilingual ambiguity.
 
-**Labels:** `was_escalated`, `requires_followup`, `was_resolved`, complaint status / SLA / compensation (proxy labels: they show what agents *did*, not what was *needed*), plus a hand-labeled gold set of ~150-300 cases with a written rubric. Agreement between proxy and gold labels is reported.
+**Labels:** `was_escalated`, `requires_followup`, `was_resolved`, complaint status / SLA / compensation (proxy labels: they show what agents *did*, not what was *needed*), plus a hand-labeled gold set of ~150-300 cases with a written rubric. Agreement between proxy and gold labels is reported. The proxy labels measure the human baseline; classifiers are trained and evaluated on the team-generated message set, whose labels come from its written rubric (decision 16). Train and test messages come from separate generation prompts, with adversarial rewordings and a hand-written subset, so a score cannot come from learning one generator's style.
 
 ## 8. Data
 
 Synthetic LATAM Bank dataset v1.0.0: 13 tables, ~19M rows, MX/CO/AR, Jun 2023 - Jun 2026, Spanish only. Deliberate quality issues: ~2% duplicates, ~5% nulls, late arrivals, schema evolution, orphan foreign keys. **No Portuguese:** a clearly labeled synthetic Portuguese test set is required, and coverage is reported as a limitation. Raw data is never committed (`data/` is git-ignored).
+
+**Data-quality finding `[measured]`:** `contact_reason` has the same six values as `reason_category`, and the 171,321 transcripts hold only 42 distinct customer texts, the same under every category. Transcripts therefore carry no label information and are not used as model input (decision 16). The workflow was chosen on single-table volumes and design fit (decision 17); see [DATA.md](DATA.md) for the full findings.
 
 ### 8.1 Provenance
 
@@ -366,7 +369,8 @@ Synthetic LATAM Bank dataset v1.0.0: 13 tables, ~19M rows, MX/CO/AR, Jun 2023 - 
 |---|---|
 | LATAM Bank dataset | **synthetic**, supplied by the organizers |
 | Cleaned layer (parquet) | **derived** from the dataset by the team |
-| Portuguese test set | **team-generated, synthetic**: translated from held-out Spanish cases, plus cases written directly in Portuguese |
+| Customer messages for the classifiers (Spanish) | **team-generated, synthetic**: drafted with an LLM from dataset scenarios, reviewed by hand; replaces the templated dataset transcripts (decision 16) |
+| Portuguese test set | **team-generated, synthetic**: translated from held-out Spanish messages, plus cases written directly in Portuguese |
 | Gold labels (needs-a-human, verifier rubric) | **team-generated**, by hand, against a written rubric |
 | Freshness and adversarial fixtures | **team-generated, synthetic**, labelled as fixtures |
 | Demo personas and session tokens | **team-generated, synthetic** |
