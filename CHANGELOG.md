@@ -5,6 +5,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+
+- Handoff guide refreshed with the current state, the measured data findings, the pending workflow verification and an ordered list of next actions.
+
 ## [0.1.0] - 2026-10-02
 
 ### Added
