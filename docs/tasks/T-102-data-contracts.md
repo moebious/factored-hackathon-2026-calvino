@@ -1,0 +1,23 @@
+# T-102: Data contracts, quality report and lineage
+
+| | |
+|---|---|
+| Wave | 1 |
+| Branch | `data/contracts` |
+| Depends on | T-000 |
+| Blocked by | dataset access |
+| Model | standard model |
+| Can run in parallel | yes |
+| References | DESIGN.md 8.2; PRD NFR-2 |
+
+**Goal.** Make data preparation checkable: contracts at every boundary, a quality report, lineage.
+
+**Inputs.** the cleaned layer (or raw data); the data dictionary summary in DATA.md
+
+**Outputs.** raw and clean contracts in `contracts/data/`, a validator, a generated quality report, lineage records
+
+**Open parameters.** [data] the cleaned layer's exact schema
+
+**Done when.** the validator runs on the tables in use and the report shows violation counts per rule; tests on a synthetic fixture
+
+**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
