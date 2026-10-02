@@ -11,10 +11,14 @@ from calvino.tools.confirmation import (
 )
 from calvino.tools.dataset import DatasetAdapter
 from calvino.tools.errors import ConfigurationError, Rule, ToolRefusal
+from calvino.tools.server import TOOL_NAMES, create_server
+from calvino.tools.service import BankTools
 from calvino.tools.session import Session, SessionResolver
 
 __all__ = [
+    "TOOL_NAMES",
     "BankAdapter",
+    "BankTools",
     "ConfigurationError",
     "ConfirmationVerifier",
     "DatasetAdapter",
@@ -25,4 +29,5 @@ __all__ = [
     "SessionResolver",
     "ToolRefusal",
     "confirmation_key_from_env",
+    "create_server",
 ]
