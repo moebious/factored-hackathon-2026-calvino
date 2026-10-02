@@ -1,0 +1,4 @@
+product_id,customer_id,product_type,currency
+P001,C001,Cuenta Ahorro,MXN
+P002,C002,Tarjeta Débito,COP
+P003,C003,Cuenta Corriente,ARS

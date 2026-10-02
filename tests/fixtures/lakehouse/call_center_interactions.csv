@@ -1,0 +1,4 @@
+interaction_id,customer_id,agent_id,interaction_date,channel,contact_reason,reason_category,was_resolved,was_escalated,requires_followup,duration_seconds,wait_time_seconds
+I001,C001,A01,2023-06-18 10:00:00,Phone,Transaccional,Transaccional,true,false,false,205,119
+I002,C002,A02,2023-06-19 15:30:00,Phone,Queja,Queja,false,true,true,440,196
+I003,C003,A01,2023-06-20 09:10:00,Phone,Transaccional,Transaccional,true,false,true,180,60
