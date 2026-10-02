@@ -12,6 +12,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Worktree-per-branch workflow: hooks block commits on `main`, commits outside a linked worktree and pushes to `main`; a `main-guard` workflow flags commits that reach `main` without a merged pull request.
 - Thesis restated as Systems 1, 1.5, 2 and 3 (Laya, the Calvino hub, agents with verifiers, humans), with the data flywheel and its safeguards; design gaps against the brief closed (out-of-scope outcome, retention, provenance, contracts and freshness, result labels).
 - Decisions 9 to 15 (MCP boundary, glass-box demo link, operator console, ISO 20022-aligned contracts, hub and spoke, tiered verifiers, agent scope), the tier ladder, phase 2 detail and the roadmap of parallel work streams.
+- Business and product requirements (BRD, PRD) and technical specifications for the wave 0 work streams (TSD-000 to TSD-005), linked across the docs.
 
 ## [0.1.0] - 2026-10-01
 
