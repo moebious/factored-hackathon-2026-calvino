@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft |
+| Status | implemented |
 | Branch | `feat/policy-engine` |
 | Depends on | TSD-000 |
 | Required by | the Calvino hub (Wave 2) |
@@ -47,6 +47,17 @@ This spec predates the workflow choice; these points complete it:
 - `decide_route` uses `Route.clarify` for the uncertain band and `out_of_scope` for requests outside the workflow; the inputs are Laya's questions in DESIGN.md 6.1.
 - Limits are per currency (MXN, COP, ARS, USD) in `policy/v1.yaml`. They are policy assumptions, marked as such, never as measurements.
 - Records use `calvino.records.session_ref_for` and are written with `calvino.decision_log`.
+
+## Implementation notes
+
+Where the implementation settled details this spec left open (decision 18):
+
+- Code: `src/calvino/policy/` (`config`, `inputs`, `route`, `gate`, `replay`); policy file `policy/v1.yaml`. The functions return the decision with its `DecisionRecord`; the caller appends it with `calvino.decision_log` (the policy does no I/O).
+- Scores read by the Route: `needs_human`, `clear_enough`, `confidence`, `workflow_out_of_scope`, `workflow_dispute_or_fraud`, `injection`; by the Gate: `clear_enough`, `confidence`, `injection`. `act_probability` is not a field and is rejected.
+- Route rule ids: `HR-*`, `RT-DISPUTE-FRAUD`, `RT-OUT-OF-SCOPE`, `RT-INJECTION`, `RT-ESCALATE`, `RT-CLARIFY-CONFIDENCE`, `RT-CLARIFY-UNCLEAR`, `RT-CLARIFY-BAND`, `RT-ACT`. Gate: `HR-FRAUD`, `HR-AUTH`, `GATE-NOT-OWNER`, `GATE-INELIGIBLE`, the asking `HR-*` rules, `GATE-LIMIT`, `GATE-INJECTION`, `GATE-LOW-CONFIDENCE`, `GATE-UNCLEAR`, `GATE-ALLOW`. Fail-closed ids: `FC-INPUTS`, `FC-CURRENCY`, `FC-SCORES`.
+- Gate order (first match decides): input checks, `HR-FRAUD`, `HR-AUTH`, `GATE-NOT-OWNER`, `GATE-INELIGIBLE`, `GATE-INJECTION` (when scores are present), the asking hard rules, `GATE-LIMIT`, then the other scores. Block always outranks ask.
+- `GateDecision` also carries `human_action` (`approve_action` when asking).
+- `replay_decision(record, policy)` re-runs any record the engine wrote.
 
 ## Tests and acceptance
 

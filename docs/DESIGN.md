@@ -197,7 +197,7 @@ Classifier text is **team-generated** (decision 16): the dataset's transcripts a
 
 | Part | Hook | Laya questions | Policy | If Laya is down |
 |---|---|---|---|---|
-| **Router** | Start of a request (chosen once, so the prompt cache holds) | handling mode, complexity | low confidence goes to the safer path | **fail open**: use the capable model / AI agent path |
+| **Router** | Start of a request (chosen once, so the prompt cache holds) | handling mode, complexity | low confidence goes to the safer path (two thresholds, `decide_route`) | the policy itself **fails closed** on missing scores (to a person, decision 18); a rules-based fallback classifier, if used, runs in the hub before the policy |
 | **Gate** | Before every tool call | risk of the action (destructive, irreversible, out of scope) | `decide_gate()`: allow / ask a human / block | **fail closed**: block, or escalate |
 | **Verifier** | Before the final answer | answer quality, groundedness | at most 2 attempts | treat the answer as unverified and escalate |
 

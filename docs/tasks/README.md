@@ -43,7 +43,7 @@ Status: `todo`, `spec` (specification written, awaiting approval), `doing`, `rev
 | ID | Task | Wave | Depends on | Blocked by | Model | Parallel | Status |
 |---|---|---|---|---|---|---|---|
 | [T-000](../specs/TSD-000-scaffolding.md) | Python scaffolding and shared types | 0 | docs PRs merged | — | standard | no (first) | done |
-| [T-001](../specs/TSD-001-policy-engine.md) | Policy engine | 0 | T-000 | — | standard | yes | spec |
+| [T-001](../specs/TSD-001-policy-engine.md) | Policy engine | 0 | T-000 | — | standard | yes | review |
 | [T-002](../specs/TSD-002-mcp-tools.md) | MCP tools and ISO 20022-aligned contracts | 0 | T-000 | — | standard | yes | spec |
 | [T-003](../specs/TSD-003-deployment.md) | Deployment skeleton | 0 | T-000 | — | standard | yes | spec |
 | [T-004](../specs/TSD-004-verifier.md) | Verifier framework | 0 | T-000 | — | standard | yes | spec |
