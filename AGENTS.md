@@ -37,7 +37,7 @@ Application directories are planned and created as code lands; update this secti
 1. **README.** It explains what the project does, why, and how to get it running. Whenever setup changes, update the run instructions in the same commit and make sure they still work.
 2. **License.** The project is MIT-licensed (`LICENSE`). Don't add code or assets under incompatible licenses. Note third-party licenses where relevant (e.g. Laya is Apache 2.0).
 3. **Clean repository.** Code, assets and config live in a sensible structure (see the layout above). Never commit OS files (`.DS_Store`, `Thumbs.db`), editor configs (`.vscode/`, `.idea/`), virtual environments, `node_modules/`, build artifacts, logs or model weights. `.editorconfig` is the only shared formatting config. If something unwanted shows up in `git status`, extend `.gitignore` instead of committing it.
-4. **Clean history.** Each commit groups one coherent change and says so in its message. No "fix some things", "fix fixes" or revert chains: tidy work-in-progress commits locally before pushing.
+4. **Clean history.** Each commit groups one coherent change and says so in its message. No "fix some things", "fix fixes" or revert chains: tidy work-in-progress commits locally before pushing (fold fixups into the commit they belong to, never several steps into one big commit). See [Day-to-day commits](#day-to-day-commits).
 5. **Comments.** Every file and class starts with a few lines saying what it does. Comment anything surprising: thresholds, workarounds, Laya quirks, deliberate trade-offs. Don't leave commented-out code.
 6. **Tests.** Add or extend tests with every change. Every policy function and every tool permission check has unit tests that run without model calls. Tests must not need network access, a GPU or the real dataset.
 
@@ -135,6 +135,10 @@ Never delete a worktree with `rm -rf` alone; run `git worktree prune` afterwards
 
 ### Day-to-day commits
 
+- **Plan the commits before writing code.** For a spec or task, first post the plan: an ordered list of the commits you intend to make, each one coherent change with its scope (for example: 1. dependencies and shared types; 2. adapter and fixture; 3. service and server; 4. docs). The maintainer can adjust it before any code exists. If the plan changes along the way, say so in the next report.
+- **Prefer small logical commits.** One commit is one change a reviewer can read in a sitting, with the tests that belong to it. Don't fold several plan steps into one commit, and don't squash a finished branch into a single commit before pushing; the squash happens when the pull request is merged.
+- **Size limits are enforced** by `scripts/git/check-commit-size.sh` in the `pre-push` hook and in CI: at most 15 files and 800 changed lines (added plus deleted) per commit, not counting lock files, `contracts/`, `tests/fixtures/` and `reports/`. A commit that really is one indivisible change (a rename across the tree, a generated file set) carries a footer `Size-exception: <reason>`, so the reason stays in the history. Splitting is the default; the exception is for when a split would leave a commit that does not build or pass its tests.
+- **When you propose a push,** show the plan next to `git log --stat origin/main..HEAD`, so the maintainer can compare them.
 - **Commit when one coherent change works,** with its tests passing. Never push a commit that breaks the build or the tests.
 - **Fix mistakes with fixup commits,** then fold them in before pushing:
   ```bash
@@ -229,7 +233,7 @@ The hooks enforce the rules above locally:
 |---|---|
 | `pre-commit` | commits on `main`; commits from the primary checkout instead of a linked worktree; staged datasets, `.env` files, model weights and anything that looks like a credential |
 | `commit-msg` | messages that are not Conventional Commits or that contain AI-tool attribution |
-| `pre-push` | pushes to `main`; branch names that are not `<type>/<short-description>` (also checked in CI) |
+| `pre-push` | pushes to `main`; branch names that are not `<type>/<short-description>`; commits over the size limits, unless they carry a `Size-exception:` footer (all also checked in CI) |
 
 Hooks can be skipped with `--no-verify`; don't. CI (`conventions`, `main-guard`) and branch protection catch what hooks miss.
 

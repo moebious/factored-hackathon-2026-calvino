@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Refuses to push to main from a local clone, and refuses branch names that do
-# not follow AGENTS.md (<type>/<short-description>, with a Conventional Commits
-# type). main only changes through merged pull requests; branch protection and
-# the conventions CI job enforce the same rules on GitHub.
+# Refuses to push to main from a local clone, refuses branch names that do not
+# follow AGENTS.md (<type>/<short-description>, with a Conventional Commits
+# type), and refuses commits too large to review (scripts/git/check-commit-size.sh,
+# against origin/main). main only changes through merged pull requests; branch
+# protection and the conventions CI job enforce the same rules on GitHub.
 # Git passes "<local ref> <local sha> <remote ref> <remote sha>" lines on stdin.
 # Keep the type list in sync with scripts/git/check-commit-msg.sh.
 branch_re='^(feat|fix|docs|test|refactor|perf|build|ci|chore|style|revert)/[a-z0-9][a-z0-9._-]*$'
@@ -19,6 +20,12 @@ while read -r _ local_sha remote_ref _; do
             if ! printf '%s' "$name" | grep -qE "$branch_re"; then
                 echo "error: branch '$name' does not match <type>/<short-description> (see AGENTS.md)" >&2
                 exit 1
+            fi
+            # Skip when origin/main is unknown (a fresh clone of something else) or the
+            # pushed object is not a commit.
+            if git rev-parse -q --verify origin/main >/dev/null &&
+               git cat-file -e "${local_sha}^{commit}" 2>/dev/null; then
+                "$(dirname "$0")/../scripts/git/check-commit-size.sh" "origin/main..$local_sha" || exit 1
             fi ;;
     esac
 done

@@ -1,7 +1,8 @@
 # Enforces the git workflow rules in AGENTS.md on every pull request, using
 # the same script as the local commit-msg hook: Conventional Commits for the
-# PR title (it becomes the squash commit on main) and every commit, and no
-# AI-tool attribution in commits or the PR description.
+# PR title (it becomes the squash commit on main) and every commit, no
+# AI-tool attribution in commits or the PR description, and no commit too
+# large to review.
 name: conventions
 
 on:
@@ -50,3 +51,9 @@ jobs:
           done
 
           exit "$fail"
+
+      - name: Check commit sizes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/git/check-commit-size.sh "$BASE_SHA..$HEAD_SHA"

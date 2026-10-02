@@ -15,6 +15,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Agents plan their commits before coding and prefer small logical commits: AGENTS.md, the session prompt template and the PR template say so, and `scripts/git/check-commit-size.sh` enforces 15 files and 800 changed lines per commit (lock files and generated paths not counted; a `Size-exception:` footer opts out) in the `pre-push` hook and the `conventions` CI job.
 - The baseline finding and the data-quality findings reach the tasks: DATA.md gains baseline rows and handling rules (status from `transaction_status`, `Mexico` merged into MX, USD conversion, complaint linking, no BRL); decision 17 gains a note; PITCH slide 1, DESIGN.md 7 and T-303 target matching the human 91.5% on calls; PLAN cuts the flywheel first and never the investigate stage; TSD-002, T-102, T-203 and T-206 carry the matching rules.
 - Branch names are checked against `<type>/<short-description>` by the `pre-push` hook and the `conventions` CI job; tool-specific notes removed from AGENTS.md and HANDOFF.
 - Agents never open pull requests (AGENTS.md); the attribution checker also blocks Factory Droid trailers and footers; HANDOFF wording is agent-neutral.

@@ -79,6 +79,7 @@ Transactions-category complaints: 74.5% still open, SLA breached on 20.2%, media
 
 Beyond AGENTS.md, learned while shaping the project:
 
+- **Small logical commits, planned first.** Post the commit plan before coding; commit each step; the size limits are enforced. One 38-file, 4,000-line commit made TSD-002 hard to review.
 - **The maintainer decides every push.** Commit locally, then say what you would push, where and why, and wait. This includes PRs, branches, tags and deletions.
 - **Explain before acting** on anything structural (renames, restructures, history rewrites). Offer options with a recommendation.
 - **New work goes in new PRs.** Don't add unrelated commits to an open PR.
