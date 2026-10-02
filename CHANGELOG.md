@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Classifier text is team-generated (decision 16): the dataset transcripts hold 42 distinct texts shared by every category; task T-106 builds the message set.
 - DATA.md records measured row counts and the full-data quality findings.
 - Evaluation scored against a seeded oracle; TSD-002 specifies the stuck-payments tools; TSD-003 keeps cases and decisions on persistent storage.
+- Docs aligned with the stuck-payments workflow: README workflow section, Laya question set, card catalog, use cases for follow-up and offline learning, and no remaining workflow placeholders.
 - Handoff guide refreshed with the current state, the measured data findings, the pending workflow verification and an ordered list of next actions.
 
 ## [0.1.0] - 2026-10-02
