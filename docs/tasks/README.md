@@ -54,7 +54,7 @@ Owner: **analyst** (data analysis and MLOps; delivers files that the maintainer 
 | [T-004](../specs/TSD-004-verifier.md) | Verifier framework | 0 | T-000 | — | standard | yes | doing | maintainer |
 | [T-005](../specs/TSD-005-laya-service.md) | Laya service and calibration | 0 | T-000 | — | standard | yes | doing | analyst |
 | [T-101](T-101-contact-reason-analysis.md) | Contact-reason analysis and workflow decision | 1 | — | dataset access | judgment checkpoint | yes | done (decision 17) | maintainer |
-| [T-102](../specs/TSD-007-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | review | maintainer |
+| [T-102](../specs/TSD-007-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | done | maintainer |
 | [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | todo | analyst |
 | [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | — | standard | yes | todo | analyst |
 | [T-105](T-105-freshness-fixture.md) | Update-correctness fixture | 1 | T-102 | — | standard | yes | todo | analyst |

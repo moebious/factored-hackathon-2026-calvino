@@ -1,0 +1,374 @@
+{
+  "directory": "<raw downloads folder>",
+  "passed": true,
+  "absent_tables": [],
+  "tables": [
+    {
+      "table": "customers",
+      "source": "<raw>/customers.csv",
+      "rows": 150000,
+      "missing_columns": [],
+      "skipped": [],
+      "passed": true,
+      "checks": [
+        {
+          "check_id": "PK-NULL",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (customer_id) is present",
+          "failed": false
+        },
+        {
+          "check_id": "PK-DUPLICATE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (customer_id) is unique",
+          "failed": false
+        },
+        {
+          "check_id": "REQUIRED-country",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "country is present",
+          "failed": false
+        },
+        {
+          "check_id": "CU-COUNTRY",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customers are in México, Colombia or Argentina; there are no Brazilian customers",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "table": "products",
+      "source": "<raw>/products.csv",
+      "rows": 400000,
+      "missing_columns": [],
+      "skipped": [],
+      "passed": true,
+      "checks": [
+        {
+          "check_id": "PK-NULL",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (product_id) is present",
+          "failed": false
+        },
+        {
+          "check_id": "PK-DUPLICATE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (product_id) is unique",
+          "failed": false
+        },
+        {
+          "check_id": "REQUIRED-customer_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customer_id is present",
+          "failed": false
+        },
+        {
+          "check_id": "FK-customer_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customer_id exists in customers.customer_id",
+          "failed": false
+        },
+        {
+          "check_id": "PR-CURRENCY",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "product currency is MXN, COP, ARS or USD when present",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "table": "transactions",
+      "source": "<raw>/transactions",
+      "rows": 4425008,
+      "missing_columns": [],
+      "skipped": [],
+      "passed": true,
+      "checks": [
+        {
+          "check_id": "PK-NULL",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (transaction_id) is present",
+          "failed": false
+        },
+        {
+          "check_id": "PK-DUPLICATE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (transaction_id) is unique",
+          "failed": false
+        },
+        {
+          "check_id": "REQUIRED-customer_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customer_id is present",
+          "failed": false
+        },
+        {
+          "check_id": "REQUIRED-transaction_status",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "transaction_status is present",
+          "failed": false
+        },
+        {
+          "check_id": "FK-customer_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customer_id exists in customers.customer_id",
+          "failed": false
+        },
+        {
+          "check_id": "FK-product_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "product_id exists in products.product_id",
+          "failed": false
+        },
+        {
+          "check_id": "TX-STATUS",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "status is one of Approved, Declined, Pending, Reversed",
+          "failed": false
+        },
+        {
+          "check_id": "TX-CURRENCY",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "currency is MXN, COP, ARS or USD",
+          "failed": false
+        },
+        {
+          "check_id": "TX-RESPONSE-CODE-NULL",
+          "severity": "known_defect",
+          "violations": 221033,
+          "meaning": "null response_code: about 5% in every status, never a failure signal",
+          "failed": false
+        },
+        {
+          "check_id": "TX-COUNTRY-MEXICO",
+          "severity": "known_defect",
+          "violations": 40515,
+          "meaning": "unaccented 'Mexico' label, merged into México (ISO 3166 MX) when used",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "table": "complaints",
+      "source": "<raw>/complaints",
+      "rows": 67095,
+      "missing_columns": [],
+      "skipped": [],
+      "passed": true,
+      "checks": [
+        {
+          "check_id": "PK-NULL",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (complaint_id) is present",
+          "failed": false
+        },
+        {
+          "check_id": "PK-DUPLICATE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (complaint_id) is unique",
+          "failed": false
+        },
+        {
+          "check_id": "REQUIRED-customer_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customer_id is present",
+          "failed": false
+        },
+        {
+          "check_id": "FK-customer_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customer_id exists in customers.customer_id",
+          "failed": false
+        },
+        {
+          "check_id": "CP-AMOUNT-NO-CURRENCY",
+          "severity": "known_defect",
+          "violations": 1040,
+          "meaning": "a claimed amount without a currency cannot be converted to USD",
+          "failed": false
+        },
+        {
+          "check_id": "CP-ORIGIN-NULL",
+          "severity": "known_defect",
+          "violations": 67095,
+          "meaning": "no complaint records its originating interaction; link by customer and time",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "table": "call_center_interactions",
+      "source": "<raw>/call_center_interactions",
+      "rows": 686296,
+      "missing_columns": [],
+      "skipped": [],
+      "passed": true,
+      "checks": [
+        {
+          "check_id": "PK-NULL",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (interaction_id) is present",
+          "failed": false
+        },
+        {
+          "check_id": "PK-DUPLICATE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (interaction_id) is unique",
+          "failed": false
+        },
+        {
+          "check_id": "REQUIRED-customer_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customer_id is present",
+          "failed": false
+        },
+        {
+          "check_id": "REQUIRED-reason_category",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "reason_category is present",
+          "failed": false
+        },
+        {
+          "check_id": "FK-customer_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "customer_id exists in customers.customer_id",
+          "failed": false
+        },
+        {
+          "check_id": "FK-agent_id",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "agent_id exists in service_agents.agent_id",
+          "failed": false
+        },
+        {
+          "check_id": "CI-REASON-REPEATS",
+          "severity": "known_defect",
+          "violations": 686296,
+          "meaning": "contact_reason repeats reason_category: there is one reason level",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "table": "daily_exchange_rates",
+      "source": "<raw>/daily_exchange_rates.csv",
+      "rows": 13164,
+      "missing_columns": [],
+      "skipped": [],
+      "passed": true,
+      "checks": [
+        {
+          "check_id": "PK-NULL",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (date, source_currency, target_currency) is present",
+          "failed": false
+        },
+        {
+          "check_id": "PK-DUPLICATE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (date, source_currency, target_currency) is unique",
+          "failed": false
+        },
+        {
+          "check_id": "REQUIRED-exchange_rate",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "exchange_rate is present",
+          "failed": false
+        },
+        {
+          "check_id": "FX-RATE-POSITIVE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "exchange rates are strictly positive",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "table": "service_agents",
+      "source": "<raw>/service_agents.csv",
+      "rows": 1200,
+      "missing_columns": [],
+      "skipped": [],
+      "passed": true,
+      "checks": [
+        {
+          "check_id": "PK-NULL",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (agent_id) is present",
+          "failed": false
+        },
+        {
+          "check_id": "PK-DUPLICATE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (agent_id) is unique",
+          "failed": false
+        },
+        {
+          "check_id": "FK-assigned_branch_id",
+          "severity": "known_defect",
+          "violations": 831,
+          "meaning": "assigned_branch_id exists in branches.branch_id",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "table": "branches",
+      "source": "<raw>/branches.csv",
+      "rows": 350,
+      "missing_columns": [],
+      "skipped": [],
+      "passed": true,
+      "checks": [
+        {
+          "check_id": "PK-NULL",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (branch_id) is present",
+          "failed": false
+        },
+        {
+          "check_id": "PK-DUPLICATE",
+          "severity": "error",
+          "violations": 0,
+          "meaning": "primary key (branch_id) is unique",
+          "failed": false
+        }
+      ]
+    }
+  ]
+}
