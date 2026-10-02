@@ -84,5 +84,44 @@ expect fail "private key"            staged "src/key.txt" "-----BEGIN OPENSSH ""
 expect fail "AWS secret key name"     staged "src/c.ini" "aws_secret_access""_key = x"
 expect pass "env var lookup"         staged "src/settings.py" "key = os.environ['AWS_ACCESS_KEY_ID']"
 
+# Commit size check, in its own throwaway repository. Limits are lowered through
+# the environment (3 files, 10 lines) so the fixtures stay tiny.
+sz="$tmp/size"
+git init -q -b main "$sz"
+szgit() { git -C "$sz" -c user.name=t -c user.email=t@example.com "$@"; }
+szgit commit -q --allow-empty -m "chore: init"
+base=$(git -C "$sz" rev-parse HEAD)
+add_commit() {  # $1 = message, rest = "path:lines" pairs
+    local message=$1; shift
+    local spec
+    for spec in "$@"; do
+        mkdir -p "$sz/$(dirname "${spec%%:*}")"
+        seq 1 "${spec##*:}" > "$sz/${spec%%:*}"
+        git -C "$sz" add "${spec%%:*}"
+    done
+    szgit commit -q -m "$(printf '%b' "$message")"
+}
+size_check() { (cd "$sz" && COMMIT_MAX_FILES=3 COMMIT_MAX_LINES=10 "$root/scripts/git/check-commit-size.sh" "$@"); }
+last_range() { echo "$base..HEAD"; }
+
+add_commit "feat: small" a.py:5 b.py:5
+expect pass "small commit"                  size_check "$(last_range)"
+add_commit "feat: exactly at the limits" c.py:4 d.py:3 e.py:3
+expect pass "commit at the limits"          size_check "HEAD~1..HEAD"
+add_commit "feat: too many files" f1:1 f2:1 f3:1 f4:1
+expect fail "too many files"                size_check "HEAD~1..HEAD"
+expect fail "bad commit inside a range"     size_check "$(last_range)"
+add_commit "feat: too many lines" g.py:11
+expect fail "too many lines"                size_check "HEAD~1..HEAD"
+add_commit "build: lock and generated files are not counted" h.py:2 uv.lock:500 contracts/tools/x.json:500 tests/fixtures/bank/y.json:500
+expect pass "excluded paths ignored"        size_check "HEAD~1..HEAD"
+add_commit "feat: bulk move\n\nSize-exception: one indivisible rename of the package" i.py:50
+expect pass "size exception with a reason"  size_check "HEAD~1..HEAD"
+add_commit "feat: bulk move\n\nSize-exception: ok" j.py:50
+expect fail "size exception reason too short" size_check "HEAD~1..HEAD"
+expect pass "warn mode exits zero"          size_check --warn "HEAD~1..HEAD"
+expect pass "warn mode prints a warning"    bash -c 'cd "$0" && COMMIT_MAX_LINES=10 "$1" --warn HEAD~1..HEAD 2>&1 | grep -q "^warning: commit"' "$sz" "$root/scripts/git/check-commit-size.sh"
+expect pass "empty range"                   size_check "HEAD..HEAD"
+
 echo "$passed passed, $failed failed"
 [ "$failed" -eq 0 ]
