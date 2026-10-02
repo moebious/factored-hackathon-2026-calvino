@@ -20,11 +20,21 @@
 
 ## 2. Thesis
 
-**Agent = Model + Harness.** The model provides the intelligence, and the harness makes it useful and safe. In a bank, the advantage that's hard to copy lives in the harness.
+> **Laya is System 1, Calvino is System 1.5, agents are System 2, and humans are System 3.**
+> Calvino is the bridge: it turns fast, repeatable signals into governed verdicts, contains the non-determinism of generative agents with a mixture of efficient financial verifiers, and turns every governed run into data that improves System 1 and the verifiers.
 
-> **Laya at every decision point, deterministic rules at every commitment point, an LLM only where language is the task, and humans where accountability is required.**
+Inspired by Kahneman's System 1 (fast, automatic) and System 2 (slow, deliberate). This is an engineering analogy, not a claim about cognition: Systems 1.5 and 3 are this project's extensions.
 
-The probabilistic signal never decides on its own:
+| System | Component | Role | Property | Evidence it holds |
+|---|---|---|---|---|
+| **1** | **Laya** | fast perception: intent, risk, whether a human is needed | non-generative and **repeatable**: one forward pass, no sampling, so the same input always gives the same calibrated probabilities | calibration (ECE, Brier), overall and per language |
+| **1.5** | **Calvino**, the hub | the bridge: turns System 1 signals into deterministic verdicts, routes work to agents or humans, gates every action, records everything | **deterministic and governed**: versioned policy, fails closed, every decision replayable | replaying the log gives the same verdicts; unsafe outcomes with their denominators |
+| **2** | **Agents** (support chat, company brain, coworker) checked by a **mixture of efficient financial verifiers** | slow, generative work | generative, so not deterministic, but **contained**: fixed rubrics, structured verdicts, fixed aggregation rules | verifier false-pass rate, judge agreement, re-run variability |
+| **3** | **Humans** | accountable judgment: approvals, exceptions, edge cases, empathy | the final authority; slowest and most expensive | escalation quality: missed and unnecessary transfers |
+
+**An escalation ladder.** Each step up is slower and more expensive, and holds more responsibility. Calvino resolves each case at the **lowest system that can do it safely** and passes it up when confidence or policy requires. Levels can be skipped: a hard rule (fraud signal, explicit request for a person) goes straight from System 1.5 to System 3.
+
+**The rule inside System 1.5: probabilities in, deterministic verdicts out.** The probabilistic signal never decides on its own:
 
 ```
 Laya probabilities  ->  policy function (thresholds + hard rules)  ->  verdict
@@ -32,6 +42,27 @@ Laya probabilities  ->  policy function (thresholds + hard rules)  ->  verdict
 ```
 
 The same inputs and the same policy version always give the same verdict. Every verdict can be replayed from `decisions.jsonl`.
+
+**Containing System 2.** Worker agents stay generative; the verifiers make their output predictable *at the boundary* (see [4.4](#44-verifier-design-layer-2)). Anything outside the rubric is rejected, independent judges reduce the variance of the final verdict (any failed criterion fails the output), and every verdict is logged, so the remaining non-determinism is **measured, not assumed away**.
+
+**A data flywheel: System 3 teaches System 1.**
+
+```
+governed decisions -> audit log -> human decisions -> gold labels -> recalibrated / fine-tuned Laya, tuned judge prompts
+        ^                                                                                         |
+        +-----------------------------------------------------------------------------------------+
+```
+
+A flywheel can feed on its own mistakes, so it runs with safeguards:
+
+- **Only human-confirmed labels** go back into training or calibration. Model and verifier outputs alone never do.
+- A **frozen held-out set** never enters the loop and measures whether each new version really improves.
+- **Audit sampling** of auto-resolved cases, so automated decisions also receive human labels, not just escalated ones.
+- A **fairness check per version** (language, dialect, segment) before anything is promoted.
+
+In this project the flywheel is demonstrated as **one offline turn** (human-labelled cases → recalibration → measured change on the frozen set) and labelled as offline, not as a production result.
+
+**Where the novelty is.** Fast/slow agent designs and "System One" decision models already exist. Calvino's contribution is System 1.5, a governed bridge with calibrated thresholds and a deterministic policy for a regulated domain; the mixture of financial verifiers; and the flywheel with its safeguards.
 
 ## 3. Where AI is appropriate and where it isn't
 
