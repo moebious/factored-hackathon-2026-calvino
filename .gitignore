@@ -195,9 +195,9 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore
 #   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#   and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#   and can be added to the global gitignore or merged into this file. However, if you prefer,
 #   you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 # Temporary file for partial code execution
@@ -216,3 +216,35 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local datasets (never commit)
+data/
+
+# ---- Project Calvino ----------------------------------------------------
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor and IDE folders (.editorconfig is the only shared formatting config)
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Frontend / Node
+node_modules/
+.next/
+out/
+frontend/dist/
+
+# Runtime outputs
+decisions.jsonl
+*.log
+
+# Model weights and checkpoints (download them; never commit them)
+*.safetensors
+*.onnx
+*.pt
+*.bin
+checkpoints/
