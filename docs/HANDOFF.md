@@ -46,6 +46,7 @@ In order. Item 9 can start at once.
 | 8 | ~~Implement TSD-000 (scaffolding)~~ done | — | — |
 | 9 | Implement TSD-001, TSD-002, TSD-003, TSD-004 and TSD-005 in parallel sessions, one worktree each; if usage is tight, run TSD-001, -002 and -005 first | parallel sessions | — |
 | 9a | Ask the analysis session to push its branch `claude/stoic-brown-73h4w3` (verification scripts, chance tests, data-quality report, baseline cross-check), then bring its scripts and aggregate reports into a PR under `scripts/analysis/` and `reports/` | maintainer, next session | — |
+| 9b | Record the baseline finding (below) in one docs PR: a DATA.md finding; reframe PITCH slide 1; a note on decision 17 that the superseded rule's room-to-improve gate (G2) would have rejected Transaccional on first-contact resolution; reorder the cut order to flywheel, replay, follow-up, with the investigate stage never cut | next session | — |
 | 10 | Message set (T-106), workflow tools (T-206), then the hub, the customer app, deployment, durable cases, policy replay, the flywheel turn and the evaluation with its ablation, per the backlog | sessions | 3, 4, 5 |
 
 ## 2.2 What the analyst was asked for (round two)
@@ -60,7 +61,22 @@ The analyst delivers files to the maintainer, who integrates them; the analyst d
 
 Before any baseline figure is published, compare it with the analysis session's independent cross-check (next action 3).
 
-## 3. Maintainer preferences
+## 2.3 Baseline finding to record (next action 9b)
+
+From the analysis session's independent T-104 baseline on the full data `[measured]`, pending the analyst's own figures:
+
+| | All calls | Transaccional |
+|---|---|---|
+| First-contact resolution | 76.7% | **91.5%** |
+| Escalation | 10.0% | 9.9% |
+| Follow-up | 34.8% | 22.1% |
+| Median handle time | 291 s | 205 s |
+
+Transactions-category complaints: 74.5% still open, SLA breached on 20.2%, median resolution 15 days among resolved ones; compensation is an amount present only on resolved or closed complaints, so its share needs an explicit denominator.
+
+**What it changes:** decision 17 stands (it rests on volume, grounding and design fit), but the problem statement does: calls are high-volume and easy, so the target is to **match** the human 91.5% at zero unsafe outcomes with lower time and cost; the improvement story is the investigation stage. Changes in investigation time can only be *projected*, never claimed as measured.
+
+
 
 Beyond AGENTS.md, learned while shaping the project:
 
