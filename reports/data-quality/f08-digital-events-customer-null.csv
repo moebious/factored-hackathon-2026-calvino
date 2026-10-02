@@ -1,0 +1,6 @@
+slice,value,rows,nulls,null_share,label
+all,all,15620994,3745446,0.2397700171960888,measured
+channel,Android App,5476164,1309237,0.23907921676560454,measured
+channel,Desktop Web,3128851,752875,0.24062347487943658,measured
+channel,Mobile Web,3116482,749380,0.24045702814904754,measured
+channel,iOS App,3899497,933954,0.23950627478364517,measured

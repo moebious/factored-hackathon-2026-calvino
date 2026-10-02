@@ -1,0 +1,5 @@
+measure,value,denominator,label
+distinct reason_category,6,,measured
+distinct contact_reason,6,,measured
+rows where contact_reason = reason_category,686296,686296,measured
+rows where they differ,0,686296,measured

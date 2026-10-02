@@ -1,0 +1,73 @@
+population,slice_type,slice_value,metric,value,n_cases,n_null_excluded,small_n,label
+all interactions,overall,all,fcr,0.7664768554676117,686296,0,False,measured
+all interactions,overall,all,escalation,0.0996450511149708,686296,0,False,measured
+all interactions,overall,all,follow_up,0.3483249210253302,686296,0,False,measured
+all interactions,overall,all,duration_seconds_mean,321.45454545454544,590062,96234,False,measured
+all interactions,overall,all,duration_seconds_median,291.0,590062,96234,False,measured
+all interactions,overall,all,duration_seconds_p90,538.0,590062,96234,False,measured
+all interactions,overall,all,wait_time_seconds_mean,119.93708054040334,480678,205618,False,measured
+all interactions,overall,all,wait_time_seconds_median,119.0,480678,205618,False,measured
+all interactions,overall,all,wait_time_seconds_p90,196.0,480678,205618,False,measured
+all interactions,country,Argentina,fcr,0.7658619247782742,136317,0,False,measured
+all interactions,country,Argentina,escalation,0.0984470022080885,136317,0,False,measured
+all interactions,country,Argentina,follow_up,0.3491420732557201,136317,0,False,measured
+all interactions,country,Argentina,duration_seconds_mean,321.6995892504889,117103,19214,False,measured
+all interactions,country,Argentina,duration_seconds_median,291.0,117103,19214,False,measured
+all interactions,country,Argentina,duration_seconds_p90,539.0,117103,19214,False,measured
+all interactions,country,Argentina,wait_time_seconds_mean,120.02669154802591,95386,40931,False,measured
+all interactions,country,Argentina,wait_time_seconds_median,119.0,95386,40931,False,measured
+all interactions,country,Argentina,wait_time_seconds_p90,196.0,95386,40931,False,measured
+all interactions,country,Colombia,fcr,0.7667246965520577,206790,0,False,measured
+all interactions,country,Colombia,escalation,0.10095749310895111,206790,0,False,measured
+all interactions,country,Colombia,follow_up,0.34799071521833747,206790,0,False,measured
+all interactions,country,Colombia,duration_seconds_mean,321.4382964132946,177907,28883,False,measured
+all interactions,country,Colombia,duration_seconds_median,290.0,177907,28883,False,measured
+all interactions,country,Colombia,duration_seconds_p90,538.0,177907,28883,False,measured
+all interactions,country,Colombia,wait_time_seconds_mean,119.6967084801633,145009,61781,False,measured
+all interactions,country,Colombia,wait_time_seconds_median,119.0,145009,61781,False,measured
+all interactions,country,Colombia,wait_time_seconds_p90,196.0,145009,61781,False,measured
+all interactions,country,México,fcr,0.7665717724052927,343189,0,False,measured
+all interactions,country,México,escalation,0.0993301067341902,343189,0,False,measured
+all interactions,country,México,follow_up,0.34820171975208997,343189,0,False,measured
+all interactions,country,México,duration_seconds_mean,321.3670878353646,295052,48137,False,measured
+all interactions,country,México,duration_seconds_median,291.0,295052,48137,False,measured
+all interactions,country,México,duration_seconds_p90,538.0,295052,48137,False,measured
+all interactions,country,México,wait_time_seconds_mean,120.0465700861068,240283,102906,False,measured
+all interactions,country,México,wait_time_seconds_median,119.0,240283,102906,False,measured
+all interactions,country,México,wait_time_seconds_p90,196.0,240283,102906,False,measured
+Transaccional,overall,all,fcr,0.9150823141267038,240056,0,False,measured
+Transaccional,overall,all,escalation,0.09931432665711334,240056,0,False,measured
+Transaccional,overall,all,follow_up,0.2213525177458593,240056,0,False,measured
+Transaccional,overall,all,duration_seconds_mean,220.8028237231492,206465,33591,False,measured
+Transaccional,overall,all,duration_seconds_median,205.0,206465,33591,False,measured
+Transaccional,overall,all,duration_seconds_p90,333.0,206465,33591,False,measured
+Transaccional,overall,all,wait_time_seconds_mean,119.65022549591251,168074,71982,False,measured
+Transaccional,overall,all,wait_time_seconds_median,119.0,168074,71982,False,measured
+Transaccional,overall,all,wait_time_seconds_p90,196.0,168074,71982,False,measured
+Transaccional,country,Argentina,fcr,0.9156735207721359,47660,0,False,measured
+Transaccional,country,Argentina,escalation,0.09762903902643727,47660,0,False,measured
+Transaccional,country,Argentina,follow_up,0.220709190096517,47660,0,False,measured
+Transaccional,country,Argentina,duration_seconds_mean,220.1866403277729,41004,6656,False,measured
+Transaccional,country,Argentina,duration_seconds_median,204.0,41004,6656,False,measured
+Transaccional,country,Argentina,duration_seconds_p90,331.0,41004,6656,False,measured
+Transaccional,country,Argentina,wait_time_seconds_mean,120.05065256996087,33483,14177,False,measured
+Transaccional,country,Argentina,wait_time_seconds_median,119.0,33483,14177,False,measured
+Transaccional,country,Argentina,wait_time_seconds_p90,197.0,33483,14177,False,measured
+Transaccional,country,Colombia,fcr,0.9150473721228504,72511,0,False,measured
+Transaccional,country,Colombia,escalation,0.10041235122946864,72511,0,False,measured
+Transaccional,country,Colombia,follow_up,0.22095957854670326,72511,0,False,measured
+Transaccional,country,Colombia,duration_seconds_mean,221.04799064222536,62408,10103,False,measured
+Transaccional,country,Colombia,duration_seconds_median,205.0,62408,10103,False,measured
+Transaccional,country,Colombia,duration_seconds_p90,333.0,62408,10103,False,measured
+Transaccional,country,Colombia,wait_time_seconds_mean,119.43267182198375,50692,21819,False,measured
+Transaccional,country,Colombia,wait_time_seconds_median,119.0,50692,21819,False,measured
+Transaccional,country,Colombia,wait_time_seconds_p90,196.0,50692,21819,False,measured
+Transaccional,country,México,fcr,0.9148684155649164,119885,0,False,measured
+Transaccional,country,México,escalation,0.09932018184093089,119885,0,False,measured
+Transaccional,country,México,follow_up,0.22184593568836802,119885,0,False,measured
+Transaccional,country,México,duration_seconds_mean,220.89952742763433,103053,16832,False,measured
+Transaccional,country,México,duration_seconds_median,205.0,103053,16832,False,measured
+Transaccional,country,México,duration_seconds_p90,334.0,103053,16832,False,measured
+Transaccional,country,México,wait_time_seconds_mean,119.62186676837626,83899,35986,False,measured
+Transaccional,country,México,wait_time_seconds_median,119.0,83899,35986,False,measured
+Transaccional,country,México,wait_time_seconds_p90,196.0,83899,35986,False,measured

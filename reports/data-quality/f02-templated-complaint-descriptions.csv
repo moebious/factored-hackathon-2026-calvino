@@ -1,0 +1,7 @@
+category,rows,distinct_texts,distinct_share,top1_share,top10_share,label
+all,67095,5,7.452120128176467e-05,0.2023995826812728,1.0,measured
+Branch,13361,1,7.484469725319961e-05,1.0,1.0,measured
+Fees,13553,1,7.378440197742197e-05,1.0,1.0,measured
+Service,13194,1,7.579202667879339e-05,1.0,1.0,measured
+Technical,13407,1,7.458790184232118e-05,1.0,1.0,measured
+Transactions,13580,1,7.363770250368188e-05,1.0,1.0,measured

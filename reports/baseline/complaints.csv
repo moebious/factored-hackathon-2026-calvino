@@ -1,0 +1,281 @@
+population,slice_type,slice_value,metric,value,n_cases,n_null_excluded,small_n,label
+all complaints,overall,all,resolution_days_mean,15.601445030267525,15363,758,False,measured
+all complaints,overall,all,resolution_days_median,16.0,15363,758,False,measured
+all complaints,overall,all,resolution_days_p90,28.0,15363,758,False,measured
+all complaints,overall,all,still_open_count,50269.0,67095,0,False,measured
+all complaints,overall,all,sla_breached_share,0.2011327222594828,67095,0,False,measured
+all complaints,overall,all,compensation_granted_share_of_all,0.06917057902973396,67095,0,False,measured
+all complaints,overall,all,compensation_granted_share_of_resolved,0.28788536691272254,16121,0,False,measured
+all complaints,country,Argentina,resolution_days_mean,15.494352159468438,3010,159,False,measured
+all complaints,country,Argentina,resolution_days_median,16.0,3010,159,False,measured
+all complaints,country,Argentina,resolution_days_p90,27.0,3010,159,False,measured
+all complaints,country,Argentina,still_open_count,10029.0,13336,0,False,measured
+all complaints,country,Argentina,sla_breached_share,0.20410917816436713,13336,0,False,measured
+all complaints,country,Argentina,compensation_granted_share_of_all,0.06756148770245951,13336,0,False,measured
+all complaints,country,Argentina,compensation_granted_share_of_resolved,0.28431681918586305,3169,0,False,measured
+all complaints,country,Colombia,resolution_days_mean,15.603249251817015,4678,253,False,measured
+all complaints,country,Colombia,resolution_days_median,16.0,4678,253,False,measured
+all complaints,country,Colombia,resolution_days_p90,28.0,4678,253,False,measured
+all complaints,country,Colombia,still_open_count,15259.0,20384,0,False,measured
+all complaints,country,Colombia,sla_breached_share,0.1974587912087912,20384,0,False,measured
+all complaints,country,Colombia,compensation_granted_share_of_all,0.07128139717425432,20384,0,False,measured
+all complaints,country,Colombia,compensation_granted_share_of_resolved,0.2946663962685054,4931,0,False,measured
+all complaints,country,México,resolution_days_mean,15.642345276872964,7675,346,False,measured
+all complaints,country,México,resolution_days_median,16.0,7675,346,False,measured
+all complaints,country,México,resolution_days_p90,28.0,7675,346,False,measured
+all complaints,country,México,still_open_count,24981.0,33375,0,False,measured
+all complaints,country,México,sla_breached_share,0.202187265917603,33375,0,False,measured
+all complaints,country,México,compensation_granted_share_of_all,0.0685243445692884,33375,0,False,measured
+all complaints,country,México,compensation_granted_share_of_resolved,0.28512654282508415,8021,0,False,measured
+all complaints,case_type,Claim,resolution_days_mean,15.621600418410042,3824,187,False,measured
+all complaints,case_type,Claim,resolution_days_median,16.0,3824,187,False,measured
+all complaints,case_type,Claim,resolution_days_p90,27.0,3824,187,False,measured
+all complaints,case_type,Claim,still_open_count,12391.0,16598,0,False,measured
+all complaints,case_type,Claim,sla_breached_share,0.19942161706229666,16598,0,False,measured
+all complaints,case_type,Claim,compensation_granted_share_of_all,0.06826123629352934,16598,0,False,measured
+all complaints,case_type,Claim,compensation_granted_share_of_resolved,0.2824731987035652,4011,0,False,measured
+all complaints,case_type,Complaint,resolution_days_mean,15.610780387487823,9239,456,False,measured
+all complaints,case_type,Complaint,resolution_days_median,16.0,9239,456,False,measured
+all complaints,case_type,Complaint,resolution_days_p90,28.0,9239,456,False,measured
+all complaints,case_type,Complaint,still_open_count,30352.0,40452,0,False,measured
+all complaints,case_type,Complaint,sla_breached_share,0.20063284880846435,40452,0,False,measured
+all complaints,case_type,Complaint,compensation_granted_share_of_all,0.06976169287056264,40452,0,False,measured
+all complaints,case_type,Complaint,compensation_granted_share_of_resolved,0.29107787519339867,9695,0,False,measured
+all complaints,case_type,Request,resolution_days_mean,15.489456869009585,1565,73,False,measured
+all complaints,case_type,Request,resolution_days_median,15.0,1565,73,False,measured
+all complaints,case_type,Request,resolution_days_p90,28.0,1565,73,False,measured
+all complaints,case_type,Request,still_open_count,5055.0,6761,0,False,measured
+all complaints,case_type,Request,sla_breached_share,0.20248483952078095,6761,0,False,measured
+all complaints,case_type,Request,compensation_granted_share_of_all,0.06641029433515752,6761,0,False,measured
+all complaints,case_type,Request,compensation_granted_share_of_resolved,0.27411477411477414,1638,0,False,measured
+all complaints,case_type,Suggestion,resolution_days_mean,15.617687074829933,735,42,False,measured
+all complaints,case_type,Suggestion,resolution_days_median,16.0,735,42,False,measured
+all complaints,case_type,Suggestion,resolution_days_p90,28.0,735,42,False,measured
+all complaints,case_type,Suggestion,still_open_count,2471.0,3284,0,False,measured
+all complaints,case_type,Suggestion,sla_breached_share,0.21315468940316687,3284,0,False,measured
+all complaints,case_type,Suggestion,compensation_granted_share_of_all,0.07216808769792936,3284,0,False,measured
+all complaints,case_type,Suggestion,compensation_granted_share_of_resolved,0.305019305019305,777,0,False,measured
+all complaints,country x case_type,Argentina | Claim,resolution_days_mean,15.402702702702703,740,39,False,measured
+all complaints,country x case_type,Argentina | Claim,resolution_days_median,16.0,740,39,False,measured
+all complaints,country x case_type,Argentina | Claim,resolution_days_p90,27.0,740,39,False,measured
+all complaints,country x case_type,Argentina | Claim,still_open_count,2473.0,3280,0,False,measured
+all complaints,country x case_type,Argentina | Claim,sla_breached_share,0.20213414634146343,3280,0,False,measured
+all complaints,country x case_type,Argentina | Claim,compensation_granted_share_of_all,0.06798780487804879,3280,0,False,measured
+all complaints,country x case_type,Argentina | Claim,compensation_granted_share_of_resolved,0.2862644415917843,779,0,False,measured
+all complaints,country x case_type,Argentina | Complaint,resolution_days_mean,15.604510451045105,1818,93,False,measured
+all complaints,country x case_type,Argentina | Complaint,resolution_days_median,16.0,1818,93,False,measured
+all complaints,country x case_type,Argentina | Complaint,resolution_days_p90,28.0,1818,93,False,measured
+all complaints,country x case_type,Argentina | Complaint,still_open_count,6056.0,8051,0,False,measured
+all complaints,country x case_type,Argentina | Complaint,sla_breached_share,0.20618556701030927,8051,0,False,measured
+all complaints,country x case_type,Argentina | Complaint,compensation_granted_share_of_all,0.06943236864985716,8051,0,False,measured
+all complaints,country x case_type,Argentina | Complaint,compensation_granted_share_of_resolved,0.2925170068027211,1911,0,False,measured
+all complaints,country x case_type,Argentina | Request,resolution_days_mean,15.298076923076923,312,18,False,measured
+all complaints,country x case_type,Argentina | Request,resolution_days_median,16.0,312,18,False,measured
+all complaints,country x case_type,Argentina | Request,resolution_days_p90,28.0,312,18,False,measured
+all complaints,country x case_type,Argentina | Request,still_open_count,1006.0,1352,0,False,measured
+all complaints,country x case_type,Argentina | Request,sla_breached_share,0.19674556213017752,1352,0,False,measured
+all complaints,country x case_type,Argentina | Request,compensation_granted_share_of_all,0.05251479289940828,1352,0,False,measured
+all complaints,country x case_type,Argentina | Request,compensation_granted_share_of_resolved,0.21515151515151515,330,0,False,measured
+all complaints,country x case_type,Argentina | Suggestion,resolution_days_mean,14.985714285714286,140,9,False,measured
+all complaints,country x case_type,Argentina | Suggestion,resolution_days_median,15.0,140,9,False,measured
+all complaints,country x case_type,Argentina | Suggestion,resolution_days_p90,28.0,140,9,False,measured
+all complaints,country x case_type,Argentina | Suggestion,still_open_count,494.0,653,0,False,measured
+all complaints,country x case_type,Argentina | Suggestion,sla_breached_share,0.20367534456355282,653,0,False,measured
+all complaints,country x case_type,Argentina | Suggestion,compensation_granted_share_of_all,0.07350689127105667,653,0,False,measured
+all complaints,country x case_type,Argentina | Suggestion,compensation_granted_share_of_resolved,0.3221476510067114,149,0,False,measured
+all complaints,country x case_type,Colombia | Claim,resolution_days_mean,15.767624020887729,1149,63,False,measured
+all complaints,country x case_type,Colombia | Claim,resolution_days_median,16.0,1149,63,False,measured
+all complaints,country x case_type,Colombia | Claim,resolution_days_p90,28.0,1149,63,False,measured
+all complaints,country x case_type,Colombia | Claim,still_open_count,3702.0,4975,0,False,measured
+all complaints,country x case_type,Colombia | Claim,sla_breached_share,0.19336683417085426,4975,0,False,measured
+all complaints,country x case_type,Colombia | Claim,compensation_granted_share_of_all,0.07035175879396985,4975,0,False,measured
+all complaints,country x case_type,Colombia | Claim,compensation_granted_share_of_resolved,0.2887788778877888,1212,0,False,measured
+all complaints,country x case_type,Colombia | Complaint,resolution_days_mean,15.654661016949152,2832,151,False,measured
+all complaints,country x case_type,Colombia | Complaint,resolution_days_median,16.0,2832,151,False,measured
+all complaints,country x case_type,Colombia | Complaint,resolution_days_p90,28.0,2832,151,False,measured
+all complaints,country x case_type,Colombia | Complaint,still_open_count,9246.0,12338,0,False,measured
+all complaints,country x case_type,Colombia | Complaint,sla_breached_share,0.19816826065812937,12338,0,False,measured
+all complaints,country x case_type,Colombia | Complaint,compensation_granted_share_of_all,0.07213486788782623,12338,0,False,measured
+all complaints,country x case_type,Colombia | Complaint,compensation_granted_share_of_resolved,0.298357358364063,2983,0,False,measured
+all complaints,country x case_type,Colombia | Request,resolution_days_mean,15.193018480492814,487,24,False,measured
+all complaints,country x case_type,Colombia | Request,resolution_days_median,15.0,487,24,False,measured
+all complaints,country x case_type,Colombia | Request,resolution_days_p90,27.0,487,24,False,measured
+all complaints,country x case_type,Colombia | Request,still_open_count,1545.0,2071,0,False,measured
+all complaints,country x case_type,Colombia | Request,sla_breached_share,0.19410912602607436,2071,0,False,measured
+all complaints,country x case_type,Colombia | Request,compensation_granted_share_of_all,0.07049734427812651,2071,0,False,measured
+all complaints,country x case_type,Colombia | Request,compensation_granted_share_of_resolved,0.2857142857142857,511,0,False,measured
+all complaints,country x case_type,Colombia | Suggestion,resolution_days_mean,14.961904761904762,210,15,False,measured
+all complaints,country x case_type,Colombia | Suggestion,resolution_days_median,15.0,210,15,False,measured
+all complaints,country x case_type,Colombia | Suggestion,resolution_days_p90,27.0,210,15,False,measured
+all complaints,country x case_type,Colombia | Suggestion,still_open_count,766.0,1000,0,False,measured
+all complaints,country x case_type,Colombia | Suggestion,sla_breached_share,0.216,1000,0,False,measured
+all complaints,country x case_type,Colombia | Suggestion,compensation_granted_share_of_all,0.067,1000,0,False,measured
+all complaints,country x case_type,Colombia | Suggestion,compensation_granted_share_of_resolved,0.29777777777777775,225,0,False,measured
+all complaints,country x case_type,México | Claim,resolution_days_mean,15.61860465116279,1935,85,False,measured
+all complaints,country x case_type,México | Claim,resolution_days_median,15.0,1935,85,False,measured
+all complaints,country x case_type,México | Claim,resolution_days_p90,27.0,1935,85,False,measured
+all complaints,country x case_type,México | Claim,still_open_count,6216.0,8343,0,False,measured
+all complaints,country x case_type,México | Claim,sla_breached_share,0.20196571976507252,8343,0,False,measured
+all complaints,country x case_type,México | Claim,compensation_granted_share_of_all,0.06712213831954933,8343,0,False,measured
+all complaints,country x case_type,México | Claim,compensation_granted_share_of_resolved,0.27722772277227725,2020,0,False,measured
+all complaints,country x case_type,México | Complaint,resolution_days_mean,15.586184353889736,4589,212,False,measured
+all complaints,country x case_type,México | Complaint,resolution_days_median,16.0,4589,212,False,measured
+all complaints,country x case_type,México | Complaint,resolution_days_p90,28.0,4589,212,False,measured
+all complaints,country x case_type,México | Complaint,still_open_count,15050.0,20063,0,False,measured
+all complaints,country x case_type,México | Complaint,sla_breached_share,0.1999202512086926,20063,0,False,measured
+all complaints,country x case_type,México | Complaint,compensation_granted_share_of_all,0.06843443154064696,20063,0,False,measured
+all complaints,country x case_type,México | Complaint,compensation_granted_share_of_resolved,0.28598208706519473,4801,0,False,measured
+all complaints,country x case_type,México | Request,resolution_days_mean,15.755874673629243,766,31,False,measured
+all complaints,country x case_type,México | Request,resolution_days_median,15.0,766,31,False,measured
+all complaints,country x case_type,México | Request,resolution_days_p90,28.0,766,31,False,measured
+all complaints,country x case_type,México | Request,still_open_count,2504.0,3338,0,False,measured
+all complaints,country x case_type,México | Request,sla_breached_share,0.21000599161174355,3338,0,False,measured
+all complaints,country x case_type,México | Request,compensation_granted_share_of_all,0.0695026962252846,3338,0,False,measured
+all complaints,country x case_type,México | Request,compensation_granted_share_of_resolved,0.29109159347553326,797,0,False,measured
+all complaints,country x case_type,México | Suggestion,resolution_days_mean,16.205194805194804,385,18,False,measured
+all complaints,country x case_type,México | Suggestion,resolution_days_median,17.0,385,18,False,measured
+all complaints,country x case_type,México | Suggestion,resolution_days_p90,28.0,385,18,False,measured
+all complaints,country x case_type,México | Suggestion,still_open_count,1211.0,1631,0,False,measured
+all complaints,country x case_type,México | Suggestion,sla_breached_share,0.21520539546290618,1631,0,False,measured
+all complaints,country x case_type,México | Suggestion,compensation_granted_share_of_all,0.07480073574494175,1631,0,False,measured
+all complaints,country x case_type,México | Suggestion,compensation_granted_share_of_resolved,0.3027295285359802,403,0,False,measured
+Transactions,overall,all,resolution_days_mean,15.415481832543444,3165,166,False,measured
+Transactions,overall,all,resolution_days_median,15.0,3165,166,False,measured
+Transactions,overall,all,resolution_days_p90,27.0,3165,166,False,measured
+Transactions,overall,all,still_open_count,10124.0,13580,0,False,measured
+Transactions,overall,all,sla_breached_share,0.2016936671575847,13580,0,False,measured
+Transactions,overall,all,compensation_granted_share_of_all,0.07326951399116348,13580,0,False,measured
+Transactions,overall,all,compensation_granted_share_of_resolved,0.29870909636745724,3331,0,False,measured
+Transactions,country,Argentina,resolution_days_mean,15.435185185185185,648,32,False,measured
+Transactions,country,Argentina,resolution_days_median,16.0,648,32,False,measured
+Transactions,country,Argentina,resolution_days_p90,27.0,648,32,False,measured
+Transactions,country,Argentina,still_open_count,1999.0,2701,0,False,measured
+Transactions,country,Argentina,sla_breached_share,0.20251758607922993,2701,0,False,measured
+Transactions,country,Argentina,compensation_granted_share_of_all,0.07182524990744169,2701,0,False,measured
+Transactions,country,Argentina,compensation_granted_share_of_resolved,0.2852941176470588,680,0,False,measured
+Transactions,country,Colombia,resolution_days_mean,15.222340425531915,940,58,False,measured
+Transactions,country,Colombia,resolution_days_median,15.0,940,58,False,measured
+Transactions,country,Colombia,resolution_days_p90,28.0,940,58,False,measured
+Transactions,country,Colombia,still_open_count,3086.0,4119,0,False,measured
+Transactions,country,Colombia,sla_breached_share,0.19980577810148095,4119,0,False,measured
+Transactions,country,Colombia,compensation_granted_share_of_all,0.07526098567613498,4119,0,False,measured
+Transactions,country,Colombia,compensation_granted_share_of_resolved,0.3106212424849699,998,0,False,measured
+Transactions,country,México,resolution_days_mean,15.522511097019658,1577,76,False,measured
+Transactions,country,México,resolution_days_median,16.0,1577,76,False,measured
+Transactions,country,México,resolution_days_p90,27.0,1577,76,False,measured
+Transactions,country,México,still_open_count,5039.0,6760,0,False,measured
+Transactions,country,México,sla_breached_share,0.2025147928994083,6760,0,False,measured
+Transactions,country,México,compensation_granted_share_of_all,0.07263313609467456,6760,0,False,measured
+Transactions,country,México,compensation_granted_share_of_resolved,0.2970356926799758,1653,0,False,measured
+Transactions,case_type,Claim,resolution_days_mean,14.97966963151207,787,39,False,measured
+Transactions,case_type,Claim,resolution_days_median,15.0,787,39,False,measured
+Transactions,case_type,Claim,resolution_days_p90,27.0,787,39,False,measured
+Transactions,case_type,Claim,still_open_count,2476.0,3335,0,False,measured
+Transactions,case_type,Claim,sla_breached_share,0.20899550224887556,3335,0,False,measured
+Transactions,case_type,Claim,compensation_granted_share_of_all,0.07466266866566716,3335,0,False,measured
+Transactions,case_type,Claim,compensation_granted_share_of_resolved,0.30145278450363194,826,0,False,measured
+Transactions,case_type,Complaint,resolution_days_mean,15.522164948453609,1940,100,False,measured
+Transactions,case_type,Complaint,resolution_days_median,16.0,1940,100,False,measured
+Transactions,case_type,Complaint,resolution_days_p90,28.0,1940,100,False,measured
+Transactions,case_type,Complaint,still_open_count,6126.0,8239,0,False,measured
+Transactions,case_type,Complaint,sla_breached_share,0.20026702269692923,8239,0,False,measured
+Transactions,case_type,Complaint,compensation_granted_share_of_all,0.07330986770239106,8239,0,False,measured
+Transactions,case_type,Complaint,compensation_granted_share_of_resolved,0.296078431372549,2040,0,False,measured
+Transactions,case_type,Request,resolution_days_mean,15.675675675675675,296,14,False,measured
+Transactions,case_type,Request,resolution_days_median,15.0,296,14,False,measured
+Transactions,case_type,Request,resolution_days_p90,28.0,296,14,False,measured
+Transactions,case_type,Request,still_open_count,1006.0,1329,0,False,measured
+Transactions,case_type,Request,sla_breached_share,0.19187358916478556,1329,0,False,measured
+Transactions,case_type,Request,compensation_granted_share_of_all,0.06847253574115876,1329,0,False,measured
+Transactions,case_type,Request,compensation_granted_share_of_resolved,0.29354838709677417,310,0,False,measured
+Transactions,case_type,Suggestion,resolution_days_mean,15.830985915492958,142,13,False,measured
+Transactions,case_type,Suggestion,resolution_days_median,16.0,142,13,False,measured
+Transactions,case_type,Suggestion,resolution_days_p90,27.0,142,13,False,measured
+Transactions,case_type,Suggestion,still_open_count,516.0,677,0,False,measured
+Transactions,case_type,Suggestion,sla_breached_share,0.20236336779911374,677,0,False,measured
+Transactions,case_type,Suggestion,compensation_granted_share_of_all,0.07533234859675036,677,0,False,measured
+Transactions,case_type,Suggestion,compensation_granted_share_of_resolved,0.32903225806451614,155,0,False,measured
+Transactions,country x case_type,Argentina | Claim,resolution_days_mean,15.554285714285715,175,10,False,measured
+Transactions,country x case_type,Argentina | Claim,resolution_days_median,17.0,175,10,False,measured
+Transactions,country x case_type,Argentina | Claim,resolution_days_p90,26.0,175,10,False,measured
+Transactions,country x case_type,Argentina | Claim,still_open_count,497.0,685,0,False,measured
+Transactions,country x case_type,Argentina | Claim,sla_breached_share,0.2029197080291971,685,0,False,measured
+Transactions,country x case_type,Argentina | Claim,compensation_granted_share_of_all,0.07883211678832117,685,0,False,measured
+Transactions,country x case_type,Argentina | Claim,compensation_granted_share_of_resolved,0.2918918918918919,185,0,False,measured
+Transactions,country x case_type,Argentina | Complaint,resolution_days_mean,15.607792207792208,385,17,False,measured
+Transactions,country x case_type,Argentina | Complaint,resolution_days_median,16.0,385,17,False,measured
+Transactions,country x case_type,Argentina | Complaint,resolution_days_p90,28.0,385,17,False,measured
+Transactions,country x case_type,Argentina | Complaint,still_open_count,1208.0,1628,0,False,measured
+Transactions,country x case_type,Argentina | Complaint,sla_breached_share,0.20515970515970516,1628,0,False,measured
+Transactions,country x case_type,Argentina | Complaint,compensation_granted_share_of_all,0.07248157248157248,1628,0,False,measured
+Transactions,country x case_type,Argentina | Complaint,compensation_granted_share_of_resolved,0.2935323383084577,402,0,False,measured
+Transactions,country x case_type,Argentina | Request,resolution_days_mean,15.052631578947368,57,2,False,measured
+Transactions,country x case_type,Argentina | Request,resolution_days_median,14.0,57,2,False,measured
+Transactions,country x case_type,Argentina | Request,resolution_days_p90,28.0,57,2,False,measured
+Transactions,country x case_type,Argentina | Request,still_open_count,192.0,252,0,False,measured
+Transactions,country x case_type,Argentina | Request,sla_breached_share,0.19444444444444445,252,0,False,measured
+Transactions,country x case_type,Argentina | Request,compensation_granted_share_of_all,0.04365079365079365,252,0,False,measured
+Transactions,country x case_type,Argentina | Request,compensation_granted_share_of_resolved,0.1864406779661017,59,0,False,measured
+Transactions,country x case_type,Argentina | Suggestion,resolution_days_mean,13.32258064516129,31,3,False,measured
+Transactions,country x case_type,Argentina | Suggestion,resolution_days_median,14.0,31,3,False,measured
+Transactions,country x case_type,Argentina | Suggestion,resolution_days_p90,23.0,31,3,False,measured
+Transactions,country x case_type,Argentina | Suggestion,still_open_count,102.0,136,0,False,measured
+Transactions,country x case_type,Argentina | Suggestion,sla_breached_share,0.18382352941176472,136,0,False,measured
+Transactions,country x case_type,Argentina | Suggestion,compensation_granted_share_of_all,0.08088235294117647,136,0,False,measured
+Transactions,country x case_type,Argentina | Suggestion,compensation_granted_share_of_resolved,0.3235294117647059,34,0,False,measured
+Transactions,country x case_type,Colombia | Claim,resolution_days_mean,14.243119266055047,218,14,False,measured
+Transactions,country x case_type,Colombia | Claim,resolution_days_median,13.0,218,14,False,measured
+Transactions,country x case_type,Colombia | Claim,resolution_days_p90,27.0,218,14,False,measured
+Transactions,country x case_type,Colombia | Claim,still_open_count,747.0,990,0,False,measured
+Transactions,country x case_type,Colombia | Claim,sla_breached_share,0.2,990,0,False,measured
+Transactions,country x case_type,Colombia | Claim,compensation_granted_share_of_all,0.0696969696969697,990,0,False,measured
+Transactions,country x case_type,Colombia | Claim,compensation_granted_share_of_resolved,0.2974137931034483,232,0,False,measured
+Transactions,country x case_type,Colombia | Complaint,resolution_days_mean,15.613287904599659,587,33,False,measured
+Transactions,country x case_type,Colombia | Complaint,resolution_days_median,15.0,587,33,False,measured
+Transactions,country x case_type,Colombia | Complaint,resolution_days_p90,28.0,587,33,False,measured
+Transactions,country x case_type,Colombia | Complaint,still_open_count,1878.0,2516,0,False,measured
+Transactions,country x case_type,Colombia | Complaint,sla_breached_share,0.20349761526232116,2516,0,False,measured
+Transactions,country x case_type,Colombia | Complaint,compensation_granted_share_of_all,0.07710651828298887,2516,0,False,measured
+Transactions,country x case_type,Colombia | Complaint,compensation_granted_share_of_resolved,0.31290322580645163,620,0,False,measured
+Transactions,country x case_type,Colombia | Request,resolution_days_mean,15.476190476190476,105,5,False,measured
+Transactions,country x case_type,Colombia | Request,resolution_days_median,15.0,105,5,False,measured
+Transactions,country x case_type,Colombia | Request,resolution_days_p90,26.0,105,5,False,measured
+Transactions,country x case_type,Colombia | Request,still_open_count,291.0,404,0,False,measured
+Transactions,country x case_type,Colombia | Request,sla_breached_share,0.1707920792079208,404,0,False,measured
+Transactions,country x case_type,Colombia | Request,compensation_granted_share_of_all,0.07920792079207921,404,0,False,measured
+Transactions,country x case_type,Colombia | Request,compensation_granted_share_of_resolved,0.2909090909090909,110,0,False,measured
+Transactions,country x case_type,Colombia | Suggestion,resolution_days_mean,13.8,30,6,False,measured
+Transactions,country x case_type,Colombia | Suggestion,resolution_days_median,13.0,30,6,False,measured
+Transactions,country x case_type,Colombia | Suggestion,resolution_days_p90,25.0,30,6,False,measured
+Transactions,country x case_type,Colombia | Suggestion,still_open_count,170.0,209,0,False,measured
+Transactions,country x case_type,Colombia | Suggestion,sla_breached_share,0.21052631578947367,209,0,False,measured
+Transactions,country x case_type,Colombia | Suggestion,compensation_granted_share_of_all,0.07177033492822966,209,0,False,measured
+Transactions,country x case_type,Colombia | Suggestion,compensation_granted_share_of_resolved,0.4166666666666667,36,0,False,measured
+Transactions,country x case_type,México | Claim,resolution_days_mean,15.131979695431472,394,15,False,measured
+Transactions,country x case_type,México | Claim,resolution_days_median,15.0,394,15,False,measured
+Transactions,country x case_type,México | Claim,resolution_days_p90,27.0,394,15,False,measured
+Transactions,country x case_type,México | Claim,still_open_count,1232.0,1660,0,False,measured
+Transactions,country x case_type,México | Claim,sla_breached_share,0.21686746987951808,1660,0,False,measured
+Transactions,country x case_type,México | Claim,compensation_granted_share_of_all,0.07590361445783132,1660,0,False,measured
+Transactions,country x case_type,México | Claim,compensation_granted_share_of_resolved,0.3080684596577017,409,0,False,measured
+Transactions,country x case_type,México | Complaint,resolution_days_mean,15.432851239669422,968,50,False,measured
+Transactions,country x case_type,México | Complaint,resolution_days_median,16.0,968,50,False,measured
+Transactions,country x case_type,México | Complaint,resolution_days_p90,27.0,968,50,False,measured
+Transactions,country x case_type,México | Complaint,still_open_count,3040.0,4095,0,False,measured
+Transactions,country x case_type,México | Complaint,sla_breached_share,0.19633699633699633,4095,0,False,measured
+Transactions,country x case_type,México | Complaint,compensation_granted_share_of_all,0.0713064713064713,4095,0,False,measured
+Transactions,country x case_type,México | Complaint,compensation_granted_share_of_resolved,0.2868369351669941,1018,0,False,measured
+Transactions,country x case_type,México | Request,resolution_days_mean,16.097014925373134,134,7,False,measured
+Transactions,country x case_type,México | Request,resolution_days_median,15.5,134,7,False,measured
+Transactions,country x case_type,México | Request,resolution_days_p90,29.0,134,7,False,measured
+Transactions,country x case_type,México | Request,still_open_count,523.0,673,0,False,measured
+Transactions,country x case_type,México | Request,sla_breached_share,0.20356612184249628,673,0,False,measured
+Transactions,country x case_type,México | Request,compensation_granted_share_of_all,0.0713224368499257,673,0,False,measured
+Transactions,country x case_type,México | Request,compensation_granted_share_of_resolved,0.3404255319148936,141,0,False,measured
+Transactions,country x case_type,México | Suggestion,resolution_days_mean,17.54320987654321,81,4,False,measured
+Transactions,country x case_type,México | Suggestion,resolution_days_median,19.0,81,4,False,measured
+Transactions,country x case_type,México | Suggestion,resolution_days_p90,27.0,81,4,False,measured
+Transactions,country x case_type,México | Suggestion,still_open_count,244.0,332,0,False,measured
+Transactions,country x case_type,México | Suggestion,sla_breached_share,0.20481927710843373,332,0,False,measured
+Transactions,country x case_type,México | Suggestion,compensation_granted_share_of_all,0.07530120481927711,332,0,False,measured
+Transactions,country x case_type,México | Suggestion,compensation_granted_share_of_resolved,0.29411764705882354,85,0,False,measured

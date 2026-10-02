@@ -1,0 +1,14 @@
+page_url,events,errors,error_rate,label
+/transactions,950903,57049,0.05999455254636908,measured
+/transfer,951673,56811,0.05969592496582334,measured
+/payments,952561,56774,0.05960143234921438,measured
+/help,939716,42884,0.045635064210889247,measured
+/home,939969,42518,0.045233406633623026,measured
+/products,941304,42576,0.0452308712169501,measured
+/accounts,941944,42472,0.045089729325734865,measured
+(null),780394,17639,0.022602685310240723,measured
+/login,2312677,0,0.0,measured
+/products/credit-card,1198674,0,0.0,measured
+/logout,2312586,0,0.0,measured
+/products/savings,1198797,0,0.0,measured
+/products/loans,1199796,0,0.0,measured
