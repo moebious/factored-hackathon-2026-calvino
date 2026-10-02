@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Wave | 2 |
+| Wave | Tier 1 (deferred by decision 17) |
 | Branch | `eval/laya-finetune` |
 | Depends on | T-106 |
 | Blocked by | GPU (maintainer runs the notebook) |

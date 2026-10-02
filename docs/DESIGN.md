@@ -2,7 +2,7 @@
 
 *Software Design Document (SDD): how the system is designed. Requirements are in [BRD.md](BRD.md) (why) and [PRD.md](PRD.md) (what); build specifications are in [specs/](specs/README.md).*
 
-> **Status:** draft v0.1 (2026-10-01), open for revision. Workflow choice and data contracts are still open (see [Open decisions](#10-open-decisions)). Decisions are logged in [DECISIONS.md](DECISIONS.md).
+> **Status:** draft v0.1 (2026-10-01), open for revision. The workflow is stuck payments, end to end (decision 17, [section 6.1](#61-the-workflow-stuck-payments-end-to-end)); data contracts are still open. Decisions are logged in [DECISIONS.md](DECISIONS.md).
 >
 > **Evidence labels:** `[measured]` we ran it ourselves · `[vendor]` published by the model's author, not reproduced by us · `[read from chart]` approximate value read from a published chart · `[hypothesis]` design assumption still to be tested.
 > **Context:** Factored AI & Data Hackathon 2026, "Build an AI-first banking customer service system."
@@ -332,6 +332,25 @@ Lessons from Anthropic's long-running harness design, applied:
 
 Human-in-the-loop layers: **confirm** (client, UI) -> **approve** (gray band, review queue) -> **escalate** (full transfer with the case file) -> **audit** (random sample of auto-resolved cases). Every human decision becomes a label used to recalibrate thresholds.
 
+### 6.1 The workflow: stuck payments, end to end
+
+Decision 17. A customer's payment or transfer is Declined, Pending or Reversed, and they ask where their money is. Each stage exercises a different part of Calvino:
+
+| Stage | The customer sees | What runs |
+|---|---|---|
+| **Explain** | the status of their transaction, what it means and the next step | hard rules → Laya (workflow, clarity, needs-a-person) → policy verdict → MCP read tools with ownership checks → agent → verifier cascade |
+| **Clarify** | one question, or a card of their recent problem transactions to choose from | Laya confidence below the threshold → clarification; the Gate refuses to act on a guess |
+| **Act** | an offer to cancel a pending transfer or retry a declined one | the **Gate** with all three outcomes: allow (owner verified, eligible status, amount under the limit), ask a person (above the limit: `approve_action` interrupt), block (fraud signal, not the owner, ineligible status). Simulated by the dataset adapter, shaped as an ISO 20022 cancellation request (camt.056) and its answer (camt.029) |
+| **Investigate** | a case number and a promise that a person has the full file | human intervention classifier → case file → operator queue → durable case (checkpoint plus `interrupt()`), shaped as an investigation (camt.027) |
+| **Follow up** | later, "how is my case?" answered with a verified status | the case resumes from its checkpoint; a tool reads the investigation status; the verifier checks the reply |
+| **Learn** (offline) | — | operator approvals and denials become labels; one flywheel turn recalibrates a threshold; replaying `decisions.jsonl` under the new policy shows which verdicts change |
+
+**Out of the workflow:** unrecognised charges, disputes and fraud signals go to a person; Calvino never refunds, credits or moves money on its own.
+
+**Baselines:** Transaccional calls (resolution, escalation, follow-up, handle time) for the explain and act stages; Transactions-category complaints (resolution days, SLA breaches, compensation) for the investigate stage. The data cannot link a call to its transaction, so both are category-level.
+
+**Headline evidence:** safe automated resolution with its attempt rate, unsafe outcomes against a bare LLM on the same adversarial set, and the verifier's false-pass rate on hand labels.
+
 ## 7. Evaluation plan
 
 All variants run on the same held-out split (by customer and by time), sliced by dialect, country, segment and language.
@@ -388,8 +407,7 @@ What is built for the demo vs. designed only, and the work remaining before depl
 
 ## 10. Open decisions
 
-1. **Workflow:** to be decided in phase 2 from contact-reason volumes and resolution / escalation rates, also weighing ISO 20022 fit (payments vs cards).
-2. **LLM provider and key** for the agents and the judge (maintainer, in progress). Bedrock is the production reference.
+1. **LLM provider and key** for the agents and the judge (maintainer, in progress). Bedrock is the production reference.
 
 ## References
 

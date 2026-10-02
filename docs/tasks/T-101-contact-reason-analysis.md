@@ -10,6 +10,8 @@
 | Can run in parallel | yes |
 | References | [TSD-006](../specs/TSD-006-contact-reason-analysis.md); BRD 2–3 |
 
+**Status.** Done: the workflow is decision 17. The pre-registered rule was superseded (see TSD-006); the verification reports and scripts become part of the data-quality report.
+
 **Goal.** Choose the workflow from the data by applying the pre-registered rule.
 
 **Inputs.** the dataset (interactions, complaints, customers, transactions for the W1/W2 attribution; products for grounding counts; transcripts only for the template check)

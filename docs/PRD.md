@@ -2,7 +2,7 @@
 
 *What Calvino does and how we know it works. Why it exists is in [BRD.md](BRD.md); how it is designed is in [DESIGN.md](DESIGN.md); how each part is built is in [specs/](specs/).*
 
-Workflow-specific details (exact intents, tools and cards) are filled in once the workflow is chosen in phase 2; they are marked **[workflow]**.
+The workflow is stuck payments, end to end (decision 17; [DESIGN.md 6.1](DESIGN.md#61-the-workflow-stuck-payments-end-to-end)). Details still to be specified for it (exact intents, tools and cards) are marked **[workflow]**.
 
 ## 1. Users
 
