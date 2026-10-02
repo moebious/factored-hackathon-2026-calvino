@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Full-data contract audit report (`reports/data-quality/contracts-audit.json` and a summary): all eight tables pass, every known defect matches DATA.md, and a 10,000-row sample per table passes the row models.
 - Data contracts (TSD-007, T-102): row models and rules from DATA.md for the eight tables Calvino uses, a DuckDB audit over Parquet or CSV that reports known defects without failing, JSON Schemas and lineage in `contracts/data/`, and a synthetic lakehouse fixture.
 - Python package scaffold (TSD-000): `uv` project, shared types (`Route`, `GateVerdict`, `HumanAction`, `Stage`, `DecisionRecord`), the append-only decision log with a reader for replay, and a CI job running ruff and pytest.
 - Analysis scripts (`scripts/analysis/`) and tests (`tests/analysis/`): table fetch from the data bucket, Parquet cache, verification of the data analyst's decision-matrix numbers, a data-quality report and an independent T-104 headline baseline.

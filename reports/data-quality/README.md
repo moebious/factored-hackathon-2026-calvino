@@ -102,3 +102,11 @@ Ten findings on the full live `data/` prefix, deduplicated (no duplicate primary
 
 **Consequence for Calvino.** A cross-border rule on `transaction_country` sees no real signal (the foreign share is random) and must decide what `Mexico` means for Mexican customers: merging it turns those rows domestic. Brazil appears only as such a label; there is no BRL or Brazilian customer.
 
+
+## Contract audit (TSD-007)
+
+**What it is.** `scripts/validate_data_contracts.py` run on the raw downloads of the eight tables Calvino uses (the organizer's CSV files, live `data/` prefix). Full report: `contracts-audit.json`, counts only.
+
+**Number.** Passed: no missing columns, no skipped checks, no empty or duplicate primary key in any table, and no orphan foreign key except the known agent-to-branch link. Rows: customers 150,000; products 400,000; transactions 4,425,008; complaints 67,095; call-center interactions 686,296; exchange rates 13,164; service agents 1,200; branches 350. Known defects, counted and not failing: null `response_code` 221,033; unaccented `Mexico` label 40,515; claimed amount without a currency 1,040; null `origin_interaction_id` 67,095 of 67,095; `contact_reason` equal to `reason_category` 686,296 of 686,296; `assigned_branch_id` missing from `branches` 831. Every count matches an independent pandas and DuckDB count on the same files. Run time 5 min 38 s on 4 CPUs. **Row models:** a seeded random sample (10,000 rows per table, all rows for the two small tables; DuckDB reservoir sample, seed 42) validated through the Pydantic row models gave 0 invalid rows in every table, so types and formats (dates, booleans, numbers, ids) hold; with 0 failures in 10,000, the invalid share is below about 0.03% at 95% confidence.
+
+**Consequence for Calvino.** The contracts hold on the full data, so tasks can rely on them; the known defects are the ones DATA.md handles. Of the 40,515 `Mexico` rows, 18,412 belong to customers in México, so merging the label turns those rows domestic, while for Colombian and Argentine customers it stays a foreign label: a cross-border rule on `transaction_country` must account for that. Five tables Calvino does not use (call_transcripts, campaign_sends, digital_events, satisfaction_surveys, marketing_campaigns) have no contract and were not audited.
