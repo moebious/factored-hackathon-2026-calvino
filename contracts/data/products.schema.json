@@ -1,0 +1,68 @@
+{
+  "properties": {
+    "product_id": {
+      "minLength": 1,
+      "title": "Product Id",
+      "type": "string"
+    },
+    "customer_id": {
+      "minLength": 1,
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "product_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Product Type"
+    },
+    "currency": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Currency"
+    }
+  },
+  "required": [
+    "product_id",
+    "customer_id"
+  ],
+  "title": "products",
+  "type": "object",
+  "x-calvino": {
+    "primary_key": [
+      "product_id"
+    ],
+    "required_columns": [
+      "product_id",
+      "customer_id"
+    ],
+    "foreign_keys": [
+      {
+        "column": "customer_id",
+        "references": "customers.customer_id",
+        "severity": "error"
+      }
+    ],
+    "rules": [
+      {
+        "id": "PR-CURRENCY",
+        "severity": "error",
+        "violation": "currency NOT IN ('MXN', 'COP', 'ARS', 'USD')",
+        "meaning": "product currency is MXN, COP, ARS or USD when present"
+      }
+    ]
+  }
+}

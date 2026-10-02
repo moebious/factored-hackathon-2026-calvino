@@ -1,0 +1,42 @@
+{
+  "properties": {
+    "agent_id": {
+      "minLength": 1,
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "assigned_branch_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Assigned Branch Id"
+    }
+  },
+  "required": [
+    "agent_id"
+  ],
+  "title": "service_agents",
+  "type": "object",
+  "x-calvino": {
+    "primary_key": [
+      "agent_id"
+    ],
+    "required_columns": [
+      "agent_id"
+    ],
+    "foreign_keys": [
+      {
+        "column": "assigned_branch_id",
+        "references": "branches.branch_id",
+        "severity": "known_defect"
+      }
+    ],
+    "rules": []
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "properties": {
+    "branch_id": {
+      "minLength": 1,
+      "title": "Branch Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "branch_id"
+  ],
+  "title": "branches",
+  "type": "object",
+  "x-calvino": {
+    "primary_key": [
+      "branch_id"
+    ],
+    "required_columns": [
+      "branch_id"
+    ],
+    "foreign_keys": [],
+    "rules": []
+  }
+}

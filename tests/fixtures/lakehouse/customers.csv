@@ -1,0 +1,4 @@
+customer_id,country,segment,detected_accent,credit_score
+C001,México,Basic,mexicano,640
+C002,Colombia,Premium,colombiano,720
+C003,Argentina,Plus,argentino,690

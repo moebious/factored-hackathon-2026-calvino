@@ -1,0 +1,48 @@
+{
+  "name": "calvino-data-lineage",
+  "spec": "docs/specs/TSD-007-data-contracts.md",
+  "note": "Each step from the organizer's files to the audited tables. The storage location is read from CALVINO_DATA_BUCKET and never written in the repository.",
+  "steps": [
+    {
+      "id": "source",
+      "input": "organizer dataset, live data/ prefix only (the dated backup is not read)",
+      "format": "CSV with a UTF-8 byte-order mark; partitioned tables as <table>/year=/month=/day=/*.csv, small tables as <table>.csv",
+      "changes": "none: read-only credentials"
+    },
+    {
+      "id": "download",
+      "script": "scripts/analysis/fetch_tables.py",
+      "input": "source",
+      "output": "data/ (git-ignored), same layout as the source",
+      "changes": "none: files copied as they are; files of the same size are skipped on reruns"
+    },
+    {
+      "id": "analysis-cache",
+      "script": "scripts/analysis/build_cache.py",
+      "input": "download",
+      "output": "data/cache/<table>.parquet (git-ignored)",
+      "changes": "every column read as text with the byte-order mark stripped; for the two largest tables only the columns the analysis needs are kept; no deduplication"
+    },
+    {
+      "id": "cleaned-layer",
+      "script": "the analyst's clean_all_tables.py (not yet in the repository; HANDOFF 2.2)",
+      "input": "source",
+      "output": "data/lakehouse/ (git-ignored)",
+      "changes": "to be recorded from the analyst's delivery; deduplication on primary keys removes 0 rows on the data/ prefix [measured]"
+    },
+    {
+      "id": "audit",
+      "script": "scripts/validate_data_contracts.py",
+      "input": "any of download, analysis-cache or cleaned-layer",
+      "output": "a JSON report of violation counts per check; aggregates only",
+      "changes": "none: the audit reads and counts"
+    }
+  ],
+  "deliberately_unchanged": [
+    "null response_code values (about 5% in every status): a known defect, never a failure signal",
+    "the unaccented 'Mexico' transaction_country label: merged into México (ISO 3166 MX) only where used, not in storage",
+    "claimed_amount in its own currency: converted to USD with daily_exchange_rates only for cross-currency figures",
+    "service_agents.assigned_branch_id values missing from branches: reported, not dropped (dropping would delete most agents)",
+    "complaints.origin_interaction_id, null on every row: complaints are linked by customer and time"
+  ]
+}

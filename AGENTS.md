@@ -21,17 +21,17 @@ Application directories are planned and created as code lands; update this secti
 
 | Path | Contents |
 |---|---|
-| `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `policy`, `tools`, `verifier`, `classifiers` and `hub` subpackages |
+| `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `data`, `policy`, `tools`, `verifier`, `classifiers` and `hub` subpackages |
 | `frontend/` | Next.js customer app and operator view (planned; CopilotKit / AG-UI console in Tier 2) |
 | `policy/` | Versioned policy files (`v1.yaml`): every threshold and limit the policy engine reads |
-| `contracts/` | Generated JSON Schemas of the tool contracts (`contracts/tools/`, from `scripts/export_tool_schemas.py`) |
+| `contracts/` | Generated JSON Schemas of the tool contracts (`contracts/tools/`, from `scripts/export_tool_schemas.py`) and the data contracts with their lineage (`contracts/data/`, from `scripts/export_data_schemas.py`) |
 | `tests/` | `tests/calvino/` mirrors `src/calvino/` (pytest); `tests/fixtures/` holds small synthetic fixtures; `tests/git/` tests the git rule scripts |
 | `pyproject.toml`, `uv.lock` | Python project configuration and locked dependencies (managed with `uv`) |
 | `scripts/` | Developer scripts; `scripts/git/` holds the commit-message checker shared by hooks and CI |
 | `.githooks/` | Versioned git hooks (`pre-commit`, `commit-msg`, `pre-push`), enabled with `git config core.hooksPath .githooks` |
 | `.worktrees/` | Linked worktrees in non-bare clones. **Git-ignored** |
 | `docs/` | Requirements (BRD, PRD), design, specifications, decisions, plan, roadmap |
-| `data/` | Local datasets. **Git-ignored, never committed** |
+| `data/` | Local datasets at the repository root. **Git-ignored, never committed** |
 
 ## Repository standards
 
@@ -261,3 +261,10 @@ bash tests/git/test_git_rules.sh    # git rule scripts and hooks
 ```
 
 CI runs both on every pull request (`.github/workflows/tests.yml` and `conventions.yml`).
+
+### Data contracts
+
+```bash
+uv run python scripts/validate_data_contracts.py --dir tests/fixtures/lakehouse   # audit a folder of tables (exit 1 on errors)
+uv run python scripts/export_data_schemas.py                                      # regenerate contracts/data/ after changing the contracts
+```

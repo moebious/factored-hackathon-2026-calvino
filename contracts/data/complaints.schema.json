@@ -1,0 +1,175 @@
+{
+  "properties": {
+    "complaint_id": {
+      "minLength": 1,
+      "title": "Complaint Id",
+      "type": "string"
+    },
+    "customer_id": {
+      "minLength": 1,
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "creation_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Creation Date"
+    },
+    "category": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Category"
+    },
+    "case_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Case Type"
+    },
+    "status": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Status"
+    },
+    "claimed_amount": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Claimed Amount"
+    },
+    "currency": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Currency"
+    },
+    "origin_interaction_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Origin Interaction Id"
+    },
+    "sla_breached": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sla Breached"
+    },
+    "resolution_days": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Resolution Days"
+    },
+    "compensation_granted": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Compensation Granted"
+    }
+  },
+  "required": [
+    "complaint_id",
+    "customer_id"
+  ],
+  "title": "complaints",
+  "type": "object",
+  "x-calvino": {
+    "primary_key": [
+      "complaint_id"
+    ],
+    "required_columns": [
+      "complaint_id",
+      "customer_id"
+    ],
+    "foreign_keys": [
+      {
+        "column": "customer_id",
+        "references": "customers.customer_id",
+        "severity": "error"
+      }
+    ],
+    "rules": [
+      {
+        "id": "CP-AMOUNT-NO-CURRENCY",
+        "severity": "known_defect",
+        "violation": "claimed_amount IS NOT NULL AND currency IS NULL",
+        "meaning": "a claimed amount without a currency cannot be converted to USD"
+      },
+      {
+        "id": "CP-ORIGIN-NULL",
+        "severity": "known_defect",
+        "violation": "origin_interaction_id IS NULL",
+        "meaning": "no complaint records its originating interaction; link by customer and time"
+      }
+    ]
+  }
+}

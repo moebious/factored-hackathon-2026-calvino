@@ -1,0 +1,168 @@
+{
+  "properties": {
+    "interaction_id": {
+      "minLength": 1,
+      "title": "Interaction Id",
+      "type": "string"
+    },
+    "customer_id": {
+      "minLength": 1,
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "agent_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Agent Id"
+    },
+    "interaction_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interaction Date"
+    },
+    "channel": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Channel"
+    },
+    "contact_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Contact Reason"
+    },
+    "reason_category": {
+      "title": "Reason Category",
+      "type": "string"
+    },
+    "was_resolved": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Was Resolved"
+    },
+    "was_escalated": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Was Escalated"
+    },
+    "requires_followup": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Requires Followup"
+    },
+    "duration_seconds": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Duration Seconds"
+    },
+    "wait_time_seconds": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Wait Time Seconds"
+    }
+  },
+  "required": [
+    "interaction_id",
+    "customer_id",
+    "reason_category"
+  ],
+  "title": "call_center_interactions",
+  "type": "object",
+  "x-calvino": {
+    "primary_key": [
+      "interaction_id"
+    ],
+    "required_columns": [
+      "interaction_id",
+      "customer_id",
+      "reason_category"
+    ],
+    "foreign_keys": [
+      {
+        "column": "customer_id",
+        "references": "customers.customer_id",
+        "severity": "error"
+      },
+      {
+        "column": "agent_id",
+        "references": "service_agents.agent_id",
+        "severity": "error"
+      }
+    ],
+    "rules": [
+      {
+        "id": "CI-REASON-REPEATS",
+        "severity": "known_defect",
+        "violation": "contact_reason = reason_category",
+        "meaning": "contact_reason repeats reason_category: there is one reason level"
+      }
+    ]
+  }
+}

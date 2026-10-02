@@ -1,0 +1,4 @@
+complaint_id,customer_id,creation_date,category,case_type,status,claimed_amount,currency,origin_interaction_id,sla_breached,resolution_days,compensation_granted
+K001,C001,2023-06-20,Transactions,Queja,Open,1450.00,MXN,,false,,
+K002,C002,2023-06-21,Transactions,Reclamo,Resolved,200.00,,,true,12,50.00
+K003,C003,2023-06-22,Cards,Queja,Closed,,,,false,9,
