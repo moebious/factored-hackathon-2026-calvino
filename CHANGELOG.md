@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- HANDOFF records the independent baseline finding (Transaccional calls are resolved first time 91.5% of the time) and the follow-up it needs.
 - PLAN gains the cut order and protected measurements; the task backlog gains shared-file and pull-request rules and a session prompt template; HANDOFF records the analyst's round-two asks and three new pitfalls.
 - Specs, roadmap, plan, task cards, README, PITCH, glossary and brief coverage brought in line with decisions 16 and 17, the Tier 0 scope and the tech stack; TSD-001, -003, -004 and -005 gain a workflow-context section; HANDOFF marks TSD-000 done.
 - Workflow chosen (decision 17): stuck payments, end to end (explain, clarify, act under the Gate, investigate, follow up); the pre-registered rule (TSD-006) is marked superseded, and Tier 0 gains durable cases, policy replay, one flywheel turn and a bare-LLM ablation.
