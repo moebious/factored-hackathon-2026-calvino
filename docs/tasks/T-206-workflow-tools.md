@@ -14,7 +14,7 @@
 
 **Inputs.** TSD-002 contracts; the chosen workflow; the cleaned layer
 
-**Outputs.** read tools for the customer's problem transactions; the simulated action tool (cancel a pending transfer, retry a declined one) with its eligibility rules, shaped as camt.056 and answered as camt.029; the investigation tools (open a case shaped as camt.027, read its status); the ISO 20022 field mapping for the dataset adapter; a small demo data sample (labelled)
+**Outputs.** the tools specified in TSD-002 backed by the full cleaned layer instead of the fixture; the ISO 20022 field mapping for the dataset adapter; a small demo data sample (labelled) with personas that cover every Gate outcome
 
 **Open parameters.** the action limits (policy assumptions, set in the policy module)
 
