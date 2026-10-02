@@ -24,7 +24,8 @@ Application directories are planned and created as code lands; update this secti
 | `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `policy`, `tools`, `verifier`, `classifiers` and `hub` subpackages |
 | `frontend/` | Next.js customer app and operator view (planned; CopilotKit / AG-UI console in Tier 2) |
 | `policy/` | Versioned policy files (`v1.yaml`): every threshold and limit the policy engine reads |
-| `tests/` | `tests/calvino/` mirrors `src/calvino/` (pytest); `tests/git/` tests the git rule scripts |
+| `contracts/` | Generated JSON Schemas of the tool contracts (`contracts/tools/`, from `scripts/export_tool_schemas.py`) |
+| `tests/` | `tests/calvino/` mirrors `src/calvino/` (pytest); `tests/fixtures/` holds small synthetic fixtures; `tests/git/` tests the git rule scripts |
 | `pyproject.toml`, `uv.lock` | Python project configuration and locked dependencies (managed with `uv`) |
 | `scripts/` | Developer scripts; `scripts/git/` holds the commit-message checker shared by hooks and CI |
 | `.githooks/` | Versioned git hooks (`pre-commit`, `commit-msg`, `pre-push`), enabled with `git config core.hooksPath .githooks` |
