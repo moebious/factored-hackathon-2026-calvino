@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft · **decision rule fixed before any data was examined** |
+| Status | draft · **decision rule fixed before any data was examined** · [amendment 1](#amendment-1-2026-10-02) (2026-10-02) adapts it to the data's coarse reasons before any metric was computed; where they conflict, the amendment wins |
 | Branch | `eval/contact-reasons` |
 | Depends on | TSD-000 (for the package), dataset access |
 | Required by | everything workflow-specific (labels, tools, cards, evaluation) |
@@ -104,4 +104,60 @@ Weighted score on a 1–5 scale. Data criteria are scaled **across the candidate
 
 ## Deviations
 
-None yet. Any change to the mapping procedure, gates, weights or priors after the analysis starts is listed here with its reason.
+Any change to the mapping procedure, gates, weights or priors after the analysis starts is listed here with its reason.
+
+| # | Date | Change | Reason |
+|---|---|---|---|
+| 1 | 2026-10-02 | [Amendment 1](#amendment-1-2026-10-02): coarse mapping, W1/W2 attribution from structured tables, G1 and G3 redefined, the Labels criterion rescored, the template check reported instead of scored, stop rule applied per category | step 1 found that the data cannot support the original procedure (below) |
+
+## Amendment 1 (2026-10-02)
+
+### What step 1 found
+
+Step 1 (listing names, no metrics) stopped the analysis, as the rule requires, because the data cannot separate the candidates as planned:
+
+- `contact_reason` has the **same six values** as `reason_category`: Comercial, Producto, Queja, Retención, Transaccional, Técnico. There is no finer level.
+- **Transcripts carry no label information.** 171,321 transcripts hold only **42 distinct `customer_text` values** (digits masked), and the same 42 appear under all six categories. They are built from two fixed openings (both balance enquiries, even under Queja and Técnico) plus generic closers. `detected_intents` has one value, `main_topics` repeats the six categories, `detected_keywords` has three generic tokens, `detected_language` is only `es` `[measured]`.
+- `complaints` has 4 case types × 5 categories (Branch, Fees, Service, Technical, Transactions), with one subcategory each ("Cargo no reconocido" under Transactions).
+
+Consequence: W1 and W2 both sit inside Transaccional, W3 maps loosely to Queja, and text-based evidence (G3, the Labels criterion, the template check) cannot discriminate. The text finding also changes how classifiers are trained and evaluated: see decision 16 in [DECISIONS.md](../DECISIONS.md).
+
+**What was known when this amendment was written:** the distinct values above, the text structure, and one volume figure, Transaccional's share of interactions (about 35%). No other count, rate or metric had been computed. The fixed priors, weights and tie-break are unchanged.
+
+### Amended procedure
+
+**1. Category mapping (fixed here, by meaning).**
+
+| `reason_category` / `contact_reason` | Maps to |
+|---|---|
+| Transaccional | **W1+W2 pool**, attributed to W1 or W2 by step 2 |
+| Queja | **W3** |
+| Comercial, Producto, Retención, Técnico | other |
+
+Complaint share: the Transactions category → W1+W2 pool, attributed as in step 2 using the complaint's customer and date; Branch, Fees, Service, Technical → other. W3 follows up complaints of every category, so its complaint share is the share of complaints with `sla_breached = true`: the complaints where a follow-up is most needed.
+
+**2. W1/W2 attribution from structured tables.** Before computing anything, list the distinct values of `transactions.transaction_type` and `transactions.channel` (names only) and map each pair to **W1** (account payments and transfers) or **W2** (card use) by meaning; commit that mapping. A **problem transaction** is one with `transaction_status` in (Declined, Pending, Reversed) or `is_fraud = true`. Then, for each Transaccional interaction:
+
+- look at the same customer's problem transactions in the **7 days before** the interaction;
+- attribute it to **W1** if all of them are W1-type, **W2** if all are W2-type, **both** if mixed, **unattributed** if none.
+
+Interaction metrics (FCR, escalation, follow-up, handle time, sentiment, label balance) are computed per attributed group; W1's figures include "both".
+
+*Fallback:* if fewer than 20% of Transaccional interactions are attributed, W1 and W2 get the pool's interaction metrics, and their volume shares are the pool share split in proportion to the counts of W1-type and W2-type problem transactions. Shares and metrics obtained this way are labelled **estimated**, and the identical metrics are reported as a limitation.
+
+**3. Gates (G1 and G3 replaced).**
+
+| Gate | Passes when |
+|---|---|
+| G1. Demand | volume share ≥ 10% (estimated for W1 and W2 under the fallback). The top-5 rank clause is dropped: with six categories it passes trivially |
+| G2. Room to improve | unchanged |
+| G3. Enough records | ≥ 2,000 interactions attributed to the candidate (under the fallback: ≥ 2,000 problem transactions of the candidate's type) |
+| G4. Grounding | unchanged |
+
+**4. Score.** Weights and fixed priors unchanged. Criterion 1 (demand and pain) uses the amended inputs. Criterion 4 (labels) becomes the scaled label balance alone: transcript count is dropped, because classifier text is team-generated for every candidate (decision 16) and no longer differs between them.
+
+**5. Template check.** Still computed and reported as a data-quality finding; it no longer affects the score.
+
+**6. Stop rule (decision step 4), per category.** Stop and bring it to the maintainer if any **single** category mapped to "other" has a volume share ≥ 25%. The aggregate "other" share is reported, not used as a trigger, because four of the six coarse categories fall outside every candidate by construction.
+
+**7. Outputs** add the W1/W2 attribution: the transaction-type mapping, the attribution coverage, and whether the fallback was used.
