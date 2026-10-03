@@ -21,8 +21,10 @@ warn=0
 if [ "${1:-}" = "--warn" ]; then warn=1; shift; fi
 range=${1:?usage: check-commit-size.sh [--warn] <rev-range>}
 
-# Keep in sync with the layout table in AGENTS.md.
-excludes=(':(exclude)uv.lock' ':(exclude)package-lock.json' ':(exclude)pnpm-lock.yaml'
+# Keep in sync with the layout table in AGENTS.md. The glob magic matches lock
+# files in any directory (e.g. frontend/package-lock.json), not only at the root.
+excludes=(':(exclude,glob)**/uv.lock' ':(exclude,glob)**/package-lock.json'
+          ':(exclude,glob)**/pnpm-lock.yaml'
           ':(exclude)contracts' ':(exclude)tests/fixtures' ':(exclude)reports')
 
 fail=0

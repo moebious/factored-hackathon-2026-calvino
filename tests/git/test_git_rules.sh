@@ -113,7 +113,7 @@ expect fail "too many files"                size_check "HEAD~1..HEAD"
 expect fail "bad commit inside a range"     size_check "$(last_range)"
 add_commit "feat: too many lines" g.py:11
 expect fail "too many lines"                size_check "HEAD~1..HEAD"
-add_commit "build: lock and generated files are not counted" h.py:2 uv.lock:500 contracts/tools/x.json:500 tests/fixtures/bank/y.json:500
+add_commit "build: lock and generated files are not counted" h.py:2 uv.lock:500 frontend/package-lock.json:500 contracts/tools/x.json:500 tests/fixtures/bank/y.json:500
 expect pass "excluded paths ignored"        size_check "HEAD~1..HEAD"
 add_commit "feat: bulk move\n\nSize-exception: one indivisible rename of the package" i.py:50
 expect pass "size exception with a reason"  size_check "HEAD~1..HEAD"
