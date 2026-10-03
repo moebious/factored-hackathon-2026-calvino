@@ -72,8 +72,8 @@ def around(threshold: float):
 
 
 def test_shipped_policy_loads_and_is_labelled(policy):
-    assert DEFAULT_POLICY_PATH.name == "v1.yaml"
-    assert policy.version == "v1"
+    assert DEFAULT_POLICY_PATH.name == "v2.yaml"
+    assert policy.version == "v2"
     assert "assumption" in policy.assumptions.lower()
     assert set(policy.hard_rules.amount_limit) == {"MXN", "COP", "ARS", "USD"}
 
@@ -86,7 +86,7 @@ def test_shipped_thresholds_are_pinned(policy):
         "out_of_scope_at": 0.60,
         "dispute_or_fraud_at": 0.50,
         "injection_at": 0.50,
-        "min_clear_enough": 0.50,
+        "min_clear_enough": 0.30,  # lowered from v1's 0.50 on measured laya scores (decision 30)
         "min_confidence": 0.60,
     }
     assert policy.gate.allow_amount_limit == {
@@ -201,7 +201,7 @@ def test_route_act_clarify_escalate_bands(policy):
     ("score", "threshold", "route", "rule"),
     [
         ("confidence", 0.60, Route.CLARIFY, "RT-CLARIFY-CONFIDENCE"),
-        ("clear_enough", 0.50, Route.CLARIFY, "RT-CLARIFY-UNCLEAR"),
+        ("clear_enough", 0.30, Route.CLARIFY, "RT-CLARIFY-UNCLEAR"),
     ],
 )
 def test_low_confidence_and_unclear_clarify(policy, score, threshold, route, rule):
@@ -537,7 +537,7 @@ def test_record_holds_every_input_the_route_read(policy):
     decision = decide_route(scores(), facts(amount=250.5, currency="MXN", auth_failures=1), policy)
     record = decision.record
     assert record.session_ref == REF
-    assert record.policy_version == "v1"
+    assert record.policy_version == "v2"
     assert record.verdict == "agents"
     assert record.rule_id == "RT-ACT"
     assert record.scores == scores()

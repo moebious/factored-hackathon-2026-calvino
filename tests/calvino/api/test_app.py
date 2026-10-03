@@ -1,7 +1,7 @@
 """End-to-end tests of the demo API with the fake loader.
 
 No network, no model, no GPU: the app is assembled with an injected FakeLoader,
-settings on a temporary directory and the released policy/v1.yaml.
+settings on a temporary directory and the released policy (v2).
 """
 
 from __future__ import annotations
@@ -85,7 +85,7 @@ def test_decide_returns_the_glass_box(client):
     assert body["route"] == "agents"
     assert body["rule_id"] == "RT-ACT"
     assert body["human_action"] == "none"
-    assert body["policy_version"] == "v1"
+    assert body["policy_version"] == "v2"
     assert set(body["answers"]) == set(workflow_questions())
     assert body["scores"]["needs_human"] == pytest.approx(0.10)
     # act_probability carries no signal and must never appear in a payload.
