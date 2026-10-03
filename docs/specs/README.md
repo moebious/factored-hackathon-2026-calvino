@@ -12,6 +12,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-007](TSD-007-data-contracts.md): data contracts, audit and lineage
 - [TSD-008](TSD-008-gradio-demo.md): Gradio demo deployment adapter
 - [TSD-009](TSD-009-hub.md): Calvino hub
+- [TSD-010](TSD-010-customer-app.md): customer app with Laya cards
 
 Later tasks write their spec from their task card as the first step, numbered from TSD-008, and wait for the maintainer's approval before any code.
 
