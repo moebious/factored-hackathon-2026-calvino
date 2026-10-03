@@ -104,10 +104,12 @@ def _healthy_responders() -> dict[tuple[str, str], Any]:
                 }
             )
         if "hablar con una persona" in text:
+            # The real parked shape: the operator queue carries neither a
+            # card nor reply text (calvino.hub.service._reply_of).
             return StubResponse(
                 payload={
                     "reply": "",
-                    "card": {"key": "operator_queue", "payload": {}},
+                    "card": None,
                     "trace": [{"stage": "route"}],
                     "awaiting": "operator_queue",
                     "awaiting_ref": "case-1",
@@ -238,6 +240,21 @@ def test_a_turn_without_a_trace_fails() -> None:
     reply_checks = [r for r in results if r.name.startswith("scenario uc-1")]
     assert reply_checks and not reply_checks[0].ok
     assert "trace" in reply_checks[0].detail
+
+
+def test_a_reply_turn_without_card_or_reply_still_fails() -> None:
+    # The parked-turn exemption must not leak into the reply kind: an
+    # unparked turn with neither card nor text is a broken deployment.
+    responders = _healthy_responders()
+    body = _reply_body()
+    body["reply"] = ""
+    body["card"] = None
+    responders[("POST", "/api/hub/message")] = lambda payload: StubResponse(payload=body)
+    client = StubClient(responders)
+    results = cd.run_checks(client, BASE, timeout=1.0, interval=0.0, sleep=lambda s: None)
+    reply_check = next(r for r in results if r.name.startswith("scenario uc-1"))
+    assert not reply_check.ok
+    assert "neither a card" in reply_check.detail
 
 
 # --------------------------------------------------------------------------

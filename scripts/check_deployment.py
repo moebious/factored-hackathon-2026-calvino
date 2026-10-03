@@ -50,7 +50,10 @@ class Scenario:
     """One scenario button's turn: who sends what, and what must come back.
 
     ``kind`` is what the check asserts structurally (never text equality —
-    live Laya scores differ from the seeded test probabilities):
+    live Laya scores differ from the seeded test probabilities). Every
+    kind requires a non-empty trace; only ``reply`` requires a card or
+    reply text, because a parked turn legitimately carries neither (the
+    operator queue parks with an empty reply and no card):
 
     - ``reply``: a 200 with a card or a non-empty reply, and a non-empty trace
     - ``approval``: the turn parks with ``approve_action`` and an
@@ -148,9 +151,13 @@ def _hub_post(
 
 
 def _turn_evidence(body: dict[str, Any]) -> str:
-    """Why a hub reply is not a valid turn outcome ("" when it is)."""
-    if not body.get("trace"):
-        return "the trace is empty (the harness logged nothing)"
+    """Why a reply-kind turn is not a valid outcome ("" when it is).
+
+    Reply kind only: a parked turn legitimately carries neither a card
+    nor reply text (the operator queue parks with both empty; the
+    approval park's card is checked by its own branch), so demanding
+    one here would fail a healthy deployment.
+    """
     if body.get("card") is None and not str(body.get("reply") or ""):
         return "neither a card nor a non-empty reply"
     return ""
@@ -173,13 +180,15 @@ def _scenario_evidence(client: Client, base_url: str, scenario: Scenario) -> tup
     )
     if body is None:
         return False, problem
-    evidence = _turn_evidence(body)
-    if evidence:
-        return False, evidence
+    if not body.get("trace"):
+        return False, "the trace is empty (the harness logged nothing)"
 
     if scenario.kind == "reply":
         if body.get("awaiting") is not None:
             return False, f"unexpected parked turn: {body['awaiting']!r}"
+        evidence = _turn_evidence(body)
+        if evidence:
+            return False, evidence
         return True, "a card or reply with a trace"
 
     if scenario.kind == "approval":
