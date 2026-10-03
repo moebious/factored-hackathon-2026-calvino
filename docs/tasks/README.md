@@ -62,14 +62,14 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-201](T-201-classifier-evaluation.md) | Classifier evaluation and thresholds | 2 | T-005, T-106 | — | judgment checkpoint | no | todo | maintainer |
 | [T-202](T-202-laya-fine-tuning.md) | Laya fine-tuning on Kaggle | Tier 1 | T-106 | GPU (maintainer runs the notebook) | standard | yes | todo | maintainer |
 | [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo | maintainer |
-| [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | review | maintainer |
+| [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | done | maintainer |
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | review | maintainer |
 | [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | — | standard | yes | todo | maintainer |
 | [T-301](T-301-support-agent.md) | Support agent and company brain | 3 | T-204, T-206 | LLM provider | standard | no | todo | maintainer |
 | [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo | maintainer |
 | [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | todo | maintainer |
 | [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | todo | maintainer |
-| [T-305](T-305-gradio-demo-adapter.md) | Gradio demo adapter (free hosted demo) | 3 | T-005 | free Space (maintainer) | standard | yes | todo | maintainer |
+| [T-305](T-305-gradio-demo-adapter.md) | Gradio demo adapter (free hosted demo) | 3 | T-005 | free Space (maintainer) | standard | yes | spec | maintainer |
 | [T-401](T-401-durable-cases.md) | Durable cases | 3 | T-204, T-302 | — | standard | yes | todo | maintainer |
 | [T-402](T-402-verifier-panel.md) | Risk-tiered verifier panel | 4 | T-004, T-303 | Tier 0 gate | standard | yes | todo | maintainer |
 | [T-403](T-403-coworker-agent.md) | Coworker agent | 4 | T-302 | Tier 0 gate | standard | yes | todo | maintainer |
