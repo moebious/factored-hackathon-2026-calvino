@@ -6,6 +6,7 @@ Hugging Face Space (FastAPI, Docker, port 7860). Model loading sits behind
 deployment configuration comes from environment variables (``config``).
 """
 
+from calvino.api.app import DemoDecideRequest, create_app
 from calvino.api.config import ApiSettings, settings_from_env
 from calvino.api.decide import DemoAnswer, DemoDecision, run_demo_decision, scores_from_answers
 from calvino.api.loader import LayaLoader, SystemOneLoader
@@ -13,9 +14,11 @@ from calvino.api.loader import LayaLoader, SystemOneLoader
 __all__ = [
     "ApiSettings",
     "DemoAnswer",
+    "DemoDecideRequest",
     "DemoDecision",
     "LayaLoader",
     "SystemOneLoader",
+    "create_app",
     "run_demo_decision",
     "scores_from_answers",
     "settings_from_env",
