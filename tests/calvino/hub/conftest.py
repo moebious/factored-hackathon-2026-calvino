@@ -108,3 +108,23 @@ def deps_factory(tmp_path, policy):
         )
 
     return make
+
+
+# Seeded-scenario scoreboard (decision 23): the scenario runner appends one
+# line per green scenario, and the terminal summary prints the board on
+# every pytest run, so a scenario that passes is visibly never lost again.
+SCENARIO_SCOREBOARD: list[str] = []
+
+
+@pytest.fixture(scope="session")
+def scenario_scoreboard() -> list[str]:
+    """The session's scenario scoreboard lines (see tests/scenarios/)."""
+    return SCENARIO_SCOREBOARD
+
+
+def pytest_terminal_summary(terminalreporter, exitstatus, config):
+    """Print the seeded-scenario scoreboard at the end of every run."""
+    if SCENARIO_SCOREBOARD:
+        terminalreporter.write_sep("=", "scenario scoreboard (decision 23)")
+        for line in SCENARIO_SCOREBOARD:
+            terminalreporter.write_line(line)

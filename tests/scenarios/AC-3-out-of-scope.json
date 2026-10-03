@@ -1,0 +1,35 @@
+{
+  "id": "AC-3",
+  "title": "out-of-scope request gets an honest reply and a path to a person, with no tools",
+  "persona": "camilo",
+  "message": "¿Me recomiendas un restaurante para cenar esta noche?",
+  "probabilities": {
+    "workflow_area": {
+      "stuck payment": 0.01,
+      "dispute or unrecognised charge": 0.01,
+      "fraud or stolen access": 0.01,
+      "other banking": 0.07,
+      "out of scope": 0.9
+    },
+    "intent": {
+      "check status": 0.9,
+      "cancel transfer": 0.02,
+      "retry payment": 0.02,
+      "open a case": 0.02,
+      "check case status": 0.02,
+      "talk to a person": 0.02
+    },
+    "clear_enough": {"clear": 0.95, "unclear": 0.05},
+    "needs_human": {"human needed": 0.05, "can handle automatically": 0.95},
+    "injection": {"risky": 0.01, "not risky": 0.99}
+  },
+  "agent_script": [],
+  "expected": {
+    "route": "out_of_scope",
+    "reply": "Esto queda fuera de lo que puedo resolver aquí. Si quieres, te paso con una persona del equipo.",
+    "card": {"key": "human_path", "payload": {}},
+    "escalated": false,
+    "tool_calls": [],
+    "log_records": [{"stage": "classifier", "rule_id": "RT-OUT-OF-SCOPE"}]
+  }
+}

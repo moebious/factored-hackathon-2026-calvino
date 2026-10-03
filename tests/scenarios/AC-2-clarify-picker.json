@@ -1,0 +1,35 @@
+{
+  "id": "AC-2",
+  "title": "ambiguous message gets the clarify question and the problem-payment picker",
+  "persona": "ana",
+  "message": "Hola, tengo un problema con un pago",
+  "probabilities": {
+    "workflow_area": {
+      "stuck payment": 0.97,
+      "dispute or unrecognised charge": 0.01,
+      "fraud or stolen access": 0.01,
+      "other banking": 0.005,
+      "out of scope": 0.005
+    },
+    "intent": {
+      "check status": 0.9,
+      "cancel transfer": 0.02,
+      "retry payment": 0.02,
+      "open a case": 0.02,
+      "check case status": 0.02,
+      "talk to a person": 0.02
+    },
+    "clear_enough": {"clear": 0.2, "unclear": 0.8},
+    "needs_human": {"human needed": 0.05, "can handle automatically": 0.95},
+    "injection": {"risky": 0.01, "not risky": 0.99}
+  },
+  "agent_script": [],
+  "expected": {
+    "route": "clarify",
+    "reply": "¿Sobre cuál de tus pagos quieres consultar? Dime el monto, la fecha o el destinatario y lo reviso.",
+    "card": {"key": "problem_transactions"},
+    "escalated": false,
+    "tool_calls": [],
+    "log_records": [{"stage": "classifier", "rule_id": "RT-CLARIFY-UNCLEAR"}]
+  }
+}
