@@ -5,7 +5,7 @@
 | Wave | 1 |
 | Branch | `data/message-set` |
 | Depends on | T-103 |
-| Blocked by | LLM provider |
+| Blocked by | LLM provider keys (decision 27: the client exists, the tokens do not) |
 | Model | standard model; the maintainer reviews a sample before use |
 | Can run in parallel | no |
 | References | decision 16; DESIGN.md 7, 8, 8.1; DATA.md findings |

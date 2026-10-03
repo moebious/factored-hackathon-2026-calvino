@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft |
+| Status | implemented |
 | Branch | `feat/llm-client` |
 | Depends on | TSD-000 |
 | Required by | T-106 (message drafting), T-301 (support agent), the verifier's batched judge (TSD-004, FR-6) |
