@@ -4,8 +4,10 @@
 returns a ``HubReply``. When the turn parks on an ``interrupt()`` — the
 operator queue (handoff) or an action approval (act) — the reply names what
 it waits for, and ``HubService.resume`` continues the thread with the
-operator's decision. The ref an operator holds is the case ref for queued
-cases and the thread ref for approvals; both map back to the thread here.
+operator's decision. Every reply carries the turn's decision trace (the
+records the harness logged, in order) for the glass-box panel. The ref an
+operator holds is the case ref for queued cases and the thread ref for
+approvals; both map back to the thread here.
 The checkpointer lives on ``CALVINO_DATA_DIR`` when set and falls back to
 memory (tests and ephemeral runs). One thread per persona is enough for the
 demo, and the pending-turn registry is process state, like the demo's
@@ -22,10 +24,28 @@ from typing import Any
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from calvino.hub.graph import HubDependencies, build_hub_graph
 from calvino.records import Route
+
+
+class TraceStep(BaseModel):
+    """One decision of the turn, as the glass box shows it (PRD FR-12).
+
+    A read-only view of the ``DecisionRecord`` the harness logged: stage,
+    rule, verdict, calibrated scores and the redacted inputs summary. The
+    glass box reads only the trace, so the panel can never show data the
+    harness did not log.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    stage: str
+    rule_id: str | None
+    verdict: str
+    scores: dict[str, float] = Field(default_factory=dict)
+    summary: dict[str, Any] = Field(default_factory=dict)
 
 
 class HubReply(BaseModel):
@@ -34,7 +54,8 @@ class HubReply(BaseModel):
     ``card`` is a key plus payload from the fixed catalog: the hub emits it,
     the app renders it. ``awaiting`` names the interrupt a parked turn waits
     for (``operator_queue`` or ``approve_action``) and ``awaiting_ref`` is
-    the ref ``HubService.resume`` continues it with.
+    the ref ``HubService.resume`` continues it with. ``trace`` holds the
+    decision records this turn appended, in order (PRD FR-12).
     """
 
     model_config = ConfigDict(frozen=True)
@@ -46,6 +67,7 @@ class HubReply(BaseModel):
     escalated: bool = False
     awaiting: str | None = None
     awaiting_ref: str | None = None
+    trace: tuple[TraceStep, ...] = ()
 
 
 def _default_checkpointer() -> Any:
@@ -78,11 +100,12 @@ class HubService:
         thread_id = f"persona-{persona}"
         token, session_ref = self._deps.issuer.issue(persona)
         self._threads[thread_id] = {"thread_id": thread_id, "token": token}
+        seen = self._logged_count()
         state = self._graph.invoke(
             {"persona": persona, "session_ref": session_ref, "message": text},
             config={"configurable": {"thread_id": thread_id, "session_token": token}},
         )
-        return self._reply_of(state, thread_id)
+        return self._reply_of(state, thread_id, self._turn_trace(seen))
 
     def resume(self, ref: str, operator_decision: Any) -> HubReply:
         """Continue a parked turn with the operator's decision.
@@ -94,6 +117,7 @@ class HubService:
         thread = self._threads.get(ref)
         if thread is None:
             raise KeyError(f"no parked turn for ref {ref!r}")
+        seen = self._logged_count()
         state = self._graph.invoke(
             Command(resume=operator_decision),
             config={
@@ -103,9 +127,37 @@ class HubService:
                 }
             },
         )
-        return self._reply_of(state, thread["thread_id"])
+        return self._reply_of(state, thread["thread_id"], self._turn_trace(seen))
 
-    def _reply_of(self, state: dict[str, Any], thread_id: str) -> HubReply:
+    def _logged_count(self) -> int:
+        """How many decision records the log holds right now.
+
+        The log is an append-only jsonl, so counting means a full read; at
+        demo volume that is cheap, and a production service would track the
+        file offset instead.
+        """
+        return sum(1 for _ in self._deps.log)
+
+    def _turn_trace(self, seen: int) -> tuple[TraceStep, ...]:
+        """The decision records appended since ``seen``: this turn's trace."""
+        steps = []
+        for index, record in enumerate(self._deps.log):
+            if index < seen:
+                continue
+            steps.append(
+                TraceStep(
+                    stage=record.stage.value,
+                    rule_id=record.rule_id,
+                    verdict=record.verdict,
+                    scores=dict(record.scores),
+                    summary=dict(record.inputs_summary),
+                )
+            )
+        return tuple(steps)
+
+    def _reply_of(
+        self, state: dict[str, Any], thread_id: str, trace: tuple[TraceStep, ...] = ()
+    ) -> HubReply:
         """Turn the graph's final (or paused) state into the app's reply."""
         route = state.get("route")
         interrupts = state.get("__interrupt__") or ()
@@ -123,6 +175,7 @@ class HubService:
                 escalated=True,
                 awaiting=str(payload.get("type", "")),
                 awaiting_ref=awaiting_ref,
+                trace=trace,
             )
         return HubReply(
             reply=str(state.get("reply") or ""),
@@ -130,4 +183,5 @@ class HubService:
             route=route.value if isinstance(route, Route) else None,
             case_ref=state.get("case_ref"),
             escalated=bool(state.get("escalated")),
+            trace=trace,
         )
