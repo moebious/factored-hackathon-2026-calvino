@@ -34,6 +34,7 @@ from calvino.llm.errors import (
     LlmResponseError,
     LlmRule,
     LlmTimeout,
+    LlmTruncated,
     LlmUnavailable,
 )
 
@@ -247,12 +248,22 @@ def _retry_after(response: httpx.Response) -> float | None:
 def _parse_completion(body: dict, requested_model: str, latency_ms: float) -> ChatResponse:
     try:
         choice = body["choices"][0]
-        content = choice["message"]["content"]
-        finish_reason = choice.get("finish_reason")
+        message = choice["message"]
     except (KeyError, IndexError, TypeError) as error:
-        raise LlmResponseError("the completion has no readable message content") from error
+        raise LlmResponseError("the response carries no chat completion") from error
+
+    finish_reason = choice.get("finish_reason")
+    content = message.get("content") if isinstance(message, dict) else None
     if not isinstance(content, str):
-        raise LlmResponseError("the completion content is not text")
+        # A reasoning model spends its budget before it writes anything, and returns that
+        # reasoning under its own key, so the completion arrives with no content at all. That is
+        # the caller's budget, not a broken provider, and the message says so.
+        if finish_reason == "length":
+            raise LlmTruncated(
+                "the provider used the whole token budget on reasoning and wrote no answer; "
+                "raise max_tokens and call again"
+            )
+        raise LlmResponseError("the completion carries no text content")
 
     usage = body.get("usage") or {}
     if not isinstance(usage, dict):

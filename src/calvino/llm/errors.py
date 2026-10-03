@@ -24,6 +24,8 @@ class LlmRule(StrEnum):
     UNAVAILABLE = "LLM-UNAVAILABLE"
     # The provider answered with something that is not a chat completion we can read.
     BAD_RESPONSE = "LLM-BAD-RESPONSE"
+    # The budget ran out before any answer was written, which is what a reasoning model does.
+    TRUNCATED = "LLM-TRUNCATED"
     # A 4xx that is not a rate limit: the request itself was wrong, so retrying it is pointless.
     REJECTED = "LLM-REJECTED"
 
@@ -75,3 +77,16 @@ class LlmResponseError(LlmError):
 
     def __init__(self, message: str) -> None:
         super().__init__(LlmRule.BAD_RESPONSE, message)
+
+
+class LlmTruncated(LlmError):
+    """The token budget ran out before the model wrote an answer.
+
+    A reasoning model spends its budget thinking first and returns that reasoning under its own
+    key, so a tight ``max_tokens`` ends the call with no ``content`` at all and
+    ``finish_reason`` of ``length``. Measured on Hetzner, 2026-10-03. The adapter does not retry
+    with a bigger budget: that would spend the caller's money without being asked.
+    """
+
+    def __init__(self, message: str) -> None:
+        super().__init__(LlmRule.TRUNCATED, message)

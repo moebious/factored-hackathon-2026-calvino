@@ -26,6 +26,7 @@ from calvino.llm.errors import (
     LlmResponseError,
     LlmRule,
     LlmTimeout,
+    LlmTruncated,
     LlmUnavailable,
 )
 from calvino.llm.openai_compat import OpenAiCompatibleClient, RateLimiter
@@ -418,3 +419,68 @@ def test_system_and_assistant_turns_keep_their_wire_names(chat_request):
         )
     )
     assert [turn["role"] for turn in seen[0]["messages"]] == ["system", "user", "assistant"]
+
+
+def reasoning_completion(reasoning: str, finish_reason: str) -> httpx.Response:
+    """What a reasoning model returns when the budget ran out before it wrote an answer.
+
+    Measured against Hetzner on 2026-10-03: no ``content`` key at all, the reasoning under its
+    own key, and ``finish_reason`` of ``length``.
+    """
+    return httpx.Response(
+        200,
+        json={
+            "model": MODEL,
+            "choices": [
+                {
+                    "index": 0,
+                    "finish_reason": finish_reason,
+                    "message": {"role": "assistant", "reasoning": reasoning},
+                }
+            ],
+            "usage": {"prompt_tokens": 15, "completion_tokens": 16},
+        },
+    )
+
+
+def test_a_budget_spent_on_reasoning_is_reported_as_truncation(chat_request):
+    """The first live call against a real provider hit this; it is the caller's budget."""
+    client = client_with(lambda request: reasoning_completion("thinking...", "length"))
+    with pytest.raises(LlmTruncated) as caught:
+        client.complete(
+            chat_request(
+                "Reply with exactly: OK",
+            ).model_copy(update={"max_tokens": 16})
+        )
+
+    assert caught.value.rule is LlmRule.TRUNCATED
+    # The message names the fix, because "no readable message content" sent us hunting a
+    # provider fault that did not exist.
+    assert "max_tokens" in caught.value.message
+
+
+def test_the_adapter_does_not_retry_a_truncated_call_with_a_bigger_budget(chat_request):
+    calls: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(1)
+        return reasoning_completion("thinking...", "length")
+
+    client = client_with(handler, retries=2)
+    with pytest.raises(LlmTruncated):
+        client.complete(chat_request("hola").model_copy(update={"max_tokens": 16}))
+    assert len(calls) == 1, "silently raising the budget would spend the caller's money unasked"
+
+
+def test_a_reply_with_no_content_and_no_length_is_still_an_unreadable_response(chat_request):
+    client = client_with(lambda request: reasoning_completion("thinking...", "stop"))
+    with pytest.raises(LlmResponseError) as caught:
+        client.complete(chat_request("hola"))
+    assert caught.value.rule is LlmRule.BAD_RESPONSE
+
+
+def test_a_null_content_is_still_reported_as_unreadable(chat_request):
+    body = {"model": MODEL, "choices": [{"finish_reason": "stop", "message": {"content": None}}]}
+    client = client_with(lambda request: httpx.Response(200, json=body))
+    with pytest.raises(LlmResponseError):
+        client.complete(chat_request("hola"))
