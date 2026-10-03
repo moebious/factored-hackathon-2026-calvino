@@ -17,7 +17,7 @@ from typing import Any, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from calvino.hub.playbook import StatusGuidance
-from calvino.verifier.evidence import Evidence
+from calvino.verifier.evidence import Evidence, ToolResult
 from calvino.verifier.verdicts import CriterionVerdict
 
 
@@ -44,7 +44,10 @@ class AgentRequest(_Frozen):
     playbook entry for the transaction status (decision 24), when known.
     ``case_ref`` is the open case on a follow-up turn: the customer already
     saw it in the reply, so it is context, not a secret — but it is a
-    reference, never a session token.
+    reference, never a session token. ``tool_results`` are this session's
+    verified tool results (the payloads a reply may cite, TSD-010), and
+    ``entry_reference`` is the payment the conversation focused on, if any:
+    both are harness-side facts, never model-supplied.
     """
 
     stage: str = Field(min_length=1)
@@ -53,6 +56,8 @@ class AgentRequest(_Frozen):
     guidance: StatusGuidance | None = None
     feedback: tuple[CriterionVerdict, ...] = ()
     case_ref: str | None = None
+    tool_results: tuple[ToolResult, ...] = ()
+    entry_reference: str | None = None
 
 
 class AgentDraft(_Frozen):

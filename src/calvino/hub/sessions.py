@@ -21,6 +21,16 @@ from calvino.tools.session import Session
 # and expiry is the fail-closed path the tools already enforce.
 DEFAULT_SESSION_TTL = timedelta(minutes=30)
 
+# The demo personas (TSD-010): fixture customers the demo app can sign in as,
+# mapped to their fixture customer ids. One source: the API wires its issuer
+# with this and the hub tests import it, so demo and suite cannot drift.
+DEMO_PERSONAS: Mapping[str, str] = {
+    "ana": "C-MX-001",
+    "camilo": "C-CO-001",
+    "lucia": "C-AR-001",
+    "dana": "C-US-001",
+}
+
 
 class TrustedSessionIssuer:
     """Maps demo personas to sessions; the only source of ``Session`` objects."""

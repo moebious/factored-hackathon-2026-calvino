@@ -453,6 +453,8 @@ def build_hub_graph(
             evidence=evidence_of(state),
             guidance=guidance_of(state),
             case_ref=state.get("case_ref"),
+            tool_results=tuple(state.get("tool_results") or ()),
+            entry_reference=state.get("entry_reference"),
         )
         try:
             draft = deps.agent.draft(request)
@@ -786,6 +788,8 @@ def build_hub_graph(
                 guidance=guidance_of(state),
                 feedback=tuple(failed),
                 case_ref=state.get("case_ref"),
+                tool_results=tuple(state.get("tool_results") or ()),
+                entry_reference=state.get("entry_reference"),
             )
             redraft = deps.agent.draft(request)
             if redraft.text is None:
