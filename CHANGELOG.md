@@ -19,6 +19,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Laya service and calibration (TSD-005, T-005): `calvino.classifiers` wrapping the real laya 0.3.24 router API pinned to the multilingual model (startup preload that fails fast when laya is absent), choice question builders with neutral binary keys, answers gated on laya's calibrated `answer_confidence` with `action.act_probability` stripped, temperature scaling fit per (question type, option count) with ECE and Brier before and after, a hand-rolled SVG reliability diagram, `scripts/run_calibration.py`, and a synthetic Spanish/Portuguese calibration fixture.
 
+- Deployment skeleton (TSD-003, T-003): `calvino.api` FastAPI demo service (`/health`, `/ready`, `POST /api/demo/decide` behind a passcode and a per-client rate limit, fail closed without a configured passcode), the System 1 loader interface with a fake for tests and a production loader wrapping `LayaClient`, restart-durable storage on `CALVINO_DATA_DIR` proven by a restart test, a Hugging Face Space Dockerfile (non-root, port 7860, laya checkpoint baked at build time), a keep-alive workflow driven by a repository variable, the minimal Next.js demo frontend (warm-up screen, glass-box result, `/api/*` rewritten to `BACKEND_URL`), and `docs/DEPLOY.md` with the exact maintainer steps.
+
 ### Changed
 
 - README cut to the essentials (positioning, the five stages with a clean flow diagram, quick start, where to start); everything removed already lives in DESIGN, DATA, PITCH, AGENTS or the backlog; the specs index is shorter, with tasks and current statuses.
