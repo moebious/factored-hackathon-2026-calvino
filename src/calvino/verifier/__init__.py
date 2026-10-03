@@ -8,10 +8,21 @@ Public API:
 - Evidence, evidence_from_tool_results: the facts a reply may be compared
   against, collected from this session's tool results.
 - CODE_CHECKS, run_code_checks: the deterministic check registry.
+- Judge, MockJudge, build_judge_prompt, parse_judge_response: the batched LLM
+  judge behind a versioned prompt template.
+- LayaChecker, FakeLayaChecker: the Laya grounding checks behind an interface.
 """
 
 from calvino.verifier.code_checks import CODE_CHECKS, run_code_checks
 from calvino.verifier.evidence import Evidence, ToolResult, evidence_from_tool_results
+from calvino.verifier.judge import (
+    JUDGE_PROMPT_VERSION,
+    Judge,
+    MockJudge,
+    build_judge_prompt,
+    parse_judge_response,
+)
+from calvino.verifier.laya_checks import FakeLayaChecker, LayaChecker
 from calvino.verifier.rubric import (
     DEFAULT_RUBRIC_PATH,
     CheckerKind,
@@ -25,15 +36,22 @@ from calvino.verifier.verdicts import CriterionVerdict, VerificationResult
 __all__ = [
     "CODE_CHECKS",
     "DEFAULT_RUBRIC_PATH",
+    "JUDGE_PROMPT_VERSION",
     "CheckerKind",
     "Criterion",
     "CriterionVerdict",
     "Evidence",
+    "FakeLayaChecker",
+    "Judge",
+    "LayaChecker",
+    "MockJudge",
     "Rubric",
     "Severity",
     "ToolResult",
     "VerificationResult",
+    "build_judge_prompt",
     "evidence_from_tool_results",
     "load_rubric",
+    "parse_judge_response",
     "run_code_checks",
 ]
