@@ -135,6 +135,51 @@ def test_decide_rate_limits_per_client(fake_loader_factory, policy, tmp_path):
     assert int(third.headers["Retry-After"]) >= 1
 
 
+def test_rate_limit_keys_on_the_forwarded_client(fake_loader_factory, policy, tmp_path):
+    """Behind Vercel's rewrite the browser's IP is the first XFF entry.
+
+    Every judge shares the rewrite's egress IP as the direct peer, so the
+    limiter must key on the forwarded value or the per-client cap becomes a
+    global one during judging (TSD-012).
+    """
+    settings = ApiSettings(
+        data_dir=tmp_path / "data", demo_passcode="test-passcode", demo_rate_limit_per_minute=2
+    )
+    judge_a = {**HEADERS, "x-forwarded-for": "203.0.113.7, 10.0.0.1"}
+    judge_b = {**HEADERS, "x-forwarded-for": "198.51.100.4"}
+    with TestClient(create_app(fake_loader_factory(ACT_SCRIPT), settings, policy)) as started:
+        first = started.post("/api/demo/decide", json={"text": "uno"}, headers=judge_a)
+        second = started.post("/api/demo/decide", json={"text": "dos"}, headers=judge_a)
+        third = started.post("/api/demo/decide", json={"text": "tres"}, headers=judge_a)
+        # Judge A is at the cap; judge B on the same egress IP still has budget.
+        other = started.post("/api/demo/decide", json={"text": "uno"}, headers=judge_b)
+
+    assert (first.status_code, second.status_code, third.status_code) == (200, 200, 429)
+    assert other.status_code == 200
+
+
+def test_a_blank_forwarded_header_falls_back_to_the_peer(fake_loader_factory, policy, tmp_path):
+    """Without a usable forwarded value the direct peer is the client."""
+    settings = ApiSettings(
+        data_dir=tmp_path / "data", demo_passcode="test-passcode", demo_rate_limit_per_minute=2
+    )
+    headers = {**HEADERS, "x-forwarded-for": ""}
+    with TestClient(create_app(fake_loader_factory(ACT_SCRIPT), settings, policy)) as started:
+        first = started.post("/api/demo/decide", json={"text": "uno"}, headers=headers)
+        second = started.post("/api/demo/decide", json={"text": "dos"}, headers=headers)
+        third = started.post("/api/demo/decide", json={"text": "tres"}, headers=headers)
+
+    assert (first.status_code, second.status_code, third.status_code) == (200, 200, 429)
+
+
+def test_a_spoofed_forwarded_header_never_bypasses_the_passcode(client):
+    """The forwarded value changes only the rate limit, never authentication."""
+    headers = {**HEADERS, "x-forwarded-for": "203.0.113.9"}
+    headers[PASSCODE_HEADER] = "not-the-passcode"
+    response = client.post("/api/demo/decide", json={"text": "hola"}, headers=headers)
+    assert response.status_code == 403
+
+
 def test_broken_answers_map_to_502(policy, tmp_path):
     settings = ApiSettings(data_dir=tmp_path / "data", demo_passcode="test-passcode")
     with TestClient(create_app(BrokenLoader(), settings, policy)) as started:
