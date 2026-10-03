@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft |
+| Status | implemented |
 | Branch | `feat/verifier` |
 | Depends on | TSD-000 |
 | Required by | the Calvino hub (Wave 2) |
