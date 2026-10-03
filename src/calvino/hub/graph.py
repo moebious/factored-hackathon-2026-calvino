@@ -12,8 +12,11 @@ A write the agent asks for goes through the ``act`` stage and its Gate:
 ``decide_gate`` rules on the exact action, ``allow`` issues a single-use
 confirmation token and runs the write with a verified read-back, ``ask``
 pauses on ``interrupt()`` for an operator's approval, and ``block`` refuses
-naming the rule. ``investigate`` and ``follow_up`` land with the commits
-that implement them; ``STAGE_TOOLS`` already lists their tools.
+naming the rule. The ``human`` route runs ``investigate`` (the complete
+case file, a bank case through ``open_investigation`` when a payment is
+focused) and ``handoff`` (the ``interrupt()`` for the operator queue);
+``follow_up`` is the explain loop under its own stage on a resumed thread
+with an open case.
 
 Two design rules shape the module: the session token never passes through a
 model (it travels in the invoke ``config``, never in ``HubState`` or an
@@ -218,6 +221,32 @@ def _focus(payload: dict[str, Any]) -> tuple[str | None, str | None]:
     )
 
 
+def case_file_of(state: HubState) -> list[dict[str, str]]:
+    """The complete case file for a human (AC-4): request, verified facts,
+    the action with its gate verdict, and why the turn reached a person.
+
+    Summaries only, never raw payloads: the file travels in the operator
+    interrupt and into the log, and both stay small and free of data the
+    turn never verified.
+    """
+    entries: list[dict[str, str]] = [{"request": state.get("message", "")}]
+    for result in state.get("tool_results", []):
+        reference, status = _focus(result.payload)
+        summary = result.tool
+        if reference:
+            summary += f" {reference}"
+        if status:
+            summary += f" -> {status}"
+        entries.append({"verified_fact": summary})
+    action = state.get("action")
+    if action:
+        entries.append({"action": f"{action} ({state.get('gate_verdict') or 'no verdict'})"})
+    reason = state.get("escalate_reason") or state.get("rule_id")
+    if reason:
+        entries.append({"open_question": f"routed to a human by {reason}"})
+    return entries
+
+
 def build_hub_graph(
     deps: HubDependencies, checkpointer: BaseCheckpointSaver | None = None
 ) -> CompiledStateGraph:
@@ -345,12 +374,17 @@ def build_hub_graph(
         facts = state.get("facts")
         decision = decide_route(scores, facts.model_dump() if facts else {}, deps.policy)
         deps.log.append(decision.record)
+        stage = _ROUTE_STAGES[decision.route]
+        if decision.route is Route.AGENTS and state.get("case_ref"):
+            # A resumed thread with an open case: the agent follows up on it
+            # (get_investigation_status is a follow-up read, decision 24).
+            stage = HubStage.FOLLOW_UP
         return {
             "scores": scores,
             "route": decision.route,
             "rule_id": decision.rule_id,
             "human_action": decision.human_action,
-            "stage": _ROUTE_STAGES[decision.route],
+            "stage": stage,
         }
 
     def explain(state: HubState, config: RunnableConfig) -> dict[str, Any]:
@@ -362,6 +396,7 @@ def build_hub_graph(
             message=state.get("message", ""),
             evidence=evidence_of(state),
             guidance=guidance_of(state),
+            case_ref=state.get("case_ref"),
         )
         try:
             draft = deps.agent.draft(request)
@@ -536,6 +571,143 @@ def build_hub_graph(
             updates["status"] = status
         return updates
 
+    def investigate(state: HubState, config: RunnableConfig) -> dict[str, Any]:
+        """The human step: the complete case file (AC-4) and a bank case.
+
+        ``open_investigation`` runs only when a payment is focused (a resumed
+        thread that already found one) and through the gate, which confirms
+        every write: BLOCK stops the call, and ASK folds into the operator
+        handoff below — interrupting for it twice would queue the same case
+        for the same human twice. When no bank case can open, the turn still
+        reaches an operator with the file: a human route never fails closed
+        against a human.
+        """
+        case_file = list(state.get("case_file") or []) or case_file_of(state)
+        updates: dict[str, Any] = {
+            "stage": HubStage.INVESTIGATE,
+            "case_file": case_file,
+        }
+        session = resolve_session(config)
+        entry_reference = state.get("entry_reference")
+        case_ref = state.get("case_ref")
+        if session is not None and entry_reference and case_ref is None:
+            detail = None
+            try:
+                detail = deps.tools.get_entry_detail(session, entry_reference)
+            except ToolRefusal as tool_refusal:
+                log_decision(
+                    state,
+                    stage=Stage.HARD_RULES,
+                    rule_id=tool_refusal.rule.value,
+                    verdict="refuse",
+                    inputs_summary={"write": ActionName.OPEN_INVESTIGATION.value},
+                )
+            token: str | None = None
+            if detail is not None:
+                facts = state.get("facts")
+                gate_action = GateAction(
+                    name=ActionName.OPEN_INVESTIGATION,
+                    transaction_status=detail.status.value,
+                    amount=float(detail.amount),
+                    currency=detail.currency,
+                    # get_entry_detail succeeded under this session: the tool
+                    # has already verified ownership of the target.
+                    owner_verified=True,
+                )
+                decision = decide_gate(
+                    gate_action,
+                    state.get("scores") or {},
+                    facts.model_dump() if facts else {},
+                    deps.policy,
+                )
+                deps.log.append(decision.record)
+                updates.update(
+                    {
+                        "gate_verdict": decision.verdict.value,
+                        "action": ActionName.OPEN_INVESTIGATION.value,
+                        "action_amount": str(detail.amount),
+                        "action_currency": detail.currency,
+                    }
+                )
+                if deps.confirmations is not None and decision.verdict is not GateVerdict.BLOCK:
+                    token = deps.confirmations.issue(
+                        customer_id=session.customer_id,
+                        action=ActionName.OPEN_INVESTIGATION.value,
+                        target_reference=entry_reference,
+                        amount=detail.amount,
+                        currency=detail.currency,
+                    )
+            if token is not None:
+                idempotency_key = (
+                    f"{state.get('session_ref') or 'session'}"
+                    f"-{ActionName.OPEN_INVESTIGATION.value}-{entry_reference}"
+                )
+                try:
+                    investigation = deps.tools.open_investigation(
+                        session,
+                        entry_reference,
+                        f"Routed to a human by {state.get('rule_id') or 'policy'}",
+                        idempotency_key,
+                        token,
+                    )
+                except ToolRefusal as tool_refusal:
+                    # Defense in depth refused after the gate confirmed: the
+                    # refusal is named and logged, and the operator queue
+                    # still gets the file below.
+                    log_decision(
+                        state,
+                        stage=Stage.HARD_RULES,
+                        rule_id=tool_refusal.rule.value,
+                        verdict="refuse",
+                        inputs_summary={"write": ActionName.OPEN_INVESTIGATION.value},
+                    )
+                    investigation = None
+                if investigation is not None:
+                    case_ref = investigation.case_id
+                    updates["tool_results"] = [
+                        ToolResult(tool="open_investigation", payload=_payload(investigation)),
+                    ]
+        if case_ref is None:
+            case_ref = f"case-{uuid.uuid4().hex[:12]}"
+        updates["case_ref"] = case_ref
+        return updates
+
+    def handoff(state: HubState, config: RunnableConfig) -> dict[str, Any]:
+        """The operator queue: ``interrupt()`` parks the turn until an
+        operator resumes it with their decision (HubService.resume).
+
+        Kept separate from investigate so nothing with a side effect re-runs
+        on resume: the case file and the bank case are written before this
+        node, and interrupt() is its first statement.
+        """
+        case_ref = str(state.get("case_ref") or "")
+        reason = state.get("escalate_reason") or state.get("rule_id") or "route-human"
+        decision = interrupt(
+            {
+                "type": "operator_queue",
+                "case_ref": case_ref,
+                "session_ref": state.get("session_ref", ""),
+                "reason": reason,
+                "case_file": list(state.get("case_file") or []),
+            }
+        )
+        log_decision(
+            state,
+            stage=Stage.HUMAN,
+            rule_id=str(state.get("rule_id") or reason),
+            verdict=(state.get("human_action") or HumanAction.FULL_TRANSFER).value,
+            inputs_summary={
+                "reason": reason,
+                "case_ref": case_ref,
+                "operator_decision": str(decision),
+            },
+        )
+        return {
+            "escalated": True,
+            "reply": ESCALATE_REPLY.format(case_ref=case_ref),
+            "card": {"key": "case_opened", "payload": {"case_ref": case_ref}},
+        }
+
     def verify(state: HubState, config: RunnableConfig) -> dict[str, Any]:
         """The TSD-004 cascade over the draft: pass replies, escalate failures."""
         draft = state.get("draft") or ""
@@ -552,6 +724,7 @@ def build_hub_graph(
                 evidence=evidence,
                 guidance=guidance_of(state),
                 feedback=tuple(failed),
+                case_ref=state.get("case_ref"),
             )
             redraft = deps.agent.draft(request)
             if redraft.text is None:
@@ -628,6 +801,10 @@ def build_hub_graph(
         return "escalate" if state.get("escalate_reason") else "classify"
 
     def after_classify(state: HubState) -> str:
+        if state.get("escalate_reason"):
+            # FC-CLASSIFY: the classifier failed, which goes to the failure
+            # sink rather than to the investigate queue.
+            return "escalate"
         route = state.get("route")
         if route is Route.AGENTS:
             return "explain"
@@ -635,7 +812,7 @@ def build_hub_graph(
             return "clarify"
         if route is Route.OUT_OF_SCOPE:
             return "out_of_scope"
-        return "escalate"
+        return "investigate"
 
     def after_explain(state: HubState) -> str:
         if state.get("escalate_reason"):
@@ -679,6 +856,8 @@ def build_hub_graph(
     builder.add_node("run_tools", run_tools)
     builder.add_node("gate", gate)
     builder.add_node("act", act)
+    builder.add_node("investigate", investigate)
+    builder.add_node("handoff", handoff)
     builder.add_node("verify", verify)
     builder.add_node("clarify", clarify)
     builder.add_node("out_of_scope", out_of_scope)
@@ -694,6 +873,7 @@ def build_hub_graph(
             "explain": "explain",
             "clarify": "clarify",
             "out_of_scope": "out_of_scope",
+            "investigate": "investigate",
             "escalate": "escalate",
         },
     )
@@ -712,5 +892,7 @@ def build_hub_graph(
     builder.add_conditional_edges("verify", after_verify, {"escalate": "escalate", END: END})
     builder.add_edge("clarify", END)
     builder.add_edge("out_of_scope", END)
+    builder.add_edge("investigate", "handoff")
+    builder.add_edge("handoff", END)
     builder.add_edge("escalate", END)
     return builder.compile(checkpointer=checkpointer)

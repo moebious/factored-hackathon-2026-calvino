@@ -9,7 +9,9 @@ are AC-1 (explained from verified results), AC-2 (clarify picker), AC-3
 rule), AC-7 (retry once, then escalate) and AC-8 (deterministic, replayable
 route decisions), plus the act stage: allow with a confirmation token and a
 verified read-back, ask with ``interrupt()`` and resume, block naming the
-rule, and the fail-closed paths around them.
+rule, and the fail-closed paths around them; and the human stages:
+investigate with the complete case file and the bank case, the operator
+queue interrupt, and follow-up turns on a thread with an open case.
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ from calvino.hub import (
     MAX_TOOL_ROUNDS,
     AgentDraft,
     HubDependencies,
+    HubStage,
     ScriptedAgent,
     ToolCall,
     build_hub_graph,
@@ -201,24 +204,47 @@ def test_out_of_scope_is_honest_and_tool_free(deps_factory, fake_loader_factory)
 
 
 def test_asks_for_human_hard_rule_wins(deps_factory, fake_loader_factory):
-    """AC-4: an explicit request for a person routes to a human before any score."""
+    """AC-4: an explicit request for a person routes to a human before any
+    score, parks the turn on the operator queue, and ends with the case open."""
     agent = ScriptedAgent([])  # no agent step on the human route
     loader = fake_loader_factory(route_probabilities())  # scores would say "agents"
     deps = deps_factory(loader, agent)
 
     message = "Quiero hablar con una persona sobre mi transferencia"
-    final, _ = invoke(deps, "ana", message)
+    graph = build_hub_graph(deps, checkpointer=InMemorySaver())
+    issued, session_ref = deps.issuer.issue("ana")
+    config = {"configurable": {"thread_id": "t-human", "session_token": issued}}
+    paused = graph.invoke(
+        {"persona": "ana", "session_ref": session_ref, "message": message}, config=config
+    )
+
+    # The turn parks on the operator queue with the complete case file; no
+    # payment was focused, so the case ref is the generated fallback.
+    payload = paused["__interrupt__"][0].value
+    assert payload["type"] == "operator_queue"
+    assert payload["reason"] == "HR-ASKS-HUMAN"
+    assert paused["case_ref"].startswith("case-")
+    assert paused["case_file"] == [
+        {"request": message},
+        {"open_question": "routed to a human by HR-ASKS-HUMAN"},
+    ]
+
+    final = graph.invoke(Command(resume="assigned to operator 7"), config=config)
 
     assert final["route"] is Route.HUMAN
     assert final["rule_id"] == "HR-ASKS-HUMAN"
     assert final["escalated"] is True
-    assert final["case_ref"].startswith("case-")
-    assert final["case_file"] == [{"request": message}]
+    assert final["case_ref"] == paused["case_ref"]
     assert final["case_ref"] in final["reply"]
+    assert final["card"] == {
+        "key": "case_opened",
+        "payload": {"case_ref": final["case_ref"]},
+    }
     assert agent.requests == []
     human_records = records_of(deps, Stage.HUMAN)
     assert len(human_records) == 1
     assert human_records[0].verdict == HumanAction.FULL_TRANSFER.value
+    assert "assigned to operator 7" in str(human_records[0].inputs_summary)
 
 
 def test_fraud_signal_hard_rule(deps_factory, fake_loader_factory):
@@ -227,10 +253,23 @@ def test_fraud_signal_hard_rule(deps_factory, fake_loader_factory):
     loader = fake_loader_factory(route_probabilities())
     deps = deps_factory(loader, agent, fraud_context=FlagEveryone())
 
-    final, _ = invoke(deps, "lucia", "¿Por qué mi transferencia sigue pendiente?")
+    graph = build_hub_graph(deps, checkpointer=InMemorySaver())
+    issued, session_ref = deps.issuer.issue("lucia")
+    config = {"configurable": {"thread_id": "t-fraud", "session_token": issued}}
+    paused = graph.invoke(
+        {
+            "persona": "lucia",
+            "session_ref": session_ref,
+            "message": "¿Por qué mi transferencia sigue pendiente?",
+        },
+        config=config,
+    )
 
+    assert paused["__interrupt__"][0].value["reason"] == "HR-FRAUD"
+    final = graph.invoke(Command(resume="reviewed by the risk team"), config=config)
     assert final["route"] is Route.HUMAN
     assert final["rule_id"] == "HR-FRAUD"
+    assert final["escalated"] is True
     assert agent.requests == []
 
 
@@ -598,3 +637,156 @@ def test_act_without_confirmation_issuer_fails_closed(deps_factory, fake_loader_
     assert all(result.tool != "request_cancellation" for result in final["tool_results"])
     human = records_of(deps, Stage.HUMAN)
     assert human[0].inputs_summary["reason"] == "FC-CONFIRMATIONS"
+
+
+def test_investigate_opens_a_bank_case_for_the_focused_payment(deps_factory, fake_loader_factory):
+    """A resumed thread that already found a payment opens a real bank case:
+    the gate confirms the write (ask folds into the handoff), the bank's case
+    id becomes the case ref, and the opening lands in the evidence."""
+    agent = ScriptedAgent(
+        [
+            AgentDraft(tool_calls=(ENTRY_CALL,)),
+            AgentDraft(text=GOOD_REPLY),
+        ]
+    )
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent)
+    graph = build_hub_graph(deps, checkpointer=InMemorySaver())
+    issued, session_ref = deps.issuer.issue("ana")
+    config = {"configurable": {"thread_id": "t-case", "session_token": issued}}
+
+    # Turn one: a normal explanation that focuses the pending payment.
+    first = graph.invoke(
+        {
+            "persona": "ana",
+            "session_ref": session_ref,
+            "message": "¿Por qué mi transferencia sigue pendiente?",
+        },
+        config=config,
+    )
+    assert first["reply"] == GOOD_REPLY
+
+    # Turn two on the same thread: the customer asks for a person, and the
+    # investigate stage attaches the case to the focused payment.
+    paused = graph.invoke(
+        {
+            "persona": "ana",
+            "session_ref": session_ref,
+            "message": "Quiero hablar con una persona",
+        },
+        config=config,
+    )
+    payload = paused["__interrupt__"][0].value
+    assert payload["type"] == "operator_queue"
+    assert payload["case_ref"].startswith("CASE-")  # the bank's own case id
+    assert {"verified_fact": "get_entry_detail E-MX-002 -> Pending"} in payload["case_file"]
+
+    final = graph.invoke(Command(resume="refunded manually"), config=config)
+
+    assert final["escalated"] is True
+    assert final["case_ref"] == payload["case_ref"]
+    assert final["case_ref"] in final["reply"]
+    assert any(result.tool == "open_investigation" for result in final["tool_results"])
+    # The gate confirmed the write: one record, ask folded into the handoff.
+    gate_records = records_of(deps, Stage.GATE)
+    assert [record.verdict for record in gate_records] == ["ask"]
+    assert gate_records[0].rule_id == "HR-ASKS-HUMAN"
+    assert final["gate_verdict"] == "ask"
+    assert final["action"] == "open_investigation"
+
+
+def test_follow_up_stage_on_a_resumed_thread_with_an_open_case(deps_factory, fake_loader_factory):
+    """A thread with an open case routes later questions to the follow-up
+    stage: the agent sees the case ref (context, never a secret) and drafts
+    under the follow-up tools."""
+    follow_up_reply = "Una persona de nuestro equipo está revisando su caso."
+    agent = ScriptedAgent([AgentDraft(text=follow_up_reply)])
+    loader = fake_loader_factory(route_probabilities())  # scores always say agents
+    deps = deps_factory(loader, agent)
+    graph = build_hub_graph(deps, checkpointer=InMemorySaver())
+    issued, session_ref = deps.issuer.issue("ana")
+    config = {"configurable": {"thread_id": "t-follow", "session_token": issued}}
+
+    # Turn one asks for a person; the resume clears the operator queue.
+    paused = graph.invoke(
+        {
+            "persona": "ana",
+            "session_ref": session_ref,
+            "message": "Quiero hablar con una persona",
+        },
+        config=config,
+    )
+    case_ref = paused["case_ref"]
+    graph.invoke(Command(resume="in progress"), config=config)
+
+    # Turn two: an ordinary question on the same thread is a follow-up.
+    final = graph.invoke(
+        {
+            "persona": "ana",
+            "session_ref": session_ref,
+            "message": "¿Cómo va mi caso?",
+        },
+        config=config,
+    )
+
+    assert final["stage"] == HubStage.FOLLOW_UP
+    assert final["reply"] == follow_up_reply
+    assert final["escalated"] is False  # the reply passed verification
+    request = agent.requests[-1]
+    assert request.stage == HubStage.FOLLOW_UP
+    assert request.case_ref == case_ref
+
+
+def test_investigate_honours_a_blocked_case_opening(deps_factory, fake_loader_factory):
+    """The gate confirms open_investigation like every write: an Approved
+    entry is ineligible (GATE-INELIGIBLE), so no bank case is opened — but
+    the turn still reaches the operator queue with the file."""
+    agent = ScriptedAgent(
+        [
+            AgentDraft(
+                tool_calls=(
+                    ToolCall(tool="get_entry_detail", arguments={"entry_reference": "E-MX-001"}),
+                )
+            ),
+            AgentDraft(text="Su transferencia de 1500.00 MXN fue aprobada."),
+        ]
+    )
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent)
+    graph = build_hub_graph(deps, checkpointer=InMemorySaver())
+    issued, session_ref = deps.issuer.issue("ana")
+    config = {"configurable": {"thread_id": "t-blocked-case", "session_token": issued}}
+
+    # Turn one focuses E-MX-001 (Approved, 1500.00 MXN).
+    first = graph.invoke(
+        {
+            "persona": "ana",
+            "session_ref": session_ref,
+            "message": "¿Cómo terminó mi transferencia de 1500?",
+        },
+        config=config,
+    )
+    assert first["reply"] == "Su transferencia de 1500.00 MXN fue aprobada."
+
+    # Turn two asks for a person: opening a case on an Approved payment is
+    # ineligible, so the gate blocks and no bank case is attached.
+    paused = graph.invoke(
+        {
+            "persona": "ana",
+            "session_ref": session_ref,
+            "message": "Quiero hablar con una persona",
+        },
+        config=config,
+    )
+    payload = paused["__interrupt__"][0].value
+    assert payload["type"] == "operator_queue"
+    assert paused["case_ref"].startswith("case-")  # fallback: no bank case
+    assert all(result.tool != "open_investigation" for result in paused["tool_results"])
+    assert paused["gate_verdict"] == "block"
+    gate_records = records_of(deps, Stage.GATE)
+    assert [record.verdict for record in gate_records] == ["block"]
+    assert gate_records[0].rule_id == "GATE-INELIGIBLE"
+
+    final = graph.invoke(Command(resume="handled offline"), config=config)
+    assert final["escalated"] is True
+    assert final["case_ref"] in final["reply"]

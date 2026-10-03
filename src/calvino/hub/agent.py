@@ -42,6 +42,9 @@ class AgentRequest(_Frozen):
     ``feedback`` carries the verifier's failed criteria on the single retry
     (TSD-004 cascade); it is empty on the first draft. ``guidance`` is the
     playbook entry for the transaction status (decision 24), when known.
+    ``case_ref`` is the open case on a follow-up turn: the customer already
+    saw it in the reply, so it is context, not a secret — but it is a
+    reference, never a session token.
     """
 
     stage: str = Field(min_length=1)
@@ -49,6 +52,7 @@ class AgentRequest(_Frozen):
     evidence: Evidence | None = None
     guidance: StatusGuidance | None = None
     feedback: tuple[CriterionVerdict, ...] = ()
+    case_ref: str | None = None
 
 
 class AgentDraft(_Frozen):
