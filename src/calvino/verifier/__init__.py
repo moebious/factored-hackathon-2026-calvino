@@ -11,8 +11,11 @@ Public API:
 - Judge, MockJudge, build_judge_prompt, parse_judge_response: the batched LLM
   judge behind a versioned prompt template.
 - LayaChecker, FakeLayaChecker: the Laya grounding checks behind an interface.
+- Verifier, VerificationOutcome: the cascade with one retry, escalation and
+  DecisionRecord logging.
 """
 
+from calvino.verifier.cascade import Regenerate, VerificationOutcome, Verifier
 from calvino.verifier.code_checks import CODE_CHECKS, run_code_checks
 from calvino.verifier.evidence import Evidence, ToolResult, evidence_from_tool_results
 from calvino.verifier.judge import (
@@ -45,10 +48,13 @@ __all__ = [
     "Judge",
     "LayaChecker",
     "MockJudge",
+    "Regenerate",
     "Rubric",
     "Severity",
     "ToolResult",
+    "VerificationOutcome",
     "VerificationResult",
+    "Verifier",
     "build_judge_prompt",
     "evidence_from_tool_results",
     "load_rubric",
