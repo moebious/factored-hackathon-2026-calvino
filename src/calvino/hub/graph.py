@@ -7,9 +7,13 @@ stage's tools -> re-draft -> ``verify`` through the TSD-004 cascade),
 ``clarify`` (one question plus the problem-payment picker card),
 ``out_of_scope`` (an honest reply and a path to a person, no tools) and
 ``escalate`` (a case reference and a human; the full case file,
-``open_investigation`` and ``interrupt()`` land with the act and investigate
-steps). The ``act`` stage and its Gate, and ``follow_up``, are added by the
-commits that implement them; ``STAGE_TOOLS`` already lists their tools.
+``open_investigation`` and ``interrupt()`` land with the investigate step).
+A write the agent asks for goes through the ``act`` stage and its Gate:
+``decide_gate`` rules on the exact action, ``allow`` issues a single-use
+confirmation token and runs the write with a verified read-back, ``ask``
+pauses on ``interrupt()`` for an operator's approval, and ``block`` refuses
+naming the rule. ``investigate`` and ``follow_up`` land with the commits
+that implement them; ``STAGE_TOOLS`` already lists their tools.
 
 Two design rules shape the module: the session token never passes through a
 model (it travels in the invoke ``config``, never in ``HubState`` or an
@@ -22,11 +26,14 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
+from decimal import Decimal, InvalidOperation
 from typing import Any, Literal, Protocol
 
 from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
+from langgraph.types import interrupt
 
 from calvino.api.decide import scores_from_answers
 from calvino.api.loader import SystemOneLoader
@@ -36,8 +43,8 @@ from calvino.hub.agent import AgentRequest, SupportAgent
 from calvino.hub.playbook import Playbook, StatusGuidance, load_playbook
 from calvino.hub.sessions import TrustedSessionIssuer
 from calvino.hub.state import HubStage, HubState
-from calvino.policy import Facts, Policy, decide_route
-from calvino.records import DecisionRecord, HumanAction, Route, Stage
+from calvino.policy import ActionName, Facts, GateAction, Policy, decide_gate, decide_route
+from calvino.records import DecisionRecord, GateVerdict, HumanAction, Route, Stage
 from calvino.tools import TOOL_NAMES, BankTools, Session, ToolRefusal
 from calvino.verifier import (
     Evidence,
@@ -76,6 +83,14 @@ STAGE_TOOLS: dict[HubStage, frozenset[str]] = {
     HubStage.INVESTIGATE: READ_TOOLS | {"open_investigation"},
     HubStage.OUT_OF_SCOPE: frozenset(),
 }
+
+# The consequential writes the act stage handles. ``open_investigation`` is
+# the investigate step's write and lands with that commit.
+WRITE_TOOLS = frozenset({"request_cancellation", "retry_payment"})
+
+# The read-back ids the verifier's claimed-actions criterion knows (TSD-004):
+# a reply may claim an action only under the id its read-back confirms.
+READ_BACK_IDS = {"request_cancellation": "cancel_transfer", "retry_payment": "retry_payment"}
 
 _ROUTE_STAGES: dict[Route, HubStage] = {
     Route.AGENTS: HubStage.EXPLAIN,
@@ -133,6 +148,28 @@ class FraudContext(Protocol):
         ...
 
 
+class ConfirmationIssuer(Protocol):
+    """Hub-side issuance of the single-use confirmation tokens (TSD-002).
+
+    ``HmacConfirmationVerifier`` implements this for production and the
+    tools' ``FakeConfirmationVerifier`` for tests. A token is bound to one
+    customer, one action, one target payment, one amount and currency, so
+    an issued token is never a pass for a different write.
+    """
+
+    def issue(
+        self,
+        *,
+        customer_id: str,
+        action: str,
+        target_reference: str,
+        amount: Decimal,
+        currency: str,
+    ) -> str:
+        """Sign a token for exactly this action."""
+        ...
+
+
 @dataclass(frozen=True)
 class HubDependencies:
     """Everything the graph nodes need, injected once at build time."""
@@ -148,6 +185,9 @@ class HubDependencies:
     laya_checker: LayaChecker | None = None
     judge: Judge | None = None
     fraud_context: FraudContext | None = None
+    # Hub-side confirmation-token issuance for the act stage; None fails
+    # closed (a write without its token path never runs).
+    confirmations: ConfirmationIssuer | None = None
     # The demo dataset is Spanish-first; the evidence language check reads this.
     customer_language: Literal["es", "pt"] = "es"
 
@@ -178,12 +218,14 @@ def _focus(payload: dict[str, Any]) -> tuple[str | None, str | None]:
     )
 
 
-def build_hub_graph(deps: HubDependencies) -> CompiledStateGraph:
+def build_hub_graph(
+    deps: HubDependencies, checkpointer: BaseCheckpointSaver | None = None
+) -> CompiledStateGraph:
     """Compile the hub graph over one set of dependencies.
 
     The service compiles with a checkpointer for the interrupt-based human
-    steps; tests compile without one and invoke with a ``session_token`` in
-    the config's ``configurable``.
+    steps (the act stage's approval needs one); tests compile without one
+    and invoke with a ``session_token`` in the config's ``configurable``.
     """
 
     def log_decision(
@@ -211,7 +253,9 @@ def build_hub_graph(deps: HubDependencies) -> CompiledStateGraph:
 
     def evidence_of(state: HubState) -> Evidence:
         return evidence_from_tool_results(
-            state.get("tool_results", []), customer_language=deps.customer_language
+            state.get("tool_results", []),
+            customer_language=deps.customer_language,
+            read_backs=frozenset(state.get("read_backs", [])),
         )
 
     def guidance_of(state: HubState) -> StatusGuidance | None:
@@ -363,6 +407,135 @@ def build_hub_graph(deps: HubDependencies) -> CompiledStateGraph:
         updates["tool_results"] = results
         return updates
 
+    def gate(state: HubState, config: RunnableConfig) -> dict[str, Any]:
+        """The Gate rules on the exact action the agent asked for, never on its words.
+
+        The target's amount, currency and status are read from the bank, not
+        taken from the agent's arguments: a model never supplies the facts a
+        verdict rests on. ``allow`` proceeds to the write, ``ask`` pauses for
+        an operator, ``block`` refuses naming the rule; the record is logged.
+        """
+        updates: dict[str, Any] = {"pending_calls": [], "stage": HubStage.ACT}
+        session = resolve_session(config)
+        if session is None:
+            return {**updates, "escalate_reason": "FC-SESSION"}
+        call = next(
+            (c for c in state.get("pending_calls", []) if str(c.get("tool", "")) in WRITE_TOOLS),
+            None,
+        )
+        if call is None:  # after_explain only routes here with a write pending
+            return {**updates, "escalate_reason": "FC-ACT-INPUTS"}
+        name = str(call.get("tool", ""))
+        entry_reference = (call.get("arguments") or {}).get("entry_reference")
+        if not isinstance(entry_reference, str) or not entry_reference:
+            return refusal(state, updates, name, "TOOL-BAD-ARGUMENTS")
+        try:
+            detail = deps.tools.get_entry_detail(session, entry_reference)
+        except ToolRefusal as tool_refusal:
+            return refusal(state, updates, name, tool_refusal.rule.value)
+        action = GateAction(
+            name=ActionName(name),
+            transaction_status=detail.status.value,
+            amount=float(detail.amount),
+            currency=detail.currency,
+            # get_entry_detail succeeded under this session, so the tool has
+            # already verified ownership of the target.
+            owner_verified=True,
+        )
+        facts = state.get("facts")
+        decision = decide_gate(
+            action, state.get("scores") or {}, facts.model_dump() if facts else {}, deps.policy
+        )
+        deps.log.append(decision.record)
+        payload = _payload(detail)
+        _, status = _focus(payload)
+        updates.update(
+            {
+                "action": name,
+                "entry_reference": entry_reference,
+                "rule_id": decision.rule_id,
+                "human_action": decision.human_action,
+                "gate_verdict": decision.verdict.value,
+                "action_amount": str(detail.amount),
+                "action_currency": detail.currency,
+                "tool_results": [ToolResult(tool="get_entry_detail", payload=payload)],
+            }
+        )
+        if status is not None:
+            updates["status"] = status
+        if decision.verdict is GateVerdict.BLOCK:
+            # The gate record above is the log entry; the reply names the rule.
+            updates["reply"] = REFUSAL_REPLY.format(rule=decision.rule_id)
+            updates["card"] = {"key": "refusal", "payload": {"rule": decision.rule_id}}
+        return updates
+
+    def act(state: HubState, config: RunnableConfig) -> dict[str, Any]:
+        """Run the allowed write: confirmation token, execution, verified read-back.
+
+        On an ``ask`` verdict the node pauses on ``interrupt()`` and resumes
+        when an operator approves or denies (the service compiles with a
+        checkpointer for this). Nothing before the interrupt has side
+        effects, so the node's replay on resume is safe. The token is issued
+        for exactly this action and the tool consumes it; the idempotency key
+        is derived from the session, never model-supplied.
+        """
+        updates: dict[str, Any] = {}
+        name = state.get("action") or ""
+        entry_reference = state.get("entry_reference") or ""
+        session = resolve_session(config)
+        if session is None or name not in WRITE_TOOLS or not entry_reference:
+            return {"escalate_reason": "FC-ACT-INPUTS"}
+        if state.get("gate_verdict") == GateVerdict.ASK.value:
+            approved = interrupt(
+                {
+                    "type": "approve_action",
+                    "action": name,
+                    "entry_reference": entry_reference,
+                    "amount": state.get("action_amount"),
+                    "currency": state.get("action_currency"),
+                    "rule_id": state.get("rule_id"),
+                    "session_ref": state.get("session_ref", ""),
+                }
+            )
+            if not approved:
+                return {
+                    "escalate_reason": "APPROVAL-DENIED",
+                    "human_action": HumanAction.APPROVE_ACTION,
+                }
+        if deps.confirmations is None:
+            # No issuer, no write: a consequential action without its token
+            # path fails closed instead of running unconfirmed.
+            return {"escalate_reason": "FC-CONFIRMATIONS"}
+        try:
+            amount = Decimal(str(state.get("action_amount")))
+            currency = str(state.get("action_currency"))
+        except InvalidOperation:
+            return {"escalate_reason": "FC-CONFIRMATIONS"}
+        token = deps.confirmations.issue(
+            customer_id=session.customer_id,
+            action=name,
+            target_reference=entry_reference,
+            amount=amount,
+            currency=currency,
+        )
+        idempotency_key = f"{state.get('session_ref') or 'session'}-{name}-{entry_reference}"
+        try:
+            result = getattr(deps.tools, name)(session, entry_reference, idempotency_key, token)
+            read_back = deps.tools.get_payment_status(session, entry_reference)
+        except ToolRefusal as tool_refusal:
+            # The tool's own checks (fraud flag, eligibility, token) refused:
+            # defense in depth, named and logged like any other refusal.
+            return refusal(state, updates, name, tool_refusal.rule.value)
+        updates["tool_results"] = [
+            ToolResult(tool=name, payload=_payload(result)),
+            ToolResult(tool="get_payment_status", payload=_payload(read_back)),
+        ]
+        updates["read_backs"] = [READ_BACK_IDS[name]]
+        _, status = _focus(_payload(read_back))
+        if status is not None:
+            updates["status"] = status
+        return updates
+
     def verify(state: HubState, config: RunnableConfig) -> dict[str, Any]:
         """The TSD-004 cascade over the draft: pass replies, escalate failures."""
         draft = state.get("draft") or ""
@@ -467,9 +640,30 @@ def build_hub_graph(deps: HubDependencies) -> CompiledStateGraph:
     def after_explain(state: HubState) -> str:
         if state.get("escalate_reason"):
             return "escalate"
-        if state.get("pending_calls"):
+        calls = state.get("pending_calls") or []
+        # A requested write goes through the Gate, never around it; the
+        # harness rules on one consequential action per turn, so the first
+        # write in the draft wins and the agent re-asks any reads afterwards.
+        if any(str(call.get("tool", "")) in WRITE_TOOLS for call in calls):
+            return "gate"
+        if calls:
             return "run_tools"
         return "verify"
+
+    def after_gate(state: HubState) -> str:
+        if state.get("reply"):  # block: the refusal ends the turn
+            return END
+        if state.get("escalate_reason"):
+            return "escalate"
+        return "act"
+
+    def after_act(state: HubState) -> str:
+        if state.get("reply"):  # a tool-side refusal ends the turn
+            return END
+        if state.get("escalate_reason"):
+            return "escalate"
+        # The write ran and was read back: the agent explains the outcome.
+        return "explain"
 
     def after_tools(state: HubState) -> str:
         # A refusal ends the turn with its card; otherwise the agent re-drafts.
@@ -483,6 +677,8 @@ def build_hub_graph(deps: HubDependencies) -> CompiledStateGraph:
     builder.add_node("classify", classify)
     builder.add_node("explain", explain)
     builder.add_node("run_tools", run_tools)
+    builder.add_node("gate", gate)
+    builder.add_node("act", act)
     builder.add_node("verify", verify)
     builder.add_node("clarify", clarify)
     builder.add_node("out_of_scope", out_of_scope)
@@ -504,11 +700,17 @@ def build_hub_graph(deps: HubDependencies) -> CompiledStateGraph:
     builder.add_conditional_edges(
         "explain",
         after_explain,
-        {"run_tools": "run_tools", "verify": "verify", "escalate": "escalate"},
+        {"run_tools": "run_tools", "gate": "gate", "verify": "verify", "escalate": "escalate"},
     )
     builder.add_conditional_edges("run_tools", after_tools, {"explain": "explain", END: END})
+    builder.add_conditional_edges(
+        "gate", after_gate, {"act": "act", "escalate": "escalate", END: END}
+    )
+    builder.add_conditional_edges(
+        "act", after_act, {"explain": "explain", "escalate": "escalate", END: END}
+    )
     builder.add_conditional_edges("verify", after_verify, {"escalate": "escalate", END: END})
     builder.add_edge("clarify", END)
     builder.add_edge("out_of_scope", END)
     builder.add_edge("escalate", END)
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer)

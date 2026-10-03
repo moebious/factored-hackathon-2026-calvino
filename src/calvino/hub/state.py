@@ -37,8 +37,10 @@ class HubState(TypedDict, total=False):
     customer id from chat). Classification: ``message``, the calibrated
     ``scores``, the policy ``route`` and the ``rule_id`` that fired.
     Workflow: ``stage``, the focused transaction (``entry_reference`` and
-    its ``status``), the requested ``action``, the accumulated read
-    ``tool_results`` and the evidence built from them. Conversation: the
+    its ``status``), the requested ``action`` with its Gate fields
+    (``gate_verdict``, ``action_amount``, ``action_currency``), the
+    accumulated read ``tool_results``, the ``read_backs`` that confirm
+    claimed actions, and the evidence built from them. Conversation: the
     agent's current ``draft``, the clarify ``question``, the final
     ``reply``, a ``case_ref`` when a human took over, and the fixed-card
     ``card`` (key plus payload) the app renders.
@@ -56,7 +58,11 @@ class HubState(TypedDict, total=False):
     entry_reference: str | None
     status: str | None
     action: str | None
+    gate_verdict: str | None
+    action_amount: str | None
+    action_currency: str | None
     tool_results: Annotated[list[ToolResult], operator.add]
+    read_backs: Annotated[list[str], operator.add]
     pending_calls: list[dict[str, Any]]
     tool_rounds: int
     draft: str | None

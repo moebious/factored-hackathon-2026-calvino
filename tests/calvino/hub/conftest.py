@@ -88,10 +88,14 @@ def deps_factory(tmp_path, policy):
         loader: object,
         agent: SupportAgent,
         fraud_context: FraudContext | None = None,
+        with_confirmations: bool = True,
     ) -> HubDependencies:
         fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
         adapter = DatasetAdapter(fixture, clock=lambda: NOW)
-        tools = BankTools(adapter, FakeConfirmationVerifier(), clock=lambda: NOW)
+        # One verifier for both sides: the tools consume the tokens the hub
+        # issues through the same instance, exactly like the shared HMAC key.
+        confirmations = FakeConfirmationVerifier()
+        tools = BankTools(adapter, confirmations, clock=lambda: NOW)
         return HubDependencies(
             loader=loader,  # type: ignore[arg-type]
             policy=policy,
@@ -100,6 +104,7 @@ def deps_factory(tmp_path, policy):
             agent=agent,
             log=DecisionLog(tmp_path / "decisions.jsonl"),
             fraud_context=fraud_context,
+            confirmations=confirmations if with_confirmations else None,
         )
 
     return make

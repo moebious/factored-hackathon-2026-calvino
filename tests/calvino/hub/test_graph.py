@@ -7,7 +7,9 @@ verifier. No network, GPU or dataset. The acceptance criteria covered here
 are AC-1 (explained from verified results), AC-2 (clarify picker), AC-3
 (out of scope), AC-4 (hard rule wins), AC-6 (refusal names and logs the
 rule), AC-7 (retry once, then escalate) and AC-8 (deterministic, replayable
-route decisions).
+route decisions), plus the act stage: allow with a confirmation token and a
+verified read-back, ask with ``interrupt()`` and resume, block naming the
+rule, and the fail-closed paths around them.
 """
 
 from __future__ import annotations
@@ -15,6 +17,8 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.types import Command
 
 from calvino.hub import (
     MAX_TOOL_ROUNDS,
@@ -36,8 +40,16 @@ GOOD_REPLY = "Su transferencia de 5000.00 MXN «Transfer to a friend» del 10/06
 BAD_AMOUNT_REPLY = "Su pago de 9999.99 MXN está pendiente."
 # Fails the amount check and claims a cancellation that was never read back.
 BAD_CLAIM_REPLY = "Su pago de 7777.77 MXN fue cancelado."
+# Grounded after a cancellation of E-MX-002: the amount and merchant come
+# from the Gate's read, and the claim is covered by the cancel read-back.
+ACT_REPLY = "He cancelado su transferencia de 5000.00 MXN «Transfer to a friend»."
+# Grounded after a retry of E-US-001 (120.00 USD, Declined): the new payment
+# the retry result carries is Pending, so "pendiente" matches a record.
+RETRY_REPLY = "He reintentado su transferencia de 120.00 USD; el nuevo pago está pendiente."
 
 ENTRY_CALL = ToolCall(tool="get_entry_detail", arguments={"entry_reference": "E-MX-002"})
+CANCEL_CALL = ToolCall(tool="request_cancellation", arguments={"entry_reference": "E-MX-002"})
+RETRY_CALL = ToolCall(tool="retry_payment", arguments={"entry_reference": "E-US-001"})
 
 
 def route_probabilities(**overrides: dict[str, float]) -> dict[str, dict[str, float]]:
@@ -255,19 +267,19 @@ def test_other_customer_data_is_refused_and_logged(deps_factory, fake_loader_fac
     assert refusals[0].inputs_summary["tool"] == "get_entry_detail"
 
 
-def test_write_tool_is_refused_outside_act(deps_factory, fake_loader_factory):
-    """Decision 24: explain exposes reads only; a write attempt is refused by name."""
+def test_investigation_write_is_refused_outside_investigate(deps_factory, fake_loader_factory):
+    """Decision 24: explain exposes reads only; open_investigation is refused by name.
+
+    The act writes (request_cancellation, retry_payment) take a different
+    path: they go through the Gate, as the act-stage tests below show.
+    """
     agent = ScriptedAgent(
         [
             AgentDraft(
                 tool_calls=(
                     ToolCall(
-                        tool="request_cancellation",
-                        arguments={
-                            "entry_reference": "E-MX-002",
-                            "idempotency_key": "key-1",
-                            "confirmation_token": None,
-                        },
+                        tool="open_investigation",
+                        arguments={"entry_reference": "E-MX-002", "reason": "No llega el pago"},
                     ),
                 )
             )
@@ -276,7 +288,7 @@ def test_write_tool_is_refused_outside_act(deps_factory, fake_loader_factory):
     loader = fake_loader_factory(route_probabilities())
     deps = deps_factory(loader, agent)
 
-    final, _ = invoke(deps, "ana", "Cancela mi transferencia")
+    final, _ = invoke(deps, "ana", "Abre un caso con mi transferencia")
 
     assert "TOOL-NOT-ALLOWED" in final["reply"]
     assert final["card"]["payload"]["rule"] == "TOOL-NOT-ALLOWED"
@@ -396,3 +408,193 @@ def test_same_inputs_give_the_same_replayable_verdict(deps_factory, fake_loader_
     replayed = replay_decision(route_record, policy)
     assert replayed.route is Route.AGENTS
     assert replayed.rule_id == "RT-ACT"
+
+
+def test_act_allow_executes_with_token_and_read_back(deps_factory, fake_loader_factory):
+    """The act stage: allow -> confirmation token -> write -> verified read-back."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(CANCEL_CALL,)), AgentDraft(text=ACT_REPLY)])
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent)
+
+    final, _ = invoke(deps, "ana", "Quiero cancelar mi transferencia pendiente")
+
+    assert final["reply"] == ACT_REPLY
+    assert not final.get("escalated")
+    assert final["gate_verdict"] == "allow"
+    assert final["read_backs"] == ["cancel_transfer"]
+    tools_used = [result.tool for result in final["tool_results"]]
+    assert tools_used == ["get_entry_detail", "request_cancellation", "get_payment_status"]
+    # The token was issued for exactly this action and the tool consumed it.
+    assert deps.confirmations is not None
+    assert deps.confirmations._granted == set()
+    gate_records = records_of(deps, Stage.GATE)
+    assert [record.rule_id for record in gate_records] == ["GATE-ALLOW"]
+    assert gate_records[0].verdict == "allow"
+    # The reply claiming the cancellation passed the cascade on attempt 1.
+    verifier_records = records_of(deps, Stage.VERIFIER)
+    assert [record.verdict for record in verifier_records] == ["pass"]
+
+
+def test_retry_allow_executes_with_read_back(deps_factory, fake_loader_factory):
+    """The retry write runs the same path over a declined payment."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(RETRY_CALL,)), AgentDraft(text=RETRY_REPLY)])
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent)
+
+    final, _ = invoke(deps, "dana", "Mi transferencia fue rechazada, ¿la pueden reintentar?")
+
+    assert final["reply"] == RETRY_REPLY
+    assert final["read_backs"] == ["retry_payment"]
+    tools_used = [result.tool for result in final["tool_results"]]
+    assert tools_used == ["get_entry_detail", "retry_payment", "get_payment_status"]
+
+
+def test_act_ask_pauses_for_approval_and_resumes(deps_factory, fake_loader_factory):
+    """The ask verdict pauses on interrupt(); an approval resumes and executes."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(CANCEL_CALL,)), AgentDraft(text=ACT_REPLY)])
+    # clear_enough 0.6 routes to the agents (>= 0.50) but is below the Gate's
+    # 0.70: acting on a guess needs a person (GATE-UNCLEAR).
+    loader = fake_loader_factory(route_probabilities(clear_enough={"clear": 0.6, "unclear": 0.4}))
+    deps = deps_factory(loader, agent)
+    graph = build_hub_graph(deps, checkpointer=InMemorySaver())
+    issued, session_ref = deps.issuer.issue("ana")
+    config = {"configurable": {"session_token": issued, "thread_id": "act-ask"}}
+
+    paused = graph.invoke(
+        {"persona": "ana", "session_ref": session_ref, "message": "Cancela mi transferencia"},
+        config=config,
+    )
+
+    payload = paused["__interrupt__"][0].value
+    assert payload["type"] == "approve_action"
+    assert payload["action"] == "request_cancellation"
+    assert payload["entry_reference"] == "E-MX-002"
+    assert payload["amount"] == "5000.00"
+    assert payload["currency"] == "MXN"
+    assert payload["rule_id"] == "GATE-UNCLEAR"
+    assert paused.get("reply") is None  # nothing went out while paused
+
+    final = graph.invoke(Command(resume=True), config=config)
+
+    assert final["reply"] == ACT_REPLY
+    assert final["read_backs"] == ["cancel_transfer"]
+    gate_records = records_of(deps, Stage.GATE)
+    assert gate_records[0].rule_id == "GATE-UNCLEAR"
+    assert gate_records[0].verdict == "ask"
+    assert final["human_action"] is HumanAction.APPROVE_ACTION
+
+
+def test_act_ask_denied_escalates(deps_factory, fake_loader_factory):
+    """A denied approval escalates; the write never runs."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(CANCEL_CALL,))])
+    loader = fake_loader_factory(route_probabilities(clear_enough={"clear": 0.6, "unclear": 0.4}))
+    deps = deps_factory(loader, agent)
+    graph = build_hub_graph(deps, checkpointer=InMemorySaver())
+    issued, session_ref = deps.issuer.issue("ana")
+    config = {"configurable": {"session_token": issued, "thread_id": "act-deny"}}
+
+    graph.invoke(
+        {"persona": "ana", "session_ref": session_ref, "message": "Cancela mi transferencia"},
+        config=config,
+    )
+    final = graph.invoke(Command(resume=False), config=config)
+
+    assert final["escalated"] is True
+    assert final["case_ref"].startswith("case-")
+    assert all(result.tool != "request_cancellation" for result in final["tool_results"])
+    human = records_of(deps, Stage.HUMAN)
+    assert human[0].inputs_summary["reason"] == "APPROVAL-DENIED"
+
+
+def test_act_block_names_and_logs_the_rule(deps_factory, fake_loader_factory):
+    """A blocked action is refused naming the rule; the write never runs."""
+    # E-MX-002 is Pending; a retry needs a Declined payment: GATE-INELIGIBLE.
+    agent = ScriptedAgent(
+        [
+            AgentDraft(
+                tool_calls=(
+                    ToolCall(tool="retry_payment", arguments={"entry_reference": "E-MX-002"}),
+                )
+            )
+        ]
+    )
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent)
+
+    final, _ = invoke(deps, "ana", "Reintenta mi transferencia")
+
+    assert "GATE-INELIGIBLE" in final["reply"]
+    assert final["card"] == {"key": "refusal", "payload": {"rule": "GATE-INELIGIBLE"}}
+    gate_records = records_of(deps, Stage.GATE)
+    assert gate_records[0].verdict == "block"
+    assert all(result.tool != "retry_payment" for result in final["tool_results"])
+    assert len(agent.requests) == 1  # the refusal ends the turn
+
+
+def test_gate_refuses_other_customers_target(deps_factory, fake_loader_factory):
+    """The Gate reads the target itself: another customer's entry is refused."""
+    agent = ScriptedAgent(
+        [
+            AgentDraft(
+                tool_calls=(
+                    ToolCall(
+                        tool="request_cancellation",
+                        arguments={"entry_reference": "E-US-001"},
+                    ),
+                )
+            )
+        ]
+    )
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent)
+
+    final, _ = invoke(deps, "ana", "Cancela la transferencia E-US-001")
+
+    assert "TOOL-NOT-OWNER" in final["reply"]
+    assert "120.00" not in final["reply"] and "Dana" not in final["reply"]
+    refusals = [
+        record
+        for record in records_of(deps, Stage.HARD_RULES)
+        if record.rule_id == "TOOL-NOT-OWNER"
+    ]
+    assert len(refusals) == 1
+    assert records_of(deps, Stage.GATE) == []  # ownership first: no verdict
+
+
+def test_tool_side_fraud_flag_refuses_after_allow(deps_factory, fake_loader_factory):
+    """Defense in depth: the tool's own fraud check refuses what the Gate allowed."""
+    # E-AR-002 is Declined and fraud-flagged; without a FraudContext the Gate
+    # sees no signal and allows, and the tool still refuses the write.
+    agent = ScriptedAgent(
+        [
+            AgentDraft(
+                tool_calls=(
+                    ToolCall(tool="retry_payment", arguments={"entry_reference": "E-AR-002"}),
+                )
+            )
+        ]
+    )
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent)
+
+    final, _ = invoke(deps, "lucia", "Reintenta mi transferencia rechazada")
+
+    assert "TOOL-FRAUD-FLAGGED" in final["reply"]
+    assert final["card"]["payload"]["rule"] == "TOOL-FRAUD-FLAGGED"
+    gate_records = records_of(deps, Stage.GATE)
+    assert gate_records[0].verdict == "allow"
+    assert all(result.tool != "get_payment_status" for result in final["tool_results"])
+
+
+def test_act_without_confirmation_issuer_fails_closed(deps_factory, fake_loader_factory):
+    """No issuer, no write: an allowed action without a token path escalates."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(CANCEL_CALL,))])
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent, with_confirmations=False)
+
+    final, _ = invoke(deps, "ana", "Cancela mi transferencia")
+
+    assert final["escalated"] is True
+    assert all(result.tool != "request_cancellation" for result in final["tool_results"])
+    human = records_of(deps, Stage.HUMAN)
+    assert human[0].inputs_summary["reason"] == "FC-CONFIRMATIONS"
