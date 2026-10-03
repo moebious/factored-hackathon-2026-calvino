@@ -19,9 +19,10 @@ error message and never sent anywhere but the ``Authorization`` header.
 
 from __future__ import annotations
 
+import os
 import time
 from collections import deque
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 
 import httpx
 
@@ -136,6 +137,11 @@ class OpenAiCompatibleClient:
     def model(self) -> str:
         """The configured model id, for logs and configuration checks."""
         return self._model
+
+    @property
+    def base_url(self) -> str:
+        """The endpoint root, so a configuration check can prove where traffic would go."""
+        return self._base_url
 
     def list_models(self) -> tuple[str, ...]:
         """The provider's model ids. Authoritative: this is where a configured id is checked."""
@@ -260,3 +266,82 @@ def _parse_completion(body: dict, requested_model: str, latency_ms: float) -> Ch
 
 def _count(value: object) -> int:
     return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else 0
+
+
+def client_from_env(
+    prefix: str = "CALVINO_LLM",
+    *,
+    env: Mapping[str, str] | None = None,
+    base_url: str,
+    default_max_requests: int = DEFAULT_MAX_REQUESTS,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    transport: httpx.BaseTransport | None = None,
+    clock: Callable[[], float] = time.monotonic,
+    sleep: Callable[[float], None] = time.sleep,
+) -> OpenAiCompatibleClient:
+    """Build a client from ``<prefix>_API_KEY``, ``<prefix>_MODEL`` and two optional limits.
+
+    The prefix is what makes a second provider a configuration change rather than a code change:
+    the agent role reads ``CALVINO_LLM_*`` and the judge reads ``CALVINO_JUDGE_*``. Nothing is
+    defaulted that the provider could get wrong: a missing key or model stops startup, because a
+    silent default would send traffic somewhere nobody chose.
+    """
+    values = os.environ if env is None else env
+
+    if not base_url:
+        raise LlmConfigurationError(f"{prefix}_BASE_URL must be set to the provider's API root")
+
+    token = values.get(f"{prefix}_API_KEY", "")
+    if not token:
+        raise LlmConfigurationError(
+            f"{prefix}_API_KEY must be set; the client does not start without it"
+        )
+
+    model = values.get(f"{prefix}_MODEL", "")
+    if not model.strip():
+        raise LlmConfigurationError(
+            f"{prefix}_MODEL must be set: the provider's /v1/models list is authoritative, so the "
+            "model id is configured and never hardcoded"
+        )
+
+    max_requests = _positive_int(
+        values.get(f"{prefix}_MAX_REQUESTS"), default_max_requests, f"{prefix}_MAX_REQUESTS"
+    )
+    request_timeout = _positive_float(
+        values.get(f"{prefix}_TIMEOUT_SECONDS"), timeout, f"{prefix}_TIMEOUT_SECONDS"
+    )
+
+    return OpenAiCompatibleClient(
+        base_url=base_url,
+        api_key=token,
+        model=model,
+        timeout=request_timeout,
+        limiter=RateLimiter(max_requests, DEFAULT_WINDOW_SECONDS, clock=clock, sleep=sleep),
+        transport=transport,
+        clock=clock,
+        sleep=sleep,
+    )
+
+
+def _positive_int(raw: str | None, default: int, name: str) -> int:
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        raise LlmConfigurationError(f"{name} must be a whole number, got {raw!r}") from None
+    if value < 1:
+        raise LlmConfigurationError(f"{name} must be at least 1, got {value}")
+    return value
+
+
+def _positive_float(raw: str | None, default: float, name: str) -> float:
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        value = float(raw)
+    except ValueError:
+        raise LlmConfigurationError(f"{name} must be a number, got {raw!r}") from None
+    if value <= 0:
+        raise LlmConfigurationError(f"{name} must be greater than zero, got {value}")
+    return value
