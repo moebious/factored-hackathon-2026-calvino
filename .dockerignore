@@ -1,0 +1,19 @@
+# Keep the Docker build context small: the image only needs src/ and policy/.
+.git
+.bare
+.gitignore
+.githooks
+.github
+.worktrees
+.venv
+.calvino-data
+data
+docs
+frontend
+contracts
+reports
+scripts
+tests
+*.log
+*.md
+!README.md
