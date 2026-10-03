@@ -243,6 +243,8 @@ frontend/dist/
 decisions.jsonl
 *.log
 reports/calibration/
+# Local demo-API storage (CALVINO_DATA_DIR default); deployments mount /data
+.calvino-data/
 
 # Model weights and checkpoints (download them; never commit them)
 *.safetensors
