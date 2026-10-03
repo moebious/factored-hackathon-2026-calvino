@@ -59,23 +59,12 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | todo | maintainer |
 | [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | — | standard | yes | todo | maintainer |
 | [T-105](T-105-freshness-fixture.md) | Update-correctness fixture | 1 | T-102 | — | standard | yes | todo | maintainer |
-| [T-106](T-106-message-set.md) | Team-generated customer message set | 1 | T-103 | LLM provider | standard + maintainer review | no | todo | maintainer |
+| [T-106](T-106-message-set.md) | Team-generated customer message set | 1 | T-103 | LLM provider keys | standard + maintainer review | no | todo | maintainer |
 | [T-201](T-201-classifier-evaluation.md) | Classifier evaluation and thresholds | 2 | T-005, T-106 | — | judgment checkpoint | no | todo | maintainer |
 | [T-202](T-202-laya-fine-tuning.md) | Laya fine-tuning on Kaggle | Tier 1 | T-106 | GPU (maintainer runs the notebook) | standard | yes | todo | maintainer |
 | [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo | maintainer |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | done | maintainer |
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | review | maintainer |
-| [T-101](T-101-contact-reason-analysis.md) | Contact-reason analysis and workflow decision | 1 | — | dataset access | judgment checkpoint | yes | done (decision 17) | maintainer |
-| [T-102](../specs/TSD-007-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | done | maintainer |
-| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | todo | analyst |
-| [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | — | standard | yes | todo | analyst |
-| [T-105](T-105-freshness-fixture.md) | Update-correctness fixture | 1 | T-102 | — | standard | yes | todo | analyst |
-| [T-106](T-106-message-set.md) | Team-generated customer message set | 1 | T-103 | LLM provider keys | standard + maintainer review | no | todo | analyst + maintainer |
-| [T-201](T-201-classifier-evaluation.md) | Classifier evaluation and thresholds | 2 | T-005, T-106 | — | judgment checkpoint | no | todo | analyst |
-| [T-202](T-202-laya-fine-tuning.md) | Laya fine-tuning on Kaggle | Tier 1 | T-106 | GPU (maintainer runs the notebook) | standard | yes | todo | analyst |
-| [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo | analyst |
-| [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | todo | maintainer |
-| [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | todo | maintainer |
 | [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | — | standard | yes | todo | maintainer |
 | [T-301](T-301-support-agent.md) | Support agent and company brain | 3 | T-204, T-206 | LLM provider keys | standard | no | todo | maintainer |
 | [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo | maintainer |
