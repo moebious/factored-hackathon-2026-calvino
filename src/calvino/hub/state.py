@@ -14,7 +14,8 @@ import operator
 from enum import StrEnum
 from typing import Annotated, Any, TypedDict
 
-from calvino.records import Route
+from calvino.policy import Facts
+from calvino.records import HumanAction, Route
 from calvino.verifier.evidence import ToolResult
 
 
@@ -46,17 +47,23 @@ class HubState(TypedDict, total=False):
     persona: str
     session_ref: str
     message: str
+    facts: Facts | None
     scores: dict[str, float]
     route: Route | None
     rule_id: str | None
+    human_action: HumanAction | None
     stage: HubStage
     entry_reference: str | None
     status: str | None
     action: str | None
     tool_results: Annotated[list[ToolResult], operator.add]
+    pending_calls: list[dict[str, Any]]
+    tool_rounds: int
     draft: str | None
     question: str | None
     reply: str | None
     card: dict[str, Any] | None
     case_ref: str | None
+    case_file: list[dict[str, str]]
+    escalate_reason: str | None
     escalated: bool

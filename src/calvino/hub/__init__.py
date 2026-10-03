@@ -11,6 +11,8 @@ Public API:
   an interface (decision 20); the session token never reaches a request.
 - TrustedSessionIssuer: demo personas sign in through the hub; chat never types an identity.
 - HubStage, HubState: the graph's stage enum and checkpointer-persisted state.
+- HubDependencies, FraudContext, build_hub_graph, STAGE_TOOLS: the LangGraph graph wiring the
+  stages together; the session token travels in the invoke config, never in the state.
 """
 
 from calvino.hub.agent import (
@@ -19,6 +21,13 @@ from calvino.hub.agent import (
     ScriptedAgent,
     SupportAgent,
     ToolCall,
+)
+from calvino.hub.graph import (
+    MAX_TOOL_ROUNDS,
+    STAGE_TOOLS,
+    FraudContext,
+    HubDependencies,
+    build_hub_graph,
 )
 from calvino.hub.playbook import (
     DEFAULT_PLAYBOOK_PATH,
@@ -34,10 +43,14 @@ from calvino.hub.state import HubStage, HubState
 __all__ = [
     "DEFAULT_PLAYBOOK_PATH",
     "DEFAULT_SESSION_TTL",
+    "MAX_TOOL_ROUNDS",
     "PLAYBOOK_ACTIONS",
+    "STAGE_TOOLS",
     "WORKFLOW_STATUSES",
     "AgentDraft",
     "AgentRequest",
+    "FraudContext",
+    "HubDependencies",
     "HubStage",
     "HubState",
     "Playbook",
@@ -46,5 +59,6 @@ __all__ = [
     "SupportAgent",
     "ToolCall",
     "TrustedSessionIssuer",
+    "build_hub_graph",
     "load_playbook",
 ]
