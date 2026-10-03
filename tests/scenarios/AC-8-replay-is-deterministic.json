@@ -1,0 +1,38 @@
+{
+  "id": "AC-8",
+  "title": "the same inputs and policy version replay to the identical verdict",
+  "persona": "camilo",
+  "message": "¿Por qué mi transferencia sigue pendiente?",
+  "probabilities": {
+    "workflow_area": {
+      "stuck payment": 0.97,
+      "dispute or unrecognised charge": 0.01,
+      "fraud or stolen access": 0.01,
+      "other banking": 0.005,
+      "out of scope": 0.005
+    },
+    "intent": {
+      "check status": 0.9,
+      "cancel transfer": 0.02,
+      "retry payment": 0.02,
+      "open a case": 0.02,
+      "check case status": 0.02,
+      "talk to a person": 0.02
+    },
+    "clear_enough": {"clear": 0.95, "unclear": 0.05},
+    "needs_human": {"human needed": 0.05, "can handle automatically": 0.95},
+    "injection": {"risky": 0.01, "not risky": 0.99}
+  },
+  "agent_script": [
+    {"tool_calls": [{"tool": "get_entry_detail", "arguments": {"entry_reference": "E-CO-002"}}]},
+    {"text": "Su transferencia de 250000.00 COP está pendiente."}
+  ],
+  "expected": {
+    "route": "agents",
+    "reply": "Su transferencia de 250000.00 COP está pendiente.",
+    "escalated": false,
+    "tool_calls": ["get_entry_detail"],
+    "log_records": [{"stage": "classifier", "rule_id": "RT-ACT"}],
+    "replay": {"route": "agents", "rule_id": "RT-ACT"}
+  }
+}

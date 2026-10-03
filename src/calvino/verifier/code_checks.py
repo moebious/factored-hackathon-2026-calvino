@@ -24,8 +24,12 @@ from calvino.verifier.verdicts import CriterionVerdict
 # claim is a numeric token with a decimal part or one adjacent to a currency.
 _CURRENCY_TOKENS = ("MXN", "COP", "ARS", "USD", "$")
 
-# Numeric token: optional thousands separators, optional decimal part.
-_NUMBER_RE = re.compile(r"\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?|\d+")
+# Numeric token: thousands separators, or a plain digit run with an optional
+# decimal part. The separated form requires at least one 3-digit group, so a
+# plain contract amount ("5000.00", the way the TSD-002 contracts serialize
+# amounts) matches as one token instead of splitting into "500" plus a stray
+# "0.00" claim that matches no evidence and fails every correct reply citing it.
+_NUMBER_RE = re.compile(r"\d{1,3}(?:[.,]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?")
 _ISO_DATE_RE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
 _SLASH_DATE_RE = re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b")
 _QUOTED_RE = re.compile(r"«([^»]+)»|\"([^\"]+)\"")

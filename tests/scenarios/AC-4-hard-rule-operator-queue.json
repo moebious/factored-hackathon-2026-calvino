@@ -1,0 +1,40 @@
+{
+  "id": "AC-4",
+  "title": "explicit request for a person wins before any score and queues for an operator",
+  "persona": "ana",
+  "message": "Quiero hablar con una persona sobre mi transferencia",
+  "probabilities": {
+    "workflow_area": {
+      "stuck payment": 0.97,
+      "dispute or unrecognised charge": 0.01,
+      "fraud or stolen access": 0.01,
+      "other banking": 0.005,
+      "out of scope": 0.005
+    },
+    "intent": {
+      "check status": 0.9,
+      "cancel transfer": 0.02,
+      "retry payment": 0.02,
+      "open a case": 0.02,
+      "check case status": 0.02,
+      "talk to a person": 0.02
+    },
+    "clear_enough": {"clear": 0.95, "unclear": 0.05},
+    "needs_human": {"human needed": 0.05, "can handle automatically": 0.95},
+    "injection": {"risky": 0.01, "not risky": 0.99}
+  },
+  "agent_script": [],
+  "resume": "assigned to operator 7",
+  "expected": {
+    "awaiting": "operator_queue",
+    "route": "human",
+    "escalated": true,
+    "reply_contains_case_ref": true,
+    "card": {"key": "case_opened"},
+    "tool_calls": [],
+    "log_records": [
+      {"stage": "hard_rules", "rule_id": "HR-ASKS-HUMAN"},
+      {"stage": "human", "rule_id": "HR-ASKS-HUMAN"}
+    ]
+  }
+}

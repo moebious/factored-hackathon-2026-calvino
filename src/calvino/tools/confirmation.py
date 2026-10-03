@@ -176,6 +176,24 @@ class FakeConfirmationVerifier:
         self._granted.add((token, customer_id, action, target_reference, amount, currency))
         return token
 
+    def issue(
+        self,
+        *,
+        customer_id: str,
+        action: str,
+        target_reference: str,
+        amount: Decimal,
+        currency: str,
+    ) -> str:
+        """The hub-side name, mirroring ``HmacConfirmationVerifier.issue``."""
+        return self.grant(
+            customer_id=customer_id,
+            action=action,
+            target_reference=target_reference,
+            amount=amount,
+            currency=currency,
+        )
+
     def verify_and_consume(
         self,
         token: str | None,

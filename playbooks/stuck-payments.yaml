@@ -1,0 +1,44 @@
+# Calvino playbook: stuck payments (decision 24, TSD-009).
+# One source for the support agent's prompt context and the verifier's "valid next step"
+# criterion, so they cannot drift apart. Versioned like the policy: a released file is never
+# edited; a change is a new file (v2.yaml), and logged decisions carry the playbook version.
+#
+# Each status the workflow handles (DESIGN 6.1) maps to what to explain, which actions to
+# offer and when to escalate. Actions name act/investigate-stage tools only; the Gate still
+# checks every write (defense in depth). Guidance text is context for the agent, not a
+# customer-facing script: the agent writes the reply in the customer's language.
+version: v1
+workflow: stuck-payments
+
+statuses:
+  Pending:
+    explain: >
+      The payment is on hold: it has been accepted but not settled yet, so the money has not
+      reached the beneficiary. Say what the record shows (amount, beneficiary or merchant,
+      booking and value dates) and that the expected next step is settlement on the value
+      date. Never promise a settlement time the record does not carry.
+    actions:
+      - request_cancellation
+    escalate_when: >
+      The value date has passed without settlement, the entry carries a fraud flag, the
+      cancellation was refused or failed, or the customer disputes the beneficiary.
+  Declined:
+    explain: >
+      The payment was refused and the money never left the account (or was returned the same
+      day). Say what the record shows and, when present, the recorded decline reason in plain
+      language. Do not invent a reason when the record has none: say the reason is not
+      recorded and offer the next step.
+    actions:
+      - retry_payment
+    escalate_when: >
+      The decline reason is missing or risk-related, a retry failed, the customer reports the
+      decline as unrecognised or fraudulent, or retries keep failing.
+  Reversed:
+    explain: >
+      The payment completed and was then returned, so the amount is back on the account (or
+      was never finally taken). Say what the record shows and, when present, who reversed it
+      and why. Reversals are final: there is no action to offer on the payment itself.
+    actions: []
+    escalate_when: >
+      The customer disputes the reversal or does not recognise it, the refunded amount does
+      not match, or the customer asks why it happened beyond what the record shows.
