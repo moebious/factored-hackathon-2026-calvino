@@ -69,6 +69,30 @@ def hetzner_client_from_env(
     )
 
 
+def judge_client_from_env(
+    *,
+    env: Mapping[str, str] | None = None,
+    transport: httpx.BaseTransport | None = None,
+    clock: Callable[[], float] = time.monotonic,
+    sleep: Callable[[float], None] = time.sleep,
+) -> OpenAiCompatibleClient:
+    """The judge-role client, configured from ``CALVINO_JUDGE_*``.
+
+    Separate from ``clients_from_env`` on purpose: the two roles are configured and can be
+    rolled out independently, so a deployment that has the agent live and the judge not yet
+    must still be able to check the agent against its provider's catalogue.
+    """
+    values = os.environ if env is None else env
+    return client_from_env(
+        JUDGE_ENV_PREFIX,
+        env=values,
+        base_url=values.get(f"{JUDGE_ENV_PREFIX}_BASE_URL", ""),
+        transport=transport,
+        clock=clock,
+        sleep=sleep,
+    )
+
+
 class LlmClients:
     """The two role clients, built once at startup."""
 
@@ -94,13 +118,6 @@ def clients_from_env(
     """
     values = os.environ if env is None else env
     agent = hetzner_client_from_env(env=values, transport=agent_transport, clock=clock, sleep=sleep)
-    judge = client_from_env(
-        JUDGE_ENV_PREFIX,
-        env=values,
-        base_url=values.get(f"{JUDGE_ENV_PREFIX}_BASE_URL", ""),
-        transport=judge_transport,
-        clock=clock,
-        sleep=sleep,
-    )
+    judge = judge_client_from_env(env=values, transport=judge_transport, clock=clock, sleep=sleep)
     assert_distinct_families(agent.model, judge.model)
     return LlmClients(agent, judge, agent.model, judge.model)

@@ -16,6 +16,7 @@ from calvino.llm.hetzner import (
     HETZNER_SAFE_REQUESTS_PER_WINDOW,
     clients_from_env,
     hetzner_client_from_env,
+    judge_client_from_env,
 )
 
 AGENT_MODEL = "Qwen/Qwen3.6-35B-A3B-FP8"
@@ -175,3 +176,20 @@ def test_a_judge_with_no_base_url_is_told_which_variable_is_missing():
             }
         )
     assert "CALVINO_JUDGE_BASE_URL" in str(caught.value)
+
+
+def test_the_judge_client_can_be_built_on_its_own():
+    """The two roles are configured and rolled out independently."""
+    judge = judge_client_from_env(env=JUDGE_ENV)
+    assert judge.model == JUDGE_MODEL
+    assert judge.base_url == "https://router.example/api/v1"
+
+
+def test_the_judge_client_still_fails_closed_without_its_variables():
+    with pytest.raises(LlmConfigurationError):
+        judge_client_from_env(env={"CALVINO_LLM_API_KEY": "unit-test-agent-value"})
+
+
+def test_the_agent_can_be_built_without_the_judge_being_configured():
+    client = hetzner_client_from_env(env=AGENT_ENV)
+    assert client.model == AGENT_MODEL
