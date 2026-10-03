@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- LLM client and Hetzner provider (TSD-011, T-011, decision 28): `calvino.llm` with a provider-agnostic `ChatClient`, one OpenAI-compatible adapter (timeout, retries on 429 and 5xx, a requests-per-window limiter) and the Hetzner configuration for the agent role. The model id comes from the environment because the provider's `/v1/models` list is authoritative. The judge role is configured separately and `clients_from_env` refuses to start when both models share a family, which is how decision 20's judge independence survives a change to one environment variable.
 - Full-data contract audit report (`reports/data-quality/contracts-audit.json` and a summary): all eight tables pass, every known defect matches DATA.md, and a 10,000-row sample per table passes the row models.
 - Data contracts (TSD-007, T-102): row models and rules from DATA.md for the eight tables Calvino uses, a DuckDB audit over Parquet or CSV that reports known defects without failing, JSON Schemas and lineage in `contracts/data/`, and a synthetic lakehouse fixture.
 - Python package scaffold (TSD-000): `uv` project, shared types (`Route`, `GateVerdict`, `HumanAction`, `Stage`, `DecisionRecord`), the append-only decision log with a reader for replay, and a CI job running ruff and pytest.
@@ -29,6 +30,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- The agent-role LLM provider is Hetzner's Inference API and the judge stays on a second provider (decision 28, refining 20); DESIGN, ROADMAP, PLAN and the backlog name the `CALVINO_LLM_*` and `CALVINO_JUDGE_*` variables, and using a chat API as the System One classifier is recorded as rejected.
 - README cut to the essentials (positioning, the five stages with a clean flow diagram, quick start, where to start); everything removed already lives in DESIGN, DATA, PITCH, AGENTS or the backlog; the specs index is shorter, with tasks and current statuses.
 - `main-guard` asks again, up to six times ten seconds apart, before treating a commit without a merged pull request as a bypass: GitHub links commits to their pull request a few seconds after the merge, which turned `main` red after #24.
 - Decisions 20–26: open models with a judge from another family, a veto-only verifier panel, stricter Portuguese thresholds until measured, acceptance scenarios in CI, the playbook file with per-stage tools, fairness lines, and integration directions with A2A only through the hub; ideas from the September 29 planning draft that were replaced are listed with reasons. DESIGN gains the positioning against three harness definitions, a full journey (6.2), the language coverage table, the latency split and the trusted test session; the backlog gains owners; T-303 lists every case the brief requires; PITCH sharpens positioning and limits; HANDOFF records the current state and new pitfalls.

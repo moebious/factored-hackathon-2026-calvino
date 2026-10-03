@@ -91,6 +91,6 @@ Judging dimensions: technical judgment, AI engineering, data engineering, machin
 - [x] Workflow choice: stuck payments, end to end (decision 17)
 - [x] Hosting: Vercel (UI) + Hugging Face Space (backend) at `calvino.rubrica.dev` (decision #10)
 - [ ] DNS record for `calvino.rubrica.dev` (maintainer, when the app is ready)
-- [ ] LLM provider and API key (needed in phase 4; maintainer, in progress)
+- [ ] LLM keys: a Hetzner token and the agent model id, plus the judge's provider key (decision 28; maintainer)
 - [ ] Hugging Face Space and Vercel accounts, `HF_TOKEN` (maintainer)
 - [ ] Laya fine-tuning on a GPU (Kaggle): Tier 1 only
