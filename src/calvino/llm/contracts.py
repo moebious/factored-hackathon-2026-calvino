@@ -16,7 +16,7 @@ import re
 from enum import StrEnum
 from typing import Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from calvino.llm.errors import LlmConfigurationError, LlmRule
 
@@ -34,6 +34,15 @@ class MessageRole(StrEnum):
     SYSTEM = "system"
     USER = "user"
     ASSISTANT = "assistant"
+
+
+class ReasoningEffort(StrEnum):
+    """How hard a reasoning model should think, in the vocabulary the providers publish."""
+
+    MINIMAL = "minimal"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 
 class Message(BaseModel):
@@ -56,6 +65,26 @@ class ChatRequest(BaseModel):
     # Left unset by default so each provider applies its own default rather than ours.
     temperature: float | None = Field(default=None, ge=0.0, le=2.0)
     max_tokens: int | None = Field(default=None, ge=1)
+    # Providers disagree on the output-limit field name: the older ones take ``max_tokens`` and the
+    # newer ones reject it in favour of ``max_completion_tokens``. Both are explicit and only one
+    # may be set, so the request says which dialect it is written for instead of the adapter
+    # guessing per provider.
+    max_completion_tokens: int | None = Field(default=None, ge=1)
+    # A fixed seed is what makes a repeated evaluation run comparable (T-303), so it is part of the
+    # contract rather than something each caller remembers to pass.
+    seed: int | None = None
+    # Reasoning effort, for the reasoning models. The judge runs low: a criteria rubric is not hard
+    # maths, and long reasoning tokens cost latency on a turn the customer is waiting for.
+    reasoning_effort: ReasoningEffort | None = None
+
+    @model_validator(mode="after")
+    def _one_output_limit(self) -> ChatRequest:
+        if self.max_tokens is not None and self.max_completion_tokens is not None:
+            raise ValueError(
+                "set max_tokens or max_completion_tokens, not both: providers disagree on the "
+                "field name and sending both is a request they will reject"
+            )
+        return self
 
 
 class ChatResponse(BaseModel):

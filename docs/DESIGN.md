@@ -197,7 +197,7 @@ Classifier text is **team-generated** (decision 16): the dataset's transcripts a
 | Integration | Governed access to bank data and actions | MCP servers with the official MCP Python SDK (one adapter per bank core) |
 | Data | Clean layer, contracts, quality report, baseline | Parquet lakehouse queried with DuckDB (the analyst's pipeline) |
 | Governance | Contracts, audit, redaction, lineage, tracing | data contracts, `decisions.jsonl` (`calvino.decision_log`), traces |
-| LLM | Agents and the judge | open models (decisions 20 and 28): a Qwen model for the agent on Hetzner's Inference API, a model from another family as the judge on a second provider; Amazon Bedrock in the production reference |
+| LLM | Agents and the judge | open models (decisions 20, 28 and 29): a Qwen model for the agent on Hetzner's Inference API, a model from another family as the judge on a second provider; Amazon Bedrock in the production reference |
 
 ### 4.1 The hub's three checkpoints (after "Building a Custom Harness with Pi and Jev", ported to LangGraph + Laya)
 

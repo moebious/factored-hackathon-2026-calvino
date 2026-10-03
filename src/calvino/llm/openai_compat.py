@@ -163,6 +163,12 @@ class OpenAiCompatibleClient:
             payload["temperature"] = request.temperature
         if request.max_tokens is not None:
             payload["max_tokens"] = request.max_tokens
+        if request.max_completion_tokens is not None:
+            payload["max_completion_tokens"] = request.max_completion_tokens
+        if request.seed is not None:
+            payload["seed"] = request.seed
+        if request.reasoning_effort is not None:
+            payload["reasoning_effort"] = request.reasoning_effort.value
 
         started = self._clock()
         body = self._send("POST", "/chat/completions", payload)
