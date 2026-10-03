@@ -1,6 +1,12 @@
 """LLM client and providers (TSD-008): the provider-agnostic chat interface, an
 OpenAI-compatible adapter and the Hetzner configuration.
 
+This package is the external model boundary (DESIGN 7), and Laya is deliberately not in it.
+Laya is System 1 classification whose calibrated probabilities are an *input* to the policy
+(TSD-005); this is System 2 language work, downstream of the policy, whose output is text a
+verifier checks. Inference splits along that line, not along "anything that runs a model", so
+moving Laya here would bury the policy's main input under this package's name.
+
 Public API:
 - ChatClient, ChatRequest, ChatResponse, Role, Message: the seam every language
   call goes through, with no provider in sight.

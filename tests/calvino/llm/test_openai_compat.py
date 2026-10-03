@@ -10,8 +10,15 @@ import json
 
 import httpx
 import pytest
+from pydantic import ValidationError
 
-from calvino.llm.contracts import Message, MessageRole, Role
+from calvino.llm.contracts import (
+    ChatRequest,
+    Message,
+    MessageRole,
+    ReasoningEffort,
+    Role,
+)
 from calvino.llm.errors import (
     LlmConfigurationError,
     LlmError,
@@ -118,6 +125,72 @@ def test_optional_sampling_fields_are_sent_only_when_set(chat_request):
     client.complete(chat_request("hola").model_copy(update={"temperature": 0.2, "max_tokens": 256}))
     assert seen[1]["temperature"] == 0.2
     assert seen[1]["max_tokens"] == 256
+
+
+def test_seed_and_reasoning_effort_are_sent_when_set(chat_request):
+    """T-303 compares repeated runs and the judge runs reasoning low (decision 29)."""
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return completion()
+
+    client = client_with(handler)
+    client.complete(
+        chat_request("hola").model_copy(
+            update={"seed": 1234, "reasoning_effort": ReasoningEffort.LOW}
+        )
+    )
+    assert seen[0]["seed"] == 1234
+    assert seen[0]["reasoning_effort"] == "low"
+
+
+def test_the_new_fields_are_absent_unless_set(chat_request):
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return completion()
+
+    client_with(handler).complete(chat_request("hola"))
+    for field in ("seed", "reasoning_effort", "max_completion_tokens"):
+        assert field not in seen[0], (
+            f"{field} must not be invented for a provider that may reject it"
+        )
+
+
+def test_the_newer_output_limit_field_is_sent_under_its_own_name(chat_request):
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return completion()
+
+    client_with(handler).complete(
+        chat_request("hola").model_copy(update={"max_completion_tokens": 512})
+    )
+    assert seen[0]["max_completion_tokens"] == 512
+    assert "max_tokens" not in seen[0]
+
+
+def test_both_output_limits_at_once_is_refused():
+    # Providers disagree on the field name; sending both is a request they reject.
+    with pytest.raises(ValidationError):
+        ChatRequest(
+            role=Role.AGENT,
+            messages=(Message(role=MessageRole.USER, content="hola"),),
+            max_tokens=256,
+            max_completion_tokens=256,
+        )
+
+
+def test_an_unknown_reasoning_effort_is_refused():
+    with pytest.raises(ValidationError):
+        ChatRequest(
+            role=Role.JUDGE,
+            messages=(Message(role=MessageRole.USER, content="hola"),),
+            reasoning_effort="extreme",
+        )
 
 
 def test_response_carries_the_reported_model_usage_and_latency(chat_request):

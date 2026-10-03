@@ -10,6 +10,8 @@ Public API:
 - CODE_CHECKS, run_code_checks: the deterministic check registry.
 - Judge, MockJudge, build_judge_prompt, parse_judge_response: the batched LLM
   judge behind a versioned prompt template.
+- OpenAiJudge (in ``calvino.verifier.judge``, imported on demand): the same
+  interface over a real provider, so this package needs no provider to import.
 - LayaChecker, FakeLayaChecker: the Laya grounding checks behind an interface.
 - Verifier, VerificationOutcome: the cascade with one retry, escalation and
   DecisionRecord logging.

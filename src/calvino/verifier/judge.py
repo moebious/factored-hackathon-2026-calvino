@@ -1,9 +1,14 @@
 """The LLM judge interface (TSD-004): one batched call labels the remaining criteria.
 
-The provider is not chosen yet (decision 17): everything real lives behind the
-``Judge`` protocol, and tests use ``MockJudge``. The prompt template is versioned
-like the rubric and the policy; every logged verdict carries the rubric and the
-prompt version it was made with, so verdicts replay.
+Everything real lives behind the ``Judge`` protocol: tests and the demo use
+``MockJudge``, and ``OpenAiJudge`` at the bottom of this module is the provider-backed
+one. It is deliberately not re-exported from the package, and importing the cascade pulls
+only ``calvino.llm.contracts`` (the types and the error ids): ``httpx`` arrives when a
+client is built, not when this module is read, so a process that only checks rubrics never
+opens an HTTP client.
+
+The prompt template is versioned like the rubric and the policy; every logged verdict
+carries the rubric and the prompt version it was made with, so verdicts replay.
 
 The template decomposes each criterion into a checklist and instructs the judge
 to fail when unclear: a false fail costs one retry, a false pass reaches the
@@ -18,6 +23,14 @@ import re
 from collections.abc import Sequence
 from typing import Protocol
 
+from calvino.llm.contracts import (
+    ChatClient,
+    ChatRequest,
+    Message,
+    MessageRole,
+    ReasoningEffort,
+    Role,
+)
 from calvino.verifier.evidence import Evidence
 from calvino.verifier.rubric import CheckerKind, Criterion
 from calvino.verifier.verdicts import CriterionVerdict
@@ -182,3 +195,69 @@ class MockJudge:
                 )
             )
         return results
+
+
+class OpenAiJudge:
+    """The real judge: one batched call to a provider, behind ``calvino.llm``.
+
+    This is the class TSD-004 left behind its interface. It is deliberately
+    thin: the prompt is ``build_judge_prompt``, the parsing is
+    ``parse_judge_response`` and the failure handling is the cascade's
+    ``_run_tier``, which already turns a timeout, an error or a malformed
+    answer into failed criteria. Nothing here re-implements any of that.
+
+    Two decisions worth stating, both about not fighting the cascade:
+
+    - **Retries are the cascade's.** The client can retry 429 and 5xx, and
+      the cascade then retries the whole verification once with the failed
+      criteria as feedback. Both retrying means up to nine requests against
+      a provider that allows ten per minute, on a case that ends with a
+      person anyway, so the judge client is expected to be built with
+      ``retries=0``. The requests-per-window limiter, not the retry, is what
+      protects the allowance.
+    - **A short timeout.** The judge only runs on cases the Gate already
+      escalated, so a slow judge does not delay a decision, it delays the
+      handoff notice the customer is waiting on. Failing fast and honestly
+      to a person reads better than hanging (NFR-4).
+
+    ``prompt_version`` and ``last_model`` are exposed rather than logged
+    here: the hub writes the ``DecisionRecord`` that carries them, so the
+    judge reports what it used and the hub decides where it goes.
+    """
+
+    prompt_version = JUDGE_PROMPT_VERSION
+
+    def __init__(self, client: ChatClient, *, seed: int | None = None) -> None:
+        self._client = client
+        # A fixed seed makes a repeated run of the same case comparable (T-303); None leaves the
+        # choice to the provider.
+        self.seed = seed
+        self.last_model: str | None = None
+        self.last_latency_ms: float | None = None
+
+    def judge_batch(
+        self, output: str, evidence: Evidence, criteria: Sequence[Criterion]
+    ) -> list[CriterionVerdict]:
+        """One call deciding every remaining criterion, parsed fail-closed."""
+        if not criteria:
+            return []
+        response = self._client.complete(
+            ChatRequest(
+                role=Role.JUDGE,
+                messages=(
+                    Message(
+                        role=MessageRole.USER,
+                        content=build_judge_prompt(output, evidence, criteria),
+                    ),
+                ),
+                purpose="verifier-judge",
+                # A verdict is a decision, not prose: no sampling, and a fixed seed so a repeated
+                # run of the same case is comparable (T-303).
+                temperature=0.0,
+                seed=self.seed,
+                reasoning_effort=ReasoningEffort.LOW,
+            )
+        )
+        self.last_model = response.model
+        self.last_latency_ms = response.latency_ms
+        return parse_judge_response(response.text, criteria)
