@@ -32,6 +32,9 @@ RUN pip install --no-cache-dir "fastapi>=0.115" "uvicorn>=0.30" "laya>=0.3.23,<0
 # at startup then only loads weights that are already on disk.
 COPY src ./src
 COPY policy ./policy
+# The synthetic bank fixture the hub's tools serve (TSD-010); the API's
+# default path resolves it relative to the package, as in development.
+COPY tests/fixtures/bank/synthetic_bank.json ./tests/fixtures/bank/synthetic_bank.json
 RUN python -c "from laya import Router; Router().preload(['multilingual'])"
 
 RUN chown -R calvino:calvino /app /data /opt/calvino

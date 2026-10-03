@@ -147,6 +147,17 @@ def test_approval_parks_and_resumes(deps_factory, fake_loader_factory):
     assert parked.awaiting_ref == "persona-ana"  # approvals carry the thread ref
     assert parked.case_ref is None
     assert parked.reply == ""  # nothing went out while paused
+    # FR-7: the operator (or the app) sees the confirmation card, mapped
+    # from the Gate's payload — the bank's own numbers.
+    assert parked.card == {
+        "key": "action_confirmation",
+        "payload": {
+            "action": "request_cancellation",
+            "entry_reference": "E-MX-002",
+            "amount": "5000.00",
+            "currency": "MXN",
+        },
+    }
 
     final = service.resume(parked.awaiting_ref, True)
 

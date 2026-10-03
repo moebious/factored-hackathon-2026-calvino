@@ -167,9 +167,22 @@ class HubService:
             awaiting_ref = str(case_ref or thread_id)
             # The operator resumes with the ref the interrupt handed them.
             self._threads[awaiting_ref] = self._threads[thread_id]
+            card = state.get("card")
+            if payload.get("type") == "approve_action":
+                # FR-7: the confirmation card, mapped from the parked payload
+                # (the Gate read the amount and currency from the bank).
+                card = {
+                    "key": "action_confirmation",
+                    "payload": {
+                        "action": payload.get("action"),
+                        "entry_reference": payload.get("entry_reference"),
+                        "amount": payload.get("amount"),
+                        "currency": payload.get("currency"),
+                    },
+                }
             return HubReply(
                 reply="",
-                card=state.get("card"),
+                card=card,
                 route=route.value if isinstance(route, Route) else None,
                 case_ref=case_ref,
                 escalated=True,
