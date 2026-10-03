@@ -24,6 +24,7 @@ Application directories are planned and created as code lands; update this secti
 | `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `data`, `policy`, `tools`, `verifier`, `classifiers` and `hub` subpackages |
 | `frontend/` | Next.js customer app and operator view (planned; CopilotKit / AG-UI console in Tier 2) |
 | `policy/` | Versioned policy files (`v1.yaml`): every threshold and limit the policy engine reads |
+| `providers.yaml` | The committed record of which model answers each language role, on which provider, and what that provider served on the date it was checked (decision 29). Keys are never here |
 | `contracts/` | Generated JSON Schemas of the tool contracts (`contracts/tools/`, from `scripts/export_tool_schemas.py`) and the data contracts with their lineage (`contracts/data/`, from `scripts/export_data_schemas.py`) |
 | `tests/` | `tests/calvino/` mirrors `src/calvino/` (pytest); `tests/fixtures/` holds small synthetic fixtures; `tests/git/` tests the git rule scripts |
 | `pyproject.toml`, `uv.lock` | Python project configuration and locked dependencies (managed with `uv`) |
@@ -281,3 +282,16 @@ cd frontend && BACKEND_URL=http://127.0.0.1:7860 npm run dev    # demo frontend 
 ```
 
 Deployment steps (Hugging Face Space, Vercel, `calvino.rubrica.dev`, keep-alive): [docs/DEPLOY.md](docs/DEPLOY.md).
+
+### Language models
+
+`providers.yaml` records which model answers each role; keys come from the environment and are
+never committed. Check the deployment against it before a deploy:
+
+```bash
+uv run python scripts/check_providers.py               # also asks each provider what it serves (needs both keys)
+uv run python scripts/check_providers.py --config-only # offline: only compares the environment with the file
+```
+
+The live check is deliberately not called at startup: a network call there would take the public
+demo link down whenever a provider is briefly unavailable.

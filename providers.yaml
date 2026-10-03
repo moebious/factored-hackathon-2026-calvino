@@ -1,0 +1,51 @@
+# Models for the language work (decisions 20, 28 and 29).
+#
+# This file is the reviewed record of *which* models, so a change is a diff somebody reads.
+# Tokens are never here: keys come from the environment. The deployment sets
+# CALVINO_LLM_MODEL and CALVINO_JUDGE_MODEL, and
+# `uv run python scripts/check_providers.py` fails when they stop matching this file or when a
+# provider no longer serves an id.
+version: v1
+
+agent:
+  provider: hetzner
+  base_url: https://inference.hetzner.com/api/v1
+  model: Qwen/Qwen3.6-35B-A3B-FP8
+  family: qwen
+  # Hetzner's catalogue carries no revision, digest or date, so this id is the strongest pin the
+  # provider offers and it may be re-pointed at new weights. The alternative is the dense model
+  # the T-106 A/B compares against; the choice is reversible with one environment variable.
+  pin: provider-id
+  alternatives:
+    - Qwen3.8-27B
+
+judge:
+  provider: openrouter
+  base_url: https://openrouter.ai/api/v1
+  model: deepseek/deepseek-v4-pro-0813
+  family: deepseek
+  # A dated GA release, so the id names an exact version. The alternative is the same family, so
+  # the decision 28 guard still passes if it is ever needed.
+  pin: dated-release
+  alternatives:
+    - deepseek/deepseek-v4-pro
+
+# What each provider served on the date it was checked, which is what a later check compares
+# against. The judge ids come from OpenRouter's public /api/v1/models [measured]; the agent ids
+# come from Hetzner's documentation, because that endpoint needs a token [vendor].
+observed:
+  - date: 2026-07-24
+    role: agent
+    source: hetzner documentation [vendor]
+    ids:
+      - Qwen/Qwen3.6-35B-A3B-FP8
+      - Qwen3.8-27B
+  - date: 2026-10-03
+    role: judge
+    source: openrouter /api/v1/models [measured]
+    ids:
+      - deepseek/deepseek-v4-pro-0813
+      - deepseek/deepseek-v4-pro
+    # 16 further deepseek ids were served the same day and are not listed: only the pinned model
+    # and its alternative matter for a drift check.
+    served_count: 18
