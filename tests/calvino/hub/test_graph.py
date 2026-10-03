@@ -11,7 +11,8 @@ route decisions), plus the act stage: allow with a confirmation token and a
 verified read-back, ask with ``interrupt()`` and resume, block naming the
 rule, and the fail-closed paths around them; and the human stages:
 investigate with the complete case file and the bank case, the operator
-queue interrupt, and follow-up turns on a thread with an open case.
+queue interrupt, and follow-up turns on a thread with an open case; plus
+the FR-7 cards, filled only from verified tool results.
 """
 
 from __future__ import annotations
@@ -31,9 +32,11 @@ from calvino.hub import (
     ToolCall,
     build_hub_graph,
 )
+from calvino.hub.graph import verified_card
 from calvino.policy import replay_decision
 from calvino.records import DecisionRecord, HumanAction, Route, Stage
 from calvino.tools.session import Session
+from calvino.verifier.evidence import ToolResult
 
 # A grounded reply: every amount, date, merchant and status it states comes
 # from the get_entry_detail result for E-MX-002 (5000.00 MXN, "Transfer to a
@@ -130,6 +133,12 @@ def test_explain_happy_path(happy_deps):
     assert final["status"] == "Pending"
     assert [result.tool for result in final["tool_results"]] == ["get_entry_detail"]
     assert not final.get("escalated")
+    # FR-7: the verified entry detail fills the payment status card.
+    assert final["card"]["key"] == "payment_status"
+    assert final["card"]["payload"]["entry_reference"] == "E-MX-002"
+    assert final["card"]["payload"]["currency"] == "MXN"
+    assert final["card"]["payload"]["status"] == "Pending"
+    assert final["card"]["payload"]["booking_date"] == "2026-06-10"
 
     # The route and the passing verification are both in the audit log.
     route_records = records_of(deps, Stage.CLASSIFIER)
@@ -137,6 +146,53 @@ def test_explain_happy_path(happy_deps):
     verifier_records = records_of(deps, Stage.VERIFIER)
     assert [record.verdict for record in verifier_records] == ["pass"]
     assert verifier_records[0].inputs_summary["attempt"] == 1
+
+
+def test_verified_card_fills_only_from_tool_payloads():
+    """FR-7: the card the verify pass emits comes from the verified results:
+    payment status from the entry detail, case status on a follow-up, and
+    nothing on the act stage (its node emits the action result itself)."""
+    detail = ToolResult(
+        tool="get_entry_detail",
+        payload={
+            "entry_reference": "E-MX-002",
+            "amount": "5000.00",
+            "currency": "MXN",
+            "status": "Pending",
+            "booking_date": "2026-06-10",
+            "remittance_information": "Transfer to a friend",
+        },
+    )
+    assert verified_card({"stage": HubStage.EXPLAIN, "tool_results": [detail]}) == {
+        "key": "payment_status",
+        "payload": {
+            "entry_reference": "E-MX-002",
+            "amount": "5000.00",
+            "currency": "MXN",
+            "status": "Pending",
+            "booking_date": "2026-06-10",
+            "remittance_information": "Transfer to a friend",
+        },
+    }
+
+    investigation = ToolResult(
+        tool="get_investigation_status",
+        payload={"case_id": "CASE-1", "status": "InReview", "next_step": "We will call you"},
+    )
+    follow_state = {
+        "stage": HubStage.FOLLOW_UP,
+        "case_ref": "CASE-1",
+        "tool_results": [investigation],
+    }
+    assert verified_card(follow_state) == {
+        "key": "case_status",
+        "payload": {"case_ref": "CASE-1", "status": "InReview", "next_step": "We will call you"},
+    }
+
+    # The act stage emits its own action_result card; verify adds nothing.
+    assert verified_card({"stage": HubStage.ACT, "tool_results": [detail]}) is None
+    # A turn without the matching verified result gets no card.
+    assert verified_card({"stage": HubStage.EXPLAIN, "tool_results": []}) is None
 
 
 def test_token_never_reaches_the_agent(happy_deps):
@@ -472,6 +528,11 @@ def test_act_allow_executes_with_token_and_read_back(deps_factory, fake_loader_f
     # The reply claiming the cancellation passed the cascade on attempt 1.
     verifier_records = records_of(deps, Stage.VERIFIER)
     assert [record.verdict for record in verifier_records] == ["pass"]
+    # FR-7: the action result card comes from the verified read-back.
+    assert final["card"]["key"] == "action_result"
+    assert final["card"]["payload"]["action"] == "request_cancellation"
+    assert final["card"]["payload"]["entry_reference"] == "E-MX-002"
+    assert final["card"]["payload"]["status"] == final["status"]
 
 
 def test_retry_allow_executes_with_read_back(deps_factory, fake_loader_factory):

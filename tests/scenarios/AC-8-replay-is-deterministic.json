@@ -31,6 +31,17 @@
     "route": "agents",
     "reply": "Su transferencia de 250000.00 COP está pendiente.",
     "escalated": false,
+    "card": {
+      "key": "payment_status",
+      "payload": {
+        "entry_reference": "E-CO-002",
+        "amount": "250000.00",
+        "currency": "COP",
+        "status": "Pending",
+        "booking_date": "2026-06-14",
+        "remittance_information": "Family support"
+      }
+    },
     "tool_calls": ["get_entry_detail"],
     "log_records": [{"stage": "classifier", "rule_id": "RT-ACT"}],
     "replay": {"route": "agents", "rule_id": "RT-ACT"}
