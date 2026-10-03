@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented |
 | Branch | `feat/customer-app` |
 | Depends on | TSD-003, TSD-009 |
 | Required by | the deployment (T-304), the evaluation demo (T-303) |

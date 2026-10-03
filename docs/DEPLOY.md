@@ -17,12 +17,15 @@ every key is a Space secret or a Vercel environment variable.
 API only (needs laya locally: `uv pip install laya`; the unit tests never do):
 
 ```bash
-CALVINO_DEMO_PASSCODE=<a-long-random-passcode> uv run python -m calvino.api
+CALVINO_DEMO_PASSCODE=<a-long-random-passcode> CALVINO_CONFIRMATION_KEY=<a-secret-of-32+-bytes> uv run python -m calvino.api
 curl http://127.0.0.1:7860/health        # {"status":"ok"}
 curl http://127.0.0.1:7860/ready         # {"ready":true} once the model is loaded
 curl -X POST http://127.0.0.1:7860/api/demo/decide \
   -H 'content-type: application/json' -H 'x-calvino-passcode: <passcode>' \
   -d '{"text": "Mi transferencia sigue pendiente desde ayer."}'
+curl -X POST http://127.0.0.1:7860/api/hub/message \
+  -H 'content-type: application/json' -H 'x-calvino-passcode: <passcode>' \
+  -d '{"persona": "ana", "text": "¿Por qué sigue pendiente E-MX-002?"}'
 ```
 
 With Docker (matches the Space image; the first build downloads torch and the
@@ -47,7 +50,7 @@ the result is the glass box (verdict, rule fired, scores, probabilities).
 
 ```bash
 docker run -d --name calvino -p 7860:7860 -v calvino-data:/data \
-  -e CALVINO_DEMO_PASSCODE=<passcode> calvino-demo:local
+  -e CALVINO_DEMO_PASSCODE=<passcode> -e CALVINO_CONFIRMATION_KEY=<key> calvino-demo:local
 # send one decide request, then:
 docker restart calvino
 docker exec calvino cat /data/decisions.jsonl      # the record is still there
@@ -71,6 +74,7 @@ docker exec calvino cat /data/decisions.jsonl      # the record is still there
    | Name | Type | Value |
    |---|---|---|
    | `CALVINO_DEMO_PASSCODE` | secret | a long random string, e.g. `openssl rand -hex 24` |
+   | `CALVINO_CONFIRMATION_KEY` | secret | a random string of at least 32 bytes, e.g. `openssl rand -hex 32`; without it the hub endpoints stay disabled (fail closed) |
    | `CALVINO_DEMO_RATE_LIMIT` | variable | optional; defaults to 30 per minute per client |
 
    `CALVINO_DATA_DIR` is already `/data` in the image; do not change it.
@@ -122,6 +126,7 @@ docker exec calvino cat /data/decisions.jsonl      # the record is still there
 |---|---|
 | `/ready` false for minutes after a restart | Normal on a cold Space: the preload loads the checkpoint into memory (baked weights make this minutes, not a download). Watch the Space logs for errors. |
 | `/api/demo/decide` returns 503 | `CALVINO_DEMO_PASSCODE` is not set: the endpoint fails closed until it is. |
+| `/api/hub/*` returns 503 | the hub is disabled: `CALVINO_CONFIRMATION_KEY` is missing or shorter than 32 bytes, or the bundled bank fixture is unreadable. `/api/demo/decide` keeps working. |
 | `/api/demo/decide` returns 403 | Wrong or missing `x-calvino-passcode` header. |
 | 429 | Rate limit: wait for the `Retry-After` window or raise `CALVINO_DEMO_RATE_LIMIT`. |
 | Frontend says "the demo backend is unreachable" | `BACKEND_URL` missing or wrong on Vercel; redeploy after fixing it. |

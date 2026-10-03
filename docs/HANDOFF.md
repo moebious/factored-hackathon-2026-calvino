@@ -42,7 +42,7 @@ In order. Items 3, 4 and 6 can start at once.
 | 4 | ~~Run the contract audit on the full data~~ done: passed, counts in `reports/data-quality/` (Contract audit). Delete the old `data/contracts` branch on GitHub | maintainer | — |
 | 5 | ~~Collect the analyst's round-two delivery~~ dead: the analyst has left the project. The analysis session's cross-check (2.3) is the recorded baseline; any re-run of 2.2's items is now a maintainer task | maintainer | — |
 | 6 | ~~Acceptance scenarios (decision 23)~~ done on `feat/hub`: AC-1 to AC-4, AC-6 and AC-8 seeded as data in `tests/scenarios/` with a scoreboard printed on every pytest run; AC-5 and AC-7 live in `tests/calvino/hub/test_graph.py`, AC-9 (write paths) lands with the customer app | maintainer | — |
-| 7 | ~~the hub (T-204)~~ built on `feat/hub`, pending review; next: the customer app (T-205) and deployment (T-304), then the message set (T-106), the support agent, durable cases and the evaluation with its bare-LLM ablation, per the backlog | sessions | 1 |
+| 7 | ~~the hub (T-204)~~ merged as #37; ~~the customer app (T-205)~~ built on `feat/customer-app` (TSD-010: hub endpoints, FR-7 cards, trace, TemplateAgent, the Next.js screen), pending review; next: deployment (T-304), then the message set (T-106), the support agent, durable cases and the evaluation with its bare-LLM ablation, per the backlog | sessions | 1 |
 | 8 | `policy/v2.yaml` with per-language thresholds (decision 22), when the hub reads per-language scores | session | 7 |
 | 9 | Repository settings: squash merging only, automatic deletion of head branches; delete merged remote branches | maintainer | — |
 
@@ -109,6 +109,9 @@ Beyond AGENTS.md, learned while shaping the project:
 | Planning drafts contained unmeasured figures (33 ms latency, F1 scores), BRL and PIX for a dataset without them, and dataset credentials | check every figure and field against DATA.md and the reports; never paste credentials into documents or chats; rotate a key that was exposed |
 | `Stage` has no `tool` member (hard_rules, classifier, gate, verifier, human only), and `open_investigation` has no tool-side fraud or status check (its `check_eligible` is a no-op) | log tool refusals under `Stage.HARD_RULES` with the tool's rule id; case-opening eligibility is the Gate's job (`GATE-INELIGIBLE`), never the tool's |
 | Hub graph tests that park a turn (`interrupt()`) fail without a checkpointer | build the graph with `InMemorySaver()` and resume with `Command(resume=…)` under the same thread id |
+| Routing sends every agents turn to the explain stage; the act stage only exists once a write is proposed and the Gate promotes the turn | an explicit action request proposes its write from the explain step — a literal cancel/retry keyword scan, never a model (decision 10) |
+| The TemplateAgent never picks between several problem payments (decision 10), so a message without a reference gets the picker question when the persona has more than one | scenario buttons for a single-payment flow cite the reference in the message (UC-1: `¿Por qué sigue pendiente E-MX-002?`) |
+| The hub endpoints return 503 while `/api/demo/decide` works | the hub is disabled fail-closed: `CALVINO_CONFIRMATION_KEY` (32+ bytes) is missing, or the bundled bank fixture is unreadable |
 
 ## 5. Environment notes
 
