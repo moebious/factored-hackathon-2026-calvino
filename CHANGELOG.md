@@ -17,6 +17,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - MCP tools (TSD-002): `calvino.tools` with ten stuck-payments tools built on the official MCP SDK, the `BankAdapter` protocol and a dataset adapter over a synthetic fixture, ISO 20022-aligned contracts as JSON Schema in `contracts/tools/`, a session attached by the hub (never a tool argument), single-use expiring confirmation tokens bound to one action, customer-scoped idempotency keys, stable refusal rule ids, and an adapter conformance suite.
 
+- Laya service and calibration (TSD-005, T-005): `calvino.classifiers` wrapping the real laya 0.3.24 router API pinned to the multilingual model (startup preload that fails fast when laya is absent), choice question builders with neutral binary keys, answers gated on laya's calibrated `answer_confidence` with `action.act_probability` stripped, temperature scaling fit per (question type, option count) with ECE and Brier before and after, a hand-rolled SVG reliability diagram, `scripts/run_calibration.py`, and a synthetic Spanish/Portuguese calibration fixture.
+
 ### Changed
 
 - README cut to the essentials (positioning, the five stages with a clean flow diagram, quick start, where to start); everything removed already lives in DESIGN, DATA, PITCH, AGENTS or the backlog; the specs index is shorter, with tasks and current statuses.

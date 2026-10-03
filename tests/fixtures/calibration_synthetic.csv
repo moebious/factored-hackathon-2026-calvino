@@ -1,0 +1,45 @@
+message,lang,question_type,option_count,question,option,predicted_prob,label
+Quiero hablar con una persona; esto ya es demasiado,es-MX,choice,2,needs_human,human needed,0.90,1
+No sé qué hacer: mi dinero no aparece y nadie me ayuda,es-CO,choice,2,needs_human,human needed,0.90,1
+Necesito que alguien revise mi caso urgentemente,es-AR,choice,2,needs_human,human needed,0.90,1
+Prefiero que me atienda un asesor humano por favor,es-MX,choice,2,needs_human,human needed,0.90,1
+Esto necesita autorización de un supervisor,es-CO,choice,2,needs_human,human needed,0.90,1
+Quiero que una persona me explique por qué retuvieron mi pago,es-AR,choice,2,needs_human,human needed,0.90,1
+Mi empresa necesita una excepción al límite de transferencia,es-MX,choice,2,needs_human,human needed,0.90,1
+Alguien tiene que aprobar la reversión manualmente,es-CO,choice,2,needs_human,human needed,0.90,1
+Quiero saber dónde está mi transferencia de hace tres días,es-MX,choice,2,needs_human,human needed,0.90,1
+Pueden reenviarme el comprobante de la operación,es-AR,choice,2,needs_human,human needed,0.90,1
+¿Cómo cambio mi límite diario de transferencias?,es-CO,choice,2,needs_human,human needed,0.90,0
+¿A qué hora abre el banco los fines de semana?,es-MX,choice,2,needs_human,human needed,0.90,0
+Quiero consultar el estado de mi pago pendiente,es-AR,choice,2,needs_human,human needed,0.90,0
+¿Dónde veo el historial de mis transferencias en la app?,es-CO,choice,2,needs_human,human needed,0.90,0
+Me pueden decir si mi pago ya salió,es-MX,choice,2,needs_human,human needed,0.90,0
+Quiero cancelar la transferencia que hice ayer,es-AR,choice,2,needs_human,human needed,0.90,1
+Preciso falar com um atendente sobre um pagamento parado,pt-BR,choice,2,needs_human,human needed,0.90,1
+Alguém pode resolver isso? Já perdi muito tempo,pt-BR,choice,2,needs_human,human needed,0.90,0
+Fiz um pagamento ontem e até agora não caiu na conta,pt-BR,choice,2,needs_human,human needed,0.90,0
+Mi transferencia lleva tres días detenida y el dinero no llega,es-MX,choice,5,workflow_area,stuck payment,0.90,1
+Hice un pago a otro banco y sigue en proceso desde el lunes,es-CO,choice,5,workflow_area,stuck payment,0.90,1
+El dinero salió de mi cuenta pero nunca llegó al destino,es-AR,choice,5,workflow_area,stuck payment,0.90,1
+Mi pago aparece como retenido ¿qué pasó?,es-MX,choice,5,workflow_area,stuck payment,0.90,1
+La transferencia internacional lleva una semana sin completarse,es-CO,choice,5,workflow_area,stuck payment,0.90,1
+Pagué el servicio y el sistema dice que el pago no se acreditó,es-AR,choice,5,workflow_area,stuck payment,0.90,1
+Mi depósito está en estado pendiente desde hace dos días,es-MX,choice,5,workflow_area,stuck payment,0.90,1
+O pagamento não caiu na conta do destinatário,pt-BR,choice,5,workflow_area,stuck payment,0.90,1
+Fiz uma transferência que sumiu no caminho,pt-BR,choice,5,workflow_area,stuck payment,0.90,1
+No reconozco esta cobranza en mi tarjeta,es-MX,choice,5,workflow_area,stuck payment,0.90,0
+Me cobraron dos veces por la misma compra,es-CO,choice,5,workflow_area,stuck payment,0.90,0
+Alguien usó mi tarjeta sin mi permiso,es-AR,choice,5,workflow_area,stuck payment,0.90,0
+Quiero abrir una cuenta nueva para mi negocio,es-MX,choice,5,workflow_area,stuck payment,0.90,0
+¿Cómo solicito un crédito hipotecario?,es-CO,choice,5,workflow_area,stuck payment,0.90,0
+¿Qué clima va a hacer mañana en la ciudad?,es-AR,choice,5,workflow_area,stuck payment,0.90,0
+El dinero fue debitado pero la operación fue revertida,es-MX,choice,5,workflow_area,stuck payment,0.80,1
+Mi pago se quedó en proceso y me devolvieron el saldo,es-CO,choice,5,workflow_area,stuck payment,0.80,1
+La transferencia está detenida por una validación,es-AR,choice,5,workflow_area,stuck payment,0.80,1
+Transferí a una cuenta equivocada y quiero saber si se puede recuperar,es-MX,choice,5,workflow_area,stuck payment,0.80,1
+O dinheiro saiu da minha conta e voltou dois dias depois,pt-BR,choice,5,workflow_area,stuck payment,0.80,1
+Me pagaron pero el depósito nunca apareció en mi cuenta,es-CO,choice,5,workflow_area,stuck payment,0.80,1
+El pago de mi renta figura como enviado pero mi casera no lo recibió,es-AR,choice,5,workflow_area,stuck payment,0.80,1
+No me reconoce la tarjeta al pagar en línea,es-MX,choice,5,workflow_area,stuck payment,0.80,0
+Veo movimientos raros en mi cuenta de ahorro,es-CO,choice,5,workflow_area,stuck payment,0.80,0
+Quiero dar de alta un nuevo beneficiario,es-AR,choice,5,workflow_area,stuck payment,0.80,0
