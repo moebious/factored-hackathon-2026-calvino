@@ -10,6 +10,7 @@ dependencies = [
     "anyio>=4.15.1",
     "duckdb>=1.5.6",
     "mcp>=2.2.0",
+    "numpy>=1.26,<2",
     "pydantic>=2.7,<3",
     "pyyaml>=6.0.3",
 ]
@@ -31,6 +32,9 @@ packages = ["src/calvino"]
 [tool.pytest.ini_options]
 testpaths = ["tests/calvino"]
 addopts = "-q --import-mode=importlib"
+markers = [
+    "integration: tests that run the real Laya model (need `uv pip install laya`; skipped in CI)",
+]
 
 [tool.ruff]
 line-length = 100
