@@ -36,7 +36,7 @@ In order. Items 3, 4 and 6 can start at once.
 
 | # | Action | Owner | Blocked by |
 |---|---|---|---|
-| 1 | Create the Hugging Face account and Space; for the judge only, enable Inference Providers billing with a spending cap and add `HF_TOKEN` (decision 27 left the agent on Hetzner, which needs its own token); create the Vercel project | maintainer | — |
+| 1 | Create the Hugging Face account and Space; for the judge only, enable Inference Providers billing with a spending cap and add `HF_TOKEN` (decision 28 left the agent on Hetzner, which needs its own token); create the Vercel project | maintainer | — |
 | 2 | Ask the organizers whether the dataset key should be rotated (it appeared in a planning document pasted into an external chat); fix the access key id in the environment (must be 20 characters) | maintainer | — |
 | 3 | ~~Review and merge TSD-004's PR~~ done: merged as #36; Wave 0 complete | maintainer | — |
 | 4 | ~~Run the contract audit on the full data~~ done: passed, counts in `reports/data-quality/` (Contract audit). Delete the old `data/contracts` branch on GitHub | maintainer | — |

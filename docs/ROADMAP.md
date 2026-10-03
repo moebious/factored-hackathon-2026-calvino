@@ -17,9 +17,9 @@ How Calvino gets built: in waves of parallel work, each piece one branch, one wo
 
 - [x] Merge the foundation PRs (git workflow enforcement, concept, `v0.1.0`) and the Python scaffold (TSD-000).
 - [ ] Environment variables for agent sessions: dataset access (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `CALVINO_DATA_BUCKET`), the LLM provider key, `HF_TOKEN`.
-- [ ] Language-model variables (decision 27): `CALVINO_LLM_API_KEY` and `CALVINO_LLM_MODEL` for the agent role on Hetzner, and `CALVINO_JUDGE_API_KEY`, `CALVINO_JUDGE_BASE_URL` and `CALVINO_JUDGE_MODEL` for the judge on its own provider. `CALVINO_LLM_BASE_URL`, `CALVINO_LLM_MAX_REQUESTS` and `CALVINO_LLM_TIMEOUT_SECONDS` are optional overrides; nothing has a default that would send traffic somewhere nobody chose.
+- [ ] Language-model variables (decision 28): `CALVINO_LLM_API_KEY` and `CALVINO_LLM_MODEL` for the agent role on Hetzner, and `CALVINO_JUDGE_API_KEY`, `CALVINO_JUDGE_BASE_URL` and `CALVINO_JUDGE_MODEL` for the judge on its own provider. `CALVINO_LLM_BASE_URL`, `CALVINO_LLM_MAX_REQUESTS` and `CALVINO_LLM_TIMEOUT_SECONDS` are optional overrides; nothing has a default that would send traffic somewhere nobody chose.
 - [ ] Hugging Face Space and Vercel project created; DNS for `calvino.rubrica.dev` when the app is ready.
-- [ ] Judge provider (decision 27): Hugging Face Inference Providers with billing enabled and a spending cap, for a DeepSeek judge from another family than the agent's Qwen; the agent model no longer needs it, Hetzner serves that. `HF_TOKEN` is still set for the Space, and `CALVINO_CONFIRMATION_KEY` for the tools.
+- [ ] Judge provider (decision 28): Hugging Face Inference Providers with billing enabled and a spending cap, for a DeepSeek judge from another family than the agent's Qwen; the agent model no longer needs it, Hetzner serves that. `HF_TOKEN` is still set for the Space, and `CALVINO_CONFIRMATION_KEY` for the tools.
 
 ## Wave 0: foundations without real data
 

@@ -5,7 +5,7 @@
 | Wave | 3 |
 | Branch | `feat/support-agent` |
 | Depends on | T-204, T-206 |
-| Blocked by | LLM provider keys (decision 27: the client exists, the tokens do not) |
+| Blocked by | LLM provider keys (decision 28: the client exists, the tokens do not) |
 | Model | standard model |
 | Can run in parallel | no |
 | References | decision 15; DESIGN.md 4.0 |

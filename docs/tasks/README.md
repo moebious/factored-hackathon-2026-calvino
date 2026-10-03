@@ -65,7 +65,6 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo | maintainer |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | done | maintainer |
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | review | maintainer |
-| [T-008](../specs/TSD-008-llm-client.md) | LLM client and Hetzner provider | 0 | T-000 | — | standard | yes | review | maintainer |
 | [T-101](T-101-contact-reason-analysis.md) | Contact-reason analysis and workflow decision | 1 | — | dataset access | judgment checkpoint | yes | done (decision 17) | maintainer |
 | [T-102](../specs/TSD-007-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | done | maintainer |
 | [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | todo | analyst |
