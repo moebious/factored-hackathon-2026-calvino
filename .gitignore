@@ -242,6 +242,7 @@ frontend/dist/
 # Runtime outputs
 decisions.jsonl
 *.log
+reports/calibration/
 
 # Model weights and checkpoints (download them; never commit them)
 *.safetensors
