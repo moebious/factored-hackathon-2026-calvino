@@ -1,0 +1,25 @@
+{
+  "name": "calvino-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Minimal demo frontend for Project Calvino (TSD-003); the customer app (T-205) replaces it",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "^14.2.5",
+    "typescript": "^5"
+  }
+}
