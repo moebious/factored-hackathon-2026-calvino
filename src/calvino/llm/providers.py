@@ -62,6 +62,23 @@ class ObservedCatalogue(BaseModel):
     source: str = Field(min_length=1)
     ids: tuple[str, ...] = Field(min_length=1)
     served_count: int | None = Field(default=None, ge=1)
+    # Recorded for the first live call, so a later reader can see what the provider actually did
+    # rather than only which ids it listed.
+    # Named for the probe that produced them. A one-word "Reply with exactly: OK" answers in a
+    # couple of seconds and is the honest cost of a health check; it is not what the demo sends,
+    # and recording it under a bare "latency_ms" invited exactly that reading.
+    latency_ms_probe: int | None = Field(default=None, ge=0)
+    latency_ms_probe_cold: int | None = Field(default=None, ge=0)
+    probe_output_tokens_median: int | None = Field(default=None, ge=0)
+    # A real three-sentence reply to a real customer message: the figure to design against.
+    draft_latency_ms: int | None = Field(default=None, ge=0)
+    draft_output_tokens_median: int | None = Field(default=None, ge=0)
+    reasoning_models: bool | None = None
+    # Ids that returned nothing within the patience recorded here, as (id, seconds). Deliberately
+    # not a verdict: how long we waited says something about our client, not about the model. A
+    # DeepSeek id on another provider answered at 273 s, long after this client had given up at
+    # 91 s, so "no answer within N seconds" must never be read as "this model is dead".
+    no_answer_within_seconds: tuple[tuple[str, float], ...] = ()
 
 
 class ProviderFile(BaseModel):
