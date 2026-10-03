@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Python package scaffold (TSD-000): `uv` project, shared types (`Route`, `GateVerdict`, `HumanAction`, `Stage`, `DecisionRecord`), the append-only decision log with a reader for replay, and a CI job running ruff and pytest.
 - Analysis scripts (`scripts/analysis/`) and tests (`tests/analysis/`): table fetch from the data bucket, Parquet cache, verification of the data analyst's decision-matrix numbers, a data-quality report and an independent T-104 headline baseline.
 - Aggregate reports on the full dataset (`reports/contact-reasons/`, `reports/data-quality/`, `reports/baseline/`): W1/W2 transaction mapping, ten data-quality findings with chance checks, and headline interaction and complaint metrics.
+- ADR-027 and Decision 27: Laya deployment on Hugging Face Spaces (`calvino-laya`) using Gradio SDK (16 GB RAM, $0.00 cost) with native FastAPI endpoints for Vercel, and decoupled GPU fine-tuning (Kaggle/Colab T4 in 3 min) exporting to Model Hub. Visual multi-criteria comparison report in `reports/comparativa_despliegue_laya.html`.
 
 - Policy engine (TSD-001): `calvino.policy` with `decide_route`, `decide_gate` and `replay_decision`, the versioned `policy/v1.yaml` (thresholds as hypotheses, per-currency limits as policy assumptions), fail-closed handling of missing or malformed inputs, and records that hold every input read so decisions replay from the log.
 
