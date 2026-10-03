@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 from calvino.llm.errors import LlmError
-from calvino.llm.hetzner import clients_from_env
+from calvino.llm.hetzner import hetzner_client_from_env, judge_client_from_env
 from calvino.llm.providers import ProviderFile, configuration_problems, load_providers
 from calvino.llm.verify import unrecorded, verify_catalogue
 
@@ -56,30 +56,43 @@ def main() -> int:
 
 
 def check_catalogue(providers: ProviderFile) -> list[str]:
-    """Ask both providers what they serve. Returns one line per failure."""
-    try:
-        clients = clients_from_env()
-    except LlmError as error:
-        # Building both clients is also the check that the deployment has both roles configured,
-        # so a missing key is reported rather than raised.
-        return [f"the clients are not configured, so no catalogue was checked ({error.message})"]
+    """Ask each configured role's provider what it serves. Returns one line per failure.
+
+    Each role is built on its own, so a deployment that has the agent live and the judge not
+    yet configured can still check the agent. A role that is not configured is a note, not a
+    failure; only having nothing to check at all is a failure.
+    """
+    builders = {
+        "agent": (lambda: hetzner_client_from_env(), "CALVINO_LLM_*"),
+        "judge": (lambda: judge_client_from_env(), "CALVINO_JUDGE_*"),
+    }
 
     failures: list[str] = []
-    for name, client in (("agent", clients.agent), ("judge", clients.judge)):
+    checked = 0
+    for role, (build, prefix) in builders.items():
+        try:
+            client = build()
+        except LlmError:
+            print(f"  note: {role} not checked, {prefix} is not configured")
+            continue
+        checked += 1
         try:
             served = client.list_models()
         except LlmError as error:
-            failures.append(f"{name}: {providers.role(name).model} could not be checked ({error})")
+            failures.append(f"{role}: {providers.role(role).model} could not be checked ({error})")
             continue
-        failures.extend(verify_catalogue(providers.role(name).model, served, role=name))
-        recorded = _recorded_ids(providers, name)
+        failures.extend(verify_catalogue(providers.role(role).model, served, role=role))
+        recorded = _recorded_ids(providers, role)
         if recorded:
             extra = unrecorded(recorded, served)
             if extra:
                 shown = ", ".join(extra[:3]) + (
                     f" and {len(extra) - 3} more" if len(extra) > 3 else ""
                 )
-                print(f"  note: {name} serves {len(extra)} id(s) not in the snapshot: {shown}")
+                print(f"  note: {role} serves {len(extra)} id(s) not in the snapshot: {shown}")
+
+    if not checked:
+        failures.append("neither role is configured, so no provider was asked what it serves")
     return failures
 
 

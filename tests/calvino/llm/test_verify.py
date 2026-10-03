@@ -119,3 +119,26 @@ def test_the_script_reports_an_unconfigured_deployment_instead_of_raising():
     assert result.returncode == 1
     assert "not configured" in result.stdout
     assert result.stderr == ""
+
+
+def test_the_script_checks_a_role_that_is_configured_without_the_other():
+    """Verifying the agent's model id must not require the judge's provider account."""
+    env = {
+        **os.environ,
+        "CALVINO_LLM_API_KEY": "unit-test-agent-value",
+        "CALVINO_LLM_MODEL": AGENT_MODEL,
+    }
+    for key in ("CALVINO_JUDGE_API_KEY", "CALVINO_JUDGE_BASE_URL", "CALVINO_JUDGE_MODEL"):
+        env.pop(key, None)
+    result = subprocess.run(
+        [sys.executable, "scripts/check_providers.py"],
+        capture_output=True,
+        text=True,
+        env=env,
+        cwd=Path(__file__).resolve().parents[3],
+    )
+    output = result.stdout
+    assert "judge not checked" in output, output
+    assert "neither role is configured" not in output, output
+    # It reached the provider and got a real answer back, rather than stopping at the judge.
+    assert "agent:" in output and ("401" in output or "not served" in output), output
