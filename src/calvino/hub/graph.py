@@ -346,6 +346,22 @@ def build_hub_graph(
             ),
             "stage": HubStage.EXPLAIN,
             "tool_rounds": 0,
+            # Per-turn resets: on a resumed thread a stale failure, action or
+            # reply must not leak into the new turn. The focused transaction,
+            # an open case and the accumulated evidence are thread state and
+            # stay on purpose.
+            "escalated": False,
+            "escalate_reason": None,
+            "action": None,
+            "gate_verdict": None,
+            "action_amount": None,
+            "action_currency": None,
+            "draft": None,
+            "question": None,
+            "reply": None,
+            "card": None,
+            "pending_calls": [],
+            "case_file": [],
         }
 
     def classify(state: HubState, config: RunnableConfig) -> dict[str, Any]:
@@ -771,13 +787,14 @@ def build_hub_graph(
         }
 
     def escalate(state: HubState, config: RunnableConfig) -> dict[str, Any]:
-        """The human hand-off: a case reference, the case file so far, a logged record.
+        """The failure sink: a case reference, the case file so far, a logged record.
 
-        The full case file, ``open_investigation`` and the ``interrupt()`` for
-        the operator queue land with the investigate step; this sink already
-        carries everything the earlier nodes collected.
+        The deliberate human route runs investigate and handoff instead; this
+        sink carries the failure paths (session, classifier, tool loop, agent
+        error, verification, denied approval) and reuses an open case when
+        the thread already has one.
         """
-        case_ref = f"case-{uuid.uuid4().hex[:12]}"
+        case_ref = state.get("case_ref") or f"case-{uuid.uuid4().hex[:12]}"
         reason = state.get("escalate_reason") or state.get("rule_id") or "route-human"
         case_file = list(state.get("case_file", []))
         if not case_file:

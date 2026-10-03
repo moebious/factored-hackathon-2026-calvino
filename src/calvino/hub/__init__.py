@@ -14,6 +14,8 @@ Public API:
 - HubDependencies, FraudContext, ConfirmationIssuer, build_hub_graph, STAGE_TOOLS: the
   LangGraph graph wiring the stages together; the session token travels in the invoke
   config, never in the state.
+- HubService, HubReply: the demo-facing facade — one call per customer message, resume for
+  the parked operator steps, and the checkpointer on ``CALVINO_DATA_DIR``.
 """
 
 from calvino.hub.agent import (
@@ -39,6 +41,7 @@ from calvino.hub.playbook import (
     StatusGuidance,
     load_playbook,
 )
+from calvino.hub.service import HubReply, HubService
 from calvino.hub.sessions import DEFAULT_SESSION_TTL, TrustedSessionIssuer
 from calvino.hub.state import HubStage, HubState
 
@@ -54,6 +57,8 @@ __all__ = [
     "ConfirmationIssuer",
     "FraudContext",
     "HubDependencies",
+    "HubReply",
+    "HubService",
     "HubStage",
     "HubState",
     "Playbook",
