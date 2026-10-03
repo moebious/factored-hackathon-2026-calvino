@@ -11,6 +11,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-006](TSD-006-contact-reason-analysis.md): contact-reason analysis (superseded by decision 17)
 - [TSD-007](TSD-007-data-contracts.md): data contracts, audit and lineage
 - [TSD-008](TSD-008-gradio-demo.md): Gradio demo deployment adapter
+- [TSD-009](TSD-009-hub.md): Calvino hub
 
 Later tasks write their spec from their task card as the first step, numbered from TSD-008, and wait for the maintainer's approval before any code.
 
