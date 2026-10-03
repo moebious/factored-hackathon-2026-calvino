@@ -62,18 +62,17 @@ def check_catalogue(providers: ProviderFile) -> list[str]:
     yet configured can still check the agent. A role that is not configured is a note, not a
     failure; only having nothing to check at all is a failure.
     """
-    builders = {
-        "agent": (lambda: hetzner_client_from_env(), "CALVINO_LLM_*"),
-        "judge": (lambda: judge_client_from_env(), "CALVINO_JUDGE_*"),
-    }
+    builders = {"agent": hetzner_client_from_env, "judge": judge_client_from_env}
 
     failures: list[str] = []
     checked = 0
-    for role, (build, prefix) in builders.items():
+    for role, build in builders.items():
         try:
             client = build()
-        except LlmError:
-            print(f"  note: {role} not checked, {prefix} is not configured")
+        except LlmError as error:
+            # The exception names the variable that is missing, which is the whole point of the
+            # check; a generic "not configured" note sent us after the wrong variable once already.
+            print(f"  note: {role} not checked: {error.message}")
             continue
         checked += 1
         try:

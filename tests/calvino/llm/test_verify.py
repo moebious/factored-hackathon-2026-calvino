@@ -117,7 +117,7 @@ def test_the_script_reports_an_unconfigured_deployment_instead_of_raising():
     )
     # No keys: the catalogue is skipped, and the missing configuration is the failure.
     assert result.returncode == 1
-    assert "not configured" in result.stdout
+    assert "not checked:" in result.stdout
     assert result.stderr == ""
 
 
@@ -142,3 +142,17 @@ def test_the_script_checks_a_role_that_is_configured_without_the_other():
     assert "neither role is configured" not in output, output
     # It reached the provider and got a real answer back, rather than stopping at the judge.
     assert "agent:" in output and ("401" in output or "not served" in output), output
+
+
+def test_the_skip_note_names_the_variable_that_is_missing():
+    """A generic "not configured" note sent us after the wrong variable once already."""
+    env = {key: value for key, value in os.environ.items() if not key.startswith("CALVINO_")}
+    result = subprocess.run(
+        [sys.executable, "scripts/check_providers.py"],
+        capture_output=True,
+        text=True,
+        env=env,
+        cwd=Path(__file__).resolve().parents[3],
+    )
+    assert "CALVINO_LLM_API_KEY must be set" in result.stdout, result.stdout
+    assert "not configured" not in result.stdout, result.stdout
