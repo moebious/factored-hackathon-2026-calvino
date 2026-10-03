@@ -41,6 +41,16 @@ def test_amounts_pass_in_spanish_format():
     assert verdict.passed
 
 
+def test_plain_contract_amounts_pass():
+    # Contracts serialize amounts without thousand separators ("5000.00");
+    # quoting one verbatim must match the evidence instead of splitting into
+    # a stray decimal token that no tool result carries.
+    plain = EVIDENCE.model_copy(update={"amounts": frozenset({Decimal("5000.00")})})
+    assert check_amounts_dates_merchants("Su transferencia de 5000.00 MXN.", plain).passed
+    long_plain = EVIDENCE.model_copy(update={"amounts": frozenset({Decimal("50000.00")})})
+    assert check_amounts_dates_merchants("El saldo es de 50000.00 MXN.", long_plain).passed
+
+
 def test_unknown_amount_fails():
     verdict = check_amounts_dates_merchants("Le devolvimos 2,500.00 MXN.", EVIDENCE)
     assert not verdict.passed
