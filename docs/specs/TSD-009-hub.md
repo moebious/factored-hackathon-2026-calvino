@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented |
 | Branch | `feat/hub` |
 | Depends on | TSD-000, TSD-001, TSD-002, TSD-004, TSD-005 |
 | Required by | the support agent (T-301), the customer app (T-205), the operator queue (T-302), the evaluation (T-303), durable cases (T-401) |
