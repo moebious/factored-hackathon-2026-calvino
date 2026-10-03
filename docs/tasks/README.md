@@ -69,6 +69,7 @@ Owner: **analyst** (data analysis and MLOps; delivers files that the maintainer 
 | [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo | maintainer |
 | [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | todo | maintainer |
 | [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | todo | maintainer |
+| [T-305](T-305-gradio-demo-adapter.md) | Gradio demo adapter (free hosted demo) | 3 | T-005 | free Space (maintainer) | standard | yes | todo | maintainer |
 | [T-401](T-401-durable-cases.md) | Durable cases | 3 | T-204, T-302 | — | standard | yes | todo | maintainer |
 | [T-402](T-402-verifier-panel.md) | Risk-tiered verifier panel | 4 | T-004, T-303 | Tier 0 gate | standard | yes | todo | maintainer |
 | [T-403](T-403-coworker-agent.md) | Coworker agent | 4 | T-302 | Tier 0 gate | standard | yes | todo | maintainer |
