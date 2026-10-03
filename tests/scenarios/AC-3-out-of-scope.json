@@ -2,7 +2,7 @@
   "id": "AC-3",
   "title": "out-of-scope request gets an honest reply and a path to a person, with no tools",
   "persona": "camilo",
-  "message": "¿Me recomiendas un restaurante para cenar esta noche?",
+  "message": "¿Puedes ayudarme con mi tarea de matemáticas?",
   "probabilities": {
     "workflow_area": {
       "stuck payment": 0.01,

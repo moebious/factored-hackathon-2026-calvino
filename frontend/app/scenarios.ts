@@ -3,7 +3,9 @@
 // seconds. The messages are the seeded acceptance scenarios' own inputs
 // (tests/scenarios/), adapted where the deterministic TemplateAgent needs a
 // reference in the message to focus a single payment (decision 10: it never
-// picks between several payments).
+// picks between several payments), and tuned to laya 0.3.24's measured
+// scores under policy v2 so each button lands on the route its use case
+// demonstrates (decision 30).
 
 import { strings } from "./i18n";
 import type { Lang, StringKey } from "./i18n";
@@ -26,13 +28,13 @@ export const SCENARIOS: Scenario[] = [
     id: "uc-2",
     labelKey: "scenario_uc2",
     persona: "ana",
-    message: "Hola, tengo un problema con un pago",
+    message: "Buenas, tengo una duda con un pago de mi cuenta",
   },
   {
     id: "uc-3",
     labelKey: "scenario_uc3",
     persona: "camilo",
-    message: "¿Me recomiendas un restaurante para cenar esta noche?",
+    message: "¿Puedes ayudarme con mi tarea de matemáticas?",
   },
   {
     id: "uc-4",
@@ -44,7 +46,7 @@ export const SCENARIOS: Scenario[] = [
     id: "uc-5",
     labelKey: "scenario_uc5",
     persona: "dana",
-    message: "¿Pueden reintentar mi transferencia?",
+    message: "Reintentar transferencia E-US-001",
   },
   {
     id: "uc-7",

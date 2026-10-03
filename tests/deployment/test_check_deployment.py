@@ -91,7 +91,7 @@ def _reply_body(reply: str = "Su transferencia sigue pendiente.") -> dict[str, A
 def _healthy_responders() -> dict[tuple[str, str], Any]:
     def message(body: dict[str, Any]) -> StubResponse:
         text = body["text"]
-        if "reintentar" in text:
+        if "reintentar" in text.casefold():  # the tuned message starts with a capital (decision 30)
             return StubResponse(
                 payload={
                     "reply": "",
@@ -161,7 +161,7 @@ def test_dana_s_retry_is_the_approval_scenario() -> None:
     retry = next(scenario for scenario in cd.SCENARIOS if scenario.id == "uc-5")
     assert retry.persona == "dana"
     assert retry.kind == "approval"
-    assert "reintentar" in retry.message
+    assert "reintentar" in retry.message.casefold()
 
 
 def test_the_operator_queue_has_its_own_scenario() -> None:
