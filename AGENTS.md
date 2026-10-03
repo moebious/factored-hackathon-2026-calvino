@@ -21,7 +21,7 @@ Application directories are planned and created as code lands; update this secti
 
 | Path | Contents |
 |---|---|
-| `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `data`, `policy`, `tools`, `verifier`, `classifiers` and `hub` subpackages |
+| `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `api`, `classifiers`, `data`, `hub`, `llm`, `policy`, `tools` and `verifier` subpackages |
 | `frontend/` | Next.js customer app and operator view (planned; CopilotKit / AG-UI console in Tier 2) |
 | `policy/` | Versioned policy files (`v1.yaml`): every threshold and limit the policy engine reads |
 | `providers.yaml` | The committed record of which model answers each language role, on which provider, and what that provider served on the date it was checked (decision 29). Keys are never here |
