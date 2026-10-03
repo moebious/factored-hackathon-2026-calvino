@@ -34,6 +34,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- The Space image pins `laya==0.3.24` exactly instead of the floating `>=0.3.23,<0.4` range: 0.3.24 is the version TSD-005 wraps and the calibration was fit against, and laya 0.3.26's classifier calls `torch.is_autocast_enabled(device)` (needs torch ≥ 2.4), which broke every classify call on torch 2.2.2 `[measured]` on the first live local run. Bumping laya now means re-running the calibration and the deployment smoke check.
 - The agent-role LLM provider is Hetzner's Inference API and the judge stays on a second provider (decision 28, refining 20); DESIGN, ROADMAP, PLAN and the backlog name the `CALVINO_LLM_*` and `CALVINO_JUDGE_*` variables, and using a chat API as the System One classifier is recorded as rejected.
 - The inference layout is recorded rather than left to be re-litigated: `calvino.llm/` is the external model boundary and Laya stays in `calvino.classifiers/`, because inference splits on whether the output is an input to the policy or downstream of it. A bare root module and a single all-inference folder are recorded as rejected alternatives.
 - The language models are selected (decision 29): `Qwen/Qwen3.6-35B-A3B-FP8` for the agent on Hetzner and the dated release `deepseek/deepseek-v4-pro-0813` for the judge on OpenRouter. The judge id names an exact release; Hetzner's catalogue carries no version, so the agent's pin is a provider id and is recorded as one. The agent model stays open to the T-106 A/B.

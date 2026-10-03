@@ -25,8 +25,13 @@ RUN useradd --create-home --uid 1000 calvino \
 WORKDIR /app
 
 # Third-party dependencies only; laya pulls torch (CPU wheels are fine on a
-# Space). Version floor matches what TSD-005 verified (laya 0.3.23/0.3.24).
-RUN pip install --no-cache-dir "fastapi>=0.115" "uvicorn>=0.30" "laya>=0.3.23,<0.4"
+# Space). laya is pinned exactly to the version TSD-005 wraps and the
+# calibration was fit against: 0.3.26's classifier calls
+# torch.is_autocast_enabled(device), which needs torch >= 2.4, and broke
+# every classify call on torch 2.2.2 [measured on the first live local
+# run]. Bumping laya is a deliberate change that re-runs the calibration
+# and the deployment smoke check, not a floating range.
+RUN pip install --no-cache-dir "fastapi>=0.115" "uvicorn>=0.30" "laya==0.3.24"
 
 # Bake the multilingual checkpoint into the image at build time; the preload
 # at startup then only loads weights that are already on disk.
