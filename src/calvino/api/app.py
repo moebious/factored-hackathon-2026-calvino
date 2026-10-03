@@ -99,6 +99,23 @@ class RateLimiter:
         return max(1, int(hits[0] + 60.0 - now) + 1)
 
 
+def client_key(request: Request) -> str:
+    """The client identity the rate limit keys on.
+
+    Behind Vercel's rewrite every judge reaches the Space from the same
+    egress IP, so keying on the direct peer would turn the per-client cap
+    into a global one during judging. Vercel forwards the browser's IP as
+    the first ``X-Forwarded-For`` entry; a client hitting the Space URL
+    directly can spoof the header, which weakens the rate limit but never
+    the passcode (NFR-8 trade-off, TSD-012).
+    """
+    forwarded = request.headers.get("x-forwarded-for", "")
+    first = forwarded.split(",")[0].strip()
+    if first:
+        return first
+    return request.client.host if request.client is not None else "unknown"
+
+
 def create_app(
     loader: SystemOneLoader,
     settings: ApiSettings | None = None,
@@ -124,7 +141,7 @@ def create_app(
         given = request.headers.get(PASSCODE_HEADER, "")
         if not secrets.compare_digest(given, settings.demo_passcode):
             raise HTTPException(status_code=403, detail="invalid demo passcode")
-        client = request.client.host if request.client is not None else "unknown"
+        client = client_key(request)
         now = time.monotonic()
         if not limiter.allow(client, now):
             raise HTTPException(

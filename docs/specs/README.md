@@ -14,6 +14,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-009](TSD-009-hub.md): Calvino hub
 - [TSD-010](TSD-010-customer-app.md): customer app with Laya cards
 - [TSD-011](TSD-011-llm-client.md): LLM client and Hetzner provider
+- [TSD-012](TSD-012-deploy-demo.md): deploy the demo at `calvino.rubrica.dev`
 
-Later tasks write their spec from their task card as the first step, numbered from TSD-012, and wait for the maintainer's approval before any code.
+Later tasks write their spec from their task card as the first step, numbered from TSD-013, and wait for the maintainer's approval before any code.
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.

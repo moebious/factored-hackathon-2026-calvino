@@ -8,7 +8,7 @@
 | Blocked by | hosting accounts (maintainer) |
 | Model | standard model |
 | Can run in parallel | yes |
-| References | TSD-003; PRD NFR-5, NFR-8 |
+| References | TSD-003; TSD-012 (spec); PRD NFR-5, NFR-8 |
 
 **Goal.** Put the working system on `calvino.rubrica.dev`.
 
@@ -20,4 +20,10 @@
 
 **Done when.** every scenario button works on the public link after a cold start
 
-**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
+**Status.** Specified as [TSD-012](../specs/TSD-012-deploy-demo.md); code
+complete on `build/deploy-demo`: the rate-limit identity fix
+(`X-Forwarded-For` keying, raised limit for the judging window), the live
+smoke check (`scripts/check_deployment.py`) with offline tests, and the
+DEPLOY.md corrections. Remaining: the maintainer's live run per
+[docs/DEPLOY.md](../DEPLOY.md) — accounts, secrets, domain, and a
+smoke-check pass after a cold start.

@@ -60,11 +60,12 @@ docker exec calvino cat /data/decisions.jsonl      # the record is still there
 
 1. New Space: name it (for example `calvino-demo`), SDK **Docker**, blank
    template, public (or private until the demo).
-2. A Space is its own git remote. Push the branch (or `main`, once merged) to
-   it; authenticating with your Hugging Face write token when asked:
+2. A Space is its own git remote. Push `main` (the demo runs from `main`,
+   never from a feature branch), authenticating with your Hugging Face write
+   token when asked:
    ```bash
    git remote add space https://huggingface.co/spaces/<user>/<space>
-   git push space build/deploy-skeleton:main
+   git push space main:main
    ```
    The Space rebuilds on every push. The checkpoint is baked into the image at
    build time, so the first build is slow (several GB of downloads) and every
@@ -75,7 +76,7 @@ docker exec calvino cat /data/decisions.jsonl      # the record is still there
    |---|---|---|
    | `CALVINO_DEMO_PASSCODE` | secret | a long random string, e.g. `openssl rand -hex 24` |
    | `CALVINO_CONFIRMATION_KEY` | secret | a random string of at least 32 bytes, e.g. `openssl rand -hex 32`; without it the hub endpoints stay disabled (fail closed) |
-   | `CALVINO_DEMO_RATE_LIMIT` | variable | optional; defaults to 30 per minute per client |
+   | `CALVINO_DEMO_RATE_LIMIT` | variable | `120` for the judging window: behind the Vercel rewrite every judge shares one egress IP, so one budget must cover all of them (the guard keys on the first `X-Forwarded-For` entry; the default of 30 would cap the whole room) |
 
    `CALVINO_DATA_DIR` is already `/data` in the image; do not change it.
 4. Settings → Persistent storage: enable it and make sure it mounts at
@@ -111,7 +112,26 @@ docker exec calvino cat /data/decisions.jsonl      # the record is still there
 3. Wait for the certificate, then re-check the demo through
    `https://calvino.rubrica.dev`.
 
-## 5. Keep-alive
+## 5. Smoke check
+
+With the domain live, prove the deployment end to end (TSD-012): the frontend
+is served, the backend wakes and preloads within the cold-start budget, and
+every scenario turn works, including the parked approval and the operator
+queue. The passcode comes from the environment only; it never reaches argv or
+the printed output:
+
+```bash
+CALVINO_DEMO_PASSCODE=<passcode> uv run python scripts/check_deployment.py \
+  --url https://calvino.rubrica.dev
+```
+
+One line per check, every latency tagged `[measured]`; exit 0 only when every
+check passes. Checks are structural (a card or a non-empty reply with a
+trace, never text equality) and a failed hub turn is never retried. Cold
+Space? The script polls `/health` and `/ready` for up to `--timeout` seconds
+(default 300) and reports both timings separately.
+
+## 6. Keep-alive
 
 1. GitHub → repository → Settings → Secrets and variables → Actions →
    Variables: add `CALVINO_PUBLIC_URL` = `https://calvino.rubrica.dev` (or the
@@ -120,7 +140,7 @@ docker exec calvino cat /data/decisions.jsonl      # the record is still there
    (`.github/workflows/keep-alive.yml`). Until the variable exists it skips
    itself, so CI stays green while the accounts are being created.
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 | Symptom | Cause and fix |
 |---|---|
@@ -128,6 +148,6 @@ docker exec calvino cat /data/decisions.jsonl      # the record is still there
 | `/api/demo/decide` returns 503 | `CALVINO_DEMO_PASSCODE` is not set: the endpoint fails closed until it is. |
 | `/api/hub/*` returns 503 | the hub is disabled: `CALVINO_CONFIRMATION_KEY` is missing or shorter than 32 bytes, or the bundled bank fixture is unreadable. `/api/demo/decide` keeps working. |
 | `/api/demo/decide` returns 403 | Wrong or missing `x-calvino-passcode` header. |
-| 429 | Rate limit: wait for the `Retry-After` window or raise `CALVINO_DEMO_RATE_LIMIT`. |
+| 429 | Rate limit: the guard keys on the first `X-Forwarded-For` entry (behind Vercel every judge shares one egress IP); wait for the `Retry-After` window or raise `CALVINO_DEMO_RATE_LIMIT`. |
 | Frontend says "the demo backend is unreachable" | `BACKEND_URL` missing or wrong on Vercel; redeploy after fixing it. |
 | Decisions gone after a restart | Persistent storage not enabled, or not mounted at `/data`. |
