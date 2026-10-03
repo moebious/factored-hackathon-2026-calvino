@@ -1,43 +1,42 @@
 "use client";
 
-// The minimal demo frontend (TSD-003): a warm-up screen that polls /ready
-// until the backend's Laya is loaded, then one form that sends a short
-// customer message to /api/demo/decide and shows the glass box: the verdict,
-// the rule that fired, the calibrated scores and the per-question
-// probabilities (decision 10). The customer app (T-205) replaces this page.
+// The customer app (TSD-010, decision 10): one screen with the persona
+// selector, the conversation, the FR-7 card under each Calvino reply, the
+// scenario buttons for every demo use case, the ES / PT chrome toggle and
+// the glass-box panel for the selected turn. The UI is a verdict: every
+// card comes from the hub's fixed catalog, filled only from verified data.
+// A parked approve_action turn shows confirm / deny buttons bound to that
+// exact action; a parked operator_queue turn offers the operator's resume.
 
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-
-type DemoAnswer = {
-  chosen_option: string;
-  confidence: number;
-  probabilities: Record<string, number>;
-};
-
-type DemoDecision = {
-  decision_id: string;
-  route: string;
-  human_action: string;
-  rule_id: string;
-  policy_version: string;
-  scores: Record<string, number>;
-  answers: Record<string, DemoAnswer>;
-};
+import { CardView } from "./cards";
+import { GlassBox } from "./glassbox";
+import { strings } from "./i18n";
+import type { Lang } from "./i18n";
+import { SCENARIOS, scenarioLabel } from "./scenarios";
+import type { HubReply, Turn } from "./types";
 
 // A cold Space can take a while even with baked weights (in-memory preload);
 // polling every 3 s keeps the warm-up screen honest without hammering it.
 const READY_POLL_MS = 3000;
 
-const percent = (value: number) => `${(value * 100).toFixed(1)}%`;
+const PASSCODE_HEADER = "x-calvino-passcode";
 
 export default function Home() {
+  const [lang, setLang] = useState<Lang>("es");
   const [ready, setReady] = useState<boolean | null>(null);
-  const [text, setText] = useState("Mi transferencia sigue pendiente desde ayer.");
   const [passcode, setPasscode] = useState("");
-  const [decision, setDecision] = useState<DemoDecision | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [persona, setPersona] = useState("ana");
+  const [personas, setPersonas] = useState<string[]>(["ana", "camilo", "lucia", "dana"]);
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [operatorDecision, setOperatorDecision] = useState("");
+
+  const s = strings(lang);
 
   useEffect(() => {
     let active = true;
@@ -58,143 +57,274 @@ export default function Home() {
     };
   }, []);
 
-  const decide = useCallback(
-    async (event: FormEvent) => {
-      event.preventDefault();
+  const post = useCallback(
+    async (path: string, body: unknown): Promise<HubReply> => {
+      const response = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", [PASSCODE_HEADER]: passcode },
+        body: JSON.stringify(body),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          typeof payload.detail === "string" ? payload.detail : `failed (${response.status})`,
+        );
+      }
+      return payload as HubReply;
+    },
+    [passcode],
+  );
+
+  const send = useCallback(
+    async (message: string, asPersona: string) => {
       setBusy(true);
       setError(null);
+      setTurns((previous) => [...previous, { message, reply: null, error: null, decided: false }]);
       try {
-        const response = await fetch("/api/demo/decide", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-calvino-passcode": passcode,
-          },
-          body: JSON.stringify({ text }),
+        const reply = await post("/api/hub/message", { persona: asPersona, text: message });
+        setTurns((previous) => {
+          const next = [...previous];
+          next[next.length - 1] = { message, reply, error: null, decided: false };
+          return next;
         });
-        const body = await response.json();
-        if (response.ok) {
-          setDecision(body as DemoDecision);
-        } else {
-          setDecision(null);
-          setError(typeof body.detail === "string" ? body.detail : `failed (${response.status})`);
-        }
-      } catch {
-        setDecision(null);
-        setError("the demo backend is unreachable");
+        setSelected(turns.length); // the reply about to land
+      } catch (failure) {
+        const detail = failure instanceof Error ? failure.message : s.unreachable;
+        setTurns((previous) => {
+          const next = [...previous];
+          next[next.length - 1] = { message, reply: null, error: detail, decided: false };
+          return next;
+        });
+        setError(detail);
       } finally {
         setBusy(false);
       }
     },
-    [passcode, text],
+    [post, s.unreachable, turns.length],
   );
+
+  const resume = useCallback(
+    async (index: number, ref: string, decision: boolean | string) => {
+      setBusy(true);
+      setError(null);
+      try {
+        const reply = await post("/api/hub/resume", { ref, decision });
+        setTurns((previous) => {
+          const next = [...previous];
+          const turn = next[index];
+          next[index] = { ...turn, reply, decided: true };
+          return next;
+        });
+        setSelected(index);
+      } catch (failure) {
+        setError(failure instanceof Error ? failure.message : s.unreachable);
+      } finally {
+        setBusy(false);
+      }
+    },
+    [post, s.unreachable],
+  );
+
+  const loadPersonas = useCallback(async () => {
+    try {
+      const response = await fetch("/api/hub/personas", {
+        headers: { [PASSCODE_HEADER]: passcode },
+      });
+      if (response.ok) {
+        const body = await response.json();
+        if (Array.isArray(body.personas) && body.personas.length > 0) {
+          setPersonas(body.personas as string[]);
+        }
+      }
+    } catch {
+      // The built-in demo names stay; the selector works either way.
+    }
+  }, [passcode]);
+
+  const onSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    const message = text.trim();
+    if (message.length === 0 || busy) return;
+    setText("");
+    void send(message, persona);
+  };
+
+  const onScenario = (index: number) => {
+    if (busy) return;
+    const scenario = SCENARIOS[index];
+    setPersona(scenario.persona);
+    void send(scenario.message, scenario.persona);
+  };
 
   if (ready !== true) {
     return (
-      <main>
-        <h1>Calvino</h1>
-        <p>
-          {ready === null
-            ? "Checking the backend…"
-            : "Warming up: loading the Laya model. A cold start can take a minute."}
-        </p>
+      <main className="warmup">
+        <h1>{s.title}</h1>
+        <p>{ready === null ? s.warmupChecking : s.warmupLoading}</p>
       </main>
     );
   }
 
-  return (
-    <main>
-      <h1>Calvino demo</h1>
-      <p>
-        One short customer message → calibrated Laya probabilities → a deterministic policy
-        verdict. Nothing on this screen is free-form generation.
-      </p>
+  const selectedReply = selected !== null ? (turns[selected]?.reply ?? null) : null;
 
-      <form onSubmit={decide}>
-        <label>
-          Customer message
-          <textarea
+  return (
+    <div className="layout">
+      <header className="topbar">
+        <h1>{s.title}</h1>
+        <p className="tagline">{s.tagline}</p>
+        <div className="controls">
+          <label>
+            {s.persona}
+            <select
+              value={persona}
+              onChange={(event) => setPersona(event.target.value)}
+              onFocus={loadPersonas}
+            >
+              {personas.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {s.passcode}
+            <input
+              type="password"
+              value={passcode}
+              onChange={(event) => setPasscode(event.target.value)}
+              onBlur={loadPersonas}
+              autoComplete="off"
+            />
+          </label>
+          <div className="lang-toggle" role="group" aria-label="ES / PT">
+            <button
+              type="button"
+              className={lang === "es" ? "active" : "secondary"}
+              onClick={() => setLang("es")}
+            >
+              ES
+            </button>
+            <button
+              type="button"
+              className={lang === "pt" ? "active" : "secondary"}
+              onClick={() => setLang("pt")}
+            >
+              PT
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="conversation">
+        <nav className="scenarios" aria-label={s.scenarios}>
+          <h2>{s.scenarios}</h2>
+          <div className="scenario-buttons">
+            {SCENARIOS.map((scenario, index) => (
+              <button
+                key={scenario.id}
+                type="button"
+                className="secondary"
+                disabled={busy}
+                onClick={() => onScenario(index)}
+              >
+                {scenarioLabel(lang, scenario)}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        <ol className="turns">
+          {turns.map((turn, index) => (
+            <li key={index} className="turn">
+              <div className="bubble customer">
+                <span className="who">{s.you}</span>
+                <p>{turn.message}</p>
+              </div>
+              {turn.error !== null && (
+                <div className="bubble calvino" role="alert">
+                  <span className="who">{s.calvino}</span>
+                  <p>{turn.error}</p>
+                </div>
+              )}
+              {turn.reply !== null && (
+                <div
+                  className={`bubble calvino${selected === index ? " selected" : ""}`}
+                  onClick={() => setSelected(index)}
+                  onKeyDown={(event) => event.key === "Enter" && setSelected(index)}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={selected === index}
+                >
+                  <span className="who">{s.calvino}</span>
+                  {turn.reply.reply.length > 0 && <p>{turn.reply.reply}</p>}
+                  <CardView
+                    card={turn.reply.card}
+                    lang={lang}
+                    decided={turn.decided}
+                    disabled={busy}
+                    onConfirm={() =>
+                      turn.reply?.awaiting_ref !== null &&
+                      void resume(index, turn.reply?.awaiting_ref ?? "", true)
+                    }
+                    onDeny={() =>
+                      turn.reply?.awaiting_ref !== null &&
+                      void resume(index, turn.reply?.awaiting_ref ?? "", false)
+                    }
+                  />
+                  {turn.reply.awaiting === "operator_queue" &&
+                    turn.reply.awaiting_ref !== null &&
+                    !turn.decided && (
+                      <div className="operator-resume">
+                        <input
+                          value={operatorDecision}
+                          onChange={(event) => setOperatorDecision(event.target.value)}
+                          placeholder={s.operatorDecision}
+                        />
+                        <button
+                          type="button"
+                          disabled={busy || operatorDecision.trim().length === 0}
+                          onClick={() =>
+                            void resume(
+                              index,
+                              turn.reply?.awaiting_ref ?? "",
+                              operatorDecision.trim(),
+                            )
+                          }
+                        >
+                          {s.operatorResume}
+                        </button>
+                      </div>
+                    )}
+                </div>
+              )}
+              {turn.reply === null && turn.error === null && (
+                <div className="bubble calvino pending">
+                  <span className="who">{s.calvino}</span>
+                  <p>{s.sending}</p>
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+
+        {error !== null && <p role="alert">{error}</p>}
+
+        <form onSubmit={onSubmit} className="composer">
+          <input
             value={text}
             onChange={(event) => setText(event.target.value)}
-            rows={3}
+            placeholder={s.inputPlaceholder}
             maxLength={2000}
-            required
+            disabled={busy}
           />
-        </label>
-        <label>
-          Demo passcode
-          <input
-            type="password"
-            value={passcode}
-            onChange={(event) => setPasscode(event.target.value)}
-            autoComplete="off"
-            required
-          />
-        </label>
-        <button type="submit" disabled={busy}>
-          {busy ? "Deciding…" : "Decide"}
-        </button>
-      </form>
+          <button type="submit" disabled={busy || text.trim().length === 0}>
+            {busy ? s.sending : s.send}
+          </button>
+        </form>
+      </main>
 
-      {error !== null && <p role="alert">{error}</p>}
-
-      {decision !== null && (
-        <section aria-label="decision">
-          <h2>Verdict</h2>
-          <dl>
-            <dt>Route</dt>
-            <dd>{decision.route}</dd>
-            <dt>Human action</dt>
-            <dd>{decision.human_action}</dd>
-            <dt>Rule fired</dt>
-            <dd>
-              <code>{decision.rule_id}</code>
-            </dd>
-            <dt>Policy version</dt>
-            <dd>{decision.policy_version}</dd>
-            <dt>Decision id</dt>
-            <dd>
-              <code>{decision.decision_id}</code>
-            </dd>
-          </dl>
-
-          <h2>Scores the policy read</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Score</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(decision.scores).map(([name, value]) => (
-                <tr key={name}>
-                  <td>{name}</td>
-                  <td>{percent(value)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <h2>Laya answers</h2>
-          {Object.entries(decision.answers).map(([questionId, answer]) => (
-            <article key={questionId}>
-              <h3>{questionId}</h3>
-              <p>
-                Chosen: <strong>{answer.chosen_option}</strong> (confidence{" "}
-                {percent(answer.confidence)})
-              </p>
-              <ul>
-                {Object.entries(answer.probabilities).map(([option, probability]) => (
-                  <li key={option}>
-                    {option}: {percent(probability)}
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </section>
-      )}
-    </main>
+      <GlassBox reply={selectedReply} lang={lang} />
+    </div>
   );
 }

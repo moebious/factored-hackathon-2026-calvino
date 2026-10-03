@@ -2,7 +2,7 @@
   "name": "calvino-frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "Minimal demo frontend for Project Calvino (TSD-003); the customer app (T-205) replaces it",
+  "description": "Customer app for Project Calvino (TSD-010): FR-7 cards, scenario buttons, glass box, ES / PT chrome",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

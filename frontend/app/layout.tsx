@@ -1,13 +1,13 @@
-// Root layout of the minimal demo frontend (TSD-003).
+// Root layout of the customer app (TSD-010).
 
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Calvino demo",
+  title: "Calvino",
   description:
-    "Project Calvino: calibrated fast decisions, a deterministic policy, humans in the loop.",
+    "Project Calvino: verified banking support. Calibrated fast decisions, a deterministic policy, cards from a fixed catalog, humans in the loop.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

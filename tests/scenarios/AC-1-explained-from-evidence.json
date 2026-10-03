@@ -31,6 +31,17 @@
     "route": "agents",
     "reply": "Su transferencia de 5000.00 MXN «Transfer to a friend» del 10/06/2026 está pendiente.",
     "escalated": false,
+    "card": {
+      "key": "payment_status",
+      "payload": {
+        "entry_reference": "E-MX-002",
+        "amount": "5000.00",
+        "currency": "MXN",
+        "status": "Pending",
+        "booking_date": "2026-06-10",
+        "remittance_information": "Transfer to a friend"
+      }
+    },
     "tool_calls": ["get_entry_detail"],
     "log_records": [{"stage": "classifier", "rule_id": "RT-ACT"}]
   }

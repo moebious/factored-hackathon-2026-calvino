@@ -18,7 +18,7 @@ import pytest
 
 from calvino.classifiers import LayaAnswer
 from calvino.decision_log import DecisionLog
-from calvino.hub import HubDependencies, SupportAgent, TrustedSessionIssuer
+from calvino.hub import DEMO_PERSONAS, HubDependencies, SupportAgent, TrustedSessionIssuer
 from calvino.hub.graph import FraudContext
 from calvino.policy import Policy, load_policy
 from calvino.tools import BankTools, DatasetAdapter, FakeConfirmationVerifier
@@ -26,8 +26,9 @@ from calvino.tools import BankTools, DatasetAdapter, FakeConfirmationVerifier
 FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "bank" / "synthetic_bank.json"
 NOW = datetime(2026, 7, 1, 12, 0, tzinfo=UTC)
 
-# The demo personas: fixture customers, never a customer number typed in chat.
-PERSONAS = {"ana": "C-MX-001", "camilo": "C-CO-001", "lucia": "C-AR-001", "dana": "C-US-001"}
+# The demo personas: fixture customers, never a customer number typed in
+# chat. One source (calvino.hub.sessions), shared with the demo API.
+PERSONAS = DEMO_PERSONAS
 
 
 class FakeLoader:

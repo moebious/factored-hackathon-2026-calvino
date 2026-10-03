@@ -221,6 +221,46 @@ def _focus(payload: dict[str, Any]) -> tuple[str | None, str | None]:
     )
 
 
+def verified_card(state: HubState) -> dict[str, Any] | None:
+    """The FR-7 card for a verified read turn, filled only from tool payloads.
+
+    ``payment_status`` comes from the focused entry detail, ``case_status``
+    from the investigation status on a follow-up. The act stage emits its
+    own ``action_result`` card in the node, so it is skipped here. A turn
+    without the matching verified result gets no card: a card is never
+    filled from the draft's words.
+    """
+    stage = state.get("stage", HubStage.EXPLAIN)
+    if stage == HubStage.ACT:
+        return None
+    results = list(state.get("tool_results") or [])
+    if stage == HubStage.FOLLOW_UP:
+        result = next((r for r in reversed(results) if r.tool == "get_investigation_status"), None)
+        if result is None or not isinstance(result.payload.get("status"), str):
+            return None
+        payload: dict[str, Any] = {
+            "case_ref": result.payload.get("case_id") or state.get("case_ref") or "",
+            "status": result.payload["status"],
+        }
+        if result.payload.get("next_step"):
+            payload["next_step"] = result.payload["next_step"]
+        return {"key": "case_status", "payload": payload}
+    result = next((r for r in reversed(results) if r.tool == "get_entry_detail"), None)
+    if result is None or not isinstance(result.payload.get("entry_reference"), str):
+        return None
+    detail = result.payload
+    payload = {
+        "entry_reference": detail["entry_reference"],
+        "amount": detail.get("amount"),
+        "currency": detail.get("currency"),
+        "status": detail.get("status"),
+        "booking_date": detail.get("booking_date"),
+    }
+    if detail.get("remittance_information"):
+        payload["remittance_information"] = detail["remittance_information"]
+    return {"key": "payment_status", "payload": payload}
+
+
 def case_file_of(state: HubState) -> list[dict[str, str]]:
     """The complete case file for a human (AC-4): request, verified facts,
     the action with its gate verdict, and why the turn reached a person.
@@ -413,6 +453,8 @@ def build_hub_graph(
             evidence=evidence_of(state),
             guidance=guidance_of(state),
             case_ref=state.get("case_ref"),
+            tool_results=tuple(state.get("tool_results") or ()),
+            entry_reference=state.get("entry_reference"),
         )
         try:
             draft = deps.agent.draft(request)
@@ -585,6 +627,11 @@ def build_hub_graph(
         _, status = _focus(_payload(read_back))
         if status is not None:
             updates["status"] = status
+        # FR-7: the action result card, filled from the verified read-back.
+        result_payload: dict[str, Any] = {"action": name, "entry_reference": entry_reference}
+        if status is not None:
+            result_payload["status"] = status
+        updates["card"] = {"key": "action_result", "payload": result_payload}
         return updates
 
     def investigate(state: HubState, config: RunnableConfig) -> dict[str, Any]:
@@ -741,6 +788,8 @@ def build_hub_graph(
                 guidance=guidance_of(state),
                 feedback=tuple(failed),
                 case_ref=state.get("case_ref"),
+                tool_results=tuple(state.get("tool_results") or ()),
+                entry_reference=state.get("entry_reference"),
             )
             redraft = deps.agent.draft(request)
             if redraft.text is None:
@@ -755,7 +804,11 @@ def build_hub_graph(
                 "case_file": outcome.case_file_entries(),
                 "escalated": True,
             }
-        return {"reply": retried[-1] if retried else draft, "escalated": False}
+        passed: dict[str, Any] = {"reply": retried[-1] if retried else draft, "escalated": False}
+        card = verified_card(state)
+        if card is not None:
+            passed["card"] = card
+        return passed
 
     def clarify(state: HubState, config: RunnableConfig) -> dict[str, Any]:
         """One question, plus the picker card when the customer has problem payments."""

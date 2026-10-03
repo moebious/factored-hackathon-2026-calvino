@@ -23,6 +23,14 @@ CHECKPOINT_DB_NAME = "checkpoints.sqlite"
 # Local-development default only; the deployment sets CALVINO_DATA_DIR=/data.
 DEFAULT_DATA_DIR = Path(".calvino-data")
 
+# The synthetic bank fixture the hub's tools serve in the demo (TSD-010),
+# found from this file: <repo>/tests/fixtures/bank/synthetic_bank.json. The
+# Docker image copies the fixture to the same relative location, so the
+# default resolves there too; CALVINO_BANK_FIXTURE overrides both.
+DEFAULT_BANK_FIXTURE = (
+    Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "bank" / "synthetic_bank.json"
+)
+
 
 class ApiSettings(BaseModel):
     """The configuration of one API process."""
@@ -30,6 +38,7 @@ class ApiSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     data_dir: Path = DEFAULT_DATA_DIR
+    bank_fixture: Path = DEFAULT_BANK_FIXTURE
     demo_passcode: str | None = None
     demo_rate_limit_per_minute: int = Field(default=30, ge=1)
 
@@ -54,6 +63,7 @@ def settings_from_env(env: Mapping[str, str] | None = None) -> ApiSettings:
     raw_limit = source.get("CALVINO_DEMO_RATE_LIMIT")
     return ApiSettings(
         data_dir=Path(source.get("CALVINO_DATA_DIR", str(DEFAULT_DATA_DIR))),
+        bank_fixture=Path(source.get("CALVINO_BANK_FIXTURE", str(DEFAULT_BANK_FIXTURE))),
         # An empty string counts as unset: without a passcode the demo
         # endpoint stays disabled (fail closed) rather than open.
         demo_passcode=source.get("CALVINO_DEMO_PASSCODE") or None,

@@ -82,6 +82,35 @@ def test_handle_message_happy_path(deps_factory, fake_loader_factory):
     assert reply.case_ref is None
 
 
+def test_reply_carries_the_turns_trace(deps_factory, fake_loader_factory):
+    """The glass box reads the trace: this turn's decision records, in order."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(ENTRY_CALL,)), AgentDraft(text=GOOD_REPLY)])
+    service = make_service(deps_factory, fake_loader_factory, agent)
+
+    reply = service.handle_message("ana", "¿Por qué mi transferencia sigue pendiente?")
+
+    assert reply.trace, "the turn logged decisions, so the trace is not empty"
+    route_step = next(step for step in reply.trace if step.stage == "classifier")
+    assert route_step.rule_id == "RT-ACT"
+    assert route_step.verdict == Route.AGENTS.value
+    assert route_step.scores  # the calibrated probabilities the panel shows
+    assert [step.stage for step in reply.trace] == ["classifier", "verifier"]
+
+
+def test_resume_trace_covers_only_the_resumed_turn(deps_factory, fake_loader_factory):
+    """A resumed turn's trace starts fresh: no replay of the parked turn."""
+    agent = ScriptedAgent([])  # no agent step on the human route
+    service = make_service(deps_factory, fake_loader_factory, agent)
+
+    parked = service.handle_message("ana", "Quiero hablar con una persona")
+    assert [step.rule_id for step in parked.trace] == ["HR-ASKS-HUMAN"]
+
+    final = service.resume(parked.awaiting_ref, "assigned to operator 7")
+
+    assert [step.stage for step in final.trace] == ["human"]
+    assert final.trace[0].rule_id == "HR-ASKS-HUMAN"
+
+
 def test_operator_queue_parks_and_resumes(deps_factory, fake_loader_factory):
     """The human route parks on the operator queue and resume closes it."""
     agent = ScriptedAgent([])  # no agent step on the human route
@@ -118,6 +147,17 @@ def test_approval_parks_and_resumes(deps_factory, fake_loader_factory):
     assert parked.awaiting_ref == "persona-ana"  # approvals carry the thread ref
     assert parked.case_ref is None
     assert parked.reply == ""  # nothing went out while paused
+    # FR-7: the operator (or the app) sees the confirmation card, mapped
+    # from the Gate's payload — the bank's own numbers.
+    assert parked.card == {
+        "key": "action_confirmation",
+        "payload": {
+            "action": "request_cancellation",
+            "entry_reference": "E-MX-002",
+            "amount": "5000.00",
+            "currency": "MXN",
+        },
+    }
 
     final = service.resume(parked.awaiting_ref, True)
 

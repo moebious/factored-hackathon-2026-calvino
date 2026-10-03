@@ -9,13 +9,18 @@ Public API:
   feeds both the agent's guidance and the verifier's "valid next step" criterion.
 - SupportAgent, AgentRequest, AgentDraft, ToolCall, ScriptedAgent: the language work behind
   an interface (decision 20); the session token never reaches a request.
-- TrustedSessionIssuer: demo personas sign in through the hub; chat never types an identity.
+- TemplateAgent: the deterministic demo agent (TSD-010, decision 10) — grounded templated
+  Spanish replies from the playbook and the verified tool results, until T-301 lands the
+  LLM agent.
+- TrustedSessionIssuer, DEMO_PERSONAS: demo personas sign in through the hub; chat never
+  types an identity.
 - HubStage, HubState: the graph's stage enum and checkpointer-persisted state.
 - HubDependencies, FraudContext, ConfirmationIssuer, build_hub_graph, STAGE_TOOLS: the
   LangGraph graph wiring the stages together; the session token travels in the invoke
   config, never in the state.
-- HubService, HubReply: the demo-facing facade — one call per customer message, resume for
-  the parked operator steps, and the checkpointer on ``CALVINO_DATA_DIR``.
+- HubService, HubReply, TraceStep: the demo-facing facade — one call per customer message,
+  resume for the parked operator steps, the turn's decision trace for the glass box, and the
+  checkpointer on ``CALVINO_DATA_DIR``.
 """
 
 from calvino.hub.agent import (
@@ -41,13 +46,15 @@ from calvino.hub.playbook import (
     StatusGuidance,
     load_playbook,
 )
-from calvino.hub.service import HubReply, HubService
-from calvino.hub.sessions import DEFAULT_SESSION_TTL, TrustedSessionIssuer
+from calvino.hub.service import HubReply, HubService, TraceStep
+from calvino.hub.sessions import DEFAULT_SESSION_TTL, DEMO_PERSONAS, TrustedSessionIssuer
 from calvino.hub.state import HubStage, HubState
+from calvino.hub.template_agent import TemplateAgent
 
 __all__ = [
     "DEFAULT_PLAYBOOK_PATH",
     "DEFAULT_SESSION_TTL",
+    "DEMO_PERSONAS",
     "MAX_TOOL_ROUNDS",
     "PLAYBOOK_ACTIONS",
     "STAGE_TOOLS",
@@ -65,7 +72,9 @@ __all__ = [
     "ScriptedAgent",
     "StatusGuidance",
     "SupportAgent",
+    "TemplateAgent",
     "ToolCall",
+    "TraceStep",
     "TrustedSessionIssuer",
     "build_hub_graph",
     "load_playbook",

@@ -272,7 +272,7 @@ uv run python scripts/export_data_schemas.py                                    
 ### Demo API and frontend
 
 ```bash
-CALVINO_DEMO_PASSCODE=<passcode> uv run python -m calvino.api   # demo API on port 7860 (needs `uv pip install laya`; preloads at startup)
+CALVINO_DEMO_PASSCODE=<passcode> CALVINO_CONFIRMATION_KEY=<secret> uv run python -m calvino.api   # demo API on port 7860 (needs `uv pip install laya`; preloads at startup; the hub endpoints need a 32+-byte CALVINO_CONFIRMATION_KEY and stay off without it)
 docker build -t calvino-demo:local .                            # the Space image (bakes the laya checkpoint; first build is several GB)
 docker run -p 7860:7860 -v calvino-data:/data calvino-demo:local
 cd frontend && npm install                                      # first time only

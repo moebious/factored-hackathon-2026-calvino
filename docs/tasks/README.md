@@ -63,7 +63,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-202](T-202-laya-fine-tuning.md) | Laya fine-tuning on Kaggle | Tier 1 | T-106 | GPU (maintainer runs the notebook) | standard | yes | todo | maintainer |
 | [T-203](T-203-portuguese-test-set.md) | Portuguese test set | 2 | T-106 | — | standard | yes | todo | maintainer |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | review | maintainer |
-| [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | todo | maintainer |
+| [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | review | maintainer |
 | [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | — | standard | yes | todo | maintainer |
 | [T-301](T-301-support-agent.md) | Support agent and company brain | 3 | T-204, T-206 | LLM provider | standard | no | todo | maintainer |
 | [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo | maintainer |
