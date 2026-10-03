@@ -2,7 +2,7 @@
 
 How Calvino gets built: in waves of parallel work, each piece one branch, one worktree and one pull request. The product design is in [DESIGN.md](DESIGN.md); phases, tiers and their gates are in [PLAN.md](PLAN.md); the rules every contributor and coding agent follows are in [AGENTS.md](../AGENTS.md).
 
-**Owners:** each task's owner (analyst or maintainer) is in the backlog in [tasks/README.md](tasks/README.md).
+**Owners:** every task is owned by the maintainer (the data analyst has left the project); the backlog in [tasks/README.md](tasks/README.md) is the source of truth.
 
 ## Working principles
 
