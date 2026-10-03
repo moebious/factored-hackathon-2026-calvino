@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft |
+| Status | implemented |
 | Branch | `feat/laya-service` |
 | Depends on | TSD-000 |
 | Required by | the policy engine's scores, the verifier's Laya checks, classifier evaluation (Wave 2) |
