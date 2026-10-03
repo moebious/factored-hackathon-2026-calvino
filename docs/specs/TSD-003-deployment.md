@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | draft |
+| Status | implemented |
 | Branch | `build/deploy-skeleton` |
 | Depends on | TSD-000 |
 | Required by | the demo link (Wave 3 gate) |

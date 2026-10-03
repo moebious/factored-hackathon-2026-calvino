@@ -268,3 +268,16 @@ CI runs both on every pull request (`.github/workflows/tests.yml` and `conventio
 uv run python scripts/validate_data_contracts.py --dir tests/fixtures/lakehouse   # audit a folder of tables (exit 1 on errors)
 uv run python scripts/export_data_schemas.py                                      # regenerate contracts/data/ after changing the contracts
 ```
+
+### Demo API and frontend
+
+```bash
+CALVINO_DEMO_PASSCODE=<passcode> uv run python -m calvino.api   # demo API on port 7860 (needs `uv pip install laya`; preloads at startup)
+docker build -t calvino-demo:local .                            # the Space image (bakes the laya checkpoint; first build is several GB)
+docker run -p 7860:7860 -v calvino-data:/data calvino-demo:local
+cd frontend && npm install                                      # first time only
+cd frontend && npm run lint && npm run build                    # frontend checks
+cd frontend && BACKEND_URL=http://127.0.0.1:7860 npm run dev    # demo frontend on port 3000, /api/* rewritten to the backend
+```
+
+Deployment steps (Hugging Face Space, Vercel, `calvino.rubrica.dev`, keep-alive): [docs/DEPLOY.md](docs/DEPLOY.md).

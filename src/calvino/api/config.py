@@ -1,0 +1,61 @@
+"""Runtime configuration for the demo API (TSD-003).
+
+Every location and secret is configuration, never code: the durable-storage
+directory (``CALVINO_DATA_DIR``), the demo passcode (``CALVINO_DEMO_PASSCODE``)
+and the demo rate limit (``CALVINO_DEMO_RATE_LIMIT``) all come from environment
+variables. A Space's own disk is wiped on restart, so in the deployment
+``CALVINO_DATA_DIR`` must point at the persistent-storage mount (``/data``);
+``decisions.jsonl`` and the hub's checkpointer database both live there, which
+is what makes cases and the audit log survive restarts (DESIGN 4.0.2).
+"""
+
+from __future__ import annotations
+
+import os
+from collections.abc import Mapping
+from pathlib import Path
+
+from pydantic import BaseModel, ConfigDict, Field
+
+DECISIONS_LOG_NAME = "decisions.jsonl"
+CHECKPOINT_DB_NAME = "checkpoints.sqlite"
+
+# Local-development default only; the deployment sets CALVINO_DATA_DIR=/data.
+DEFAULT_DATA_DIR = Path(".calvino-data")
+
+
+class ApiSettings(BaseModel):
+    """The configuration of one API process."""
+
+    model_config = ConfigDict(frozen=True)
+
+    data_dir: Path = DEFAULT_DATA_DIR
+    demo_passcode: str | None = None
+    demo_rate_limit_per_minute: int = Field(default=30, ge=1)
+
+    @property
+    def decisions_log(self) -> Path:
+        """The append-only decision log on the configured storage."""
+        return self.data_dir / DECISIONS_LOG_NAME
+
+    @property
+    def checkpoint_db(self) -> Path:
+        """Where the LangGraph checkpointer will keep its database (T-204/T-401).
+
+        Reserved here so the hub lands on the same durable storage as the
+        decision log instead of the ephemeral container disk.
+        """
+        return self.data_dir / CHECKPOINT_DB_NAME
+
+
+def settings_from_env(env: Mapping[str, str] | None = None) -> ApiSettings:
+    """Build settings from environment variables (``os.environ`` by default)."""
+    source = os.environ if env is None else env
+    raw_limit = source.get("CALVINO_DEMO_RATE_LIMIT")
+    return ApiSettings(
+        data_dir=Path(source.get("CALVINO_DATA_DIR", str(DEFAULT_DATA_DIR))),
+        # An empty string counts as unset: without a passcode the demo
+        # endpoint stays disabled (fail closed) rather than open.
+        demo_passcode=source.get("CALVINO_DEMO_PASSCODE") or None,
+        demo_rate_limit_per_minute=int(raw_limit) if raw_limit else 30,
+    )
