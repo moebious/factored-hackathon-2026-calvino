@@ -9,7 +9,8 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from calvino.llm.errors import LlmConfigurationError, LlmRule
+from calvino.llm.contracts import ChatRequest, Message, MessageRole, Role
+from calvino.llm.errors import LlmConfigurationError, LlmError, LlmRule
 from calvino.llm.hetzner import (
     HETZNER_BASE_URL,
     HETZNER_REQUESTS_PER_WINDOW,
@@ -138,6 +139,60 @@ def test_the_timeout_is_configurable():
     with pytest.raises(LlmConfigurationError) as caught:
         hetzner_client_from_env(env={**AGENT_ENV, "CALVINO_LLM_TIMEOUT_SECONDS": "-1"})
     assert "CALVINO_LLM_TIMEOUT_SECONDS" in str(caught.value)
+
+
+def test_the_retry_count_is_configurable_and_zero_means_a_single_attempt(chat_request):
+    """Zero is the setting that matters: retrying a queueing provider makes a slow answer slower.
+
+    A provider that answers in 6 s or fails outright is what we have measured, so the lever for a
+    slow endpoint is fewer attempts, not a longer timeout.
+    """
+    attempts: list[httpx.Request] = []
+
+    def busy(request: httpx.Request) -> httpx.Response:
+        attempts.append(request)
+        return httpx.Response(503, json={"error": "busy"})
+
+    def build(retries: str) -> object:
+        return hetzner_client_from_env(
+            env={**AGENT_ENV, "CALVINO_LLM_RETRIES": retries},
+            transport=httpx.MockTransport(busy),
+            sleep=lambda _: None,
+        )
+
+    with pytest.raises(LlmError):
+        build("0").complete(chat_request("hola"))
+    assert len(attempts) == 1, "retries=0 must not retry a 503"
+
+    attempts.clear()
+    with pytest.raises(LlmError):
+        build("2").complete(chat_request("hola"))
+    assert len(attempts) == 3, "retries=2 means the first attempt plus two retries"
+
+
+@pytest.mark.parametrize("raw", ["-1", "not-a-number"])
+def test_a_nonsense_retry_count_is_refused(raw):
+    with pytest.raises(LlmConfigurationError) as caught:
+        hetzner_client_from_env(env={**AGENT_ENV, "CALVINO_LLM_RETRIES": raw})
+    assert "CALVINO_LLM_RETRIES" in str(caught.value)
+
+
+def test_the_retry_count_defaults_to_two():
+    """An unconfigured role keeps the documented default, so nothing changes silently."""
+    attempts: list[httpx.Request] = []
+
+    def busy(request: httpx.Request) -> httpx.Response:
+        attempts.append(request)
+        return httpx.Response(503, json={"error": "busy"})
+
+    client = hetzner_client_from_env(
+        env=AGENT_ENV, transport=httpx.MockTransport(busy), sleep=lambda _: None
+    )
+    with pytest.raises(LlmError):
+        client.complete(
+            ChatRequest(role=Role.AGENT, messages=(Message(role=MessageRole.USER, content="hola"),))
+        )
+    assert len(attempts) == 3
 
 
 def test_both_roles_are_built_from_one_call(chat_request):

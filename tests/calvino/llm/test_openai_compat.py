@@ -29,7 +29,11 @@ from calvino.llm.errors import (
     LlmTruncated,
     LlmUnavailable,
 )
-from calvino.llm.openai_compat import OpenAiCompatibleClient, RateLimiter
+from calvino.llm.openai_compat import (
+    DEFAULT_TIMEOUT_SECONDS,
+    OpenAiCompatibleClient,
+    RateLimiter,
+)
 
 BASE_URL = "https://inference.example/api/v1"
 TEST_TOKEN = "unit-test-value-not-a-real-credential"
@@ -296,6 +300,21 @@ def test_a_provider_error_body_is_not_echoed_into_the_message(chat_request):
     with pytest.raises(LlmError) as caught:
         client.complete(chat_request("hola"))
     assert "4111111111111111" not in str(caught.value)
+
+
+# The worst real draft measured on the agent model: three Spanish and Portuguese customer messages
+# answered at 20.0, 25.0 and 26.1 s. The one-word probe that originally set the default came back
+# in 2.3-3.5 s and is not what the demo sends.
+SLOWEST_MEASURED_DRAFT_SECONDS = 26.1
+
+
+def test_the_default_timeout_clears_a_measured_real_draft():
+    """A default set from a one-word answer left the common case four seconds from a truncation.
+
+    A threshold test, so lowering the constant back under a measured case fails here rather than in
+    front of a customer.
+    """
+    assert DEFAULT_TIMEOUT_SECONDS > SLOWEST_MEASURED_DRAFT_SECONDS
 
 
 def test_a_timeout_is_retried_and_then_raises_the_timeout_error(chat_request):

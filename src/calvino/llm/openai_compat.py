@@ -38,7 +38,13 @@ from calvino.llm.errors import (
     LlmUnavailable,
 )
 
-DEFAULT_TIMEOUT_SECONDS = 30.0
+# Measured against real drafts, not one-word answers [measured]. "Reply with exactly: OK" came back
+# in 2.3-3.5 s warm and 4.9-6.1 s on the first call of a session, but a three-sentence reply to a
+# real customer message took 20.0, 25.0 and 26.1 s, because the model reasons before it answers.
+# A default set from the one-word figure left the common case 4 s from a truncation. 60 s clears
+# the worst observed draft with room, and keeps a dead provider bounded: with <prefix>_RETRIES=0 a
+# failure costs one minute rather than three.
+DEFAULT_TIMEOUT_SECONDS = 60.0
 DEFAULT_RETRIES = 2
 DEFAULT_BACKOFF_SECONDS = 0.5
 # Providers cap calls per key over a window. Hetzner documents 10 requests per 60 s [vendor]; the
@@ -292,16 +298,22 @@ def client_from_env(
     base_url: str,
     default_max_requests: int = DEFAULT_MAX_REQUESTS,
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    default_retries: int = DEFAULT_RETRIES,
     transport: httpx.BaseTransport | None = None,
     clock: Callable[[], float] = time.monotonic,
     sleep: Callable[[float], None] = time.sleep,
 ) -> OpenAiCompatibleClient:
-    """Build a client from ``<prefix>_API_KEY``, ``<prefix>_MODEL`` and two optional limits.
+    """Build a client from ``<prefix>_API_KEY``, ``<prefix>_MODEL`` and three optional limits.
 
     The prefix is what makes a second provider a configuration change rather than a code change:
     the agent role reads ``CALVINO_LLM_*`` and the judge reads ``CALVINO_JUDGE_*``. Nothing is
     defaulted that the provider could get wrong: a missing key or model stops startup, because a
     silent default would send traffic somewhere nobody chose.
+
+    ``<prefix>_RETRIES`` is 2 by default and 0 is allowed, because the worst-case wait is
+    ``timeout * (retries + 1)``: a provider that answers in 6 s or fails outright is the case we
+    have measured, so raising the timeout to accommodate a queueing trial endpoint would only make
+    the failure slower. Set retries to 0 for a latency-sensitive path instead.
     """
     values = os.environ if env is None else env
 
@@ -327,12 +339,16 @@ def client_from_env(
     request_timeout = _positive_float(
         values.get(f"{prefix}_TIMEOUT_SECONDS"), timeout, f"{prefix}_TIMEOUT_SECONDS"
     )
+    request_retries = _non_negative_int(
+        values.get(f"{prefix}_RETRIES"), default_retries, f"{prefix}_RETRIES"
+    )
 
     return OpenAiCompatibleClient(
         base_url=base_url,
         api_key=token,
         model=model,
         timeout=request_timeout,
+        retries=request_retries,
         limiter=RateLimiter(max_requests, DEFAULT_WINDOW_SECONDS, clock=clock, sleep=sleep),
         transport=transport,
         clock=clock,
@@ -349,6 +365,23 @@ def _positive_int(raw: str | None, default: int, name: str) -> int:
         raise LlmConfigurationError(f"{name} must be a whole number, got {raw!r}") from None
     if value < 1:
         raise LlmConfigurationError(f"{name} must be at least 1, got {value}")
+    return value
+
+
+def _non_negative_int(raw: str | None, default: int, name: str) -> int:
+    """A whole number that may be zero, because zero retries is a meaningful setting.
+
+    Latency-sensitive callers set it to 0: a provider that is queueing will be handed every
+    attempt at once, so retrying turns a slow answer into a request that never returns.
+    """
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        raise LlmConfigurationError(f"{name} must be a whole number, got {raw!r}") from None
+    if value < 0:
+        raise LlmConfigurationError(f"{name} cannot be negative, got {value}")
     return value
 
 
