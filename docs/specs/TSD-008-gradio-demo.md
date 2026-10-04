@@ -23,14 +23,12 @@ In: root `app.py`, `requirements.txt`, Space metadata, parity tests, smoke test 
 **Gradio app** (root `app.py`):
 
 ```python
-def decide(message: str, passcode: str):
-    validate_passcode(passcode)
+def decide(message: str):
     return run_demo_decision(message, loader, policy, log)
 ```
 
 - Preloads `LayaClient` at application startup, never on the first message.
-- Accepts a message and a passcode; renders verdict, rule, scores and probabilities.
-- Passcode validation stays server-side; `CALVINO_DEMO_PASSCODE` comes from a Space secret.
+- Accepts a message; renders verdict, rule, scores and probabilities.
 - An `api_name` is exposed only if an external frontend must call it; otherwise the Gradio UI is the demo and Vercel is dropped for now.
 
 **Dependencies:** `requirements.txt` with the runtime dependencies, including a pinned, compatible `laya` version.
@@ -59,7 +57,7 @@ On a minimal private Gradio Space, verify before committing to this route: Pytho
 ## Tests and acceptance
 
 - Parity tests proving Gradio and FastAPI produce the same decision payload from the shared core.
-- Passcode, preload and ephemerality behavior covered without model downloads where possible; live smoke test on the free Space.
+- Rate limit, preload and ephemerality behavior covered without model downloads where possible; live smoke test on the free Space.
 - Existing lint and test suites pass.
 
 **Done when** the decision payload matches across adapters, the smoke test passes on a free Space, Gradio state is documented as ephemeral, Docker/FastAPI still builds and serves locally, and every public description distinguishes this fallback from the full hub and customer app.

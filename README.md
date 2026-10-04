@@ -143,7 +143,7 @@ category-level proxies, never case-level stuck-payment outcomes.
 Run the demo (deployment skeleton, [docs/DEPLOY.md](docs/DEPLOY.md) for the full path):
 
 ```bash
-CALVINO_DEMO_PASSCODE=<passcode> CALVINO_CONFIRMATION_KEY=<secret-of-32+-bytes> uv run python -m calvino.api   # demo API on :7860 (needs `uv pip install laya`; the hub endpoints need the confirmation key)
+CALVINO_CONFIRMATION_KEY=<secret-of-32+-bytes> uv run python -m calvino.api   # demo API on :7860 (needs `uv pip install laya`; open endpoints; the hub endpoints need the confirmation key)
 docker build -t calvino-demo:local . && docker run -p 7860:7860 -v calvino-data:/data calvino-demo:local   # the Space image
 cd frontend && npm install && BACKEND_URL=http://127.0.0.1:7860 npm run dev                               # demo frontend on :3000
 ```
@@ -162,7 +162,7 @@ What the product does, without deploying it: a seeded scenario message in
 (persona `ana`, the UC-1 button), a clarifying question and a card out.
 
 ```bash
-curl -s -H 'x-calvino-passcode: <the same passcode>' -H 'content-type: application/json' \
+curl -s -H 'content-type: application/json' \
      -d '{"persona":"ana","text":"¿Por qué sigue pendiente E-MX-002?"}' \
      http://127.0.0.1:7860/api/hub/message
 ```

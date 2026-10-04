@@ -8,22 +8,19 @@ endpoints — including the parked approval and the operator queue flows.
 One line per check with its latency ``[measured]``; exit 0 only when
 every check passes.
 
-The passcode comes from the ``CALVINO_DEMO_PASSCODE`` environment and is
-never printed and never a CLI argument (shell history, process list).
+The endpoints are open (decision 38); the smoke check needs no credentials.
 The HTTP client is ``httpx``, a dev dependency (FastAPI's TestClient),
 so ``uv run`` has it; the script stays out of the runtime image and out
-of CI — it needs the live URL and the passcode.
+of CI — it needs the live URL.
 
 Usage:
-    CALVINO_DEMO_PASSCODE=<passcode> uv run python scripts/check_deployment.py \
+    uv run python scripts/check_deployment.py \
         --url https://calvino.rubrica.dev
 """
 
 from __future__ import annotations
 
 import argparse
-import os
-import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -36,9 +33,6 @@ import httpx
 # whole hub and its API/langgraph import chain (which cycles back through
 # calvino.hub when calvino.api is imported first) for four stable names.
 DEMO_PERSONAS = ("ana", "camilo", "lucia", "dana")
-
-PASSCODE_ENV = "CALVINO_DEMO_PASSCODE"
-PASSCODE_HEADER = "x-calvino-passcode"
 
 # The frontend's metadata title (frontend/app/layout.tsx): the cheapest
 # marker that the UI itself is served, not only the API rewrite.
@@ -314,13 +308,8 @@ def main(argv: list[str] | None = None, client_factory: Any = httpx.Client) -> i
     parser.add_argument("--interval", type=float, default=5.0, help="poll interval, seconds")
     args = parser.parse_args(argv)
 
-    passcode = os.environ.get(PASSCODE_ENV, "")
-    if not passcode:
-        print(f"{PASSCODE_ENV} must be set; the passcode is never a CLI argument.", file=sys.stderr)
-        return 2
-
     base_url = str(args.url).rstrip("/")
-    with client_factory(headers={PASSCODE_HEADER: passcode}, timeout=60.0) as client:
+    with client_factory(timeout=60.0) as client:
         results = run_checks(client, base_url, timeout=args.timeout, interval=args.interval)
 
     for result in results:

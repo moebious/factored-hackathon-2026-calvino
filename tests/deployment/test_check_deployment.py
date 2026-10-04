@@ -3,7 +3,7 @@
 Two kinds, both offline: the scenario table's coverage (it must mirror the
 frontend's buttons) and the check itself against a stubbed transport —
 a healthy deployment passes, a sleeping or broken one fails with evidence,
-and the passcode never reaches argv or the printed output.
+and the check needs no credentials.
 """
 
 from __future__ import annotations
@@ -258,42 +258,30 @@ def test_a_reply_turn_without_card_or_reply_still_fails() -> None:
 
 
 # --------------------------------------------------------------------------
-# The CLI: the passcode stays in the environment
+# The CLI: no credentials, no secrets in the output
 # --------------------------------------------------------------------------
 
 
-def test_a_missing_passcode_stops_before_any_request(monkeypatch, capsys) -> None:
-    monkeypatch.delenv(cd.PASSCODE_ENV, raising=False)
-    code = cd.main(["--url", BASE])
-    captured = capsys.readouterr()
-    assert code == 2
-    assert cd.PASSCODE_ENV in captured.err
-
-
-def test_the_passcode_never_reaches_the_output(monkeypatch, capsys) -> None:
-    monkeypatch.setenv(cd.PASSCODE_ENV, "s3cret-passcode-value")
+def test_the_smoke_check_needs_no_credentials(monkeypatch, capsys) -> None:
     code = cd.main(
         ["--url", BASE],
-        client_factory=lambda headers, timeout: StubClient(_healthy_responders()),
+        client_factory=lambda timeout: StubClient(_healthy_responders()),
     )
     captured = capsys.readouterr()
     total = 4 + len(cd.SCENARIOS)
     assert code == 0
     assert f"{total}/{total} checks passed" in captured.out
-    assert "s3cret-passcode-value" not in captured.out
     assert "[measured]" in captured.out
 
 
 def test_a_failing_check_exits_one(monkeypatch, capsys) -> None:
-    monkeypatch.setenv(cd.PASSCODE_ENV, "s3cret-passcode-value")
     responders = _healthy_responders()
     responders[("GET", "/health")] = StubResponse(status_code=503)
 
-    def factory(headers: dict[str, str], timeout: float) -> StubClient:
+    def factory(timeout: float) -> StubClient:
         return StubClient(responders)
 
     code = cd.main(["--url", BASE, "--timeout", "0"], client_factory=factory)
     captured = capsys.readouterr()
     assert code == 1
     assert "FAIL" in captured.out
-    assert "s3cret-passcode-value" not in captured.out

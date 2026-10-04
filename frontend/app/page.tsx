@@ -21,12 +21,9 @@ import type { HubReply, Turn } from "./types";
 // polling every 3 s keeps the warm-up screen honest without hammering it.
 const READY_POLL_MS = 3000;
 
-const PASSCODE_HEADER = "x-calvino-passcode";
-
 export default function Home() {
   const [lang, setLang] = useState<Lang>("es");
   const [ready, setReady] = useState<boolean | null>(null);
-  const [passcode, setPasscode] = useState("");
   const [persona, setPersona] = useState("ana");
   const [personas, setPersonas] = useState<string[]>(["ana", "camilo", "lucia", "dana"]);
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -61,7 +58,7 @@ export default function Home() {
     async (path: string, body: unknown): Promise<HubReply> => {
       const response = await fetch(path, {
         method: "POST",
-        headers: { "Content-Type": "application/json", [PASSCODE_HEADER]: passcode },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const payload = await response.json();
@@ -72,7 +69,7 @@ export default function Home() {
       }
       return payload as HubReply;
     },
-    [passcode],
+    [],
   );
 
   const send = useCallback(
@@ -127,9 +124,7 @@ export default function Home() {
 
   const loadPersonas = useCallback(async () => {
     try {
-      const response = await fetch("/api/hub/personas", {
-        headers: { [PASSCODE_HEADER]: passcode },
-      });
+      const response = await fetch("/api/hub/personas");
       if (response.ok) {
         const body = await response.json();
         if (Array.isArray(body.personas) && body.personas.length > 0) {
@@ -139,7 +134,7 @@ export default function Home() {
     } catch {
       // The built-in demo names stay; the selector works either way.
     }
-  }, [passcode]);
+  }, []);
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -186,16 +181,6 @@ export default function Home() {
                 </option>
               ))}
             </select>
-          </label>
-          <label>
-            {s.passcode}
-            <input
-              type="password"
-              value={passcode}
-              onChange={(event) => setPasscode(event.target.value)}
-              onBlur={loadPersonas}
-              autoComplete="off"
-            />
           </label>
           <div className="lang-toggle" role="group" aria-label="ES / PT">
             <button

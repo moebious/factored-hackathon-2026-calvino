@@ -188,7 +188,7 @@ def make_factory(loader: KeyedLoader | None = None):
     built: list[HubService] = []
 
     def factory(data_dir: Path, timer: ModelTimer) -> HubService:
-        settings = ApiSettings(data_dir=data_dir, demo_passcode="eval-passcode")
+        settings = ApiSettings(data_dir=data_dir)
         log = DecisionLog(settings.decisions_log)
         hub = build_demo_hub(
             TimedLoader(inner, timer),
