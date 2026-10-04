@@ -52,11 +52,11 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-002](../specs/TSD-002-mcp-tools.md) | MCP tools and ISO 20022-aligned contracts | 0 | T-000 | — | standard | yes | done | maintainer |
 | [T-003](../specs/TSD-003-deployment.md) | Deployment skeleton | 0 | T-000 | — | standard | yes | done | maintainer |
 | [T-004](../specs/TSD-004-verifier.md) | Verifier framework | 0 | T-000 | — | standard | yes | done | maintainer |
-| [T-005](../specs/TSD-005-laya-service.md) | Laya service and calibration | 0 | T-000 | — | standard | yes | done | analyst |
+| [T-005](../specs/TSD-005-laya-service.md) | Laya service and calibration | 0 | T-000 | — | standard | yes | done | maintainer |
 | [T-011](../specs/TSD-011-llm-client.md) | LLM client and Hetzner provider | 0 | T-000 | — | standard | yes | done | maintainer |
 | [T-101](T-101-contact-reason-analysis.md) | Contact-reason analysis and workflow decision | 1 | — | dataset access | judgment checkpoint | yes | done (decision 17) | maintainer |
 | [T-102](../specs/TSD-007-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | done | maintainer |
-| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | todo | maintainer |
+| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | doing | maintainer |
 | [T-104](T-104-human-baseline.md) | Human baseline for the chosen workflow | 1 | T-101 | — | standard | yes | todo | maintainer |
 | [T-105](T-105-freshness-fixture.md) | Update-correctness fixture | 1 | T-102 | — | standard | yes | todo | maintainer |
 | [T-106](T-106-message-set.md) | Team-generated customer message set | 1 | T-103 | LLM provider keys | standard + maintainer review | no | todo | maintainer |
@@ -68,8 +68,8 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | — | standard | yes | todo | maintainer |
 | [T-301](T-301-support-agent.md) | Support agent and company brain | 3 | T-204, T-206 | LLM provider keys | standard | no | todo | maintainer |
 | [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo | maintainer |
-| [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | spec | maintainer |
-| [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | review | maintainer |
+| [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | doing | maintainer |
+| [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | doing | maintainer |
 | [T-305](T-305-gradio-demo-adapter.md) | Gradio demo adapter (free hosted demo) | 3 | T-005 | free Space (maintainer) | standard | yes | spec | maintainer |
 | [T-401](T-401-durable-cases.md) | Durable cases | 3 | T-204, T-302 | — | standard | yes | todo | maintainer |
 | [T-402](T-402-verifier-panel.md) | Risk-tiered verifier panel | 4 | T-004, T-303 | Tier 0 gate | standard | yes | todo | maintainer |

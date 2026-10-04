@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented |
 | Branch | `build/deploy-demo` |
 | Depends on | TSD-003, TSD-009, TSD-010 |
 | Required by | the evaluation (T-303), the video (T-504), the submission (T-505) |
