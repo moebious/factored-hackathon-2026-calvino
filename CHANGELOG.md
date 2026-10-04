@@ -6,6 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ## [Unreleased]
 
 ### Added
+- The judge sends an explicit completion budget, sized from the rubric (`OpenAiJudge.token_budget`): every reachable model reasons before it answers (one word cost 109-116 output tokens; a 24-token judge call returned finish_reason "length" with nothing but thinking), so an unset budget meant an unbounded answer and a small one truncates before any verdict is emitted.
 - Retry count is configurable per role (`CALVINO_LLM_RETRIES`, `CALVINO_JUDGE_RETRIES`), still 2 by default and 0 allowed, and the default request timeout rises from 30 s to 60 s: both were sized from a probe asking for one word, while a three-sentence reply to a real customer message took 20.0-26.1 s, so the worst-case wait (`timeout * (retries + 1)`) is now tunable where the demo needs it.
 
 - End-to-end evaluation spec (TSD-013, T-303, proposed): the `calvino.evaluation` harness — a hand-written oracle independent of the policy code, seeded case files with the AC scenarios as the first slice, an in-process runner over `HubService` with a fresh data dir per case and discarded warm-up, metrics that always carry numerator and denominator, judge validation and the bare-LLM ablation gated on the provider keys (skipped with a named blocker, never silently), and a committed report whose every number carries its evidence label, sample size and the run's model, policy, playbook and rubric versions.

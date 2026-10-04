@@ -197,6 +197,10 @@ class MockJudge:
         return results
 
 
+DEFAULT_JUDGE_REASONING_TOKENS = 512
+DEFAULT_JUDGE_TOKENS_PER_CRITERION = 96
+
+
 class OpenAiJudge:
     """The real judge: one batched call to a provider, behind ``calvino.llm``.
 
@@ -227,13 +231,34 @@ class OpenAiJudge:
 
     prompt_version = JUDGE_PROMPT_VERSION
 
-    def __init__(self, client: ChatClient, *, seed: int | None = None) -> None:
+    def __init__(
+        self,
+        client: ChatClient,
+        *,
+        seed: int | None = None,
+        reasoning_tokens: int = DEFAULT_JUDGE_REASONING_TOKENS,
+        tokens_per_criterion: int = DEFAULT_JUDGE_TOKENS_PER_CRITERION,
+    ) -> None:
         self._client = client
         # A fixed seed makes a repeated run of the same case comparable (T-303); None leaves the
         # choice to the provider.
         self.seed = seed
+        self._reasoning_tokens = reasoning_tokens
+        self._tokens_per_criterion = tokens_per_criterion
         self.last_model: str | None = None
         self.last_latency_ms: float | None = None
+
+    def token_budget(self, criteria: int) -> int:
+        """The completion budget for ``criteria`` verdicts, thinking included.
+
+        Every model we can reach is a reasoning model, and it spends the budget before it answers:
+        one word cost 109-116 output tokens on the agent model, and a judge model asked for 24
+        tokens returned finish_reason "length" with nothing but thinking in the content. So the
+        budget has to cover the thinking as well as the verdicts, or the call comes back truncated
+        and the parser fails closed on a judge that never got to judge. Sized from the rubric
+        rather than fixed, because a rubric with more criteria needs more room for the JSON.
+        """
+        return self._reasoning_tokens + self._tokens_per_criterion * criteria
 
     def judge_batch(
         self, output: str, evidence: Evidence, criteria: Sequence[Criterion]
@@ -255,6 +280,7 @@ class OpenAiJudge:
                 # run of the same case is comparable (T-303).
                 temperature=0.0,
                 seed=self.seed,
+                max_tokens=self.token_budget(len(criteria)),
                 reasoning_effort=ReasoningEffort.LOW,
             )
         )
