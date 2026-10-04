@@ -18,7 +18,7 @@
 
 **Open parameters.** none: the five stages and Laya's questions are in DESIGN.md 6.1
 
-**Constraints.** per-stage tool lists and the playbook file (decision 24); a trusted test session issued by the hub for each persona, never a customer number typed in chat; per-language thresholds once `policy/v2` exists (decision 22)
+**Constraints.** per-stage tool lists and the playbook file (decision 24); a trusted test session issued by the hub for each persona, never a customer number typed in chat; per-language thresholds once `policy/v3` exists (decisions 22 and 33)
 
 **Done when.** end-to-end tests with fakes cover the normal, ambiguous, out-of-scope and human-needed paths, and the acceptance scenarios for AC-1 to AC-4, AC-6 and AC-8 pass in CI (decision 23)
 
