@@ -23,6 +23,7 @@ from calvino.hub import (
     DEMO_PERSONAS,
     HubDependencies,
     HubService,
+    SupportAgent,
     TemplateAgent,
     TrustedSessionIssuer,
 )
@@ -35,6 +36,7 @@ from calvino.tools import (
     confirmation_key_from_env,
 )
 from calvino.tools.session import Session
+from calvino.verifier import Judge
 
 
 class FixtureFraudContext:
@@ -62,8 +64,14 @@ def build_demo_hub(
     policy: Policy,
     log: DecisionLog,
     confirmations: ConfirmationVerifier | None = None,
+    agent: SupportAgent | None = None,
+    judge: Judge | None = None,
 ) -> HubService:
     """Assemble the demo's ``HubService``.
+
+    ``agent`` and ``judge`` default to the deterministic ``TemplateAgent`` and the verifier's
+    ``MockJudge`` (every judged criterion passes), so the public demo stays keyless; the
+    evaluation passes the LLM agent and the real judge (TSD-016).
 
     Without ``confirmations`` the HMAC verifier is built from
     ``CALVINO_CONFIRMATION_KEY``; a missing or short key raises
@@ -80,8 +88,9 @@ def build_demo_hub(
         policy=policy,
         tools=tools,
         issuer=TrustedSessionIssuer(DEMO_PERSONAS),
-        agent=TemplateAgent(),
+        agent=agent if agent is not None else TemplateAgent(),
         log=log,
+        judge=judge,
         fraud_context=FixtureFraudContext(fixture),
         confirmations=confirmations,
     )

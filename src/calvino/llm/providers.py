@@ -37,6 +37,15 @@ MODEL_ENV_VAR = {"agent": "CALVINO_LLM_MODEL", "judge": "CALVINO_JUDGE_MODEL"}
 BASE_URL_ENV_VAR = {"agent": "CALVINO_LLM_BASE_URL", "judge": "CALVINO_JUDGE_BASE_URL"}
 
 
+class TokenPrice(BaseModel):
+    """USD per million tokens, as the provider publishes them (T-303 prices a run from these)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    input_usd: float = Field(ge=0)
+    output_usd: float = Field(ge=0)
+
+
 class RoleModels(BaseModel):
     """One role's provider and model."""
 
@@ -50,6 +59,8 @@ class RoleModels(BaseModel):
     # id may be re-pointed; "dated-release" means the id names an exact version.
     pin: PinKind
     alternatives: tuple[str, ...] = ()
+    # None while unrecorded: the evaluation then reports tokens as "not priced" instead of $0.
+    price_per_million_tokens: TokenPrice | None = None
 
 
 class ObservedCatalogue(BaseModel):

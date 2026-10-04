@@ -179,3 +179,20 @@ def test_an_unknown_role_is_refused():
     providers = ProviderFile.model_validate(yaml.safe_load(GOOD))
     with pytest.raises(LlmConfigurationError):
         providers.role("verifier")
+
+
+def test_token_prices_are_optional_and_validated(tmp_path):
+    # Unrecorded by default: the evaluation then reports tokens as "not priced", never $0.
+    assert load_providers(write(tmp_path, GOOD)).agent.price_per_million_tokens is None
+
+    priced = GOOD.replace(
+        "  alternatives: [Qwen3.8-27B]\n",
+        "  alternatives: [Qwen3.8-27B]\n"
+        "  price_per_million_tokens: {input_usd: 0.4, output_usd: 1.6}\n",
+    )
+    price = load_providers(write(tmp_path, priced)).agent.price_per_million_tokens
+    assert (price.input_usd, price.output_usd) == (0.4, 1.6)
+
+    negative = priced.replace("input_usd: 0.4", "input_usd: -1")
+    with pytest.raises(ValidationError):
+        load_providers(write(tmp_path, negative))

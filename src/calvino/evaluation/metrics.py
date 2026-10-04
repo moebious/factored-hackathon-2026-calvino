@@ -88,13 +88,15 @@ class Latency:
 
 @dataclass(frozen=True)
 class Cost:
-    """LLM cost; $0 under the TemplateAgent (Laya is self-hosted CPU time)."""
+    """LLM cost and tokens for one pass; $0 under the TemplateAgent (Laya is CPU time)."""
 
     total_usd: float
     attempts: int
     resolutions: int
     per_attempt_usd: float | None
     per_resolution_usd: float | None
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
 
 
 def errored(results: Iterable[CaseResult]) -> tuple[CaseResult, ...]:
@@ -216,6 +218,8 @@ def cost(results: Iterable[CaseResult]) -> Cost:
         resolutions=resolutions,
         per_attempt_usd=(total / attempts) if attempts else None,
         per_resolution_usd=(total / resolutions) if resolutions else None,
+        prompt_tokens=sum(r.llm_prompt_tokens for r in runs),
+        completion_tokens=sum(r.llm_completion_tokens for r in runs),
     )
 
 

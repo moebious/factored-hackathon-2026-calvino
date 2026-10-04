@@ -11,6 +11,7 @@ no hub, no models, no network.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 
 from calvino.evaluation.ablation import BARE_PROMPT_VERSION, Ablation, BareAnswer
 from calvino.evaluation.cases import EvalCase
@@ -310,3 +311,58 @@ def test_results_json_mirrors_the_run() -> None:
 def test_results_json_text_is_valid_json() -> None:
     text = results_json_text(make_report(sample_results()))
     assert json.loads(text)["header"]["run_date"] == "2026-10-04"
+
+
+def llm_result(case_id: str, prompt: int, completion: int, cost_usd: float = 0.0) -> CaseResult:
+    return replace(
+        make_result(make_case(case_id)),
+        llm_prompt_tokens=prompt,
+        llm_completion_tokens=completion,
+        cost_usd=cost_usd,
+    )
+
+
+def test_the_header_names_the_components_that_answered() -> None:
+    template = render_report(make_report())
+    assert "| Agent | TemplateAgent |" in template
+    assert "| Judge in the hub | MockJudge (every judged criterion passes) |" in template
+    live = render_report(
+        replace(
+            make_report(),
+            header=header(
+                agent="LlmAgent",
+                agent_model="qwen-test",
+                agent_prompt_version="v1",
+                hub_judge="OpenAiJudge (judge-test)",
+            ),
+        )
+    )
+    assert "| Agent | LlmAgent |" in live
+    assert "| Agent model | qwen-test |" in live and "| Agent prompt | v1 |" in live
+    assert "| Judge in the hub | OpenAiJudge (judge-test) |" in live
+
+
+def test_unpriced_tokens_are_reported_not_shown_as_zero_cost() -> None:
+    results = (llm_result("ORC-001", 1000, 200), llm_result("ORC-002", 500, 100))
+    unpriced = render_report(replace(make_report(results), header=header(llm_priced=False)))
+    assert "not priced (1500 prompt + 300 completion tokens" in unpriced
+    assert "$0.0000 / $0.0000" not in unpriced
+
+
+def test_priced_cost_shows_money_and_tokens() -> None:
+    results = (llm_result("ORC-001", 1000, 200, cost_usd=0.5),)
+    priced = render_report(make_report(results))
+    assert "$0.5000" in priced and "1000 prompt + 200 completion tokens" in priced
+
+
+def test_results_json_carries_tokens_and_the_answering_components() -> None:
+    payload = results_json(
+        replace(
+            make_report((llm_result("ORC-001", 1000, 200),)),
+            header=header(agent="LlmAgent", agent_prompt_version="v1"),
+        )
+    )
+    assert payload["header"]["agent"] == "LlmAgent"
+    assert payload["header"]["agent_prompt_version"] == "v1"
+    assert payload["cases"][0]["llm_prompt_tokens"] == 1000
+    assert payload["metrics"]["cost"]["completion_tokens"] == 200

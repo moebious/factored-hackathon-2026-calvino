@@ -32,6 +32,7 @@ import secrets
 import subprocess
 import sys
 from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
@@ -63,15 +64,24 @@ from calvino.evaluation.report import (
 from calvino.evaluation.runner import (
     EvaluationRunner,
     HubFactory,
+    MeteredChatClient,
     ModelTimer,
     TimedLoader,
+    TokenPrices,
 )
-from calvino.hub import load_playbook
+from calvino.hub import LlmAgent, load_playbook, load_prompts
 from calvino.hub.service import HubService
 from calvino.hub.sessions import DEMO_PERSONAS
+from calvino.llm import (
+    ChatClient,
+    assert_distinct_families,
+    hetzner_client_from_env,
+    judge_client_from_env,
+    load_providers,
+)
 from calvino.policy import load_policy
 from calvino.tools import HmacConfirmationVerifier
-from calvino.verifier.judge import JUDGE_PROMPT_VERSION
+from calvino.verifier.judge import JUDGE_PROMPT_VERSION, OpenAiJudge
 from calvino.verifier.rubric import load_rubric
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -128,12 +138,40 @@ def render_facts(case: EvalCase, fixture: Mapping) -> str:
     return "\n".join(lines) if lines else "(no records on file for this customer)"
 
 
-def default_hub_factory(env: Mapping[str, str]) -> HubFactory:
+@dataclass(frozen=True)
+class LiveLlm:
+    """The language-model parts of a run, built once so one rate limiter paces every case."""
+
+    agent_client: ChatClient
+    judge_client: ChatClient | None  # None: the hub keeps the MockJudge
+    prompt_version: str
+
+
+def live_llm(env: Mapping[str, str]) -> LiveLlm | None:
+    """The LLM agent (and judge) when their keys are present, else ``None`` (TemplateAgent).
+
+    The agent needs ``CALVINO_LLM_API_KEY`` and ``CALVINO_LLM_MODEL``; the hub judge needs the
+    ``CALVINO_JUDGE_*`` triple. Either can run without the other: an agent without a judge is
+    reported as such in the header, never as a judged run.
+    """
+    if not (env.get("CALVINO_LLM_API_KEY") and env.get("CALVINO_LLM_MODEL")):
+        return None
+    agent_client = hetzner_client_from_env(env=env)
+    judge_client = None
+    if all(env.get(name) for name in ("CALVINO_JUDGE_API_KEY", "CALVINO_JUDGE_MODEL")):
+        judge_client = judge_client_from_env(env=env)
+        assert_distinct_families(agent_client.model, judge_client.model)
+    return LiveLlm(agent_client, judge_client, load_prompts().version)
+
+
+def default_hub_factory(env: Mapping[str, str], llm: LiveLlm | None = None) -> HubFactory:
     """The production assembly, timed: Laya in ``TimedLoader``, policy v2.
 
     Each case gets a fresh data dir (the runner makes it), a fresh random
     confirmation key and its own HMAC verifier, so one-shot token
     semantics never leak between cases and no deployed secret is needed.
+    With ``llm`` the hub answers with the ``LlmAgent`` (and the real judge when
+    configured); every call is metered into the run's timer.
     """
     loader = LayaLoader()
     loader.preload()  # fail fast: a missing checkpoint must not surface mid-suite
@@ -142,15 +180,33 @@ def default_hub_factory(env: Mapping[str, str]) -> HubFactory:
 
     def factory(data_dir: Path, timer: ModelTimer) -> HubService:
         settings = ApiSettings(data_dir=data_dir, bank_fixture=fixture_path)
+        agent = judge = None
+        if llm is not None:
+            agent = LlmAgent(MeteredChatClient(llm.agent_client, timer, "agent"))
+            if llm.judge_client is not None:
+                judge = OpenAiJudge(MeteredChatClient(llm.judge_client, timer, "judge"), seed=7)
         return build_demo_hub(
             TimedLoader(loader, timer),
             settings,
             policy,
             DecisionLog(settings.decisions_log),
             confirmations=HmacConfirmationVerifier(secrets.token_bytes(32)),
+            agent=agent,
+            judge=judge,
         )
 
     return factory
+
+
+def token_prices() -> TokenPrices:
+    """Per-role prices from providers.yaml; a role with none recorded is left out."""
+    providers = load_providers()
+    prices: TokenPrices = {}
+    for role in ("agent", "judge"):
+        price = providers.role(role).price_per_million_tokens
+        if price is not None:
+            prices[role] = (price.input_usd, price.output_usd)
+    return prices
 
 
 def git_sha(root: Path = REPO_ROOT) -> str:
@@ -178,8 +234,18 @@ def laya_version() -> str | None:
         return None
 
 
-def build_header(suite: str, repeats: int, env: Mapping[str, str]) -> RunHeader:
-    """Every version and label the run's numbers travel with."""
+def build_header(
+    suite: str,
+    repeats: int,
+    env: Mapping[str, str],
+    llm: LiveLlm | None = None,
+    llm_priced: bool = True,
+) -> RunHeader:
+    """Every version and label the run's numbers travel with.
+
+    The agent and judge named are the ones that answered in the hub, not the ones whose keys
+    happened to be set: a run scored on the template says so.
+    """
     return RunHeader(
         run_date=date.today().isoformat(),
         git_sha=git_sha(),
@@ -192,8 +258,16 @@ def build_header(suite: str, repeats: int, env: Mapping[str, str]) -> RunHeader:
         judge_prompt_version=JUDGE_PROMPT_VERSION,
         oracle_version=ORACLE_VERSION,
         laya_version=laya_version(),
-        agent_model=env.get("CALVINO_LLM_MODEL") or None,
+        agent_model=(env.get("CALVINO_LLM_MODEL") or None) if llm is not None else None,
         judge_model=env.get("CALVINO_JUDGE_MODEL") or None,
+        agent="LlmAgent" if llm is not None else "TemplateAgent",
+        agent_prompt_version=llm.prompt_version if llm is not None else None,
+        hub_judge=(
+            f"OpenAiJudge ({env.get('CALVINO_JUDGE_MODEL')})"
+            if llm is not None and llm.judge_client is not None
+            else "MockJudge (every judged criterion passes)"
+        ),
+        llm_priced=llm_priced,
     )
 
 
@@ -261,16 +335,22 @@ def main(
     values = os.environ if env is None else env
 
     cases = load_suite(args.cases_dir, args.scenarios_dir)
-    factory = hub_factory if hub_factory is not None else default_hub_factory(values)
-    runner = EvaluationRunner(factory, repeats=args.repeats)
-    print(f"running {len(cases)} cases x {args.repeats} repeats (suite {args.suite})...")
+    llm = live_llm(values) if hub_factory is None else None
+    factory = hub_factory if hub_factory is not None else default_hub_factory(values, llm)
+    runner = EvaluationRunner(factory, repeats=args.repeats, prices=token_prices())
+    agent_name = "LlmAgent" if llm is not None else "TemplateAgent"
+    print(
+        f"running {len(cases)} cases x {args.repeats} repeats (suite {args.suite}, {agent_name})..."
+    )
     results = runner.run(cases)
 
     fixture_path = settings_from_env(values).bank_fixture
     fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
     judge, ablation = gated_results(args.suite, cases, fixture, values)
     report = RunReport(
-        header=build_header(args.suite, args.repeats, values),
+        header=build_header(
+            args.suite, args.repeats, values, llm, llm_priced=not runner.unpriced_roles
+        ),
         results=results,
         determinism=runner.determinism_findings,
         judge=judge,

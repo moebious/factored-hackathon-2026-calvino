@@ -76,12 +76,19 @@ class ModelTimer:
 
     def __init__(self) -> None:
         self._ms = 0.0
+        # Tokens per LLM role ("agent", "judge") for the turn in progress: (prompt, completion).
+        self.tokens: dict[str, tuple[int, int]] = {}
 
     def add(self, ms: float) -> None:
         self._ms += ms
 
+    def add_tokens(self, role: str, prompt: int, completion: int) -> None:
+        before_prompt, before_completion = self.tokens.get(role, (0, 0))
+        self.tokens[role] = (before_prompt + prompt, before_completion + completion)
+
     def reset(self) -> None:
         self._ms = 0.0
+        self.tokens = {}
 
     @property
     def elapsed_ms(self) -> float:
@@ -110,6 +117,34 @@ class TimedLoader:
             self._timer.add((time.perf_counter() - start) * 1000.0)
 
 
+class MeteredChatClient:
+    """Wraps a ``ChatClient`` and adds each call's latency and tokens to the timer (T-303).
+
+    Model latency then covers Laya and the LLM calls, and the runner can price a turn from the
+    tokens the provider reported. The wrapped client is shared across hubs (so its rate limiter
+    paces the whole run); only this thin wrapper is built per hub, around the run's timer.
+    """
+
+    def __init__(self, inner: Any, timer: ModelTimer, role: str) -> None:
+        self._inner = inner
+        self._timer = timer
+        self._role = role
+
+    def complete(self, request: Any) -> Any:
+        start = time.perf_counter()
+        try:
+            response = self._inner.complete(request)
+        finally:
+            self._timer.add((time.perf_counter() - start) * 1000.0)
+        self._timer.add_tokens(self._role, response.prompt_tokens, response.completion_tokens)
+        return response
+
+
+# (input, output) USD per million tokens, keyed by role. A role missing from the map has tokens
+# that are reported but not priced; the report says so instead of showing $0.
+TokenPrices = dict[str, tuple[float, float]]
+
+
 @dataclass(frozen=True)
 class CaseResult:
     """One case's result: the observed outcome and its evidence."""
@@ -122,10 +157,13 @@ class CaseResult:
     unsafe: tuple[str, ...]  # must_not ids that fired, empty when safe
     latency_model_ms: float  # Laya classify + LLM calls only
     latency_e2e_ms: float  # whole turn, warm-up discarded
-    cost_usd: float  # LLM cost; $0 under the TemplateAgent (it makes no calls)
+    cost_usd: float  # priced LLM cost; $0 under the TemplateAgent (no calls) or when unpriced
     trace: tuple[TraceStep, ...]
     decision_records: tuple[dict, ...]
     error: str | None
+    # LLM tokens the turn used (agent and judge together), as the provider reported them.
+    llm_prompt_tokens: int = 0
+    llm_completion_tokens: int = 0
 
 
 @dataclass(frozen=True)
@@ -270,14 +308,38 @@ def _read_records(data_dir: Path) -> tuple[dict, ...]:
 class EvaluationRunner:
     """Runs cases against fresh in-process hubs and collects the results."""
 
-    def __init__(self, hub_factory: HubFactory, *, repeats: int = 3) -> None:
+    def __init__(
+        self, hub_factory: HubFactory, *, repeats: int = 3, prices: TokenPrices | None = None
+    ) -> None:
         if repeats < 1:
             raise ValueError("repeats must be at least 1")
         self._hub_factory = hub_factory
+        self._prices = prices or {}
+        self._unpriced_roles: set[str] = set()
         self._repeats = repeats
         self._timer = ModelTimer()
         self._warmed = False
         self._determinism_findings: list[str] = []
+
+    @property
+    def unpriced_roles(self) -> tuple[str, ...]:
+        """LLM roles that used tokens during the run but have no price on record."""
+        return tuple(sorted(self._unpriced_roles))
+
+    def _llm_usage(self) -> tuple[int, int, float]:
+        """The turn's (prompt tokens, completion tokens, priced cost) from the timer."""
+        prompt = completion = 0
+        cost = 0.0
+        for role, (role_prompt, role_completion) in self._timer.tokens.items():
+            prompt += role_prompt
+            completion += role_completion
+            price = self._prices.get(role)
+            if price is None:
+                if role_prompt or role_completion:
+                    self._unpriced_roles.add(role)
+                continue
+            cost += (role_prompt * price[0] + role_completion * price[1]) / 1_000_000
+        return prompt, completion, cost
 
     @property
     def determinism_findings(self) -> tuple[str, ...]:
@@ -396,6 +458,7 @@ class EvaluationRunner:
             final = hub.resume(ref, decision)
             traces.extend(final.trace)
         latency_e2e_ms = (time.perf_counter() - start) * 1000.0
+        llm_prompt, llm_completion, llm_cost = self._llm_usage()
         outcome = None if error is not None else classify_turn(first, final, tuple(parked), denied)
         unsafe = () if error is not None else unsafe_of(case, tuple(parked), tuple(traces), final)
         return CaseResult(
@@ -407,12 +470,14 @@ class EvaluationRunner:
             unsafe=unsafe,
             latency_model_ms=self._timer.elapsed_ms,
             latency_e2e_ms=latency_e2e_ms,
-            # The TemplateAgent makes no LLM calls, so tier0 cost is $0;
-            # the live LLM tier meters the ChatClient against providers.yaml.
-            cost_usd=0.0,
+            # The TemplateAgent makes no LLM calls, so tier0 cost is $0; a live run prices the
+            # tokens the metered clients saw (an unpriced role costs $0 here and is reported).
+            cost_usd=llm_cost,
             trace=tuple(traces),
             decision_records=_read_records(data_dir),
             error=error,
+            llm_prompt_tokens=llm_prompt,
+            llm_completion_tokens=llm_completion,
         )
 
     def _check_determinism(self, case: EvalCase, turns: list[_Turn]) -> None:
@@ -433,4 +498,7 @@ class EvaluationRunner:
             first,
             latency_model_ms=median(turn.result.latency_model_ms for turn in turns),
             latency_e2e_ms=median(turn.result.latency_e2e_ms for turn in turns),
+            cost_usd=median(turn.result.cost_usd for turn in turns),
+            llm_prompt_tokens=int(median(turn.result.llm_prompt_tokens for turn in turns)),
+            llm_completion_tokens=int(median(turn.result.llm_completion_tokens for turn in turns)),
         )
