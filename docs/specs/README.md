@@ -17,6 +17,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-012](TSD-012-deploy-demo.md): deploy the demo at `calvino.rubrica.dev`
 - [TSD-013](TSD-013-end-to-end-evaluation.md): end-to-end evaluation (T-303)
 - [TSD-014](TSD-014-full-data-inventory.md): read-only full-data inventory
+- [TSD-015](TSD-015-labels-splits.md): labels, splits and gold-set rubric (T-103, proposed)
 
 Later tasks write their spec from their task card as the first step, numbered from TSD-015, and wait for the maintainer's approval before any code.
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.
