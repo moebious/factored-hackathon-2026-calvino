@@ -65,10 +65,44 @@ def test_the_committed_record_satisfies_the_decision_27_guard():
 
 def test_the_committed_record_notes_what_each_provider_served():
     providers = load_providers()
-    dates = {str(entry.date): entry.role for entry in providers.observed}
-    assert dates == {"2026-07-24": "agent", "2026-10-03": "judge"}
+    # One date can hold observations for two roles, so compare the pairs.
+    assert {(str(e.date), e.role) for e in providers.observed} >= {
+        ("2026-07-24", "agent"),
+        ("2026-10-03", "agent"),
+        ("2026-10-03", "judge"),
+    }
     for entry in providers.observed:
         assert entry.ids, "an observation with no ids cannot detect a drift"
+
+
+def test_the_first_live_call_is_recorded_as_measured():
+    """Decisions 28 and 29 rested on vendor documentation until this call."""
+    agent = [e for e in load_providers().observed if e.role == "agent"]
+    latest = max(agent, key=lambda e: e.date)
+    assert "[measured]" in latest.source
+    assert latest.reasoning_models is True
+    assert latest.latency_ms_probe and latest.latency_ms_probe_cold
+    # Both documented ids are served. Only one of them answered inside our patience, which is a
+    # statement about the wait, not a verdict on the model: see the field's own comment.
+    assert latest.ids == ("Qwen/Qwen3.6-35B-A3B-FP8", "Qwen3.8-27B")
+    assert latest.no_answer_within_seconds == (("Qwen3.8-27B", 903.0),)
+
+
+def test_the_record_separates_the_one_word_probe_from_a_real_draft():
+    """A bare "latency_ms" of 2337 read as the demo figure, and it is an order of magnitude out.
+
+    A three-sentence reply took 25.0 s against the probe's 2.3 s, so both are kept and the draft
+    figure is the one a reader has to be able to find.
+    """
+    latest = max(
+        (e for e in load_providers().observed if e.role == "agent"),
+        key=lambda e: e.date,
+    )
+    assert latest.draft_latency_ms and latest.draft_output_tokens_median
+    assert latest.draft_latency_ms > latest.latency_ms_probe * 5, (
+        "a real draft costs far more than the one-word probe; if these converge, one of the two "
+        "measurements is wrong"
+    )
 
 
 def test_a_record_can_be_read_from_a_path(tmp_path):

@@ -40,6 +40,37 @@ observed:
     ids:
       - Qwen/Qwen3.6-35B-A3B-FP8
       - Qwen3.8-27B
+  # The first live call, and the reason the ids above are now [measured] rather than [vendor].
+  # Both are served; the response carries vLLM fields (routed_experts, kv_transfer_params), so the
+  # served models are reasoning models: a one-word answer still cost 109-116 output tokens, and a
+  # tight max_tokens returns no content at all with finish_reason "length" (LLM-TRUNCATED).
+  - date: 2026-10-03
+    role: agent
+    source: hetzner /v1/models and one chat completion [measured]
+    ids:
+      - Qwen/Qwen3.6-35B-A3B-FP8
+      - Qwen3.8-27B
+    # One-word probe ("Reply with exactly: OK"), four samples on a local run: 2.3-3.5 s, median
+    # 2.3 s warm, and 4.9-6.1 s on the first call of the session. Real for a health check, and not
+    # the demo figure: a real answer costs an order of magnitude more, below.
+    latency_ms_probe: 2337
+    latency_ms_probe_cold: 6106
+    probe_output_tokens_median: 116
+    # A real three-sentence reply to a real customer message, in Spanish and Portuguese: 20.0,
+    # 25.0 and 26.1 s, median 25.0 s, for 423, 536 and 646 output tokens. This is the number a
+    # demo is designed against. The gap over the probe is the model reasoning before it answers,
+    # which is why the request timeout sits at 60 s rather than the 30 s the probe suggested.
+    draft_latency_ms: 25000
+    draft_output_tokens_median: 536
+    reasoning_models: true
+    # The A/B candidate answered nothing within our reach: no content after 30 s, and none after
+    # 903 s with a 600 s timeout and two retries, ending in a transport failure. Recorded as an
+    # observation, not a verdict: this is how long we waited, which is a fact about our client and
+    # not about the model. A DeepSeek id on another provider did answer at 273 s, well inside 903 s
+    # and long after this client had already given up at 91 s, so treat this id as unmeasured rather
+    # than dead and re-probe it before ruling it out.
+    no_answer_within_seconds:
+      - [Qwen3.8-27B, 903]
   - date: 2026-10-03
     role: judge
     source: openrouter /api/v1/models [measured]
