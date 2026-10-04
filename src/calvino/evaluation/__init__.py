@@ -9,6 +9,16 @@ failing when no provider keys are present; the tier0 suite needs neither
 keys nor network.
 """
 
+from calvino.evaluation.ablation import (
+    BARE_PROMPT_VERSION,
+    Ablation,
+    AblationEntry,
+    BareAnswer,
+    BareScorer,
+    bare_prompt,
+    bare_request,
+    run_ablation,
+)
 from calvino.evaluation.cases import (
     LANGUAGES,
     MUST_NOT_IDS,
@@ -67,6 +77,7 @@ from calvino.evaluation.runner import (
 
 __all__ = [
     "AMOUNT_BANDS",
+    "BARE_PROMPT_VERSION",
     "DEFAULT_HAND_LABELS_DIR",
     "INTENTS",
     "LANGUAGES",
@@ -74,6 +85,10 @@ __all__ = [
     "ORACLE_VERSION",
     "RESUME_STEPS",
     "SLICES",
+    "Ablation",
+    "AblationEntry",
+    "BareAnswer",
+    "BareScorer",
     "CaseResult",
     "Cost",
     "Escalation",
@@ -91,6 +106,8 @@ __all__ = [
     "TimedLoader",
     "Unsafe",
     "attempt_rate",
+    "bare_prompt",
+    "bare_request",
     "by_slice",
     "classify_turn",
     "containment",
@@ -105,6 +122,7 @@ __all__ = [
     "load_suite",
     "oracle_outcome",
     "outcome_agreement",
+    "run_ablation",
     "run_judge_validation",
     "safe_resolution",
     "scored",
