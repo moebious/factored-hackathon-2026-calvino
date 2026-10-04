@@ -25,7 +25,7 @@ generation prompts, the message files, the review log and the datasheet.
 Boundary with TSD-013: the outcome oracle (`oracle_outcome` in
 `calvino.evaluation`) already exists and is reused as is; this spec creates
 **no competing oracle**, per the T-106 card. Boundary with TSD-018
-(human baseline, the number-taker): TSD-018 measures category-level human
+(human baseline): TSD-018 measures category-level human
 outcomes on the full live data; this spec generates synthetic classifier
 text. Neither consumes the other's outputs: baseline aggregates never seed
 messages, synthetic messages never enter the baseline, and complaint seeds
@@ -54,8 +54,14 @@ nothing marked this way without a new entry here.
   outcome mix inside each variant (each 80 is roughly 60 stuck at natural
   mix + 10 non-stuck heads + 10 injection positives, all plain-drafted, so
   per-variant calibration reads stay at or above decision 25's 30-case
-  line). Test is 240 seed-generated (even variants, natural mix, test
-  prompt with disjoint style instructions) plus a 60-case supplement
+  line). "Natural mix" means: within each seed kind, the
+  Declined/Pending/Reversed status mix mirrors the usable seed pool's
+  observed mix for that split; the split report states the pool mix and
+  the drawn mix side by side so a skew is visible. Test is 240
+  seed-generated (3 variants × 80: each 80 is roughly 60 stuck at
+  natural mix + 10 non-stuck heads + 10 injection positives, mirroring
+  the calibration shape, test prompt with disjoint style instructions)
+  plus a 60-case supplement
   confined to test: ~40 adversarial rewordings (~10 wrong/missing-data,
   ~10 injection attempts, ~8 multilingual-ambiguity, ~12 DESIGN 6.1 edge
   cases: exchange-rate discrepancy, hostile-but-trivial tone,
@@ -90,23 +96,27 @@ nothing marked this way without a new entry here.
   be regenerated, which the datasheet states.
 - **P4 — weighted review (proposed — maintainer confirms at spec
   review).** The maintainer reviews a weighted sample per split against
-  rubric v1 before the split is used: train ≥30 (5 per stuck intent),
-  calibration ≥50, test ≥50 from the base slice plus 10 sampled from the
-  ~40 adversarial rows (the remaining ~30 adversarial rows are
-  machine-checked against the rubric-v1 machine rules, not reviewer-read).
-  The written accept rule: a split (or prompt version) is accepted iff its
-  reviewed sample carries **≤1 defect** (a defect is a fail verdict or a
-  row needing label correction at review); 2+ defects, or the same defect
-  twice, is a systematic failure and mints a new prompt version plus a
-  fresh review sample. Reviewed messages are never silently edited into
-  passing — corrections are logged per row with reviewer and reason. The
-  accepted minimums sum to 130 before adversarial rows, so the audit's
-  ~120 figure is operationalised as a cap, not a target: total reviewed
-  verdicts per set version never exceed 150, and the adversarial subset is
-  the flex margin that shrinks first; base minimums never shrink. An
-  optional second-label pass runs a different-family model over the
-  reviewed sample; the maintainer adjudicates disagreements only, and
-  every disagreement is logged as rubric gap, model slip or reviewer slip.
+  rubric v1 before the split is used: train ≥30 stratified across stuck
+  intents, non-stuck heads and plain injection positives (for example 18
+  stuck at 3 per intent + 6 non-stuck + 6 injection — never 5-per-stuck
+  intent only, which would leave the positive class outside adversarial
+  phrasing unreviewed), calibration ≥50, test ≥30 from the base slice
+  plus all ~40 adversarial rewordings plus all ~20 hand-written rows
+  (about 90 test rows; no machine-check escape hatch — every adversarial
+  row is reviewer-read). The written accept rule: a split (or prompt
+  version) is accepted iff its reviewed sample carries **≤1 defect** (a
+  defect is a fail verdict or a row needing label correction at
+  review); 2+ defects, or the same defect twice, is a systematic failure
+  and mints a new prompt version plus a fresh review sample. Reviewed
+  messages are never silently edited into passing — corrections are
+  logged per row with reviewer and reason. The minimums sum to about
+  170 reviewed verdicts per set version (30 train + 50 calibration +
+  ~90 test), capped at 170: the cap is set by maintainer review budget,
+  not by any figure from a previous audit. An optional second-label pass
+  runs a different-family model over all rows (keyed; about 1,140 calls
+  per set version); the maintainer adjudicates disagreements only, and
+  every disagreement is logged as rubric gap, model slip or reviewer
+  slip.
 - **P5 — file home (proposed — maintainer confirms at spec review).**
   Versioned files under `evaluation/message-set/v1/` (see [File
   locations](#file-locations-and-check-commands)); code in
@@ -120,12 +130,24 @@ nothing marked this way without a new entry here.
 - **P6 — amount bands (proposed — maintainer confirms at spec
   review).** Seed amount bands (`under_gate` / `over_gate`) are computed
   with the gate-limit table of the current released policy (v2 at the
-  time of writing); the policy version is recorded per seed so a later
-  policy version does not silently re-band the set. Two guards: the loader
-  fails loudly (raises, derives nothing) if the evaluated policy's gate
-  table differs from a seed's recorded version, and seed selection avoids
-  amounts within ±20% of any gate limit so small limit revisions do not
-  flip bands.
+  time of writing: `gate.allow_amount_limit` is USD 500, MXN 8,500,
+  COP 2,000,000, ARS 175,000 in `policy/v2.yaml`); the policy version is
+  recorded per seed so a later policy version does not silently re-band
+  the set. Two guards: the loader fails loudly (raises, derives nothing)
+  if the evaluated policy's gate table differs from a seed's recorded
+  version — this guard lives on the record-facts→`OracleFacts` load path
+  only, where bands feed the oracle; text-only reads (classifier
+  training) are version-agnostic — and seed selection avoids amounts
+  within ±20% of any gate limit AND within ±20% below or anywhere above
+  the hard-rule amount limit (`hard_rules.amount_limit`, HR-AMOUNT: USD
+  5,000, MXN 85,000, COP 20,000,000, ARS 1,750,000 in
+  `policy/v2.yaml`), so small limit revisions do not flip bands and no
+  seed sits near or above the line that routes deterministically to a
+  person. Re-band path: when a new policy version lands, mint a new set
+  version that recomputes the `amount_band` facts against the new tables
+  without regenerating any message (messages and prompts byte-identical,
+  keys re-derived under the new version's salt via the pointer log);
+  never re-band a released set version in place.
 
 ## Seed registry design
 
@@ -161,20 +183,27 @@ edge messages) is drawn from test-split seeds only.
 
 ## Seed keys
 
-`seed_key` is a salted hash, never a record pointer. Format:
-`v1-` + first 12 hex chars of `sha256(salt | split | kind |
-customer_hash | event_date | nonce)`, where `salt` is the P3 per-version
-secret and `nonce` is a per-row random value guaranteeing uniqueness. The
-`v1-` prefix binds the key to the set version. Properties, all unit-tested
-on fixtures: opaque (reveals no record, customer or date), unique per row,
-and stable within the set version given the same inputs.
+`seed_key` is a deterministic keyed hash, never a record pointer. Format:
+`v1-` + first 12 hex chars of `sha256(salt | set_version | split | kind |
+record_id | role)`, where `salt` is the P3 per-version secret,
+`record_id` is the pointer-log record id (the nominal persona id for
+hand-written and no-record rows), and `role` is `base` or `rewording-N`.
+There is no random nonce: the same inputs always give the same key, so
+regeneration is checkable given the salt and the pointer log. The `v1-`
+prefix binds the key to the set version. Properties, all unit-tested on
+fixtures: opaque (reveals no record, customer or date), deterministic,
+and unique per row — uniqueness is enforced, not assumed, by the
+duplicate-draw check (drawing one record id twice in one split fails,
+and a rewording's role tag keeps it distinct from its parent).
 
 Seed-reuse rule: one seed yields at most one message. An adversarial
 rewording is a NEW seed under L4 — fresh `seed_key`, kind `rewording`,
 `parent_seed_key` recorded — never the parent's key reused. Parent and
-rewording share a `customer_hash` inside test by design (the documented L1
-exception: L1 bars customer overlap *across* splits and gold, not a linked
-pair inside test). A train or calibration record is never a rewording
+rewording share a `customer_hash` inside test by design. L1 compares
+`customer_hash` sets across splits only (`check_l1_customer_isolation`
+flags a customer appearing in more than one split), so a linked pair
+inside test never triggers it: there is no exception, the rule simply
+does not reach inside a split. A train or calibration record is never a rewording
 parent: no cross-split record linkage. Hand-written rows are new seeds with
 no parent and no record: `customer_hash` is the same salted-hash function
 applied to the synthetic persona id, `event_date` is the nominal brief
@@ -201,6 +230,22 @@ Seed facts are immutable once the registry is committed; only the
 review-marked fields may move, and every move is a logged correction that
 counts toward the P4 accept rule.
 
+Brief-derived defaults (so the oracle is defined on unreviewed rows):
+every review-sourced field below has a deterministic default derived from
+the brief and the seed row; rows outside the review sample keep these
+defaults, and review may only move a field to a logged correction:
+
+| Field | Default on unreviewed rows |
+|---|---|
+| `labels.clear_enough` | `true`, except `brief.intent` `none` (empty/garbled) or `brief.adversarial_kind` in wrong/missing-data or multilingual-ambiguity → `false` |
+| `labels.needs_person` | `false`, except `brief.intent` dispute/fraud-report or `brief.adversarial_kind` injection → `true` |
+| `oracle_facts.ambiguous` | `false`, except wrong/missing-data or multilingual-ambiguity probes → `true` |
+| `oracle_facts.in_scope` | from the brief intent: stuck, dispute, fraud-report and case intents → `true`; out-of-scope heads and intent `none` → `false` (no-record seeds default `false` unless the brief pins a stuck intent) |
+
+Reports state reviewed and unreviewed counts and scores separately for
+every cell; scores over unreviewed rows are never pooled silently with
+reviewed ones.
+
 ## Record-facts→oracle mapping (no new oracle)
 
 `oracle_outcome(facts: OracleFacts) -> ExpectedOutcome` (TSD-013,
@@ -223,12 +268,15 @@ oracle's order (ownership, human/manipulation, fraud, scope, ambiguity,
 reads, writes); the implementation's unit tests cover every mapping
 branch, and the evaluation's oracle tests already pin the table itself.
 
-Oracle-vs-gold agreement is measured on reviewed gold labels, not inferred
-from synthetic generation: per-question exact agreement plus Cohen's kappa
-on needs-a-person and on oracle outcome vs gold outcome, with n stated
-(TSD-015; the sheet holds 50 rows, 18 labelled at the time of writing, so
-early reports name their n). Disagreements are read and logged as rubric
-gap, mapping bug or label slip.
+Oracle-vs-gold agreement is computed over all gold rows, never inferred
+from synthetic generation and never restricted to the reviewed subset:
+per-question exact agreement plus Cohen's kappa on needs-a-person and on
+oracle outcome vs gold outcome, with n stated and each row's reviewed
+status noted; results are reported overall and split by
+reviewed/unreviewed, so a reviewer-selected subset never stands in for
+the sheet (TSD-015; the sheet holds 50 rows, 18 labelled at the time of
+writing, so early reports name their n). Disagreements are read and
+logged as rubric gap, mapping bug or label slip.
 
 ## Generation protocol
 
@@ -239,13 +287,15 @@ provenance and in the datasheet). The call is gated on `CALVINO_LLM_*` so
 every test and check below stays offline; without keys only the fixtures
 and the committed files are verifiable.
 
-Same-family drafting is deliberate: both splits are drafted with Qwen,
-because the two prompts' disjoint wording and style instructions plus the
-required train↔test near-duplicate check already mitigate style leakage,
-while a second family would double keyed cost and review load for little
-merit signal; the cross-family budget instead funds the optional P4
-second-label pass, where a different-family model's disagreements with the
-reviewer directly measure label uncertainty.
+Same-family drafting is deliberate: both splits are drafted with Qwen for
+continuity — one agent-role model available now on Hetzner, which serves
+it free (decision 28), so keyed cost was never the reason — and style
+leakage is mitigated by the two prompts' disjoint wording and style
+instructions plus the required train↔test Jaccard near-duplicate check;
+a second drafting family would add review load and operational complexity
+for little merit signal. The cross-family budget instead funds the
+optional P4 second-label pass, where a different-family model's
+disagreements with the reviewer directly measure label uncertainty.
 
 - **Two separate versioned prompts**, committed as
   `prompts/train-v1.md` and `prompts/test-v1.md`: disjoint wording and
@@ -278,7 +328,11 @@ reviewer directly measure label uncertainty.
 - **Datasheet** (`datasheet.md`): why the set exists, seed sources and
   pull factors, prompts and model ids, composition per split, the salt
   version only (never the salt), known gaps (no native speaker review
-  `[hypothesis]` until stated otherwise, ES only, synthetic personas), and
+  `[hypothesis]` until stated otherwise, ES only, synthetic personas,
+  single-family drafting — every message Qwen-drafted — with the
+  decision-29 A/B caveat: reported scores describe the decision-29
+  Qwen-agent/DeepSeek-judge pair, and a cross-family drafting A/B is
+  future work), and
   the stratification choices with their justification.
 
 Keyed generation only (needs the agent token; linked worktrees never hold
@@ -325,18 +379,33 @@ whitespace (single spaces, trimmed). Every overlap check below uses it, and
 its unit tests pin the behaviour on fixtures (diacritics, emoji, case,
 punctuation, spacing).
 
+Similarity is Jaccard on normalized token sets — `|A ∩ B| / |A ∪ B|` over
+whitespace-split tokens, computed explicitly in the helper's module:
+rapidfuzz is not a dependency and is not used. A Jaccard score ≥0.90
+fails. Jaccard penalizes size imbalance by construction, so a short probe
+embedded in a long message scores low: that subset behavior is accepted,
+and the exact-match rules plus the empty-result exemption below cover the
+edge cases. Empty-result exemption: when either side normalizes to the
+empty string (empty or emoji-only rows), the Jaccard check is skipped and
+raw-text comparison applies instead — raw texts must still differ
+wherever the exact rule requires difference.
+
 - **Intra-set.** No two messages in one split share post-normalisation
   text — except a rewording and its parent, which must still differ from
   each other (a rewording identical post-normalisation to its parent fails
-  as a no-op), and two rewordings of the same parent, which must differ
+  as a no-op; when either side normalizes empty, raw texts must differ),
+  and two rewordings of the same parent, which must differ
   from each other.
 - **Train↔test.** No exact post-normalisation match; near-duplicates with
-  token-set ratio ≥0.90 fail. This is the check that enforces the
+  Jaccard ≥0.90 fail. This is the check that enforces the
   disjoint-prompts separation of decision 16.
-- **Message↔gold.** No exact post-normalisation match between set messages
-  and the `gold-050` sheet rows: gold messages must not leak into the set.
+- **Message↔gold.** No exact post-normalisation match and no Jaccard
+  ≥0.90 near-duplicate between set messages and the `gold-050` sheet rows
+  under the same `normalize_text` + Jaccard: gold messages must not leak
+  into the set.
 - **T-303 quarantine** (see [Checks](#checks-over-the-registries)) uses
-  the same `normalize_text` and names it in its report.
+  the same `normalize_text` + Jaccard (exact plus ≥0.90) and names both in
+  its report.
 
 ## Allowed languages
 
@@ -350,37 +419,48 @@ review defect.
 
 ## Checks over the registries
 
-All run offline on the committed files (synthetic fixtures mirror them in
-tests):
+All run offline (synthetic fixtures mirror the committed files in
+tests). CI runs the committed-file checks only — ruff, format --check,
+diff --check, pytest on synthetic fixtures, git-rules: no keys, no
+dataset, no salt. Local-only: the L3 real-template scan (the 42
+transcript texts and 5 complaint texts, read from the dataset locally and
+never committed), the pointer-log/salt regeneration check, and keyed
+generation — the templates, salt and pointer log never enter the repo,
+so CI cannot run them:
 
 - **L1–L5**, by reference to `src/calvino/data/leakage.py`: L1 over
-  `customer_hash` sets per split plus gold (parent↔rewording pairs inside
-  test are the single documented exception, linked by `parent_seed_key`);
-  L2 over (split, event_date) pairs; L3 with the *real* template sets (the
-  42 transcript texts and 5 complaint texts — the implementation reads them
-  from the dataset locally and never commits them) scanned against every
-  message, plus the team-source allowlist; L4 over the three registries
-  including rewordings (fresh keys) and hand-written rows; L5 of gold keys
-  against train/calibration keys.
+  `customer_hash` sets per split plus gold — L1 compares across splits
+  only, so a parent↔rewording pair sharing a hash inside test (linked by
+  `parent_seed_key`) never triggers it; L2 over (split, event_date)
+  pairs; L3 with the *real* template sets scanned against every message
+  (local only, see above), plus the team-source allowlist; L4 over the
+  three registries including rewordings (fresh role-derived keys) and
+  hand-written rows; L5 of gold keys against train/calibration keys.
+- **Duplicate-draw**: no record id drawn twice in one split and no
+  `seed_key` twice in one registry; violations fail loudly.
 - **No-transcript-duplication** is the L3 exact-match scan above, run as
   its own named check so the report can state it plainly; any match fails
   the split.
 - **Near-duplicate checks** per the [normalisation
   section](#normalisation-and-near-duplicate-checks): intra-set,
-  train↔test (exact + ≥0.90 token-set ratio), message↔gold.
+  train↔test (exact + Jaccard ≥0.90), message↔gold (exact + Jaccard
+  ≥0.90, same `normalize_text` + Jaccard).
 - **No customer records committed**: a scan asserting the registry and
   message files contain no raw `customer_id`-shaped values, no transcript
   template and no complaint text (extends the TSD-015 fixture scan to the
   real files); the salt file and pointer log are absent from the tree by
   construction (git-ignored).
-- **T-303 quarantine**: zero text overlap between set messages and
-  `evaluation/cases/` case texts under `normalize_text`, named as such in
-  the report.
+- **T-303 quarantine**: zero exact overlap and zero Jaccard ≥0.90
+  near-duplicates between set messages and `evaluation/cases/` case texts
+  under the same `normalize_text` + Jaccard as train↔test, named as such
+  in the report.
 - **Policy-version guard**: the loader raises on any seed whose recorded
-  `policy_version` gate table differs from the evaluated policy (P6).
+  `policy_version` gate table differs from the evaluated policy (P6) —
+  on the record-facts→`OracleFacts` load path only, where bands feed the
+  oracle; text-only reads are version-agnostic.
 - **Stratum audit**: per-split counts by variant × macro-outcome with
   decision-25 flagging of cells under 30, and reviewed/unreviewed counts
-  stated separately for every cell.
+  and scores stated separately for every cell.
 
 ## File locations and check commands
 
@@ -427,17 +507,22 @@ Every test runs without network, GPU, keys or the real dataset. Fixtures
 are small, synthetic and labelled synthetic, using MX/CO/AR with
 MXN/COP/ARS/USD only (never BRL; Portuguese absent per T-203). Coverage:
 registry schema validation (including rewording and hand-written rows with
-full seed fields); `seed_key` properties (opaque, unique, stable, never a
-record pointer); the brief→labels derivation table branch by branch
+full seed fields); `seed_key` properties (opaque, deterministic, unique,
+never a record pointer) plus the duplicate-draw check failing on a
+re-drawn record id; the brief→labels derivation table branch by branch
 (other-customer → `owner: false`, complaint → `None` status, no-record →
-scope/ambiguity handling, over-gate write → `act_ask` via the oracle);
-`normalize_text` unit tests; near-duplicate thresholds (exact fails,
-≥0.90 fails train↔test, parent↔rewording no-op fails); L1–L5 each failing
-on a crafted registry violation; transcript scan catching an inserted
-template; T-303 overlap check catching an inserted case text; loader
-raising on a policy-version mismatch; the ±20% gate-margin exclusion;
-stratum audit flagging a cell under 30 and splitting reviewed/unreviewed;
-loader deriving (never storing) the expected outcome.
+scope/ambiguity handling, over-gate write → `act_ask` via the oracle)
+plus the brief-derived defaults (oracle defined on unreviewed rows);
+`normalize_text` unit tests; Jaccard near-duplicate thresholds (exact
+fails, Jaccard ≥0.90 fails train↔test, message↔gold and T-303 checks,
+empty normalisation falls back to raw compare, parent↔rewording no-op
+fails); L1–L5 each failing on a crafted registry violation, with L1 never
+firing on an intra-test parent↔rewording pair; transcript scan catching an
+inserted template; T-303 overlap check catching an inserted case text;
+loader raising on a policy-version mismatch on the oracle path but not on
+text-only reads; the ±20% gate-margin and hard-rule-margin exclusions;
+stratum audit flagging a cell under 30 and splitting reviewed/unreviewed
+counts and scores; loader deriving (never storing) the expected outcome.
 
 ## Done criteria
 
@@ -448,7 +533,7 @@ loader deriving (never storing) the expected outcome.
 - Train and test drafted under separate committed prompt versions with the
   Qwen agent id recorded; adversarial styling and hand-written rows
   confined to test; T-303 overlap check clean under the named
-  normalisation.
+  normalisation + Jaccard.
 - Maintainer review sample done per P4 with the written accept rule
   applied and the log committed; datasheet committed with the salt version
   only.
@@ -456,6 +541,7 @@ loader deriving (never storing) the expected outcome.
   near-duplicate and no-records-committed scans green; policy-version
   guard green; stratum audit states every cell under 30 as flagged with
   reviewed/unreviewed counts separate.
-- Oracle-vs-gold agreement reported on reviewed labels with n stated.
+- Oracle-vs-gold agreement reported on all gold rows with reviewed status
+  noted, agreement split by reviewed/unreviewed, and n stated.
 - Portuguese absent by design (T-203 owns it); English only as bounded
   test probes; no BRL, no Brazilian personas.
