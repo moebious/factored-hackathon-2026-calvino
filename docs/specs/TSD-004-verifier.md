@@ -56,3 +56,22 @@ The first rubric, `customer-answer`, follows the criteria table in DESIGN.md 4.4
 - Aggregation, timeouts and errors counted as failures, retry then escalation (AC-7).
 
 **Done when** the package is fully tested with mocked judges and fakes.
+
+## Amendment: rubric v2 and fail-closed tiers (decision 40)
+
+- **Rubric v2.** `rubrics/customer-answer-v2.yaml` is the default; v1 stays for replay. The two
+  criteria v1 gave to the Laya tier move: `no-money-movement-promise` is a code check (forward-looking
+  forms such as the future tense, "will be" and "recibirá su reembolso", plus explicit guarantees;
+  "el monto fue reembolsado" is a fact about a Reversed payment and passes, a negated mention
+  passes) and
+  `factual-claims-grounded` is the judge's. The Laya interface and `FakeLayaChecker` stay for a
+  later rubric version that builds a real checker.
+- **No silent stand-ins.** `Verifier` no longer defaults a missing judge or Laya checker to a fake.
+  A tier with criteria and no implementation returns failed verdicts whose reason starts with
+  `unverified`. The keyless demo passes `NotRunJudge`, whose verdicts pass with the reason
+  `not run: keyless demo, template reply`.
+- **Reply-wording observation.** The end-to-end evaluation independently scans each served reply
+  (promise, action claimed without a write, another customer's identifiers) so the report shows
+  whether the control held; see TSD-013's unsafe checks.
+- **Still open.** The patterns are literal and Spanish-first (Portuguese action claims are not
+  covered yet); a paraphrased promise is the judge's job.

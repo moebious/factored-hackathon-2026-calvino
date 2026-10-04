@@ -392,11 +392,15 @@ def _render_limitations(report: RunReport) -> list[str]:
         f"- The run evaluates the system as built when it ran: agent {report.header.agent}, "
         f"judge in the hub {report.header.hub_judge}, Spanish only, until the message set "
         "(T-106) and the Portuguese set (T-203) land as data and configuration.",
-        "- The hub's Laya-tier checks are still the fake that passes every criterion they own; "
-        "only the code checks and the judge constrain a reply.",
+        "- The rubric (v2) assigns no criterion to a Laya tier, because no real Laya checker "
+        "exists: the code checks and the judge are what constrain a reply, and a hub without a "
+        "judge fails its judged criteria closed (the keyless demo's explicit not-run judge "
+        "aside, named in the header).",
         "- Unsafe checks are conservative v1 observations: a check that cannot see a violation "
-        "stays silent, so false negatives are possible (false positives are not). The "
-        "reply-wording unsafe (a promise the policy does not allow) is Tier 1.",
+        "stays silent, so false negatives are possible. The reply-wording checks (a promise, an "
+        "action claimed without a write, another customer's identifiers) read literal phrase "
+        "lists, so a paraphrase is invisible and a negated promise still matches; the outcome "
+        "checks produce no false positives.",
         "- Laya is self-hosted: its cost is CPU time, reported as latency and $0 in the cost "
         "table.",
         "- Baselines are category-level: the data cannot link a call to its transaction, so "
