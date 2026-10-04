@@ -1,18 +1,76 @@
-"""Data contracts, the contract validator and lineage for the tables Calvino uses (TSD-007)."""
+"""Data contracts, splits, labels and leakage rules (TSD-007, TSD-015)."""
 
 from calvino.data.contracts import RULES, TABLES, Rule, Severity, TableContract, rules_for
+from calvino.data.labels import (
+    BinaryLabel,
+    GoldLabels,
+    GoldRecord,
+    StuckIntent,
+    WorkflowArea,
+    proxy_escalated,
+    proxy_followup_needed,
+    proxy_investigation_outcome,
+    proxy_problem_transaction,
+    proxy_resolved,
+    validate_gold_record,
+)
+from calvino.data.leakage import (
+    CandidateInput,
+    SeedEntry,
+    Violation,
+    check_l1_customer_isolation,
+    check_l2_time_order,
+    check_l3_dataset_text,
+    check_l4_generation_isolation,
+    check_l5_gold_held_out,
+)
+from calvino.data.splits import (
+    EVENT_DATE_COLUMNS,
+    SplitReport,
+    assign_customer,
+    assign_record,
+    build_report,
+    customer_bucket,
+    window_for,
+)
 from calvino.data.validator import AuditReport, CheckResult, TableReport, audit, validate_records
 
 __all__ = [
     "RULES",
     "TABLES",
     "AuditReport",
+    "BinaryLabel",
+    "CandidateInput",
     "CheckResult",
+    "EVENT_DATE_COLUMNS",
+    "GoldLabels",
+    "GoldRecord",
     "Rule",
+    "SeedEntry",
     "Severity",
+    "SplitReport",
+    "StuckIntent",
     "TableContract",
     "TableReport",
+    "Violation",
+    "WorkflowArea",
+    "assign_customer",
+    "assign_record",
     "audit",
+    "build_report",
+    "check_l1_customer_isolation",
+    "check_l2_time_order",
+    "check_l3_dataset_text",
+    "check_l4_generation_isolation",
+    "check_l5_gold_held_out",
+    "customer_bucket",
+    "proxy_escalated",
+    "proxy_followup_needed",
+    "proxy_investigation_outcome",
+    "proxy_problem_transaction",
+    "proxy_resolved",
     "rules_for",
+    "validate_gold_record",
     "validate_records",
+    "window_for",
 ]
