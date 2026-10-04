@@ -91,7 +91,7 @@ class SplitReport:
 
     @property
     def shares(self) -> dict[str, float]:
-        """Achieved share per split over usable records `[hypothesis]` check."""
+        """Achieved share per split over usable records."""
         usable = self.total - self.excluded
         if usable == 0:
             return {}
