@@ -38,6 +38,7 @@ from calvino.hub.graph import (
     HubDependencies,
     build_hub_graph,
 )
+from calvino.hub.llm_agent import LlmAgent
 from calvino.hub.playbook import (
     DEFAULT_PLAYBOOK_PATH,
     PLAYBOOK_ACTIONS,
@@ -71,6 +72,7 @@ __all__ = [
     "HubService",
     "HubStage",
     "HubState",
+    "LlmAgent",
     "Playbook",
     "PromptSet",
     "ScriptedAgent",
