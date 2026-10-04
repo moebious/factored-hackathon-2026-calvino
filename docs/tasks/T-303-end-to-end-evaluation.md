@@ -12,7 +12,7 @@
 
 **Goal.** Produce the brief's evidence.
 
-**Inputs.** the running system; the seeded test set with oracle outcomes (T-106); the Portuguese set; adversarial cases
+**Inputs.** the running system; T-303's already committed frozen oracle and 50-case suite (not reused for T-106 training/tuning); the T-106 labelled message set for separate classifier experiments; Portuguese pairs from T-203; adversarial and reviewed verifier cases
 
 **Outputs.** safe automated resolution and attempt rate, containment, escalation quality, unsafe outcomes, p50/p95 latency and cost per case and per resolution; repeated runs; judge validation with the verifier's false-pass rate on hand labels; a bare-LLM ablation on the same adversarial set (unsafe outcomes, bare vs Calvino); error analysis; by language and segment; compared with both baselines (Transaccional calls, Transactions-category complaints). On calls the target is to match the human first-contact resolution of 91.5% `[measured]` with zero unsafe outcomes, at lower latency and cost; investigation time savings are reported as projected only
 
@@ -20,6 +20,6 @@
 
 **Open parameters.** none
 
-**Done when.** outcome metrics are scored against the oracle outcomes, with the oracle's agreement with the gold subset reported; results labelled offline / simulated / projected, with sample sizes and limitations, in the README and a report
+**Done when.** the actual model/policy configuration intended for deployment is evaluated against the frozen oracle with errors included, gold-subset agreement, group slices and repeat variability; state whether each run is in-process or on the deployed link. The three protected measurements in PLAN.md (unsafe outcomes with denominators, bare-LLM ablation, verifier false-pass rate against hand labels) have **actually run** for a submission claim; a harness that renders `not run: <blocker>` is an honest intermediate result, not completion of that evidence. Reports and README label offline, simulated and projected claims separately. T-402/T-405/T-603 own their additional thesis experiments; their measured outputs are linked, not silently folded into this run.
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.

@@ -10,14 +10,14 @@
 | Can run in parallel | yes |
 | References | decision 11; PRD FR-9, FR-10 |
 
-**Goal.** The operator side: cases that need a person, with everything they need.
+**Goal.** The usable System 3 workspace: cases requiring accountable human judgment, with verified evidence and every refusal named (decision 37).
 
 **Inputs.** the case file and decision log
 
-**Outputs.** a queue view (cancel or retry above the limit waiting for approval; open investigations), a case view (verified facts, actions, evidence, open questions), approve / edit / take over through the Gate, an audit timeline naming the rule on every refusal
+**Outputs.** a queue view (actions awaiting approval and open investigations), a case view (verified facts, actions, evidence, open questions), approve/deny, edit customer-facing replies and case notes, and take over through governed paths; an audit timeline naming the rule on every refusal. Preserve original and edited text, actor and reason. Source bank evidence is immutable in the workspace; disputed evidence prompts a new verified read, not an overwrite. Edited replies are rechecked for factual disclosure before sending. Human approval cannot override a Gate `block`.
 
 **Open parameters.** none
 
-**Done when.** PRD UC-6 and AC-4 demonstrated
+**Done when.** PRD UC-6 and AC-4 work through an operator's real queue and case workspace, attributable edits and takeover appear in the audit trace, and tests prove neither an edited reply nor a human approval bypasses ownership, eligibility or the Gate's block.
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
