@@ -27,6 +27,15 @@ from calvino.evaluation.oracle import (
     OracleFacts,
     oracle_outcome,
 )
+from calvino.evaluation.runner import (
+    CaseResult,
+    EvaluationRunner,
+    HubFactory,
+    ModelTimer,
+    TimedLoader,
+    classify_turn,
+    unsafe_of,
+)
 
 __all__ = [
     "AMOUNT_BANDS",
@@ -36,11 +45,18 @@ __all__ = [
     "ORACLE_VERSION",
     "RESUME_STEPS",
     "SLICES",
+    "CaseResult",
     "EvalCase",
+    "EvaluationRunner",
     "ExpectedOutcome",
+    "HubFactory",
+    "ModelTimer",
     "OracleFacts",
+    "TimedLoader",
+    "classify_turn",
     "load_ac_cases",
     "load_cases",
     "load_suite",
     "oracle_outcome",
+    "unsafe_of",
 ]
