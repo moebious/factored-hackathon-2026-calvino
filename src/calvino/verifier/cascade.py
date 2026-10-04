@@ -25,8 +25,8 @@ from calvino.decision_log import DecisionLog
 from calvino.records import DecisionRecord, Stage, Versions
 from calvino.verifier.code_checks import run_code_checks
 from calvino.verifier.evidence import Evidence
-from calvino.verifier.judge import JUDGE_PROMPT_VERSION, Judge, MockJudge
-from calvino.verifier.laya_checks import FakeLayaChecker, LayaChecker
+from calvino.verifier.judge import JUDGE_PROMPT_VERSION, Judge
+from calvino.verifier.laya_checks import LayaChecker
 from calvino.verifier.rubric import CheckerKind, Criterion, Rubric, load_rubric
 from calvino.verifier.verdicts import CriterionVerdict, VerificationResult
 
@@ -70,8 +70,10 @@ class Verifier:
         if log is not None and session_ref is None:
             raise ValueError("a session_ref is required to log verdicts")
         self.rubric = rubric or load_rubric()
-        self.laya_checker = laya_checker or FakeLayaChecker()
-        self.judge = judge or MockJudge()
+        # No silent stand-ins: a tier with criteria and no implementation fails closed as
+        # "unverified" (decision 40). Tests and the keyless demo pass their stand-ins explicitly.
+        self.laya_checker = laya_checker
+        self.judge = judge
         self.log = log
         self.session_ref = session_ref
 
@@ -82,7 +84,9 @@ class Verifier:
         verdicts.extend(
             self._run_tier(
                 CheckerKind.LAYA,
-                lambda criteria: self.laya_checker.check(output, evidence, criteria),
+                (lambda criteria: self.laya_checker.check(output, evidence, criteria))
+                if self.laya_checker is not None
+                else None,
                 self.rubric.criteria_for(CheckerKind.LAYA),
                 "laya check failed",
             )
@@ -90,7 +94,9 @@ class Verifier:
         verdicts.extend(
             self._run_tier(
                 CheckerKind.JUDGE,
-                lambda criteria: self.judge.judge_batch(output, evidence, criteria),
+                (lambda criteria: self.judge.judge_batch(output, evidence, criteria))
+                if self.judge is not None
+                else None,
                 self.rubric.criteria_for(CheckerKind.JUDGE),
                 "judge call failed",
             )
@@ -134,13 +140,27 @@ class Verifier:
     def _run_tier(
         self,
         kind: CheckerKind,
-        call: Callable[[Sequence[Criterion]], list[CriterionVerdict]],
+        call: Callable[[Sequence[Criterion]], list[CriterionVerdict]] | None,
         criteria: Sequence[Criterion],
         failure_reason: str,
     ) -> list[CriterionVerdict]:
-        """Run one model tier; a timeout, error or malformed answer fails its criteria."""
+        """Run one model tier; a timeout, error or malformed answer fails its criteria.
+
+        A tier with criteria and no implementation (``call`` is None) is unverified, not passed:
+        its criteria fail, so a reply is never approved by a checker that is not there.
+        """
         if not criteria:
             return []
+        if call is None:
+            return [
+                CriterionVerdict(
+                    criterion_id=criterion.id,
+                    passed=False,
+                    checker=kind,
+                    reason=f"unverified: no {kind.value} checker is configured",
+                )
+                for criterion in criteria
+            ]
         expected = [criterion.id for criterion in criteria]
         try:
             verdicts = call(criteria)

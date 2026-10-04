@@ -252,7 +252,7 @@ def test_without_keys_the_run_is_scored_on_the_template() -> None:
     assert re_mod.live_llm({}) is None
     header = re_mod.build_header("tier0", 1, {})
     assert header.agent == "TemplateAgent" and header.agent_model is None
-    assert header.hub_judge.startswith("MockJudge")
+    assert header.hub_judge.startswith("none")
 
 
 def test_keys_in_the_environment_alone_do_not_claim_an_llm_run() -> None:
@@ -269,7 +269,7 @@ def test_live_llm_needs_the_agent_pair_and_reports_the_judge_it_has() -> None:
     )
     assert agent_only is not None and agent_only.judge_client is None
     header = re_mod.build_header("all", 1, LLM_ENV, llm=agent_only)
-    assert header.hub_judge.startswith("MockJudge")  # an agent without a judge is not "judged"
+    assert header.hub_judge.startswith("none")  # an agent without a judge is not "judged"
 
     both = re_mod.live_llm(LLM_ENV)
     assert both is not None and both.judge_client is not None and both.prompt_version == "v1"

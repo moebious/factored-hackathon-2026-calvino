@@ -265,7 +265,7 @@ def build_header(
         hub_judge=(
             f"OpenAiJudge ({env.get('CALVINO_JUDGE_MODEL')})"
             if llm is not None and llm.judge_client is not None
-            else "MockJudge (every judged criterion passes)"
+            else "none: judged criteria are not run"
         ),
         llm_priced=llm_priced,
     )

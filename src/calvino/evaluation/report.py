@@ -96,7 +96,7 @@ class RunHeader:
     # keys in the environment can still have been scored on the template.
     agent: str = "TemplateAgent"
     agent_prompt_version: str | None = None
-    hub_judge: str = "MockJudge (every judged criterion passes)"
+    hub_judge: str = "none: judged criteria are not run"
     llm_priced: bool = True  # False: tokens were used by a role with no price on record
 
 

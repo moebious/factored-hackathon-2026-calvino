@@ -11,7 +11,7 @@ from calvino.records import Stage, session_ref_for
 from calvino.tools.contracts import TransactionStatus
 from calvino.verifier.cascade import VerificationOutcome, Verifier
 from calvino.verifier.evidence import Evidence
-from calvino.verifier.judge import JUDGE_PROMPT_VERSION, MockJudge
+from calvino.verifier.judge import JUDGE_PROMPT_VERSION, MockJudge, NotRunJudge
 from calvino.verifier.laya_checks import FakeLayaChecker
 from calvino.verifier.rubric import V1_RUBRIC_PATH, CheckerKind, Criterion, load_rubric
 from calvino.verifier.verdicts import CriterionVerdict
@@ -197,7 +197,7 @@ def test_a_regenerate_error_escalates_with_the_first_result():
 
 def test_a_passing_run_logs_one_record_with_the_versions(tmp_path):
     log = DecisionLog(tmp_path / "decisions.jsonl")
-    verifier = Verifier(log=log, session_ref=session_ref_for("demo-token"))
+    verifier = Verifier(judge=MockJudge(), log=log, session_ref=session_ref_for("demo-token"))
     outcome = verifier.run(CLEAN_REPLY, EVIDENCE)
     assert not outcome.escalated
     records = list(read_records(log.path))
@@ -252,3 +252,36 @@ def test_outcome_is_a_frozen_model():
     )
     with pytest.raises(ValidationError):
         outcome.escalated = True
+
+
+def test_an_unconfigured_judge_fails_its_criteria_closed():
+    # No silent default: with no judge the judged criteria are unverified, never passed.
+    result = Verifier().verify(CLEAN_REPLY, EVIDENCE)
+    assert not result.passed
+    judge_ids = {c.id for c in _criteria_for(CheckerKind.JUDGE)}
+    failed = {v.criterion_id: v for v in result.failed_verdicts()}
+    assert judge_ids == set(failed)
+    assert all("unverified: no judge checker is configured" in v.reason for v in failed.values())
+    assert all(v.checker is CheckerKind.JUDGE for v in failed.values())
+
+
+def test_an_unconfigured_laya_tier_fails_its_criteria_closed():
+    result = Verifier(rubric=V1, judge=MockJudge()).verify(CLEAN_REPLY, EVIDENCE)
+    assert not result.passed
+    laya_ids = {c.id for c in _criteria_for(CheckerKind.LAYA, V1)}
+    failed = {v.criterion_id: v for v in result.failed_verdicts()}
+    assert laya_ids == set(failed)
+    assert all("unverified: no laya checker is configured" in v.reason for v in failed.values())
+
+
+def test_the_shipped_rubric_needs_only_the_judge_beyond_code():
+    # Rubric v2 has no Laya-tier criteria, so a judge alone fully verifies a clean reply.
+    assert Verifier(judge=MockJudge()).verify(CLEAN_REPLY, EVIDENCE).passed
+
+
+def test_the_not_run_judge_passes_by_name_not_in_silence():
+    judge = NotRunJudge()
+    verdicts = judge.judge_batch(CLEAN_REPLY, EVIDENCE, _criteria_for(CheckerKind.JUDGE))
+    assert verdicts and all(v.passed for v in verdicts)
+    assert all(v.reason == "not run: keyless demo, template reply" for v in verdicts)
+    assert Verifier(judge=judge).verify(CLEAN_REPLY, EVIDENCE).passed

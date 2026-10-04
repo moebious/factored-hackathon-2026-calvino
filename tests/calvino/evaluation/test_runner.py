@@ -40,6 +40,7 @@ from calvino.evaluation.runner import (
 from calvino.hub.service import HubReply, HubService, TraceStep
 from calvino.policy import load_policy
 from calvino.tools import FakeConfirmationVerifier
+from calvino.verifier import MockJudge
 
 
 def route_probabilities(**overrides: dict[str, dict[str, float]]) -> dict[str, dict[str, float]]:
@@ -827,6 +828,7 @@ def make_llm_factory(client: _UsageClient):
             DecisionLog(settings.decisions_log),
             confirmations=FakeConfirmationVerifier(),
             agent=LlmAgent(MeteredChatClient(client, timer, "agent")),
+            judge=MockJudge(),  # an LLM agent with no judge fails its judged criteria closed
         )
 
     return factory

@@ -285,3 +285,31 @@ def test_hub_endpoints_stay_off_without_a_confirmation_key(tmp_path, monkeypatch
             json={"persona": "dana", "text": "hola"},
         )
     assert response.status_code == 503
+
+
+def test_only_the_template_agent_gets_the_not_run_judge(tmp_path, monkeypatch):
+    """A model-written reply with no judge must fail closed, not pass under a stand-in."""
+    from calvino.hub import ScriptedAgent, TemplateAgent
+    from calvino.verifier import NotRunJudge
+
+    monkeypatch.delenv("CALVINO_CONFIRMATION_KEY", raising=False)
+    settings = ApiSettings(data_dir=tmp_path, demo_passcode="s3cret")
+
+    def judge_of(**kwargs):
+        hub = build_demo_hub(
+            ScriptedLoader(route_probabilities()),
+            settings,
+            load_policy(),
+            DecisionLog(settings.decisions_log),
+            confirmations=FakeConfirmationVerifier(),
+            **kwargs,
+        )
+        return hub._deps.judge, hub._deps.agent
+
+    judge, agent = judge_of()
+    assert isinstance(judge, NotRunJudge) and isinstance(agent, TemplateAgent)
+    judge, _ = judge_of(agent=ScriptedAgent([]))
+    assert judge is None  # fails closed as unverified
+    explicit = NotRunJudge()
+    judge, _ = judge_of(agent=ScriptedAgent([]), judge=explicit)
+    assert judge is explicit

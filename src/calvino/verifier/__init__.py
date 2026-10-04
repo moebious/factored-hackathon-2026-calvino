@@ -24,6 +24,7 @@ from calvino.verifier.judge import (
     JUDGE_PROMPT_VERSION,
     Judge,
     MockJudge,
+    NotRunJudge,
     build_judge_prompt,
     parse_judge_response,
 )
@@ -52,6 +53,7 @@ __all__ = [
     "Judge",
     "LayaChecker",
     "MockJudge",
+    "NotRunJudge",
     "Regenerate",
     "Rubric",
     "Severity",

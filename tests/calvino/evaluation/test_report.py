@@ -325,7 +325,7 @@ def llm_result(case_id: str, prompt: int, completion: int, cost_usd: float = 0.0
 def test_the_header_names_the_components_that_answered() -> None:
     template = render_report(make_report())
     assert "| Agent | TemplateAgent |" in template
-    assert "| Judge in the hub | MockJudge (every judged criterion passes) |" in template
+    assert "| Judge in the hub | none: judged criteria are not run |" in template
     live = render_report(
         replace(
             make_report(),
