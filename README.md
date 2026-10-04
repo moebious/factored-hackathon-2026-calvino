@@ -46,6 +46,32 @@ uv run pytest                                                             # test
 uv run python scripts/validate_data_contracts.py --dir tests/fixtures/lakehouse   # audit the synthetic tables
 ```
 
+Read-only inventory of the organizer's live dataset (TSD-014, precursor to T-104, [spec](docs/specs/TSD-014-full-data-inventory.md)).
+Run only in a terminal with a private, user-owned `.env` **outside** the repository,
+for example `~/.config/calvino/.env` with mode `600`. It holds the four AWS and
+`CALVINO_DATA_BUCKET` settings; add `AWS_SESSION_TOKEN` only if issued. Do not
+paste credentials into a command, commit them, or share the file.
+
+```bash
+export CALVINO_ENV_FILE="$HOME/.config/calvino/.env"
+uv run python scripts/full_data_inventory.py --check-access  # one-byte read
+uv run python scripts/full_data_inventory.py --manifest      # metadata only: review bytes and digest
+# Only after approving the byte total, run with that manifest's digest and a reviewed ceiling:
+uv run python scripts/full_data_inventory.py --run --manifest-digest DIGEST_FROM_MANIFEST --max-source-bytes REVIEWED_BYTE_CEILING
+```
+
+The full run reads all 13 tables but stores **aggregate results only** in a new
+Git-ignored `data/inventory-staging/` folder for review. It never uploads,
+automatically deletes, or publishes a report. Direct CSV reads can still
+transfer the manifest's full byte total. If access, schema or the budget gate
+fails, the run stops rather than reporting a partial inventory as measured.
+After reviewing its aggregate type-variation flags, a separate
+`--review-types` mode can re-read only transactions, complaints and campaign
+sends with an approved byte ceiling. It prints a **targeted diagnostic**,
+not a replacement for the full inventory; run it only after reviewing its
+transfer size.
+Reviewed aggregate findings from the full run: [full-data inventory](reports/data-quality/full-inventory.md).
+
 Run the demo (deployment skeleton, [docs/DEPLOY.md](docs/DEPLOY.md) for the full path):
 
 ```bash

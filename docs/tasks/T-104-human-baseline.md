@@ -12,7 +12,7 @@
 
 **Goal.** Establish the baseline every result is compared against.
 
-**Inputs.** Transaccional interactions and Transactions-category complaints, on the full data (the analyst computes it; an analysis session cross-checks the headline figures)
+**Inputs.** Transaccional interactions and Transactions-category complaints, on the full data (the analyst computes it; an analysis session cross-checks the headline figures). Precursor complete: the TSD-014 read-only inventory re-confirmed the live counts with no drift (`reports/data-quality/full-inventory.md`).
 
 **Outputs.** first-contact resolution, escalation, follow-up, handle and wait time and (if available) CSAT, overall and by country and segment; for complaints, resolution days, SLA breaches and compensation; claimed amounts per currency and in USD
 

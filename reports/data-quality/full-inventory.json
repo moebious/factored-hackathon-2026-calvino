@@ -1,0 +1,2740 @@
+{
+  "source": "organizer live data/ prefix",
+  "label": "measured",
+  "manifest": {
+    "total_bytes": 5349322481,
+    "digest": "a5ec571c6eeb36c7cf5390f49637ac2ef25a6e38f6b2da775354f6ef1f72f4a2",
+    "tables": {
+      "customers": {
+        "objects": 1,
+        "bytes": 46897358,
+        "partitions": 0,
+        "first_partition": null,
+        "last_partition": null
+      },
+      "products": {
+        "objects": 1,
+        "bytes": 68213646,
+        "partitions": 0,
+        "first_partition": null,
+        "last_partition": null
+      },
+      "branches": {
+        "objects": 1,
+        "bytes": 89529,
+        "partitions": 0,
+        "first_partition": null,
+        "last_partition": null
+      },
+      "service_agents": {
+        "objects": 1,
+        "bytes": 237992,
+        "partitions": 0,
+        "first_partition": null,
+        "last_partition": null
+      },
+      "marketing_campaigns": {
+        "objects": 1,
+        "bytes": 32710,
+        "partitions": 0,
+        "first_partition": null,
+        "last_partition": null
+      },
+      "transactions": {
+        "objects": 1097,
+        "bytes": 808333639,
+        "partitions": 1097,
+        "first_partition": "year=2023/month=06/day=17",
+        "last_partition": "year=2026/month=06/day=17"
+      },
+      "call_center_interactions": {
+        "objects": 1097,
+        "bytes": 139734950,
+        "partitions": 1097,
+        "first_partition": "year=2023/month=06/day=17",
+        "last_partition": "year=2026/month=06/day=17"
+      },
+      "call_transcripts": {
+        "objects": 1097,
+        "bytes": 137235657,
+        "partitions": 1097,
+        "first_partition": "year=2023/month=06/day=17",
+        "last_partition": "year=2026/month=06/day=17"
+      },
+      "satisfaction_surveys": {
+        "objects": 1097,
+        "bytes": 46446098,
+        "partitions": 1097,
+        "first_partition": "year=2023/month=06/day=17",
+        "last_partition": "year=2026/month=06/day=17"
+      },
+      "digital_events": {
+        "objects": 1097,
+        "bytes": 3757355051,
+        "partitions": 1097,
+        "first_partition": "year=2023/month=06/day=17",
+        "last_partition": "year=2026/month=06/day=17"
+      },
+      "complaints": {
+        "objects": 1097,
+        "bytes": 17990612,
+        "partitions": 1097,
+        "first_partition": "year=2023/month=06/day=17",
+        "last_partition": "year=2026/month=06/day=17"
+      },
+      "campaign_sends": {
+        "objects": 1083,
+        "bytes": 325976325,
+        "partitions": 1083,
+        "first_partition": "year=2023/month=07/day=01",
+        "last_partition": "year=2026/month=06/day=17"
+      },
+      "daily_exchange_rates": {
+        "objects": 1,
+        "bytes": 778914,
+        "partitions": 0,
+        "first_partition": null,
+        "last_partition": null
+      }
+    },
+    "projected_get_requests": 7671
+  },
+  "tables": {
+    "customers": {
+      "rows": 150000,
+      "files": 1,
+      "columns": {
+        "accepts_marketing": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 150000
+          }
+        },
+        "address": {
+          "missing": 0,
+          "empty": 7370,
+          "null_or_empty": 7370,
+          "null_or_empty_rate": 0.049133333333333334,
+          "types": {
+            "text": 142630
+          }
+        },
+        "city": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "country": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "credit_score": {
+          "missing": 0,
+          "empty": 22492,
+          "null_or_empty": 22492,
+          "null_or_empty_rate": 0.14994666666666667,
+          "types": {
+            "decimal": 127508
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "customer_status": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "date_of_birth": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 150000
+          }
+        },
+        "detected_accent": {
+          "missing": 0,
+          "empty": 44817,
+          "null_or_empty": 44817,
+          "null_or_empty_rate": 0.29878,
+          "types": {
+            "text": 105183
+          }
+        },
+        "document_number": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "integer": 134938,
+            "text": 15062
+          }
+        },
+        "document_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "education_level": {
+          "missing": 0,
+          "empty": 17952,
+          "null_or_empty": 17952,
+          "null_or_empty_rate": 0.11968,
+          "types": {
+            "text": 132048
+          }
+        },
+        "email": {
+          "missing": 0,
+          "empty": 2984,
+          "null_or_empty": 2984,
+          "null_or_empty_rate": 0.019893333333333332,
+          "types": {
+            "text": 147016
+          }
+        },
+        "estimated_monthly_income": {
+          "missing": 0,
+          "empty": 30033,
+          "null_or_empty": 30033,
+          "null_or_empty_rate": 0.20022,
+          "types": {
+            "decimal": 119967
+          }
+        },
+        "first_name": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "gender": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "landline_phone": {
+          "missing": 0,
+          "empty": 75053,
+          "null_or_empty": 75053,
+          "null_or_empty_rate": 0.5003533333333333,
+          "types": {
+            "text": 74947
+          }
+        },
+        "last_name": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "last_updated": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 150000
+          }
+        },
+        "marital_status": {
+          "missing": 0,
+          "empty": 11955,
+          "null_or_empty": 11955,
+          "null_or_empty_rate": 0.0797,
+          "types": {
+            "text": 138045
+          }
+        },
+        "mobile_phone": {
+          "missing": 0,
+          "empty": 4707,
+          "null_or_empty": 4707,
+          "null_or_empty_rate": 0.03138,
+          "types": {
+            "text": 145293
+          }
+        },
+        "occupation": {
+          "missing": 0,
+          "empty": 15039,
+          "null_or_empty": 15039,
+          "null_or_empty_rate": 0.10026,
+          "types": {
+            "text": 134961
+          }
+        },
+        "postal_code": {
+          "missing": 0,
+          "empty": 15044,
+          "null_or_empty": 15044,
+          "null_or_empty_rate": 0.10029333333333333,
+          "types": {
+            "integer": 108088,
+            "text": 26868
+          }
+        },
+        "registration_branch_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "registration_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 150000
+          }
+        },
+        "segment": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        },
+        "state": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 150000
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {
+        "CU-COUNTRY": 0
+      },
+      "categories": {
+        "country": {
+          "counts": {
+            "Argentina": 29842,
+            "Colombia": 45251,
+            "México": 74907
+          },
+          "denominator": 150000,
+          "small_n": []
+        },
+        "segment": {
+          "counts": {
+            "Basic": 89756,
+            "Plus": 37547,
+            "Premium": 15207,
+            "Student": 7490
+          },
+          "denominator": 150000,
+          "small_n": []
+        }
+      },
+      "contract_coverage": "row-local rules and agent-branch link recounted; other PK/FK checks not re-audited"
+    },
+    "products": {
+      "rows": 400000,
+      "files": 1,
+      "columns": {
+        "credit_limit": {
+          "missing": 0,
+          "empty": 274683,
+          "null_or_empty": 274683,
+          "null_or_empty_rate": 0.6867075,
+          "types": {
+            "decimal": 125317
+          }
+        },
+        "currency": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 400000
+          }
+        },
+        "current_balance": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 400000
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 400000
+          }
+        },
+        "days_past_due": {
+          "missing": 0,
+          "empty": 274650,
+          "null_or_empty": 274650,
+          "null_or_empty_rate": 0.686625,
+          "types": {
+            "decimal": 125350
+          }
+        },
+        "expiration_date": {
+          "missing": 0,
+          "empty": 266839,
+          "null_or_empty": 266839,
+          "null_or_empty_rate": 0.6670975,
+          "types": {
+            "date_or_timestamp": 133161
+          }
+        },
+        "has_linked_app": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 400000
+          }
+        },
+        "interest_rate": {
+          "missing": 0,
+          "empty": 40066,
+          "null_or_empty": 40066,
+          "null_or_empty_rate": 0.100165,
+          "types": {
+            "decimal": 359934
+          }
+        },
+        "last_transaction_date": {
+          "missing": 0,
+          "empty": 94277,
+          "null_or_empty": 94277,
+          "null_or_empty_rate": 0.2356925,
+          "types": {
+            "date_or_timestamp": 305723
+          }
+        },
+        "last_updated": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 400000
+          }
+        },
+        "opening_branch_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 400000
+          }
+        },
+        "opening_channel": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 400000
+          }
+        },
+        "opening_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 400000
+          }
+        },
+        "product_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 400000
+          }
+        },
+        "product_number": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "integer": 360222,
+            "text": 39778
+          }
+        },
+        "product_status": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 400000
+          }
+        },
+        "product_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 400000
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {
+        "PR-CURRENCY": 0
+      },
+      "categories": {},
+      "contract_coverage": "row-local rules and agent-branch link recounted; other PK/FK checks not re-audited"
+    },
+    "branches": {
+      "rows": 350,
+      "files": 1,
+      "columns": {
+        "address": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "atm_count": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "integer": 350
+          }
+        },
+        "branch_code": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "branch_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "branch_name": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "branch_opening_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 350
+          }
+        },
+        "branch_status": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "branch_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "city": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "closing_time": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "country": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "email": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "geographic_zone": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "has_atms": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 350
+          }
+        },
+        "has_teller_windows": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 350
+          }
+        },
+        "latitude": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 350
+          }
+        },
+        "longitude": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 350
+          }
+        },
+        "opening_time": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "phone": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "postal_code": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "integer": 280,
+            "text": 70
+          }
+        },
+        "state": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 350
+          }
+        },
+        "teller_window_count": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "integer": 350
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {},
+      "categories": {},
+      "contract_coverage": "row-local rules and agent-branch link recounted; other PK/FK checks not re-audited"
+    },
+    "service_agents": {
+      "rows": 1200,
+      "files": 1,
+      "columns": {
+        "agent_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "agent_status": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "agent_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "assigned_branch_id": {
+          "missing": 0,
+          "empty": 367,
+          "null_or_empty": 367,
+          "null_or_empty_rate": 0.30583333333333335,
+          "types": {
+            "text": 833
+          }
+        },
+        "avg_csat": {
+          "missing": 0,
+          "empty": 134,
+          "null_or_empty": 134,
+          "null_or_empty_rate": 0.11166666666666666,
+          "types": {
+            "decimal": 1066
+          }
+        },
+        "country_of_origin": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "email": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "employee_code": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "experience_level": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "first_name": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "hire_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 1200
+          }
+        },
+        "languages": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "last_name": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "native_accent": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        },
+        "phone": {
+          "missing": 0,
+          "empty": 69,
+          "null_or_empty": 69,
+          "null_or_empty_rate": 0.0575,
+          "types": {
+            "text": 1131
+          }
+        },
+        "specialty": {
+          "missing": 0,
+          "empty": 476,
+          "null_or_empty": 476,
+          "null_or_empty_rate": 0.39666666666666667,
+          "types": {
+            "text": 724
+          }
+        },
+        "total_monthly_interactions": {
+          "missing": 0,
+          "empty": 111,
+          "null_or_empty": 111,
+          "null_or_empty_rate": 0.0925,
+          "types": {
+            "decimal": 1089
+          }
+        },
+        "work_shift": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1200
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {
+        "SA-BRANCH-ORPHAN": 831
+      },
+      "categories": {},
+      "contract_coverage": "row-local rules and agent-branch link recounted; other PK/FK checks not re-audited"
+    },
+    "marketing_campaigns": {
+      "rows": 200,
+      "files": 1,
+      "columns": {
+        "budget": {
+          "missing": 0,
+          "empty": 31,
+          "null_or_empty": 31,
+          "null_or_empty_rate": 0.155,
+          "types": {
+            "decimal": 169
+          }
+        },
+        "campaign_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 200
+          }
+        },
+        "campaign_name": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 200
+          }
+        },
+        "campaign_objective": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 200
+          }
+        },
+        "campaign_status": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 200
+          }
+        },
+        "campaign_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 200
+          }
+        },
+        "description": {
+          "missing": 0,
+          "empty": 39,
+          "null_or_empty": 39,
+          "null_or_empty_rate": 0.195,
+          "types": {
+            "text": 161
+          }
+        },
+        "end_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 200
+          }
+        },
+        "expected_conversion_rate": {
+          "missing": 0,
+          "empty": 14,
+          "null_or_empty": 14,
+          "null_or_empty_rate": 0.07,
+          "types": {
+            "decimal": 186
+          }
+        },
+        "promoted_product": {
+          "missing": 0,
+          "empty": 22,
+          "null_or_empty": 22,
+          "null_or_empty_rate": 0.11,
+          "types": {
+            "text": 178
+          }
+        },
+        "start_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 200
+          }
+        },
+        "target_country": {
+          "missing": 0,
+          "empty": 111,
+          "null_or_empty": 111,
+          "null_or_empty_rate": 0.555,
+          "types": {
+            "text": 89
+          }
+        },
+        "target_segment": {
+          "missing": 0,
+          "empty": 79,
+          "null_or_empty": 79,
+          "null_or_empty_rate": 0.395,
+          "types": {
+            "text": 121
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {},
+      "categories": {},
+      "contract_coverage": "not contract-validated"
+    },
+    "transactions": {
+      "rows": 4425008,
+      "files": 1097,
+      "columns": {
+        "amount": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 4425008
+          }
+        },
+        "amount_usd": {
+          "missing": 0,
+          "empty": 2537456,
+          "null_or_empty": 2537456,
+          "null_or_empty_rate": 0.5734353474615187,
+          "types": {
+            "decimal": 1887552
+          }
+        },
+        "branch_id": {
+          "missing": 0,
+          "empty": 3037076,
+          "null_or_empty": 3037076,
+          "null_or_empty_rate": 0.6863436179098433,
+          "types": {
+            "text": 1387932
+          }
+        },
+        "channel": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 4425008
+          }
+        },
+        "currency": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 4425008
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 4425008
+          }
+        },
+        "fraud_score": {
+          "missing": 0,
+          "empty": 885157,
+          "null_or_empty": 885157,
+          "null_or_empty_rate": 0.20003511858057657,
+          "types": {
+            "decimal": 3539851
+          }
+        },
+        "is_fraud": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 4425008
+          }
+        },
+        "latitude": {
+          "missing": 0,
+          "empty": 3567680,
+          "null_or_empty": 3567680,
+          "null_or_empty_rate": 0.8062539095974516,
+          "types": {
+            "decimal": 857290,
+            "text": 38
+          }
+        },
+        "longitude": {
+          "missing": 0,
+          "empty": 3567715,
+          "null_or_empty": 3567715,
+          "null_or_empty_rate": 0.8062618191876715,
+          "types": {
+            "decimal": 857255,
+            "text": 38
+          }
+        },
+        "merchant_category": {
+          "missing": 0,
+          "empty": 3396215,
+          "null_or_empty": 3396215,
+          "null_or_empty_rate": 0.7675048271099171,
+          "types": {
+            "text": 1028793
+          }
+        },
+        "merchant_name": {
+          "missing": 0,
+          "empty": 3395774,
+          "null_or_empty": 3395774,
+          "null_or_empty_rate": 0.7674051662731457,
+          "types": {
+            "text": 1029234
+          }
+        },
+        "process_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 4425008
+          }
+        },
+        "product_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 4425008
+          }
+        },
+        "response_code": {
+          "missing": 0,
+          "empty": 221033,
+          "null_or_empty": 221033,
+          "null_or_empty_rate": 0.049950870145319515,
+          "types": {
+            "integer": 4203975
+          }
+        },
+        "transaction_category": {
+          "missing": 0,
+          "empty": 2693520,
+          "null_or_empty": 2693520,
+          "null_or_empty_rate": 0.6087039842639832,
+          "types": {
+            "text": 1731488
+          }
+        },
+        "transaction_city": {
+          "missing": 0,
+          "empty": 442611,
+          "null_or_empty": 442611,
+          "null_or_empty_rate": 0.10002490390977824,
+          "types": {
+            "text": 3982397
+          }
+        },
+        "transaction_country": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 4425008
+          }
+        },
+        "transaction_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 4425008
+          }
+        },
+        "transaction_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 4425008
+          }
+        },
+        "transaction_status": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 4425008
+          }
+        },
+        "transaction_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 4425008
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {
+        "TX-COUNTRY-MEXICO": 40515,
+        "TX-CURRENCY": 0,
+        "TX-RESPONSE-CODE-NULL": 221033,
+        "TX-STATUS": 0
+      },
+      "categories": {
+        "currency": {
+          "counts": {
+            "ARS": 792585,
+            "COP": 1194444,
+            "USD": 2437979
+          },
+          "denominator": 4425008,
+          "small_n": []
+        },
+        "transaction_status": {
+          "counts": {
+            "Approved": 4070681,
+            "Declined": 221234,
+            "Pending": 88343,
+            "Reversed": 44750
+          },
+          "denominator": 4425008,
+          "small_n": []
+        },
+        "transaction_type": {
+          "counts": {
+            "Adjustment": 132118,
+            "Deposit": 609409,
+            "Payment": 738964,
+            "Purchase": 1083406,
+            "Transfer": 896438,
+            "Withdrawal": 964673
+          },
+          "denominator": 4425008,
+          "small_n": []
+        }
+      },
+      "contract_coverage": "row-local rules and agent-branch link recounted; other PK/FK checks not re-audited",
+      "targeted_type_review": {
+        "rows": 4425008,
+        "files": 1097,
+        "incompatible_type_family_flags": 0,
+        "mixed_value_type_columns": 0,
+        "basis": "separate approved targeted reread with corrected heuristic"
+      }
+    },
+    "call_center_interactions": {
+      "rows": 686296,
+      "files": 1097,
+      "columns": {
+        "agent_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 686296
+          }
+        },
+        "agent_used_accent": {
+          "missing": 0,
+          "empty": 204750,
+          "null_or_empty": 204750,
+          "null_or_empty_rate": 0.29834065767540535,
+          "types": {
+            "text": 481546
+          }
+        },
+        "channel": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 686296
+          }
+        },
+        "contact_reason": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 686296
+          }
+        },
+        "customer_detected_accent": {
+          "missing": 0,
+          "empty": 204750,
+          "null_or_empty": 204750,
+          "null_or_empty_rate": 0.29834065767540535,
+          "types": {
+            "text": 481546
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 686296
+          }
+        },
+        "detected_sentiment": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 686296
+          }
+        },
+        "duration_seconds": {
+          "missing": 0,
+          "empty": 96234,
+          "null_or_empty": 96234,
+          "null_or_empty_rate": 0.1402222947532843,
+          "types": {
+            "decimal": 590062
+          }
+        },
+        "has_recording": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 686296
+          }
+        },
+        "has_transcript": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 686296
+          }
+        },
+        "interaction_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 686296
+          }
+        },
+        "interaction_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 686296
+          }
+        },
+        "interaction_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 686296
+          }
+        },
+        "mentioned_products": {
+          "missing": 0,
+          "empty": 411955,
+          "null_or_empty": 411955,
+          "null_or_empty_rate": 0.6002584890484572,
+          "types": {
+            "text": 274341
+          }
+        },
+        "process_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 686296
+          }
+        },
+        "reason_category": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 686296
+          }
+        },
+        "requires_followup": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 686296
+          }
+        },
+        "sentiment_score": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 686296
+          }
+        },
+        "wait_time_seconds": {
+          "missing": 0,
+          "empty": 205618,
+          "null_or_empty": 205618,
+          "null_or_empty_rate": 0.29960541807033697,
+          "types": {
+            "decimal": 480678
+          }
+        },
+        "was_escalated": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 686296
+          }
+        },
+        "was_resolved": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 686296
+          }
+        }
+      },
+      "schema_drift": {
+        "files_with_extra_columns": 0,
+        "files_with_missing_columns": 0
+      },
+      "row_rule_violations": {
+        "CI-REASON-REPEATS": 686296
+      },
+      "categories": {
+        "reason_category": {
+          "counts": {
+            "Comercial": 54879,
+            "Producto": 150863,
+            "Queja": 117021,
+            "Retención": 20578,
+            "Transaccional": 240056,
+            "Técnico": 102899
+          },
+          "denominator": 686296,
+          "small_n": []
+        }
+      },
+      "contract_coverage": "row-local rules and agent-branch link recounted; other PK/FK checks not re-audited"
+    },
+    "call_transcripts": {
+      "rows": 171321,
+      "files": 1097,
+      "columns": {
+        "accent_confidence": {
+          "missing": 0,
+          "empty": 17141,
+          "null_or_empty": 17141,
+          "null_or_empty_rate": 0.10005194926483035,
+          "types": {
+            "decimal": 154180
+          }
+        },
+        "agent_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "agent_text": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "audio_quality": {
+          "missing": 0,
+          "empty": 8638,
+          "null_or_empty": 8638,
+          "null_or_empty_rate": 0.05041997186567905,
+          "types": {
+            "text": 162683
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "customer_text": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "detected_accent": {
+          "missing": 0,
+          "empty": 63083,
+          "null_or_empty": 63083,
+          "null_or_empty_rate": 0.3682152217182949,
+          "types": {
+            "text": 108238
+          }
+        },
+        "detected_intents": {
+          "missing": 0,
+          "empty": 8457,
+          "null_or_empty": 8457,
+          "null_or_empty_rate": 0.04936347558092703,
+          "types": {
+            "text": 162864
+          }
+        },
+        "detected_keywords": {
+          "missing": 0,
+          "empty": 8797,
+          "null_or_empty": 8797,
+          "null_or_empty_rate": 0.05134805423736728,
+          "types": {
+            "text": 162524
+          }
+        },
+        "detected_language": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "duration_seconds": {
+          "missing": 0,
+          "empty": 24029,
+          "null_or_empty": 24029,
+          "null_or_empty_rate": 0.14025717804589047,
+          "types": {
+            "decimal": 147292
+          }
+        },
+        "full_text": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "interaction_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "main_topics": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "mentioned_entities": {
+          "missing": 0,
+          "empty": 17164,
+          "null_or_empty": 17164,
+          "null_or_empty_rate": 0.10018620017394249,
+          "types": {
+            "text": 154157
+          }
+        },
+        "process_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 171321
+          }
+        },
+        "transcript_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        },
+        "transcription_model": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 171321
+          }
+        }
+      },
+      "schema_drift": {
+        "files_with_extra_columns": 0,
+        "files_with_missing_columns": 0
+      },
+      "row_rule_violations": {},
+      "categories": {},
+      "contract_coverage": "not contract-validated"
+    },
+    "satisfaction_surveys": {
+      "rows": 212759,
+      "files": 1097,
+      "columns": {
+        "agent_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 212759
+          }
+        },
+        "campaign_response_rate": {
+          "missing": 0,
+          "empty": 32037,
+          "null_or_empty": 32037,
+          "null_or_empty_rate": 0.15057882392754243,
+          "types": {
+            "decimal": 180722
+          }
+        },
+        "comment_sentiment": {
+          "missing": 0,
+          "empty": 111502,
+          "null_or_empty": 111502,
+          "null_or_empty_rate": 0.5240765373027698,
+          "types": {
+            "text": 101257
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 212759
+          }
+        },
+        "interaction_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 212759
+          }
+        },
+        "main_score": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "integer": 212759
+          }
+        },
+        "nps_category": {
+          "missing": 0,
+          "empty": 152365,
+          "null_or_empty": 152365,
+          "null_or_empty_rate": 0.7161389177426102,
+          "types": {
+            "text": 60394
+          }
+        },
+        "open_comments": {
+          "missing": 0,
+          "empty": 111563,
+          "null_or_empty": 111563,
+          "null_or_empty_rate": 0.5243632466781664,
+          "types": {
+            "text": 101196
+          }
+        },
+        "process_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 212759
+          }
+        },
+        "question_1_response": {
+          "missing": 0,
+          "empty": 91389,
+          "null_or_empty": 91389,
+          "null_or_empty_rate": 0.42954234603471536,
+          "types": {
+            "decimal": 121370
+          }
+        },
+        "question_1_text": {
+          "missing": 0,
+          "empty": 91456,
+          "null_or_empty": 91456,
+          "null_or_empty_rate": 0.42985725633228206,
+          "types": {
+            "text": 121303
+          }
+        },
+        "question_2_response": {
+          "missing": 0,
+          "empty": 131263,
+          "null_or_empty": 131263,
+          "null_or_empty_rate": 0.6169562744701752,
+          "types": {
+            "decimal": 81496
+          }
+        },
+        "question_2_text": {
+          "missing": 0,
+          "empty": 131388,
+          "null_or_empty": 131388,
+          "null_or_empty_rate": 0.6175437936820534,
+          "types": {
+            "text": 81371
+          }
+        },
+        "question_3_response": {
+          "missing": 0,
+          "empty": 172656,
+          "null_or_empty": 172656,
+          "null_or_empty_rate": 0.8115097363683792,
+          "types": {
+            "decimal": 40103
+          }
+        },
+        "question_3_text": {
+          "missing": 0,
+          "empty": 172615,
+          "null_or_empty": 172615,
+          "null_or_empty_rate": 0.8113170300668832,
+          "types": {
+            "text": 40144
+          }
+        },
+        "response_time_hours": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 212759
+          }
+        },
+        "send_channel": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 212759
+          }
+        },
+        "survey_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 212759
+          }
+        },
+        "survey_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 212759
+          }
+        },
+        "survey_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 212759
+          }
+        }
+      },
+      "schema_drift": {
+        "files_with_extra_columns": 0,
+        "files_with_missing_columns": 0
+      },
+      "row_rule_violations": {},
+      "categories": {},
+      "contract_coverage": "not contract-validated"
+    },
+    "digital_events": {
+      "rows": 15620994,
+      "files": 1097,
+      "columns": {
+        "action": {
+          "missing": 0,
+          "empty": 1561432,
+          "null_or_empty": 1561432,
+          "null_or_empty_rate": 0.09995727544610797,
+          "types": {
+            "text": 14059562
+          }
+        },
+        "app_version": {
+          "missing": 0,
+          "empty": 6714416,
+          "null_or_empty": 6714416,
+          "null_or_empty_rate": 0.42983282625932767,
+          "types": {
+            "text": 8906578
+          }
+        },
+        "browser": {
+          "missing": 0,
+          "empty": 9687736,
+          "null_or_empty": 9687736,
+          "null_or_empty_rate": 0.6201741067181769,
+          "types": {
+            "text": 5933258
+          }
+        },
+        "channel": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 15620994
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 3745446,
+          "null_or_empty": 3745446,
+          "null_or_empty_rate": 0.2397700171960888,
+          "types": {
+            "text": 11875548
+          }
+        },
+        "duration_seconds": {
+          "missing": 0,
+          "empty": 9946209,
+          "null_or_empty": 9946209,
+          "null_or_empty_rate": 0.6367206209796893,
+          "types": {
+            "decimal": 5674785
+          }
+        },
+        "element_id": {
+          "missing": 0,
+          "empty": 2343244,
+          "null_or_empty": 2343244,
+          "null_or_empty_rate": 0.1500060751575732,
+          "types": {
+            "text": 13277750
+          }
+        },
+        "event_category": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 15620994
+          }
+        },
+        "event_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 15620994
+          }
+        },
+        "event_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 15620994
+          }
+        },
+        "event_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 15620994
+          }
+        },
+        "event_value": {
+          "missing": 0,
+          "empty": 14826484,
+          "null_or_empty": 14826484,
+          "null_or_empty_rate": 0.9491383198790039,
+          "types": {
+            "decimal": 794510
+          }
+        },
+        "ip_address": {
+          "missing": 0,
+          "empty": 780855,
+          "null_or_empty": 780855,
+          "null_or_empty_rate": 0.04998753600443096,
+          "types": {
+            "text": 14840139
+          }
+        },
+        "ip_city": {
+          "missing": 0,
+          "empty": 4370476,
+          "null_or_empty": 4370476,
+          "null_or_empty_rate": 0.2797821956784568,
+          "types": {
+            "text": 11250518
+          }
+        },
+        "ip_country": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 15620994
+          }
+        },
+        "is_mobile": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 15620994
+          }
+        },
+        "page_title": {
+          "missing": 0,
+          "empty": 779824,
+          "null_or_empty": 779824,
+          "null_or_empty_rate": 0.04992153508285068,
+          "types": {
+            "text": 14841170
+          }
+        },
+        "page_url": {
+          "missing": 0,
+          "empty": 780394,
+          "null_or_empty": 780394,
+          "null_or_empty_rate": 0.04995802443813755,
+          "types": {
+            "text": 14840600
+          }
+        },
+        "platform": {
+          "missing": 0,
+          "empty": 780527,
+          "null_or_empty": 780527,
+          "null_or_empty_rate": 0.049966538621037816,
+          "types": {
+            "text": 14840467
+          }
+        },
+        "process_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 15620994
+          }
+        },
+        "product_id": {
+          "missing": 0,
+          "empty": 14180656,
+          "null_or_empty": 14180656,
+          "null_or_empty_rate": 0.9077947280435548,
+          "types": {
+            "text": 1440338
+          }
+        },
+        "referrer": {
+          "missing": 0,
+          "empty": 14573469,
+          "null_or_empty": 14573469,
+          "null_or_empty_rate": 0.9329412071984664,
+          "types": {
+            "text": 1047525
+          }
+        },
+        "session_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 15620994
+          }
+        },
+        "utm_campaign": {
+          "missing": 0,
+          "empty": 14782077,
+          "null_or_empty": 14782077,
+          "null_or_empty_rate": 0.9462955430365059,
+          "types": {
+            "text": 838917
+          }
+        },
+        "utm_medium": {
+          "missing": 0,
+          "empty": 14781860,
+          "null_or_empty": 14781860,
+          "null_or_empty_rate": 0.9462816514749317,
+          "types": {
+            "text": 839134
+          }
+        },
+        "utm_source": {
+          "missing": 0,
+          "empty": 14781949,
+          "null_or_empty": 14781949,
+          "null_or_empty_rate": 0.9462873489356696,
+          "types": {
+            "text": 839045
+          }
+        }
+      },
+      "schema_drift": {
+        "files_with_extra_columns": 0,
+        "files_with_missing_columns": 0
+      },
+      "row_rule_violations": {},
+      "categories": {},
+      "contract_coverage": "not contract-validated"
+    },
+    "complaints": {
+      "rows": 67095,
+      "files": 1097,
+      "columns": {
+        "affected_product_id": {
+          "missing": 0,
+          "empty": 22525,
+          "null_or_empty": 22525,
+          "null_or_empty_rate": 0.3357180117743498,
+          "types": {
+            "text": 44570
+          }
+        },
+        "assigned_agent_id": {
+          "missing": 0,
+          "empty": 23115,
+          "null_or_empty": 23115,
+          "null_or_empty_rate": 0.34451151352559806,
+          "types": {
+            "text": 43980
+          }
+        },
+        "assignment_date": {
+          "missing": 0,
+          "empty": 23128,
+          "null_or_empty": 23128,
+          "null_or_empty_rate": 0.34470526864893064,
+          "types": {
+            "date_or_timestamp": 43967
+          }
+        },
+        "case_type": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 67095
+          }
+        },
+        "category": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 67095
+          }
+        },
+        "claimed_amount": {
+          "missing": 0,
+          "empty": 45344,
+          "null_or_empty": 45344,
+          "null_or_empty_rate": 0.6758178701840674,
+          "types": {
+            "decimal": 21751
+          }
+        },
+        "closing_date": {
+          "missing": 0,
+          "empty": 64614,
+          "null_or_empty": 64614,
+          "null_or_empty_rate": 0.9630225799239883,
+          "types": {
+            "date_or_timestamp": 2481
+          }
+        },
+        "compensation_granted": {
+          "missing": 0,
+          "empty": 62454,
+          "null_or_empty": 62454,
+          "null_or_empty_rate": 0.930829420970266,
+          "types": {
+            "decimal": 4641
+          }
+        },
+        "complaint_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 67095
+          }
+        },
+        "creation_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 67095
+          }
+        },
+        "currency": {
+          "missing": 0,
+          "empty": 45319,
+          "null_or_empty": 45319,
+          "null_or_empty_rate": 0.6754452641776585,
+          "types": {
+            "text": 21776
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 67095
+          }
+        },
+        "description": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 67095
+          }
+        },
+        "first_response_date": {
+          "missing": 0,
+          "empty": 26242,
+          "null_or_empty": 26242,
+          "null_or_empty_rate": 0.39111707280721364,
+          "types": {
+            "date_or_timestamp": 40853
+          }
+        },
+        "is_repeat_complainer": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 67095
+          }
+        },
+        "origin_interaction_id": {
+          "missing": 0,
+          "empty": 67095,
+          "null_or_empty": 67095,
+          "null_or_empty_rate": 1.0,
+          "types": {}
+        },
+        "priority": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 67095
+          }
+        },
+        "process_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 67095
+          }
+        },
+        "reception_channel": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 67095
+          }
+        },
+        "related_branch_id": {
+          "missing": 0,
+          "empty": 47917,
+          "null_or_empty": 47917,
+          "null_or_empty_rate": 0.7141664803636635,
+          "types": {
+            "text": 19178
+          }
+        },
+        "resolution": {
+          "missing": 0,
+          "empty": 51785,
+          "null_or_empty": 51785,
+          "null_or_empty_rate": 0.7718160816752366,
+          "types": {
+            "text": 15310
+          }
+        },
+        "resolution_date": {
+          "missing": 0,
+          "empty": 51746,
+          "null_or_empty": 51746,
+          "null_or_empty_rate": 0.7712348163052388,
+          "types": {
+            "date_or_timestamp": 15349
+          }
+        },
+        "resolution_days": {
+          "missing": 0,
+          "empty": 51732,
+          "null_or_empty": 51732,
+          "null_or_empty_rate": 0.7710261569416499,
+          "types": {
+            "decimal": 15363
+          }
+        },
+        "resolution_satisfaction": {
+          "missing": 0,
+          "empty": 64611,
+          "null_or_empty": 64611,
+          "null_or_empty_rate": 0.9629778672032193,
+          "types": {
+            "decimal": 2484
+          }
+        },
+        "sla_breached": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 67095
+          }
+        },
+        "status": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 67095
+          }
+        },
+        "subcategory": {
+          "missing": 0,
+          "empty": 6698,
+          "null_or_empty": 6698,
+          "null_or_empty_rate": 0.09982860123705194,
+          "types": {
+            "text": 60397
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {
+        "CP-AMOUNT-NO-CURRENCY": 1040,
+        "CP-ORIGIN-NULL": 67095
+      },
+      "categories": {
+        "category": {
+          "counts": {
+            "(other)": 53515,
+            "Transactions": 13580
+          },
+          "denominator": 67095,
+          "small_n": []
+        },
+        "currency": {
+          "counts": {
+            "(null)": 45319,
+            "ARS": 5402,
+            "COP": 5456,
+            "MXN": 5487,
+            "USD": 5431
+          },
+          "denominator": 67095,
+          "small_n": []
+        },
+        "status": {
+          "counts": {
+            "Closed": 2609,
+            "Escalated": 3321,
+            "In Process": 26823,
+            "Open": 20125,
+            "Rejected": 705,
+            "Resolved": 13512
+          },
+          "denominator": 67095,
+          "small_n": []
+        }
+      },
+      "contract_coverage": "row-local rules and agent-branch link recounted; other PK/FK checks not re-audited",
+      "targeted_type_review": {
+        "rows": 67095,
+        "files": 1097,
+        "incompatible_type_family_flags": 0,
+        "mixed_value_type_columns": 0,
+        "basis": "separate approved targeted reread with corrected heuristic"
+      }
+    },
+    "campaign_sends": {
+      "rows": 1746801,
+      "files": 1083,
+      "columns": {
+        "campaign_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1746801
+          }
+        },
+        "click_count": {
+          "missing": 0,
+          "empty": 1649008,
+          "null_or_empty": 1649008,
+          "null_or_empty_rate": 0.9440159468651552,
+          "types": {
+            "decimal": 97793
+          }
+        },
+        "click_date": {
+          "missing": 0,
+          "empty": 1649008,
+          "null_or_empty": 1649008,
+          "null_or_empty_rate": 0.9440159468651552,
+          "types": {
+            "date_or_timestamp": 97793
+          }
+        },
+        "conversion_date": {
+          "missing": 0,
+          "empty": 1737002,
+          "null_or_empty": 1737002,
+          "null_or_empty_rate": 0.9943903169279157,
+          "types": {
+            "date_or_timestamp": 9799
+          }
+        },
+        "conversion_value": {
+          "missing": 0,
+          "empty": 1737002,
+          "null_or_empty": 1737002,
+          "null_or_empty_rate": 0.9943903169279157,
+          "types": {
+            "decimal": 9799
+          }
+        },
+        "customer_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1746801
+          }
+        },
+        "failure_reason": {
+          "missing": 0,
+          "empty": 1647204,
+          "null_or_empty": 1647204,
+          "null_or_empty_rate": 0.9429832018644367,
+          "types": {
+            "text": 99597
+          }
+        },
+        "had_conversion": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 1746801
+          }
+        },
+        "open_country": {
+          "missing": 0,
+          "empty": 1308278,
+          "null_or_empty": 1308278,
+          "null_or_empty_rate": 0.7489565210919847,
+          "types": {
+            "text": 438523
+          }
+        },
+        "open_date": {
+          "missing": 0,
+          "empty": 1259492,
+          "null_or_empty": 1259492,
+          "null_or_empty_rate": 0.7210277530182316,
+          "types": {
+            "date_or_timestamp": 487309
+          }
+        },
+        "open_device": {
+          "missing": 0,
+          "empty": 1308424,
+          "null_or_empty": 1308424,
+          "null_or_empty_rate": 0.749040102450136,
+          "types": {
+            "text": 438377
+          }
+        },
+        "process_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 1746801
+          }
+        },
+        "send_channel": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1746801
+          }
+        },
+        "send_cost": {
+          "missing": 0,
+          "empty": 262083,
+          "null_or_empty": 262083,
+          "null_or_empty_rate": 0.15003598005725896,
+          "types": {
+            "decimal": 1484718
+          }
+        },
+        "send_date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 1746801
+          }
+        },
+        "send_id": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1746801
+          }
+        },
+        "send_status": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 1746801
+          }
+        },
+        "subject": {
+          "missing": 0,
+          "empty": 1188342,
+          "null_or_empty": 1188342,
+          "null_or_empty_rate": 0.6802961527958823,
+          "types": {
+            "text": 558459
+          }
+        },
+        "template_used": {
+          "missing": 0,
+          "empty": 175218,
+          "null_or_empty": 175218,
+          "null_or_empty_rate": 0.1003079343325313,
+          "types": {
+            "text": 1571583
+          }
+        },
+        "was_clicked": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 1746801
+          }
+        },
+        "was_delivered": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "boolean": 1746801
+          }
+        },
+        "was_opened": {
+          "missing": 0,
+          "empty": 484229,
+          "null_or_empty": 484229,
+          "null_or_empty_rate": 0.27720902380981005,
+          "types": {
+            "boolean": 1262572
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {},
+      "categories": {},
+      "contract_coverage": "not contract-validated",
+      "targeted_type_review": {
+        "rows": 1746801,
+        "files": 1083,
+        "incompatible_type_family_flags": 0,
+        "mixed_value_type_columns": 0,
+        "basis": "separate approved targeted reread with corrected heuristic"
+      }
+    },
+    "daily_exchange_rates": {
+      "rows": 13164,
+      "files": 1,
+      "columns": {
+        "buy_rate": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 13164
+          }
+        },
+        "date": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "date_or_timestamp": 13164
+          }
+        },
+        "exchange_rate": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 13164
+          }
+        },
+        "sell_rate": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "decimal": 13164
+          }
+        },
+        "source": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 13164
+          }
+        },
+        "source_currency": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 13164
+          }
+        },
+        "target_currency": {
+          "missing": 0,
+          "empty": 0,
+          "null_or_empty": 0,
+          "null_or_empty_rate": 0.0,
+          "types": {
+            "text": 13164
+          }
+        }
+      },
+      "schema_drift": {},
+      "row_rule_violations": {
+        "FX-RATE-POSITIVE": 0
+      },
+      "categories": {},
+      "contract_coverage": "row-local rules and agent-branch link recounted; other PK/FK checks not re-audited"
+    }
+  },
+  "discrepancies": [],
+  "limitations": [
+    "Five tables have no TSD-007 contract.",
+    "Row-local checks and the agent-branch link are recounted; other PK/FK checks need a separate full audit.",
+    "Inventory counts do not link a call to a transaction or select a workflow.",
+    "Initial type-change heuristic was superseded for three flagged tables; other ten were not rerun under the correction."
+  ],
+  "provenance": {
+    "run_date": "2026-10-03",
+    "source_version": "organizer live data/ prefix; manifest digest above",
+    "contract_version": "TSD-007",
+    "code_version": "TSD-013 worktree, uncommitted at measurement time",
+    "type_review_bytes": 1152300576
+  }
+}
