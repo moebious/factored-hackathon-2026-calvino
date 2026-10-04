@@ -116,11 +116,10 @@ docker exec calvino cat /data/decisions.jsonl      # the record is still there
 With the domain live, prove the deployment end to end (TSD-012): the frontend
 is served, the backend wakes and preloads within the cold-start budget, and
 every scenario turn works, including the parked approval and the operator
-queue. The passcode comes from the environment only; it never reaches argv or
-the printed output:
+queue. The endpoints are open (decision 38); the check needs no credentials:
 
 ```bash
-CALVINO_DEMO_PASSCODE=<passcode> uv run python scripts/check_deployment.py \
+uv run python scripts/check_deployment.py \
   --url https://calvino.rubrica.dev
 ```
 
