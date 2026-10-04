@@ -23,6 +23,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-018](TSD-018-human-baseline.md): full-data human baseline (T-104)
 - [TSD-019](TSD-019-message-set.md): team-generated customer message set (T-106, proposed)
 - [TSD-020](TSD-020-laya-fine-tuning.md): Laya fine-tuning (T-202, proposed)
+- [TSD-021](TSD-021-premium-experience.md): premium conversational customer experience (proposed)
 
 Later tasks write their spec from their task card as the first step, numbered from TSD-021, and wait for the maintainer's approval before any code.
 
