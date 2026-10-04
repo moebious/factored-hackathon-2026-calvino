@@ -116,3 +116,25 @@ def test_mock_judge_returns_scripted_verdicts_and_records_calls():
     assert by_id["no-invented-policy"].reason == "invented a fee waiver rule"
     assert by_id["question-fully-answered"].passed
     assert all(v.checker is CheckerKind.JUDGE for v in verdicts)
+
+
+def test_the_prompt_carries_the_redacted_question():
+    """The judge failed a correct reply for want of this line; the criterion depends on it."""
+    from calvino.verifier.evidence import Evidence
+    from calvino.verifier.judge import build_judge_prompt
+
+    prompt = build_judge_prompt(
+        "Veremos el estado ahora.",
+        Evidence(customer_language="es", customer_question="sigue pendiente desde hace 5 dias"),
+        [],
+    )
+    assert "sigue pendiente desde hace 5 dias" in prompt
+
+
+def test_the_prompt_says_when_there_is_no_question():
+    """Failing a correct reply is worse than admitting the question is missing."""
+    from calvino.verifier.evidence import Evidence
+    from calvino.verifier.judge import build_judge_prompt
+
+    prompt = build_judge_prompt("Hola.", Evidence(customer_language="es"), [])
+    assert "not provided" in prompt

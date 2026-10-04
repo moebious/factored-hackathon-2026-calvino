@@ -79,6 +79,9 @@ def _render_evidence(evidence: Evidence) -> str:
         f"- payment statuses: {sorted(s.value for s in evidence.statuses) or 'none'}",
         f"- customer language: {evidence.customer_language}",
         f"- actions confirmed by read-back: {sorted(evidence.read_backs) or 'none'}",
+        # Redacted by the hub, never the raw message: the criterion asks whether the reply
+        # answers what was asked, so "not provided" would fail a correct reply.
+        f"- customer question (redacted): {evidence.customer_question or 'not provided'}",
     ]
     return "\n".join(lines)
 
