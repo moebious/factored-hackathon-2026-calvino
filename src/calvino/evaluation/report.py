@@ -98,6 +98,9 @@ class RunHeader:
     agent_prompt_version: str | None = None
     hub_judge: str = "none: judged criteria are not run"
     llm_priced: bool = True  # False: tokens were used by a role with no price on record
+    # Reports before this change checked outcomes only; v2 also scans the served reply. A number
+    # from one version is not comparable with the other, so the report says which it used.
+    unsafe_checks: str = "v2: outcomes plus reply wording"
 
 
 @dataclass(frozen=True)
@@ -154,6 +157,7 @@ def _render_header(report: RunReport) -> list[str]:
         f"| Agent prompt | {header.agent_prompt_version or 'not applicable'} |",
         f"| Judge in the hub | {header.hub_judge} |",
         f"| Judge model | {header.judge_model or 'not configured'} |",
+        f"| Unsafe checks | {header.unsafe_checks} |",
     ]
 
 
@@ -481,6 +485,7 @@ def results_json(report: RunReport) -> dict:
             "agent": header.agent,
             "agent_prompt_version": header.agent_prompt_version,
             "hub_judge": header.hub_judge,
+            "unsafe_checks": header.unsafe_checks,
             "llm_priced": header.llm_priced,
         },
         "metrics": {

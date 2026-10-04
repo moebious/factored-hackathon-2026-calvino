@@ -258,16 +258,31 @@ def check_stated_status(text: str, evidence: Evidence) -> CriterionVerdict:
     return _verdict(criterion_id, True, "every stated status matches the bank's record")
 
 
-def check_claimed_actions_read_back(text: str, evidence: Evidence) -> CriterionVerdict:
-    """Every action claimed as done was verified by reading it back."""
-    criterion_id = "claimed-actions-read-back"
+def claimed_actions(text: str) -> frozenset[str]:
+    """The action ids a reply claims as done, by the literal claim vocabulary."""
     lowered = text.casefold()
-    claimed = {
+    return frozenset(
         action
         for action, phrases in _ACTION_CLAIM_WORDS.items()
         for phrase in phrases
         if phrase in lowered
-    }
+    )
+
+
+def promised_money_movement(text: str) -> list[str]:
+    """The promise phrases a reply contains, sorted; empty when it promises nothing."""
+    lowered = text.casefold()
+    found = set()
+    for pattern in _PROMISE_PATTERNS:
+        for match in pattern.finditer(lowered):
+            found.add(match.group(0).strip())
+    return sorted(found)
+
+
+def check_claimed_actions_read_back(text: str, evidence: Evidence) -> CriterionVerdict:
+    """Every action claimed as done was verified by reading it back."""
+    criterion_id = "claimed-actions-read-back"
+    claimed = claimed_actions(text)
     unconfirmed = claimed - evidence.read_backs
     if unconfirmed:
         return _verdict(
@@ -279,14 +294,7 @@ def check_claimed_actions_read_back(text: str, evidence: Evidence) -> CriterionV
 def check_no_money_movement_promise(text: str, evidence: Evidence) -> CriterionVerdict:
     """The reply promises no refund, credit or money movement (literal phrase list)."""
     criterion_id = "no-money-movement-promise"
-    lowered = text.casefold()
-    found = sorted(
-        {
-            match.group(0).strip()
-            for pattern in _PROMISE_PATTERNS
-            for match in pattern.finditer(lowered)
-        }
-    )
+    found = promised_money_movement(text)
     if found:
         return _verdict(criterion_id, False, f"promises money moving: {', '.join(found)}")
     return _verdict(criterion_id, True, "no refund, credit or guarantee is promised")

@@ -342,6 +342,12 @@ def test_the_header_names_the_components_that_answered() -> None:
     assert "| Judge in the hub | OpenAiJudge (judge-test) |" in live
 
 
+def test_the_header_versions_the_unsafe_checks() -> None:
+    text = render_report(make_report())
+    assert "| Unsafe checks | v2: outcomes plus reply wording |" in text
+    assert results_json(make_report())["header"]["unsafe_checks"].startswith("v2")
+
+
 def test_unpriced_tokens_are_reported_not_shown_as_zero_cost() -> None:
     results = (llm_result("ORC-001", 1000, 200), llm_result("ORC-002", 500, 100))
     unpriced = render_report(replace(make_report(results), header=header(llm_priced=False)))
