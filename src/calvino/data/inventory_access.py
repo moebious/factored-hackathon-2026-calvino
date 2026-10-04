@@ -151,15 +151,21 @@ class SourceManifest:
             "total_bytes": self.total_bytes,
             "projected_get_requests": len(self.objects),
             "digest": self.digest,
-            "tables": {name: table_summary(name) for name in TABLE_NAMES},
+            "tables": {
+                name: table_summary(name)
+                for name in TABLE_NAMES
+                if any(obj.table == name for obj in self.objects)
+            },
         }
 
 
-def discover(s3: Any, bucket: str) -> SourceManifest:
-    """List only exact live table objects, refusing any unexpected layout."""
+def discover(s3: Any, bucket: str, tables: tuple[str, ...] = TABLE_NAMES) -> SourceManifest:
+    """List only the requested allowlisted live tables, refusing unexpected layouts."""
+    if not tables or len(set(tables)) != len(tables) or set(tables) - set(TABLE_NAMES):
+        raise InventoryError("requested tables must be unique and allowlisted")
     objects: list[SourceObject] = []
     try:
-        for name in TABLE_NAMES:
+        for name in tables:
             found: list[SourceObject] = []
             for prefix in (f"data/{name}.csv", f"data/{name}/"):
                 pages = s3.get_paginator("list_objects_v2").paginate(
