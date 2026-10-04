@@ -5,7 +5,14 @@ import textwrap
 import pytest
 from pydantic import ValidationError
 
-from calvino.verifier import DEFAULT_RUBRIC_PATH, CheckerKind, Rubric, Severity, load_rubric
+from calvino.verifier import (
+    DEFAULT_RUBRIC_PATH,
+    V1_RUBRIC_PATH,
+    CheckerKind,
+    Rubric,
+    Severity,
+    load_rubric,
+)
 
 
 def write_rubric(tmp_path, body: str):
@@ -17,9 +24,9 @@ def write_rubric(tmp_path, body: str):
 def test_shipped_customer_answer_rubric_loads():
     rubric = load_rubric()
     assert rubric.id == "customer-answer"
-    assert rubric.version == 1
+    assert rubric.version == 2
     assert rubric.output_type == "customer_answer"
-    assert rubric.ref == "customer-answer@1"
+    assert rubric.ref == "customer-answer@2"
     assert rubric.criteria, "the rubric must have criteria"
     assert all(criterion.severity is Severity.BLOCKING for criterion in rubric.criteria)
 
@@ -42,14 +49,35 @@ def test_shipped_rubric_covers_the_decision_17_criteria():
 
 def test_criteria_for_partitions_by_checker():
     rubric = load_rubric()
-    for checker in CheckerKind:
+    for checker in (CheckerKind.CODE, CheckerKind.JUDGE):
         assert rubric.criteria_for(checker), f"the shipped rubric needs {checker} criteria"
     partitioned = sum(len(rubric.criteria_for(checker)) for checker in CheckerKind)
     assert partitioned == len(rubric.criteria)
 
 
+def test_the_shipped_rubric_assigns_nothing_to_a_tier_without_an_implementation():
+    # No real Laya checker exists (decision 40), so a criterion assigned to that tier could only
+    # ever pass against a fake. v2 puts the promise check in code and grounding with the judge.
+    rubric = load_rubric()
+    assert rubric.criteria_for(CheckerKind.LAYA) == []
+    checkers = {criterion.id: criterion.checker for criterion in rubric.criteria}
+    assert checkers["no-money-movement-promise"] is CheckerKind.CODE
+    assert checkers["factual-claims-grounded"] is CheckerKind.JUDGE
+
+
+def test_rubric_v1_is_kept_unchanged_for_replay():
+    v1 = load_rubric(V1_RUBRIC_PATH)
+    assert v1.ref == "customer-answer@1"
+    assert {c.id for c in v1.criteria_for(CheckerKind.LAYA)} == {
+        "no-money-movement-promise",
+        "factual-claims-grounded",
+    }
+    # Same criteria, only the checkers moved.
+    assert {c.id for c in v1.criteria} == {c.id for c in load_rubric().criteria}
+
+
 def test_default_path_points_at_the_shipped_rubric():
-    assert DEFAULT_RUBRIC_PATH.name == "customer-answer.yaml"
+    assert DEFAULT_RUBRIC_PATH.name == "customer-answer-v2.yaml"
     assert DEFAULT_RUBRIC_PATH.exists()
 
 

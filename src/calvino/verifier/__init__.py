@@ -30,6 +30,7 @@ from calvino.verifier.judge import (
 from calvino.verifier.laya_checks import FakeLayaChecker, LayaChecker
 from calvino.verifier.rubric import (
     DEFAULT_RUBRIC_PATH,
+    V1_RUBRIC_PATH,
     CheckerKind,
     Criterion,
     Rubric,
@@ -41,6 +42,7 @@ from calvino.verifier.verdicts import CriterionVerdict, VerificationResult
 __all__ = [
     "CODE_CHECKS",
     "DEFAULT_RUBRIC_PATH",
+    "V1_RUBRIC_PATH",
     "JUDGE_PROMPT_VERSION",
     "CheckerKind",
     "Criterion",

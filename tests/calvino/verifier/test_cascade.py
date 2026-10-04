@@ -13,7 +13,7 @@ from calvino.verifier.cascade import VerificationOutcome, Verifier
 from calvino.verifier.evidence import Evidence
 from calvino.verifier.judge import JUDGE_PROMPT_VERSION, MockJudge
 from calvino.verifier.laya_checks import FakeLayaChecker
-from calvino.verifier.rubric import CheckerKind, Criterion, load_rubric
+from calvino.verifier.rubric import V1_RUBRIC_PATH, CheckerKind, Criterion, load_rubric
 from calvino.verifier.verdicts import CriterionVerdict
 
 CLEAN_REPLY = "Su pago de 1,500.00 MXN sigue pendiente."
@@ -27,8 +27,14 @@ EVIDENCE = Evidence(
 )
 
 
-def _criteria_for(kind: CheckerKind) -> list[Criterion]:
-    return load_rubric().criteria_for(kind)
+# Rubric v1 still has two Laya-tier criteria, so the tier mechanics (call recording, errors,
+# scripted failures) are tested against it. The shipped default is v2, which assigns no
+# criterion to a tier without an implementation.
+V1 = load_rubric(V1_RUBRIC_PATH)
+
+
+def _criteria_for(kind: CheckerKind, rubric=None) -> list[Criterion]:
+    return (rubric or load_rubric()).criteria_for(kind)
 
 
 class FlakyJudge:
@@ -83,10 +89,10 @@ def test_clean_output_passes_every_tier():
 def test_code_criteria_never_reach_laya_or_the_judge_and_the_judge_runs_once():
     laya = FakeLayaChecker()
     judge = MockJudge()
-    Verifier(laya_checker=laya, judge=judge).verify(CLEAN_REPLY, EVIDENCE)
-    assert judge.calls == [[c.id for c in _criteria_for(CheckerKind.JUDGE)]]
-    assert laya.calls == [[c.id for c in _criteria_for(CheckerKind.LAYA)]]
-    code_ids = {c.id for c in _criteria_for(CheckerKind.CODE)}
+    Verifier(rubric=V1, laya_checker=laya, judge=judge).verify(CLEAN_REPLY, EVIDENCE)
+    assert judge.calls == [[c.id for c in _criteria_for(CheckerKind.JUDGE, V1)]]
+    assert laya.calls == [[c.id for c in _criteria_for(CheckerKind.LAYA, V1)]]
+    code_ids = {c.id for c in _criteria_for(CheckerKind.CODE, V1)}
     assert not code_ids & set(judge.calls[0])
     assert not code_ids & set(laya.calls[0])
 
@@ -101,7 +107,7 @@ def test_a_failed_code_check_fails_the_whole_output():
 
 def test_a_scripted_laya_failure_fails_the_output():
     laya = FakeLayaChecker(verdicts={"no-money-movement-promise": (False, "promises a refund")})
-    result = Verifier(laya_checker=laya).verify(CLEAN_REPLY, EVIDENCE)
+    result = Verifier(rubric=V1, laya_checker=laya).verify(CLEAN_REPLY, EVIDENCE)
     assert not result.passed
     assert any(
         v.criterion_id == "no-money-movement-promise" and v.checker is CheckerKind.LAYA
@@ -133,7 +139,7 @@ def test_a_laya_error_counts_as_a_failure_of_its_criteria():
         def check(self, output, evidence, criteria):
             raise RuntimeError("laya unavailable")
 
-    result = Verifier(laya_checker=BrokenLaya()).verify(CLEAN_REPLY, EVIDENCE)
+    result = Verifier(rubric=V1, laya_checker=BrokenLaya()).verify(CLEAN_REPLY, EVIDENCE)
     assert not result.passed
     assert any("laya check failed: RuntimeError" in v.reason for v in result.failed_verdicts())
 
@@ -199,8 +205,8 @@ def test_a_passing_run_logs_one_record_with_the_versions(tmp_path):
     record = records[0]
     assert record.stage is Stage.VERIFIER
     assert record.verdict == "pass"
-    assert record.policy_version == "customer-answer@1"
-    assert record.versions.rubric == "customer-answer@1"
+    assert record.policy_version == "customer-answer@2"
+    assert record.versions.rubric == "customer-answer@2"
     assert record.versions.prompt == str(JUDGE_PROMPT_VERSION)
     assert record.rule_id is None
 

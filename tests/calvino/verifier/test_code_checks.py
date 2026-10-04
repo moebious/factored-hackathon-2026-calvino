@@ -10,6 +10,7 @@ from calvino.verifier.code_checks import (
     CODE_CHECKS,
     check_amounts_dates_merchants,
     check_claimed_actions_read_back,
+    check_no_money_movement_promise,
     check_no_other_customer_data,
     check_reply_language,
     check_stated_status,
@@ -164,3 +165,48 @@ def test_a_code_criterion_without_a_check_fails_loudly():
     )
     with pytest.raises(KeyError, match="no-such-check"):
         run_code_checks(rubric, "texto", EVIDENCE)
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        "Le reembolsaremos el monto mañana.",
+        "Recibirá su reembolso en 24 horas.",
+        "Se le devolverá el dinero hoy.",
+        "Acreditaremos 1,500.00 MXN en su cuenta.",
+        "Garantizamos que no habrá cargos.",
+        "Vamos reembolsar o valor amanhã.",
+        "Será devolvido ainda hoje.",
+        "Creditaremos o valor na sua conta.",
+        "We will refund the amount tomorrow.",
+        "The money will be credited by Friday.",
+        "Recibirá un reembolso en las próximas horas.",
+        "Va a recibir el reembolso hoy.",
+        "Os valores serão estornados amanhã.",
+        "We'll return the money by Friday.",
+        "Le garantizo que no habrá cargos.",
+    ],
+)
+def test_a_promise_of_money_moving_fails(reply):
+    verdict = check_no_money_movement_promise(reply, EVIDENCE)
+    assert not verdict.passed
+    assert verdict.criterion_id == "no-money-movement-promise"
+    assert verdict.checker is CheckerKind.CODE
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        "Su transferencia de 1,500.00 MXN está pendiente.",
+        "Su pago fue revertida según el registro.",  # states a status, promises nothing
+        "El monto fue reembolsado a su cuenta.",  # a fact about a Reversed payment, not a promise
+        "El reembolso ya fue acreditado el 2026-06-12.",
+        "No habrá reembolso para este pago.",  # a negation is honest
+        "O valor foi estornado ontem.",
+        "The refunded amount appears on your statement.",
+        "Su pago foi recusado; posso tentar de novo se quiser.",
+        "Una persona del equipo revisará su caso.",
+    ],
+)
+def test_a_reply_that_states_facts_passes_the_promise_check(reply):
+    assert check_no_money_movement_promise(reply, EVIDENCE).passed
