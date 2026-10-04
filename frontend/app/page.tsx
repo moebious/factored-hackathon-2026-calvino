@@ -16,6 +16,7 @@ import { strings } from "./i18n";
 import type { Lang } from "./i18n";
 import { SCENARIOS, scenarioLabel } from "./scenarios";
 import type { HubReply, Turn } from "./types";
+import { useVoiceInput } from "./voice";
 
 // A cold Space can take a while even with baked weights (in-memory preload);
 // polling every 3 s keeps the warm-up screen honest without hammering it.
@@ -37,6 +38,16 @@ export default function Home() {
   const [operatorDecision, setOperatorDecision] = useState("");
 
   const s = strings(lang);
+
+  const appendTranscript = useCallback((transcript: string) => {
+    setText((previous) => (previous.length > 0 ? `${previous} ${transcript}` : transcript));
+  }, []);
+
+  const voice = useVoiceInput({
+    lang: lang === "pt" ? "pt-BR" : "es-ES",
+    onFinalText: appendTranscript,
+  });
+  const listening = voice.status === "listening";
 
   useEffect(() => {
     let active = true;
@@ -317,11 +328,38 @@ export default function Home() {
             placeholder={s.inputPlaceholder}
             maxLength={2000}
             disabled={busy}
+            aria-label={s.inputPlaceholder}
           />
+          {voice.supported ? (
+            listening ? (
+              <button type="button" onClick={voice.stop} aria-label={s.voiceStop}>
+                {s.voiceStop}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="secondary"
+                onClick={voice.start}
+                disabled={busy}
+                aria-label={s.voiceStart}
+              >
+                {s.voiceStart}
+              </button>
+            )
+          ) : null}
           <button type="submit" disabled={busy || text.trim().length === 0}>
             {busy ? s.sending : s.send}
           </button>
         </form>
+        {listening && (
+          <p role="status">
+            {s.voiceListening}
+            {voice.interim.length > 0 && ` ${voice.interim}`}
+          </p>
+        )}
+        {!voice.supported && <p className="muted">{s.voiceNotSupported}</p>}
+        {voice.status === "denied" && <p role="alert">{s.voiceDenied}</p>}
+        {voice.status === "error" && <p role="alert">{s.voiceError}</p>}
       </main>
 
       <GlassBox reply={selectedReply} lang={lang} />
