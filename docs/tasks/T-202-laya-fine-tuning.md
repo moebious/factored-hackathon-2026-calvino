@@ -22,4 +22,4 @@
 
 **Done when.** a reproducible checkpoint, training provenance and evaluation-ready inference interface exist, with no frozen test data in training. T-201 independently compares it to base/calibrated Laya and simpler baselines on the same held-out set, including safety-relevant failures; the **combined thesis claim** remains incomplete until that comparison runs.
 
-**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
+**Specification:** [TSD-020](../specs/TSD-020-laya-fine-tuning.md) (proposed); implementation waits for the maintainer's approval.
