@@ -54,6 +54,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Docs aligned with the stuck-payments workflow: README workflow section, Laya question set, card catalog, use cases for follow-up and offline learning, and no remaining workflow placeholders.
 - Handoff guide refreshed with the current state, the measured data findings, the pending workflow verification and an ordered list of next actions.
 
+### Fixed
+
+- The deployment smoke check accepts parked turns: an operator-queue park legitimately carries an empty reply and no card, but `_turn_evidence` demanded a card or reply from every scenario kind before the kind branches ran, which failed a healthy hub on the first live local run. The trace requirement stays for all kinds; the card-or-reply rule now applies to the reply kind only, and the deployment test stubs mirror the real parked shape.
+
 ## [0.1.0] - 2026-10-02
 
 ### Added
