@@ -1,5 +1,9 @@
 # T-104 headline baseline (independent cross-check) [measured]
 
+Superseded as the published baseline by `reports/baseline/` (TSD-016, T-104):
+every common headline cell matched, so the figures are unchanged. Preserved
+unchanged for review.
+
 Full live `data/` prefix; aggregates only. Reproduce with `python scripts/analysis/build_cache.py <tables>` then `python scripts/analysis/baseline.py`. Country is the customer's country (`customers.country` through `customer_id`). All numbers are `[measured]`. The CSVs hold every slice; this page shows the headline cells.
 
 ## Definitions (fixed before any number was read)
