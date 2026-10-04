@@ -65,6 +65,14 @@ from calvino.evaluation.oracle import (
     OracleFacts,
     oracle_outcome,
 )
+from calvino.evaluation.report import (
+    SECTIONS,
+    RunHeader,
+    RunReport,
+    render_report,
+    results_json,
+    results_json_text,
+)
 from calvino.evaluation.runner import (
     CaseResult,
     EvaluationRunner,
@@ -84,6 +92,7 @@ __all__ = [
     "MUST_NOT_IDS",
     "ORACLE_VERSION",
     "RESUME_STEPS",
+    "SECTIONS",
     "SLICES",
     "Ablation",
     "AblationEntry",
@@ -103,6 +112,8 @@ __all__ = [
     "ModelTimer",
     "OracleFacts",
     "Rate",
+    "RunHeader",
+    "RunReport",
     "TimedLoader",
     "Unsafe",
     "attempt_rate",
@@ -122,6 +133,9 @@ __all__ = [
     "load_suite",
     "oracle_outcome",
     "outcome_agreement",
+    "render_report",
+    "results_json",
+    "results_json_text",
     "run_ablation",
     "run_judge_validation",
     "safe_resolution",
