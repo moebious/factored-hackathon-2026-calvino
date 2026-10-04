@@ -24,7 +24,8 @@ Application directories are planned and created as code lands; update this secti
 | `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `api`, `classifiers`, `data`, `evaluation`, `hub`, `llm`, `policy`, `tools` and `verifier` subpackages |
 | `frontend/` | Next.js customer app and operator view (planned; CopilotKit / AG-UI console in Tier 2) |
 | `policy/` | Versioned policy files (`v1.yaml`, `v2.yaml`): every threshold and limit the policy engine reads |
-| `evaluation/` | Versioned evaluation case files (`evaluation/cases/`, from TSD-013): synthetic, reviewed, scored against the oracle |
+| `evaluation/` | Versioned evaluation case files (`evaluation/cases/`, TSD-013): synthetic, reviewed, scored against the oracle |
+| `reports/` | Committed run outputs: evaluation reports (`reports/eval/`, from `scripts/run_evaluation.py`), data-quality findings and baselines |
 | `providers.yaml` | The committed record of which model answers each language role, on which provider, and what that provider served on the date it was checked (decision 29). Keys are never here |
 | `contracts/` | Generated JSON Schemas of the tool contracts (`contracts/tools/`, from `scripts/export_tool_schemas.py`) and the data contracts with their lineage (`contracts/data/`, from `scripts/export_data_schemas.py`) |
 | `tests/` | `tests/calvino/` mirrors `src/calvino/` (pytest); `tests/fixtures/` holds small synthetic fixtures; `tests/git/` tests the git rule scripts |
@@ -263,6 +264,15 @@ bash tests/git/test_git_rules.sh    # git rule scripts and hooks
 ```
 
 CI runs both on every pull request (`.github/workflows/tests.yml` and `conventions.yml`).
+
+### Evaluation
+
+```bash
+uv run python scripts/run_evaluation.py --suite tier0            # offline: live laya (needs `uv pip install laya`), policy v2, TemplateAgent; no keys, no network
+uv run python scripts/run_evaluation.py --suite all --repeats 3  # adds judge validation and the bare-LLM ablation when their keys are set
+```
+
+Writes `reports/eval/T-303-<date>-<git-sha>.md` (the human report) and `.json` (the machine results); both are committed. The gated parts skip with a named blocker when their environment variables are missing.
 
 ### Data contracts
 
