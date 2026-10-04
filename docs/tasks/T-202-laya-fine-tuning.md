@@ -4,13 +4,15 @@
 |---|---|
 | Wave | Core thesis proof (decision 34 supersedes decision 17's Tier 1 placement) |
 | Branch | `eval/laya-finetune` |
-| Depends on | T-106 |
-| Blocked by | GPU (maintainer runs the notebook) |
+| Depends on | T-106 (train split; the test split is frozen before training starts) |
+| Blocked by | GPU (maintainer runs the Kaggle notebook) |
 | Model | standard model |
 | Can run in parallel | yes |
 | References | DESIGN.md 4.0.1 |
 
 **Goal.** Demonstrate that open-weight System 1 can be specialised on reviewed banking decision questions, rather than merely applying thresholds to a base model.
+
+**First slice.** `needs_human` and `workflow_area`: the two questions behind the measured over-escalation (ROADMAP, critical path). The other questions follow only once the first comparison (T-201) has run.
 
 **Inputs.** the training split and question set; the Laya author's fine-tuning notebook
 

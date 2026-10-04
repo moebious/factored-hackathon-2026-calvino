@@ -13,12 +13,34 @@ How Calvino gets built: in waves of parallel work, each piece one branch, one wo
 5. **Shared interfaces before parallel work.** The scaffolding PR (A0) merges first and fixes the package layout, the decision-record schema and the test setup that every other stream builds on.
 6. **Gates, not dates.** A wave starts when the work it depends on is merged; a tier starts when the previous one is merged, deployed and evaluated.
 
+## Critical path: specialising System One
+
+The committed evaluation runs (`reports/eval/T-303-2026-10-04-a432dda.md`, and the keyed `--suite all` run on `test/eval-suite-all`) agree on the main failure: 13 of 50 cases escalate unnecessarily, because laya 0.3.24's `needs_human` scores for routine status questions (0.67–0.89) overlap explicit requests for a person (0.87–0.98) `[measured]`. That is most of the gap to the 91.5% human baseline, and it has no cheap fix:
+
+- **No threshold separates the two groups.** Decision 30 already used up the policy lever, and moving `escalate_at` either sends routine questions to a person or lets real handoffs through.
+- **Calibration cannot fix it either.** Temperature scaling (TSD-005) rescales scores but never reorders them, so the overlap survives calibration.
+- **Fine-tuning (T-202) is the only planned change that can reorder the scores.** It is therefore the first thesis experiment, ahead of the rest of Wave 3.
+
+The gates, in order:
+
+| Gate | Task | Done when | Blocked by |
+|---|---|---|---|
+| 1 | T-106 message set ([TSD-019](specs/TSD-019-message-set.md), merged as a spec in #67) | spec approved; the **test split is drafted and frozen first**, then train and calibration; the maintainer's weighted review accepts each split | spec approval; agent key (available) |
+| 2 | T-202 first checkpoint | the two questions behind the failure, `needs_human` and `workflow_area`, are fine-tuned on the train split only (full fine-tuning or LoRA, decision 13); the checkpoint, configuration and data hashes are recorded | gate 1; a GPU (Kaggle notebook, run by the maintainer) |
+| 3 | T-201 held-out comparison | majority, rules, logistic regression, base, calibrated base and fine-tuned plus calibrated Laya are scored on the frozen test split; safety-relevant misses (missed handoffs) are reported separately from accuracy | gate 2 |
+| 4 | Candidate replay | `--suite tier0` re-runs with the fine-tuned checkpoint as a candidate under unchanged policy v2; the verdict changes per case form T-408's delta matrix, and the maintainer signs off or rejects the candidate, which is T-407's offline flywheel turn | gate 3 |
+
+**Stop rule.** If gate 2 produces no checkpoint, the README reports T-202 and T-201 as `not run: <blocker>` (PLAN), the over-escalation stays the named failure, and no threshold change is presented as a fix for it. A fine-tuned model that does not beat calibrated base Laya on the test split is a valid, reported result (decision 34).
+
+**Runs alongside, not blocked by this path:** the public full-flow link (T-304), the Portuguese set (T-203, test only and never trained on), gold labelling (T-103), and judge validation, which needs the OpenRouter judge plus hand labels.
+
 ## Prerequisites (maintainer)
 
 - [x] Merge the foundation PRs (git workflow enforcement, concept, `v0.1.0`) and the Python scaffold (TSD-000).
 - [ ] Environment variables for agent sessions: dataset access (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `CALVINO_DATA_BUCKET`), the LLM provider key, `HF_TOKEN`.
+- [x] Language-model variables are set in the cloud environment; the keyed `--suite all` run used them. Open item: that run's judge was the NVIDIA build/test model, which decision 31 rules out as a source of rubric numbers, so the judge still has to be switched to OpenRouter before judge validation runs.
 - [ ] Language-model variables (decisions 28 and 29): `CALVINO_LLM_API_KEY` with `CALVINO_LLM_MODEL=Qwen/Qwen3.6-35B-A3B-FP8` for the agent role on Hetzner, and `CALVINO_JUDGE_API_KEY`, `CALVINO_JUDGE_BASE_URL=https://openrouter.ai/api/v1` and `CALVINO_JUDGE_MODEL=deepseek/deepseek-v4-pro-0813` for the judge. `CALVINO_LLM_BASE_URL`, `CALVINO_LLM_MAX_REQUESTS` and `CALVINO_LLM_TIMEOUT_SECONDS` are optional overrides; nothing has a default that would send traffic somewhere nobody chose.
-- [ ] Decide a public host for the **full** hub and Next.js app, create the accounts and validate the deployed journey; DNS for `calvino.rubrica.dev` when ready. T-305's decision-only Gradio fallback cannot complete T-304.
+- [ ] Decide a public host for the **full** hub and Next.js app, create the accounts and validate the deployed journey; DNS for `calvino.rubrica.dev` when ready. T-305's decision-only Gradio fallback cannot complete T-304. The maintainer's Gradio Space currently serves Laya alone; `feat/gradio-space` proposes serving the full hub there.
 - [ ] Judge provider (decision 29): an OpenRouter account with credits and a spending cap, serving `deepseek/deepseek-v4-pro-0813` for the judge. The agent needs no paid provider, Hetzner serves that one. `HF_TOKEN` is still set for the Space, and `CALVINO_CONFIRMATION_KEY` for the tools.
 
 ## Wave 0: foundations without real data
@@ -50,7 +72,7 @@ The hub and customer app (K, L) are already merged. Training depends on H; the p
 
 | Stream | Branch | Builds |
 |---|---|---|
-| **I. Laya fine-tuning and classifier evaluation** | `eval/laya-finetune`, `eval/classifiers` | T-202 trains open-weight Laya on reviewed, disjoint banking messages; T-201 compares majority, rules, logistic regression, base, calibrated and fine-tuned/calibrated Laya on one untouched held-out set, then justifies versioned thresholds |
+| **I. Laya fine-tuning and classifier evaluation** (critical path, above) | `eval/laya-finetune`, `eval/classifiers` | first slice: `needs_human` and `workflow_area`. T-202 trains open-weight Laya on reviewed, disjoint banking messages; T-201 compares majority, rules, logistic regression, base, calibrated and fine-tuned/calibrated Laya on one untouched held-out set, then justifies versioned thresholds |
 | **J. Portuguese test set** | `data/pt-test-set` | translated held-out messages and cases written in Portuguese, seeded like the Spanish set, local currencies only, labelled synthetic |
 | **K. Calvino hub** | `feat/hub` | LangGraph hub wiring A, B, D and E through the five stages of decision 17: explain, clarify, act under the Gate, investigate (human interrupt, case file), follow up (resume) |
 | **L. Customer app** | `feat/customer-app` | the 8-card catalog in PRD FR-7, problem-payment picker, glass box, scenario buttons, ES / PT toggle |
