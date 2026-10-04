@@ -10,14 +10,14 @@
 | Can run in parallel | yes |
 | References | AGENTS.md versioning |
 
-**Goal.** Version the milestones.
+**Goal.** Package a final, reviewable submission release; do not manufacture missing intermediate milestone tags.
 
 **Inputs.** CHANGELOG
 
-**Outputs.** tags and GitHub Releases per milestone up to v1.0.0
+**Outputs.** a final changelog and, with maintainer approval, an annotated submission tag and release. Model, policy and rubric versions remain governed separately by T-407/T-408, not by this packaging step.
 
 **Open parameters.** none
 
-**Done when.** releases published
+**Done when.** the final state is reproducibly identified, the changelog describes what actually shipped and the optional final release is published with the maintainer's approval. Backfilling milestone releases is not a submission gate.
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.

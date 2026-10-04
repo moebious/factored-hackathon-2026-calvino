@@ -2,7 +2,7 @@
 
 *Software Design Document (SDD): how the system is designed. Requirements are in [BRD.md](BRD.md) (why) and [PRD.md](PRD.md) (what); build specifications are in [specs/](specs/README.md).*
 
-> **Status:** v0.2 (2026-10-02). The workflow is stuck payments, end to end (decision 17, [section 6.1](#61-the-workflow-stuck-payments-end-to-end)); data contracts are still open. Decisions are logged in [DECISIONS.md](DECISIONS.md).
+> **Status:** the workflow is stuck payments, end to end (decision 17, [section 6.1](#61-the-workflow-stuck-payments-end-to-end)). Data contracts, the hub and the customer app are built; the thesis experiments in decisions 34–37 are planned, not measured. Decisions are logged in [DECISIONS.md](DECISIONS.md).
 >
 > **Evidence labels:** `[measured]` we ran it ourselves · `[vendor]` published by the model's author, not reproduced by us · `[read from chart]` approximate value read from a published chart · `[hypothesis]` design assumption still to be tested.
 > **Context:** Factored AI & Data Hackathon 2026, "Build an AI-first banking customer service system."
@@ -31,7 +31,7 @@ Inspired by Kahneman's System 1 (fast, automatic) and System 2 (slow, deliberate
 |---|---|---|---|---|
 | **1** | **Laya** | fast perception: intent, risk, whether a human is needed | non-generative and **repeatable**: one forward pass, no sampling, so the same input always gives the same calibrated probabilities | calibration (ECE, Brier), overall and per language |
 | **1.5** | **Calvino**, the hub | the bridge: turns System 1 signals into deterministic verdicts, routes work to agents or humans, gates every action, records everything | **deterministic and governed**: versioned policy, fails closed, every decision replayable | replaying the log gives the same verdicts; unsafe outcomes with their denominators |
-| **2** | **Agents** (support chat, company brain, coworker) checked by a **mixture of efficient financial verifiers** | slow, generative work | generative, so not deterministic, but **contained**: fixed rubrics, structured verdicts, fixed aggregation rules | verifier false-pass rate, judge agreement, re-run variability |
+| **2** | **Bounded support agent** checked by a **mixture of efficient financial verifiers** | slow, generative language work; a company-brain or coworker agent is not required for the current workflow | generative, so not deterministic, but **contained**: fixed rubrics, structured verdicts, fixed aggregation rules | verifier false-pass rate, judge agreement, re-run variability |
 | **3** | **Humans** | accountable judgment: approvals, exceptions, edge cases, empathy | the final authority; slowest and most expensive | escalation quality: missed and unnecessary transfers |
 
 **An escalation ladder.** Each step up is slower and more expensive, and holds more responsibility. Calvino resolves each case at the **lowest system that can do it safely** and passes it up when confidence or policy requires. Levels can be skipped: a hard rule (fraud signal, explicit request for a person) goes straight from System 1.5 to System 3.
@@ -62,7 +62,9 @@ A flywheel can feed on its own mistakes, so it runs with safeguards:
 - **Audit sampling** of auto-resolved cases, so automated decisions also receive human labels, not just escalated ones.
 - A **fairness check per version** (language, dialect, segment) before anything is promoted.
 
-In this project the flywheel is demonstrated as **one offline turn** (human-labelled cases → recalibration → measured change on the frozen set) and labelled as offline, not as a production result.
+The planned flywheel demonstration is **one offline turn** (human-labelled cases → recalibration or retraining → measured change on the frozen set), labelled as offline rather than a production result.
+
+**Implementation boundary (decision 34):** automate offline preparation, lineage, retraining, evaluation and candidate reporting as far as practical; a person reviews labels and compliance signs off before promotion. A late or corrected source record must invalidate and rebuild affected labels and evidence without contaminating the frozen test set (T-105). Replay a candidate policy against logged, replayable decisions to show every changed verdict; judge safety regressions against an independent oracle or reviewed labels, not the policy's own verdicts. An unchanged or rejected candidate is an honest flywheel result. These demonstrations remain planned until their reports exist.
 
 **Where the novelty is.** Fast/slow agent designs and "System One" decision models already exist. Calvino's contribution is System 1.5, a governed bridge with calibrated thresholds and a deterministic policy for a regulated domain; the mixture of financial verifiers; and the flywheel with its safeguards.
 
@@ -108,7 +110,7 @@ flowchart TB
     end
 
     subgraph S2["System 2 · generative, contained"]
-        AG["Agents · Deep Agents<br/>support chat · company brain · coworker"]
+        AG["Bounded support agent<br/>governed tools · policy retrieval"]
         MV["Mixture of financial verifiers<br/>code checks · batched judge (low risk)<br/>specialist panel (high risk)"]
     end
 
@@ -191,8 +193,8 @@ Classifier text is **team-generated** (decision 16): the dataset's transcripts a
 | Channels | Customer app with Laya-chosen cards and a glass-box panel; operator console (OpenBot-style queue, case view, audit timeline) | Next.js on Vercel; CopilotKit/AG-UI for the console (Tier 2) |
 | API | The hub's HTTP surface for the apps | FastAPI on a Hugging Face Space (Docker, persistent storage) |
 | Hub orchestration | Decision classifier, Gate, Verifier cascade, durable cases, human interrupts | LangGraph (checkpointer + `interrupt()`) |
-| Agents | Support chat, company brain, coworker | LangGraph Deep Agents (virtual file system only, no computer use) |
-| Fast decisions | Typed, calibrated classification | Laya (`laya-multilingual`, calibrated, self-hosted; fine-tuning in Tier 1) |
+| Agents | Bounded support chat with policy retrieval; optional later coworker | LangGraph agent interface, versioned prompts; no computer use |
+| Fast decisions | Typed, calibrated classification | Laya (`laya-multilingual`, self-hosted; fine-tuning and held-out comparison are core thesis evidence, decision 34) |
 | Policy | Thresholds, hard rules, permissions | Plain Python, versioned, unit tested |
 | Integration | Governed access to bank data and actions | MCP servers with the official MCP Python SDK (one adapter per bank core) |
 | Data | Clean layer, contracts, quality report, baseline | Parquet lakehouse queried with DuckDB (the analyst's pipeline) |
@@ -279,11 +281,11 @@ After *Designing Efficient Verifiers for Legal Agents* (LangChain Labs and Harve
 | Risk (from System 1.5) | Verification |
 |---|---|
 | Low (balance answer, status inquiry) | the cascade above, with one batched judge call |
-| High (disputes above a threshold, card blocks, anything moving money) | a panel of **specialist verifiers** in parallel (amounts and transactions · policy and regulation · customer-data privacy · promises and tone), each judging its own criteria one by one and allowed to look up evidence (for example, the actual policy rule) |
+| Selected otherwise-allowed consequential stuck-payment actions | a **veto-only panel** of independently measured financial specialists checking documented evidence before execution; fraud, unsupported disputes and blocked actions still go to a person without asking the panel to grant authority |
 
-Panel rules (decision 21: the panel can only veto, and runs only on cases the Gate already sends to a person): verifiers see the output and the evidence, never the worker's reasoning; each returns structured pass/fail verdicts per criterion; the hub combines them with a fixed rule (any failed criterion fails the output), not a model; a fixed number of verifiers, one turn each, with a timeout that counts as a failure. Specialists report to the hub, never to each other.
+Panel rules (decision 35 supersedes decision 21's placement): hard rules, ownership, eligibility, policy and exact typed confirmation run before the panel. For a versioned risk-tier of otherwise-authorized candidate writes, the panel runs **before execution** and can only veto into a human handoff. It never grants permission or overrides a block. Verifiers see the candidate and evidence, never the worker's reasoning; each returns structured pass/fail verdicts per criterion; the hub combines them with a fixed rule (any failed criterion fails), not a model. A timeout counts as a failure. Specialists report to the hub, never to each other. The panel's incremental false-pass reduction and cost must be measured against the existing cascade before a runtime claim is made.
 
-**Offline verifier lab.** A multi-agent workflow outside the request path: it mines the decision log for disagreements between judges and human labels, proposes rubric and prompt changes, and re-measures each change on the gold set, with false passes as the target.
+**Offline verifier lab.** A reproducible benchmark outside the request path: it surfaces disagreements between judges and reviewed human labels, false passes and safety regressions. People design new deterministic checks, rubrics and prompts; the benchmark re-measures each proposal against development cases and a frozen promotion set, with false passes as the primary target. It does not autonomously rewrite its own rubric (decision 35).
 
 ## 5. Governance: constraints as enforceable controls
 
@@ -316,13 +318,14 @@ Customers with the same need get the same quality of outcome, regardless of who 
 - **Known gap:** Laya zero-shot is ~0.5 on Spanish/Portuguese intent vs ~0.8 English on MASSIVE `[vendor]` `[read from chart]`. All our customers are non-English, so this must be re-measured on our data.
 - **Pass/fail lines** (decision 25) `[hypothesis]`: an error-rate gap under 5 percentage points between any two groups, and under 2% of verdicts flipping in counterfactual pairs. Groups under 30 cases are flagged, not failed. Gender and age exist only counterfactually (the dataset has neither). Group attributes are never decision inputs, except documented segment benefits.
 - **Justified group thresholds** (decision 22): Portuguese, evaluated only on synthetic data, starts with a stricter margin to act and to clarify, and is relaxed only when calibration per language shows it is as reliable as Spanish.
+- **Paired evidence** (decision 37): hold transaction facts and request meaning fixed across dialect/language variants, report model scores and calibration separately from policy verdicts, and name a documented stricter Portuguese policy flip as a policy difference **with its customer impact**, not as proof of model bias or as a hidden exemption. Small groups are inconclusive; the paired analysis is not yet an automatic promotion gate.
 
 **Language coverage and limitations** (reported in the README with the results):
 
 | | Spanish | Portuguese |
 |---|---|---|
 | Source of customer text | team-generated from dataset scenarios, Mexican, Colombian and Argentine variants (decision 16) | translated from held-out Spanish messages plus a smaller set written directly in Portuguese, all synthetic (T-203) |
-| Used for | calibration, thresholds, evaluation; fine-tuning in Tier 1 | evaluation only, never training or calibration |
+| Used for | calibration, thresholds, evaluation; fine-tuning in the core thesis proof | evaluation only, never training or calibration |
 | Customers and money | personas in MX, CO, AR; MXN, COP, ARS, USD | the same personas and currencies; no BRL, PIX or boleto, because the dataset has no Brazilian customers |
 | Known gaps | dataset text is templated; no real customer messages | no native data; real Brazilian usage and slang are not represented |
 | Safeguard | calibration per language | stricter thresholds until measured (decision 22) |
@@ -335,6 +338,7 @@ Customers with the same need get the same quality of outcome, regardless of who 
 - Confirmations are **typed UI events bound to the exact action payload**, not free-text "yes."
 - PII redaction before the LLM; masked card numbers (PCI DSS). Data-protection and residency rules for MX/CO/AR are noted for production.
 - **External model boundary:** Laya runs self-hosted, so customer text never leaves for System 1. The agents' LLM and the judge receive only redacted, minimal context. The dataset is synthetic, but the boundary is designed as if it were real: which fields may leave, to which provider, is part of the tool contracts.
+- **Bank-action boundary (decision 36):** MCP exposes governed tool capabilities; a bank adapter translates an authorized, confirmed action into the agreed ISO 20022 message version and bank profile. The Calvino verdict and bank message are correlated but separate artifacts. A schema-valid message can still be financially wrong: deterministic checks must bind ownership, reference, amount, currency and idempotency to trusted evidence, then verify the bank response and read-back before claiming success. The demonstration uses mock middleware, one operation and labelled synthetic data; no general ISO compliance or live bank-core connection is claimed.
 
 ### 5.3 Operations
 
@@ -481,7 +485,8 @@ What is built for the demo vs. designed only, and the work remaining before depl
 
 ## 10. Open decisions
 
-1. **Inference account for the open models** (decision 20): confirm Hugging Face Inference Providers with billing and a spending cap, or fall back to OpenRouter. Bedrock is the production reference.
+1. **Hosting for the complete demo:** choose and validate a public path that serves the hub and customer app, not only a decision-only Gradio fallback (T-304, decision 27).
+2. **Implementation details of the newly accepted thesis experiments** (decisions 34–37): each task writes a detailed spec and validates its proposed data, risk tier and ISO message profile before implementation. Agent and judge providers were selected in decisions 28 and 29.
 
 ## References
 

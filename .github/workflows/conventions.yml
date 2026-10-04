@@ -1,7 +1,8 @@
 # Enforces the git workflow rules in AGENTS.md on every pull request, using
 # the same script as the local commit-msg hook: Conventional Commits for the
-# PR title (it becomes the squash commit on main) and every commit, no
-# AI-tool attribution in commits or the PR description, and no commit too
+# PR title (it becomes the squash commit on main) and every commit, only
+# the scoped Factory trailer in docs-only commits, no attribution in PR text,
+# and no commit too
 # large to review.
 name: conventions
 
@@ -47,7 +48,15 @@ jobs:
           printf '%s\n' "$PR_BODY" | "$check" --no-subject - || { echo "  in: PR description"; fail=1; }
 
           for sha in $(git rev-list --no-merges "$BASE_SHA..$HEAD_SHA"); do
-            git log -1 --format=%B "$sha" | "$check" - || { echo "  in: commit $(git rev-parse --short "$sha")"; fail=1; }
+            message_file=$(mktemp)
+            git log -1 --format=%B "$sha" > "$message_file"
+            scope=$(git diff-tree --no-commit-id --name-only -r "$sha" | bash scripts/git/attribution-scope.sh "$message_file")
+            if [ "$scope" = docs ] || [ "$scope" = bootstrap ]; then
+              "$check" "--scope=$scope" "$message_file" || { echo "  in: commit $(git rev-parse --short "$sha")"; fail=1; }
+            else
+              "$check" "$message_file" || { echo "  in: commit $(git rev-parse --short "$sha")"; fail=1; }
+            fi
+            rm -f "$message_file"
           done
 
           exit "$fail"
