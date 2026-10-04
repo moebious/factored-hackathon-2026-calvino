@@ -14,10 +14,10 @@
 
 **Inputs.** the label definitions and rubric from T-103; held-out records for the workflow (problem transactions, clean transactions, other customers' transactions, complaints) on synthetic personas, never copied customer records
 
-**Outputs.** a versioned, labelled set of Spanish messages (Mexican, Colombian and Argentine variants) for training, calibration and test, with the generation prompts, the review log and a datasheet; all labelled synthetic. **Test cases are seeded:** each one names the record it starts from and carries the expected outcome computed by the oracle (DESIGN.md 7), a deterministic table written by hand and kept separate from the hub's policy code
+**Outputs.** a versioned, labelled set of Spanish messages (Mexican, Colombian and Argentine variants) in disjoint training, calibration and held-out test splits, with generation prompts, review log and datasheet; all labelled synthetic. Reuse the outcome definitions and hand-written oracle already in `calvino.evaluation` (TSD-013), rather than create a competing oracle. T-303's committed 50-case suite stays frozen and unavailable to training, calibration, prompt/model selection or threshold tuning.
 
 **Open parameters.** set size per split (state it); the LLM used to draft; the intents and outcomes follow DESIGN.md 6.1 and the oracle
 
-**Done when.** every test case has a seed record and an oracle outcome; the oracle has unit tests and its agreement with the hand-labelled gold subset is reported; train and test come from separate generation prompts; the test split includes adversarial rewordings and a hand-written subset; a reviewed sample shows the labels follow the rubric; a check confirms no message duplicates a dataset transcript
+**Done when.** every new test case has a seed record and an oracle outcome under the shared definitions; customer/time and prompt-generation separation is enforced, with adversarial rewordings and hand-written cases held out. A reviewed sample follows the rubric, no message duplicates a dataset transcript, and the existing T-303 suite is demonstrably absent from tuning data. Gold-subset/oracle agreement is measured on reviewed labels, not inferred from synthetic generation.
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
