@@ -291,6 +291,9 @@ groups, by id) · limitations.
   garbled messages).
 - Judge validation (false-pass rate, other-family judge) and the bare-LLM
   ablation either ran with keys or are reported `not run` with the blocker.
+  A `not run` line satisfies **this spec** (the harness is complete and
+  honest) but not PLAN.md's protected measurements: the submission evidence
+  requires the keyed `--suite all` run with real numbers in both sections.
 - Repeated-run variability is stated for every generative component; model,
   policy, playbook, rubric and prompt versions appear in every run header.
 - Results are labelled offline / simulated / projected with sample sizes and
