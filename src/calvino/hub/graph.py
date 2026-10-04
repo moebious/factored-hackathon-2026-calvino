@@ -325,6 +325,9 @@ def build_hub_graph(
             state.get("tool_results", []),
             customer_language=deps.customer_language,
             read_backs=frozenset(state.get("read_backs", [])),
+            # The message is redacted inside evidence_from_tool_results, so question-fully-answered
+            # can be judged without the raw text leaving the hub (NFR-1).
+            message=state.get("message"),
         )
 
     def guidance_of(state: HubState) -> StatusGuidance | None:

@@ -13,6 +13,7 @@ hub author did not think about here.
 
 from __future__ import annotations
 
+import re
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Literal
@@ -28,6 +29,85 @@ _DATE_FIELDS = ("booking_date", "value_date")
 _DATETIME_FIELDS = ("opened_at",)
 _MERCHANT_FIELD = "remittance_information"
 _STATUS_FIELD = "status"
+
+# How much of the customer's own words the judge is shown. The criterion only needs to know what
+# was asked, not who the customer is.
+_QUESTION_MAX_CHARS = 240
+_REDACTED = "<redacted>"
+
+
+_NUMBER_IN_TEXT = re.compile(r"\d[\d.,]*\d|\d")
+
+
+def _redact_amounts(text: str, amounts: frozenset[Decimal]) -> str:
+    """Replace amounts by value, not by spelling.
+
+    The contracts carry "5000.00" and a customer types "5000", or "5.000,50" where the tool says
+    "5000.50". Matching the literal string let every one of those through, which is the whole
+    disclosure this function exists to prevent, so each number in the prose is parsed and compared
+    numerically instead. A single digit is left alone: it is far more often a count ("5 dias") than
+    a figure, and redacting every "1" would make the digest unreadable without hiding anything.
+    """
+    if not amounts:
+        return text
+
+    def replace(match: re.Match[str]) -> str:
+        raw = match.group(0)
+        if len(raw) < 2 and not any(sep in raw for sep in ".,"):
+            return raw
+        try:
+            value = Decimal(raw.replace(",", ""))
+        except InvalidOperation:
+            return raw
+        return "<amount>" if value in amounts else raw
+
+    return _NUMBER_IN_TEXT.sub(replace, text)
+
+
+def redact_question(
+    message: str,
+    *,
+    forbidden_markers: frozenset[str] = frozenset(),
+    amounts: frozenset[Decimal] = frozenset(),
+    dates: frozenset[date] = frozenset(),
+    merchants: frozenset[str] = frozenset(),
+) -> str | None:
+    """Reduce the customer's message to what the judge needs, and no more.
+
+    ``question-fully-answered`` is unjudgeable without the question, but NFR-1 says customer text
+    for decisions stays with a self-hosted model and that external models receive only redacted,
+    minimal context. The judge is an external model producing blocking verdicts, so it is on the
+    decision side of that line, and free text can carry anything a customer typed. So the harness
+    redacts before the judge sees anything, without asking a model to do it:
+
+    - markers belonging to other customers become ``<redacted>``, which also keeps the privacy
+      criterion honest for the question itself;
+    - amounts, dates and merchants become typed placeholders, because their values already travel
+      separately as structured evidence, so repeating them in prose adds exposure and no fact.
+      Amounts are matched by value rather than by spelling, since "5000.00" in a payload and
+      "5000" in a message are the same disclosure;
+    - the result is whitespace-collapsed and capped, since length is itself a disclosure.
+
+    Returns ``None`` for an empty message, so "no question" and "a redacted question" stay
+    distinguishable in the prompt.
+    """
+    text = " ".join(message.split())
+    if not text:
+        return None
+
+    for marker in sorted(forbidden_markers, key=len, reverse=True):
+        if marker.strip():
+            text = text.replace(marker.strip(), _REDACTED)
+    for merchant in sorted(merchants, key=len, reverse=True):
+        if merchant.strip():
+            text = text.replace(merchant.strip(), "<merchant>")
+    text = _redact_amounts(text, amounts)
+    for day in sorted((d.isoformat() for d in dates), key=len, reverse=True):
+        text = text.replace(day, "<date>")
+
+    if len(text) > _QUESTION_MAX_CHARS:
+        text = text[: _QUESTION_MAX_CHARS - 1].rstrip() + "…"
+    return text
 
 
 class _Frozen(BaseModel):
@@ -63,6 +143,11 @@ class Evidence(_Frozen):
     customer_language: Literal["es", "pt"] = "es"
     read_backs: frozenset[str] = Field(default_factory=frozenset)
     forbidden_markers: frozenset[str] = Field(default_factory=frozenset)
+    # The customer's message, already redacted by redact_question. question-fully-answered cannot
+    # be judged without it, and NFR-1 says an external model sees redacted, minimal context, so
+    # the hub passes the digest and never the raw message. Named for the speaker because the hub's
+    # own turn output already uses "question" for the clarification question the agent asks.
+    customer_question: str | None = None
 
 
 def _walk(payload: dict):
@@ -92,12 +177,18 @@ def evidence_from_tool_results(
     customer_language: Literal["es", "pt"] = "es",
     read_backs: frozenset[str] | set[str] | tuple[str, ...] = frozenset(),
     forbidden_markers: frozenset[str] | set[str] | tuple[str, ...] = frozenset(),
+    message: str | None = None,
 ) -> Evidence:
     """Collect the citable facts from tool result payloads.
 
     Amounts arrive as strings in the contracts (never floats); a value that is
     not a decimal is skipped rather than guessed at. Dates arrive as ISO
     strings; ``opened_at`` contributes its date part.
+
+    ``message`` is the customer's own words for this turn, kept only as a
+    redacted digest. Redaction happens here, after the facts are collected and
+    before anything is returned, so no caller can forget it and no caller can
+    reach the raw text by a different route.
     """
     amounts: set[Decimal] = set()
     dates: set[date] = set()
@@ -132,4 +223,11 @@ def evidence_from_tool_results(
         customer_language=customer_language,
         read_backs=frozenset(read_backs),
         forbidden_markers=frozenset(forbidden_markers),
+        customer_question=redact_question(
+            message or "",
+            forbidden_markers=frozenset(forbidden_markers),
+            amounts=frozenset(amounts),
+            dates=frozenset(dates),
+            merchants=frozenset(merchants),
+        ),
     )

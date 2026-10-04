@@ -851,3 +851,31 @@ def test_investigate_honours_a_blocked_case_opening(deps_factory, fake_loader_fa
     final = graph.invoke(Command(resume="handled offline"), config=config)
     assert final["escalated"] is True
     assert final["case_ref"] in final["reply"]
+
+
+def test_the_hub_hands_the_verifier_a_redacted_question(happy_deps, monkeypatch):
+    """End to end: a real turn supplies the question the judge criterion depends on.
+
+    Spies on the seam rather than the state, because the evidence is built inside the graph and
+    never returned. The customer wrote "5000 pesos", the tool payload carries the amount, so the
+    digest must keep the question while dropping the figure that already travels as evidence.
+    """
+    import calvino.hub.graph as graph_module
+
+    seen: dict[str, Any] = {}
+    original = graph_module.evidence_from_tool_results
+
+    def spy(*args: Any, **kwargs: Any):
+        evidence = original(*args, **kwargs)
+        seen["question"] = evidence.customer_question
+        return evidence
+
+    monkeypatch.setattr(graph_module, "evidence_from_tool_results", spy)
+
+    deps, _, _ = happy_deps
+    final, _ = invoke(deps, "ana", "¿Por qué mi transferencia de 5000 pesos sigue pendiente?")
+
+    assert final["route"] is Route.AGENTS, "the turn reached the verifier at all"
+    assert seen["question"], "the verifier got no question, so question-fully-answered cannot pass"
+    assert "pendiente" in seen["question"], "the substance of the question survives redaction"
+    assert "5000" not in seen["question"], "the amount travels as evidence, not as prose"
