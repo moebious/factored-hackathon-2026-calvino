@@ -124,7 +124,7 @@ def test_message_explain_returns_reply_card_and_trace(make_hub_client):
     with make_hub_client() as client:
         response = client.post(
             "/api/hub/message",
-            json={"persona": "dana", "text": "¿Por qué mi transferencia sigue pendiente?"},
+            json={"persona": "dana", "text": "¿Por qué mi transferencia E-US-001 sigue pendiente?"},
             headers=AUTH,
         )
     assert response.status_code == 200
@@ -148,7 +148,7 @@ def test_approval_parks_with_confirmation_card_and_resumes(make_hub_client):
     with make_hub_client(clear_enough={"clear": 0.6, "unclear": 0.4}) as client:
         parked = client.post(
             "/api/hub/message",
-            json={"persona": "dana", "text": "¿Pueden reintentar mi transferencia?"},
+            json={"persona": "dana", "text": "¿Pueden reintentar mi transferencia E-US-001?"},
             headers=AUTH,
         ).json()
         assert parked["awaiting"] == "approve_action"
@@ -192,7 +192,7 @@ def test_ineligible_action_is_refused_with_a_card(make_hub_client):
     with make_hub_client() as client:
         response = client.post(
             "/api/hub/message",
-            json={"persona": "dana", "text": "Cancela mi transferencia"},
+            json={"persona": "dana", "text": "Cancela mi transferencia E-US-001"},
             headers=AUTH,
         )
     assert response.status_code == 200

@@ -230,7 +230,7 @@ def test_clarify_shows_the_picker_card(deps_factory, fake_loader_factory):
     assert final["question"] and final["reply"] == final["question"]
     assert final["card"]["key"] == "problem_transactions"
     references = {entry["entry_reference"] for entry in final["card"]["payload"]["entries"]}
-    assert references == {"E-MX-002", "E-MX-003", "E-MX-006", "E-MX-007"}
+    assert references == {"E-MX-002", "E-MX-003", "E-MX-006", "E-MX-007", "E-MX-008"}
     assert agent.requests == []
 
 

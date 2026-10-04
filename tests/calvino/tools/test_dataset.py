@@ -51,6 +51,8 @@ def test_problem_transactions_are_declined_pending_and_reversed_only(dataset_env
         "E-MX-003": "Declined",
         "E-MX-006": "Pending",
         "E-MX-007": "Reversed",
+        # Over the 8500 MXN gate on purpose: the evaluation's ACT_ASK cases.
+        "E-MX-008": "Pending",
     }
 
 
