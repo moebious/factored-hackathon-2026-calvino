@@ -15,7 +15,13 @@ import pytest
 from calvino.llm.errors import LlmRateLimited
 from calvino.verifier.cascade import Verifier
 from calvino.verifier.evidence import Evidence
-from calvino.verifier.judge import JUDGE_PROMPT_VERSION, MockJudge, OpenAiJudge
+from calvino.verifier.judge import (
+    DEFAULT_JUDGE_REASONING_TOKENS,
+    DEFAULT_JUDGE_TOKENS_PER_CRITERION,
+    JUDGE_PROMPT_VERSION,
+    MockJudge,
+    OpenAiJudge,
+)
 from calvino.verifier.rubric import CheckerKind, Criterion, Severity
 
 
@@ -66,6 +72,33 @@ def test_the_request_carries_no_sampling_a_seed_and_low_reasoning(fake_chat_clie
     assert sent.seed == 99
     assert sent.reasoning_effort.value == "low"
     assert sent.purpose == "verifier-judge"
+    assert sent.max_tokens == judge.token_budget(1)
+
+
+def test_the_token_budget_covers_reasoning_and_grows_with_the_rubric(fake_chat_client_factory):
+    """No ceiling meant an unbounded answer; too small a one truncates before any verdict.
+
+    A judge model asked for 24 tokens came back with finish_reason "length" and nothing but
+    thinking in the content, so the budget has to be sized rather than left unset.
+    """
+    judge, fake = judge_replying(verdict_json("c1", "c2"), fake_chat_client_factory)
+    judge.judge_batch("hola", evidence(), criteria("c1", "c2"))
+
+    budget = fake.requests[0].max_tokens
+    assert budget is not None, "an unbounded completion is a request nobody can bound"
+    # Reasoning headroom, then room per criterion: a bigger rubric must not share one ceiling.
+    assert budget >= DEFAULT_JUDGE_REASONING_TOKENS
+    one = judge.token_budget(1)
+    assert budget == judge.token_budget(2)
+    assert budget > one, "each criterion needs its own verdict"
+    assert budget - one == DEFAULT_JUDGE_TOKENS_PER_CRITERION
+
+
+def test_the_budget_is_configurable(fake_chat_client_factory):
+    fake = fake_chat_client_factory({"verifier-judge": verdict_json("c1")})
+    judge = OpenAiJudge(fake, reasoning_tokens=10, tokens_per_criterion=5)
+    judge.judge_batch("hola", evidence(), criteria("c1", "c2"))
+    assert fake.requests[0].max_tokens == 20
 
 
 def test_the_prompt_is_the_versioned_one_and_the_model_is_reported(fake_chat_client_factory):
