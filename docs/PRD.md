@@ -58,7 +58,7 @@ The workflow is stuck payments, end to end (decision 17; [DESIGN.md 6.1](DESIGN.
 | NFR-5 | **Availability:** the public link stays reachable through the judging period, with a warm-up screen instead of a blank page |
 | NFR-6 | **Safety under failure:** actions fail closed when a check can't run; model choice fails open to the more capable option |
 | NFR-7 | **Cost:** cost per attempted case and per successful resolution are measured and bounded per case |
-| NFR-8 | **Abuse protection:** the public demo has a passcode, a rate limit and a spending cap on model keys |
+| NFR-8 | **Abuse protection:** the public demo has a rate limit, a spending cap on model keys and the confirmation key on writes |
 
 ## 5. Acceptance criteria
 

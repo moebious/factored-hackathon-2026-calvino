@@ -18,14 +18,14 @@
 
 **Inputs.** the merged `calvino.classifiers` and policy; a minimal private Gradio Space for the smoke test.
 
-**Outputs.** root `app.py` (preload `LayaClient` at startup; accept message and passcode; call `run_demo_decision()`; render verdict, rule, scores, probabilities); `requirements.txt` with a pinned `laya`; Space metadata in `README.md` (`sdk: gradio`, `app_file: app.py`, `python_version: "3.11"`); `CALVINO_DEMO_PASSCODE` as a Space secret; decision entry (next number) in `docs/DECISIONS.md`; updates to `docs/DEPLOY.md`, `docs/HANDOFF.md`, the changelog and this backlog row.
+**Outputs.** root `app.py` (preload `LayaClient` at startup; accept message; call `run_demo_decision()`; render verdict, rule, scores, probabilities); `requirements.txt` with a pinned `laya`; Space metadata in `README.md` (`sdk: gradio`, `app_file: app.py`, `python_version: "3.11"`); decision entry (next number) in `docs/DECISIONS.md`; updates to `docs/DEPLOY.md`, `docs/HANDOFF.md`, the changelog and this backlog row.
 
 **Open parameters.** whether the Gradio function needs an `api_name` (only if an external frontend must call it; otherwise use the Gradio UI directly and drop Vercel for now).
 
 **Done when.**
 - `app.py` calls the existing `run_demo_decision()` core; Laya preloads at startup, never on the first message.
 - Python 3.11 and dependencies install on the Space; the multilingual checkpoint fits memory and inference finishes within Space limits.
-- Passcode validation is server-side in both adapters; no public API unless needed.
+- The demo stays open in both adapters; no public API unless needed.
 - Parity tests prove Gradio and FastAPI produce the same decision payload.
 - Ephemeral persistence and cold-start limitations are documented (sleeping Spaces, `decisions.jsonl` may disappear, no durable cases yet); Docker/FastAPI remains functional.
 - Gradio deployment is smoke-tested on a free Space; existing lint and test suites pass.
