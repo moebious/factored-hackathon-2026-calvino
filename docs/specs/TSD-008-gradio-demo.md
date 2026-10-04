@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | proposed emergency diagnostic fallback only (decision 37) |
 | Branch | `feat/gradio-demo` |
 | Task | [T-305](../tasks/T-305-gradio-demo-adapter.md) |
 | Depends on | TSD-003, TSD-005 |
@@ -12,7 +12,7 @@
 
 ## Purpose
 
-Serve the TSD-005 demo decision path on a free Gradio SDK Space (zero hosting budget), while Docker/FastAPI (TSD-003) remains a supported production-shaped option. Gradio is a thin presentation/hosting layer: both adapters reuse the same Calvino core, so behavior stays identical and the Docker path can be restored without rewriting the model integration.
+Serve the TSD-005 demo **decision-only** path on a free Gradio SDK Space if the full hub and Next.js app cannot be publicly hosted. Docker/FastAPI (TSD-003) remains the supported full-product option. Gradio is a thin presentation/hosting layer for System 1/1.5 diagnostics; it cannot be counted as T-304 completion or as evidence of the verifier, action and operator-handoff journey.
 
 ## Scope
 
@@ -48,7 +48,7 @@ python_version: "3.11"
 
 ## Behaviour
 
-- Free Gradio Space is the live staging/hackathon demo; Docker/FastAPI remains functional as the production-shaped option, not a second implementation.
+- A free Gradio Space is an explicitly labelled emergency diagnostic fallback; Docker/FastAPI and the Next.js app remain the full-product path, not a second decision implementation.
 - Gradio state is explicitly ephemeral: sleeping/cold starts, `decisions.jsonl` may disappear after restart, no durable cases or checkpointer yet.
 - No public API unless needed; no claim that the Docker deployment is live unless it has been deployed and tested.
 
@@ -62,8 +62,8 @@ On a minimal private Gradio Space, verify before committing to this route: Pytho
 - Passcode, preload and ephemerality behavior covered without model downloads where possible; live smoke test on the free Space.
 - Existing lint and test suites pass.
 
-**Done when** the decision payload matches across adapters, the smoke test passes on a free Space, Gradio state is documented as ephemeral, Docker/FastAPI still builds and serves locally, and the documentation updates below are merged.
+**Done when** the decision payload matches across adapters, the smoke test passes on a free Space, Gradio state is documented as ephemeral, Docker/FastAPI still builds and serves locally, and every public description distinguishes this fallback from the full hub and customer app.
 
 ## Documentation updates
 
-Implementation updates `docs/DECISIONS.md` (one deployment entry: free Gradio Space for the demo, reason, scope, consequences, revisit trigger), `docs/DEPLOY.md`, `docs/HANDOFF.md`, the backlog, README and changelog, so no document keeps presenting Docker/Vercel as the active path.
+If this fallback is activated, update `docs/DEPLOY.md`, `docs/HANDOFF.md`, the backlog, README and changelog to name **which** path is actually live and what the fallback cannot demonstrate. Decision 27 records the original hosting rationale; decision 37 restricts its role. Do not claim Docker/Vercel is live until it passes T-304.

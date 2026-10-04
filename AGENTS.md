@@ -87,7 +87,7 @@ Every commit message and every PR title follows [Conventional Commits 1.0.0](htt
 ### Authorship
 
 - Commits are authored and committed with the **maintainer's identity**: `Kevin Vicent <624602+moebious@users.noreply.github.com>`. Set it in the repository's local git config before committing.
-- **No AI-tool attribution** anywhere in the history or on pull requests: no `Co-Authored-By` trailers for tools, no session links, no "Generated with ..." lines in commit messages, PR titles or PR descriptions. Turn off any agent tool's own co-author or attribution setting.
+- **Attribution:** the exact `Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.github.com>` trailer is permitted only on commits whose changed paths are all Markdown (`.md`/`.mdx`). A single bootstrap commit modifying only `AGENTS.md`, `.githooks/commit-msg`, `.github/workflows/conventions.yml`, `scripts/git/check-commit-msg.sh`, `scripts/git/attribution-scope.sh` and `tests/git/test_git_rules.sh` may also carry that trailer. Other AI-tool co-authors, session links and generated-by footers remain prohibited on commits and PRs. The hook and CI compute scope from changed paths; a docs subject alone never grants an exception.
 - **Agents never open pull requests.** After the maintainer approves a push, the agent gives the compare link (`https://github.com/moebious/factored-hackathon-2026-calvino/compare/main...<branch>?expand=1`) and a description following `.github/pull_request_template.md`; the maintainer opens the PR. PR-creation tools can append an attribution footer the agent cannot remove at creation.
 
 ### Branching
@@ -171,7 +171,7 @@ Coding agents never push on their own initiative. They commit locally and **push
 
 ### Versioning and releases
 
-[Semantic Versioning](https://semver.org), 0.x until submission. Each milestone gets an annotated tag on `main` (`git tag -a v0.2.0 -m "..."`), the `Unreleased` changelog entries move under that version, and the tag is published as a GitHub Release with the changelog entry as release notes.
+[Semantic Versioning](https://semver.org), 0.x until submission. Milestones name planned capabilities; tag a milestone on `main` when it is actually reached and the maintainer approves a release. Do not backfill tags for unfinished or skipped milestones. T-502 packages the final submission changelog and optional approved final release; versioned policy, model and rubric promotion is governed separately by T-407/T-408.
 
 | Version | Milestone |
 |---|---|
@@ -179,7 +179,7 @@ Coding agents never push on their own initiative. They commit locally and **push
 | `v0.2.0` | data pipeline with contracts and quality checks |
 | `v0.3.0` | Laya classifiers: baseline, calibration, evaluation |
 | `v0.4.0` | LangGraph harness: Router, Gate, Verifier, human interrupts; minimal UI, deployed at a public link |
-| `v0.5.0` | evaluation and analytics |
+| `v0.5.0` | evaluation and governed thesis evidence |
 | `v1.0.0` | hackathon submission |
 
 ### Signing (maintainer)
@@ -236,7 +236,7 @@ The hooks enforce the rules above locally:
 | Hook | Blocks |
 |---|---|
 | `pre-commit` | commits on `main`; commits from the primary checkout instead of a linked worktree; staged datasets, `.env` files, model weights and anything that looks like a credential |
-| `commit-msg` | messages that are not Conventional Commits or that contain AI-tool attribution |
+| `commit-msg` | non-Conventional messages or AI-tool attribution outside the scoped Factory trailer on Markdown-only commits |
 | `pre-push` | pushes to `main`; branch names that are not `<type>/<short-description>`; commits over the size limits, unless they carry a `Size-exception:` footer (all also checked in CI) |
 
 Hooks can be skipped with `--no-verify`; don't. CI (`conventions`, `main-guard`) and branch protection catch what hooks miss.

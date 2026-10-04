@@ -20,4 +20,4 @@
 - [ ] README / docs updated if behaviour or setup changed
 - [ ] New design decisions recorded in `docs/DECISIONS.md`
 - [ ] No data, credentials, model weights or build artifacts committed
-- [ ] No AI-tool attribution in commits or this description
+- [ ] Only the exact permitted Factory co-author trailer on Markdown-only commits; no AI-tool attribution in this description or other commits

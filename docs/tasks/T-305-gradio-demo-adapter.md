@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Wave | 3 |
+| Wave | Emergency fallback only (decision 37) |
 | Branch | `build/gradio-demo` |
 | Depends on | T-005 (merged) |
 | Blocked by | free Hugging Face Space (maintainer creates) |
@@ -10,9 +10,11 @@
 | Can run in parallel | yes |
 | References | TSD-003 (Docker/FastAPI retained as the production-shaped option); PRD NFR-5, NFR-8 |
 
-**Goal.** Serve the TSD-005 demo decision path on a free Gradio SDK Space, keeping the Docker/FastAPI deployment as the production-shaped option. Presentation/hosting adapter only: `LayaClient`, the policy, `run_demo_decision()`, schemas and tests stay shared and framework-independent.
+**Goal.** If the full public app cannot be hosted, serve a **clearly labelled System 1/1.5 diagnostic fallback** on a free Gradio SDK Space. It is not T-304 completion or evidence of the hub's governed end-to-end journey. Keep Docker/FastAPI and the existing Next.js app as the full-product path.
 
 **Not in scope.** TSD-005 stays closed (Laya client and calibration are done). Real labelled calibration (T-106 set), timeout handling, and hub/verifier integration are separate product tasks and must not reopen this card.
+
+**Activation.** Do not build a second full customer app in Gradio. This spec remains available as a contingency; if invoked, the README, demo and submission name the missing action, verifier, handoff and durability paths rather than implying the full product ran.
 
 **Inputs.** the merged `calvino.classifiers` and policy; a minimal private Gradio Space for the smoke test.
 

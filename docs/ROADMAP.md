@@ -1,6 +1,6 @@
 # Project Calvino: Roadmap
 
-How Calvino gets built: in waves of parallel work, each piece one branch, one worktree and one pull request. The product design is in [DESIGN.md](DESIGN.md); phases, tiers and their gates are in [PLAN.md](PLAN.md); the rules every contributor and coding agent follows are in [AGENTS.md](../AGENTS.md).
+How Calvino gets built: in waves of parallel work, each piece one branch, one worktree and one pull request. The product design is in [DESIGN.md](DESIGN.md); phases, thesis evidence and gates are in [PLAN.md](PLAN.md); the rules every contributor and coding agent follows are in [AGENTS.md](../AGENTS.md). Decisions 34–37 reclassify some original Tier 1/2 ideas as **core experiments**, without claiming that they have already run.
 
 **Owners:** every task is owned by the maintainer (the data analyst has left the project); the backlog in [tasks/README.md](tasks/README.md) is the source of truth.
 
@@ -18,7 +18,7 @@ How Calvino gets built: in waves of parallel work, each piece one branch, one wo
 - [x] Merge the foundation PRs (git workflow enforcement, concept, `v0.1.0`) and the Python scaffold (TSD-000).
 - [ ] Environment variables for agent sessions: dataset access (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `CALVINO_DATA_BUCKET`), the LLM provider key, `HF_TOKEN`.
 - [ ] Language-model variables (decisions 28 and 29): `CALVINO_LLM_API_KEY` with `CALVINO_LLM_MODEL=Qwen/Qwen3.6-35B-A3B-FP8` for the agent role on Hetzner, and `CALVINO_JUDGE_API_KEY`, `CALVINO_JUDGE_BASE_URL=https://openrouter.ai/api/v1` and `CALVINO_JUDGE_MODEL=deepseek/deepseek-v4-pro-0813` for the judge. `CALVINO_LLM_BASE_URL`, `CALVINO_LLM_MAX_REQUESTS` and `CALVINO_LLM_TIMEOUT_SECONDS` are optional overrides; nothing has a default that would send traffic somewhere nobody chose.
-- [ ] Hugging Face Space and Vercel project created; DNS for `calvino.rubrica.dev` when the app is ready.
+- [ ] Decide a public host for the **full** hub and Next.js app, create the accounts and validate the deployed journey; DNS for `calvino.rubrica.dev` when ready. T-305's decision-only Gradio fallback cannot complete T-304.
 - [ ] Judge provider (decision 29): an OpenRouter account with credits and a spending cap, serving `deepseek/deepseek-v4-pro-0813` for the judge. The agent needs no paid provider, Hetzner serves that one. `HF_TOKEN` is still set for the Space, and `CALVINO_CONFIRMATION_KEY` for the tools.
 
 ## Wave 0: foundations without real data
@@ -41,45 +41,49 @@ Needs dataset access.
 | Stream | Branch | Builds | Done when |
 |---|---|---|---|
 | **F. Workflow decision** (done) | — | full-data verification and chance tests; decision 17 (TSD-006 superseded) | recorded in DECISIONS.md |
-| **G. Contracts, quality report and baseline** | `data/contracts`, `eval/baseline` | the analyst's full-data pipeline and validator, the data-quality report, the human baseline (T-104) with an independent cross-check | report and baseline generated on the full data |
-| **H. Labels, splits and message set** | `data/labels-splits`, `data/message-set` | labels and gold-set rubric (T-103); seeded test cases with oracle outcomes and generated Spanish messages (T-106); freshness fixture | every test case has a seed record and an oracle outcome; leakage tests pass |
+| **G. Contracts, quality report and baseline** | `data/contracts`, `eval/baseline` | T-102 and the full-data inventory are merged; T-104 completes the category-level human baseline, without pretending a call can be matched to its transaction | report and baseline reproducible on the full data with counts and denominators |
+| **H. Labels, splits, corrections and message set** | `data/labels-splits`, `data/message-set`, `data/freshness-fixture` | T-103's rubric/splits exist and its first-50 sheet is being hand-labelled; T-106 builds disjoint train/calibration/test messages using the existing T-303 oracle definitions; T-105 proves late/corrected records invalidate affected labels and promotion evidence | leakage rules pass, corrected lineage is explicit and the frozen T-303 suite never trains a model |
 
-## Wave 2: classifiers, hub and customer app
+## Wave 2: specialised System 1 and the grounded journey
 
-Needs H (I, J) or Wave 0 (K, L).
+The hub and customer app (K, L) are already merged. Training depends on H; the production-shaped dataset adapter can proceed independently.
 
 | Stream | Branch | Builds |
 |---|---|---|
-| **I. Classifier evaluation** | `eval/classifiers` | majority, rules, logistic regression, Laya zero-shot and calibrated; thresholds by expected cost; calibration per language and dialect (fine-tuning is Tier 1) |
+| **I. Laya fine-tuning and classifier evaluation** | `eval/laya-finetune`, `eval/classifiers` | T-202 trains open-weight Laya on reviewed, disjoint banking messages; T-201 compares majority, rules, logistic regression, base, calibrated and fine-tuned/calibrated Laya on one untouched held-out set, then justifies versioned thresholds |
 | **J. Portuguese test set** | `data/pt-test-set` | translated held-out messages and cases written in Portuguese, seeded like the Spanish set, local currencies only, labelled synthetic |
 | **K. Calvino hub** | `feat/hub` | LangGraph hub wiring A, B, D and E through the five stages of decision 17: explain, clarify, act under the Gate, investigate (human interrupt, case file), follow up (resume) |
 | **L. Customer app** | `feat/customer-app` | the 8-card catalog in PRD FR-7, problem-payment picker, glass box, scenario buttons, ES / PT toggle |
+| **M. Cleaned-table adapter** | `feat/workflow-tools` | T-206 backs the existing tools with the full cleaned tables and source mappings; no fabricated call-to-transaction relationship |
 
-## Wave 3: end-to-end core (Tier 0)
+## Wave 3: end-to-end product and thesis proof
 
-| Stream | Branch | Builds |
+These are **separate experiments** over one governed workflow. A documented proposal or skipped keyed run is not a measured result. Run the core offline tests even when the hosting accounts are blocked, but do not claim a deployed product until T-304 passes live.
+
+| Stream | Branch | Builds and proves |
 |---|---|---|
-| **M. Support agent** | `feat/support-agent` | Deep Agents worker for the explain, clarify, act and follow-up stages |
-| **N. Handoff queue and audit timeline** | `feat/console-queue` | operator view of approvals and investigations, timeline with the rule named on every refusal |
-| **O. Evaluation harness** | `eval/end-to-end` | the brief's outcome metrics scored against the seeded oracle, both baselines, the bare-LLM ablation, the verifier's false-pass rate, repeated runs, error analysis |
-| **P. Durable cases** | `feat/durable-cases` | a case survives a restart and resumes (T-401) |
-| **Q. Policy replay** | `feat/policy-replay` | replay the log under a new policy version (T-408) |
-| **R. One flywheel turn** | `eval/flywheel` | recalibration from operator labels, measured on the frozen set (T-407) |
+| **N. Bounded support agent** | `feat/support-agent` | T-301 writes grounded ES/PT replies using stage-scoped tools and policy retrieval; the model cannot authorize writes |
+| **O. Human workspace and durable resume** | `feat/console-queue`, `feat/durable-cases` | T-302 gives operators verified dossiers, attributable reply/notes edits, approvals and takeover without bypassing blocks; T-401 resumes a parked turn by case ref after restart |
+| **P. Evaluation and verifier lab** | `eval/end-to-end`, `eval/verifier-lab` | T-303 measures safe outcomes, errors, bare-LLM ablation and judge false passes on reviewed labels; T-603 tests human-authored rubric changes against development and frozen promotion sets |
+| **Q. Risk-tiered veto and language evidence** | `feat/verifier-panel`, `eval/fairness` | T-402 compares a **pre-execution, veto-only** specialist panel against the current cascade on the same high-risk cases; T-405 reports paired model differences separately from documented policy-driven ES/PT outcome changes |
+| **R. Replay and governed learning** | `feat/policy-replay`, `eval/flywheel` | T-408 writes a policy-version verdict-delta/safety scorecard; T-407 runs one offline corrected-data-to-reviewed-label-to-candidate-to-human-sign-off loop, including a rejected candidate if warranted |
+| **S. Bank boundary** | `feat/second-adapter`, `feat/iso20022-xml` | T-406 swaps two synthetic internal formats without changing the hub/policy; T-604 validates one authorized action through mock ISO 20022 middleware and verifies its response, with no general compliance claim |
+| **T. Public product** | `build/deploy-demo` | T-304 serves the full hub/customer app and passes a live cold-start, scenario and restart check; T-305 is an explicitly limited emergency diagnostic fallback |
 
-**Gate:** deployed at `calvino.rubrica.dev`, results in the README. Tag `v0.4.0`.
+**Gate:** the public full journey works; claims for each experiment link to actual counts, model/policy/rubric versions and limitations in the README. An offline experiment cannot stand in for a live pre-execution shield, and zero detected unsafe cases does not establish zero risk.
 
-## Wave 4: depth (Tier 1)
+## Optional depth after the core gate
 
-One stream each: Laya fine-tuning · risk-tiered verifier panel · coworker agent · analytics tab · counterfactual fairness tests · second MCP adapter and the swap demo.
+Additional risk tiers, bank profiles, ISO message types, case-management features and larger group studies are optional. T-403 (coworker) and T-404 (interactive analytics tab) are **future** product surfaces; the current queue and reproducible reports carry the evidence without them.
 
 ## Wave 5: submission
 
-Maintainer: slides, video pitch, submission email. Streams: README usage with real output, results report, release notes. Tag `v1.0.0`. Tier 2 (AG-UI / CopilotKit console, live verifier streaming, verifier lab) only with room to spare.
+Maintainer: slides, video pitch, submission email. T-501 puts measured results and named gaps in the README; T-502 is final changelog/tag hygiene, not a backfilled release programme. T-601 (AG-UI/CopilotKit) and T-602 (live verifier streaming) remain future UI integrations, not core safety evidence.
 
 ## After the hackathon
 
 - **Methodology:** write up Calvino (Systems 1 → 3, hub and spoke, the governed flywheel).
-- **Verification as a product:** the mixture of financial verifiers, offered to check any agent's work.
-- **Real integrations:** a bank-core adapter, ISO 20022 XML validation, AG-UI so Calvino plugs into CopilotKit and OpenBot.
+- **Verification as a product:** extend the measured financial verifier benchmark to other regulated workflows only after its false-pass properties hold on reviewed labels.
+- **Real integrations:** bank-specific authentication, profile and reconciliation work beyond the mock ISO 20022 message and adapter swap; AG-UI may later plug Calvino into another agent workspace.
 - **More workflows and channels:** messaging, voice, credit with a separate eligibility policy service.
 - **Production:** the documented AWS VPC reference built out, a managed append-only audit store, an enterprise identity provider.

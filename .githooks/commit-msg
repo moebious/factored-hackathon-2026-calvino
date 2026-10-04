@@ -4,4 +4,9 @@
 # `git rebase --autosquash` work; CI rejects them if they are ever pushed.
 subject=$(head -n 1 "$1")
 case "$subject" in fixup!*|squash!*|amend!*) exit 0 ;; esac
-exec "$(git rev-parse --show-toplevel)/scripts/git/check-commit-msg.sh" "$1"
+root=$(git rev-parse --show-toplevel)
+scope=$(git diff --cached --name-only | bash "$root/scripts/git/attribution-scope.sh" "$1")
+case "$scope" in
+    docs|bootstrap) exec "$root/scripts/git/check-commit-msg.sh" "--scope=$scope" "$1" ;;
+    *) exec "$root/scripts/git/check-commit-msg.sh" "$1" ;;
+esac

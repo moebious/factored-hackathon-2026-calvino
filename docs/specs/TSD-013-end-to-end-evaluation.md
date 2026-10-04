@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented |
 | Branch | `eval/end-to-end` |
 | Depends on | TSD-005 (Laya), TSD-009 (hub), TSD-004 (verifier), TSD-011 (LLM client) |
 | Required by | T-501 (README results), T-503 (slides), T-504 (video), the submission |
