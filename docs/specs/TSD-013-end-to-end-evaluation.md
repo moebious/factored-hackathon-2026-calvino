@@ -52,7 +52,7 @@ class ExpectedOutcome(StrEnum):
 
 @dataclass(frozen=True)
 class OracleFacts:
-    intent: str  # explain / cancel / retry / open_case / case_status / human / none
+    intent: str  # explain / cancel / retry / open_case / case_status / human / manipulation / none
     ambiguous: bool  # the message cannot be pinned to one record and intent
     status: str | None  # Pending / Declined / Reversed / None
     owner: bool  # the message asks about the signer's own record

@@ -21,9 +21,10 @@ Application directories are planned and created as code lands; update this secti
 
 | Path | Contents |
 |---|---|
-| `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `api`, `classifiers`, `data`, `hub`, `llm`, `policy`, `tools` and `verifier` subpackages |
+| `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `api`, `classifiers`, `data`, `evaluation`, `hub`, `llm`, `policy`, `tools` and `verifier` subpackages |
 | `frontend/` | Next.js customer app and operator view (planned; CopilotKit / AG-UI console in Tier 2) |
 | `policy/` | Versioned policy files (`v1.yaml`, `v2.yaml`): every threshold and limit the policy engine reads |
+| `evaluation/` | Versioned evaluation case files (`evaluation/cases/`, from TSD-013): synthetic, reviewed, scored against the oracle |
 | `providers.yaml` | The committed record of which model answers each language role, on which provider, and what that provider served on the date it was checked (decision 29). Keys are never here |
 | `contracts/` | Generated JSON Schemas of the tool contracts (`contracts/tools/`, from `scripts/export_tool_schemas.py`) and the data contracts with their lineage (`contracts/data/`, from `scripts/export_data_schemas.py`) |
 | `tests/` | `tests/calvino/` mirrors `src/calvino/` (pytest); `tests/fixtures/` holds small synthetic fixtures; `tests/git/` tests the git rule scripts |
