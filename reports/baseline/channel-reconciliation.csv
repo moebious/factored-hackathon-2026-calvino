@@ -1,0 +1,109 @@
+population,original_channel,metric,previous_value,observed_value,matches
+Transaccional,(other),duration_seconds_mean,,,True
+Transaccional,(other),duration_seconds_median,,,True
+Transaccional,(other),duration_seconds_p90,,,True
+Transaccional,(other),escalation,0.10041265474552957,0.10041265474552957,True
+Transaccional,(other),fcr,0.915343253720145,0.915343253720145,True
+Transaccional,(other),follow_up,0.22308365637113917,0.22308365637113917,True
+Transaccional,(other),wait_time_seconds_mean,,,True
+Transaccional,(other),wait_time_seconds_median,,,True
+Transaccional,(other),wait_time_seconds_p90,,,True
+Transaccional,App,duration_seconds_mean,225.3839935327405,225.3839935327405,True
+Transaccional,App,duration_seconds_median,207.0,207.0,True
+Transaccional,App,duration_seconds_p90,348.4000000000001,348.4000000000001,True
+Transaccional,App,escalation,0.09747681690748329,0.09747681690748329,True
+Transaccional,App,fcr,0.9154625835669614,0.9154625835669614,True
+Transaccional,App,follow_up,0.22050894975199484,0.22050894975199484,True
+Transaccional,App,wait_time_seconds_mean,,,True
+Transaccional,App,wait_time_seconds_median,,,True
+Transaccional,App,wait_time_seconds_p90,,,True
+Transaccional,Email,duration_seconds_mean,,,True
+Transaccional,Email,duration_seconds_median,,,True
+Transaccional,Email,duration_seconds_p90,,,True
+Transaccional,Email,escalation,0.099927060539752,0.099927060539752,True
+Transaccional,Email,fcr,0.9127852453891842,0.9127852453891842,True
+Transaccional,Email,follow_up,0.2222569552985308,0.2222569552985308,True
+Transaccional,Email,wait_time_seconds_mean,,,True
+Transaccional,Email,wait_time_seconds_median,,,True
+Transaccional,Email,wait_time_seconds_p90,,,True
+Transaccional,Phone,duration_seconds_mean,220.79650068613998,220.79650068613998,True
+Transaccional,Phone,duration_seconds_median,205.0,205.0,True
+Transaccional,Phone,duration_seconds_p90,333.0,333.0,True
+Transaccional,Phone,escalation,0.09937757302489708,0.09937757302489708,True
+Transaccional,Phone,fcr,0.9151293863948246,0.9151293863948246,True
+Transaccional,Phone,follow_up,0.22109880415604782,0.22109880415604782,True
+Transaccional,Phone,wait_time_seconds_mean,119.65022549591251,119.65022549591251,True
+Transaccional,Phone,wait_time_seconds_median,119.0,119.0,True
+Transaccional,Phone,wait_time_seconds_p90,196.0,196.0,True
+Transaccional,Web,duration_seconds_mean,217.11868686868686,217.11868686868686,True
+Transaccional,Web,duration_seconds_median,202.0,202.0,True
+Transaccional,Web,duration_seconds_p90,326.29999999999995,326.29999999999995,True
+Transaccional,Web,escalation,0.09259259259259259,0.09259259259259259,True
+Transaccional,Web,fcr,0.9183501683501684,0.9183501683501684,True
+Transaccional,Web,follow_up,0.20707070707070707,0.20707070707070707,True
+Transaccional,Web,wait_time_seconds_mean,,,True
+Transaccional,Web,wait_time_seconds_median,,,True
+Transaccional,Web,wait_time_seconds_p90,,,True
+Transaccional,WhatsApp,duration_seconds_mean,,,True
+Transaccional,WhatsApp,duration_seconds_median,,,True
+Transaccional,WhatsApp,duration_seconds_p90,,,True
+Transaccional,WhatsApp,escalation,0.09899497487437187,0.09899497487437187,True
+Transaccional,WhatsApp,fcr,0.9154522613065327,0.9154522613065327,True
+Transaccional,WhatsApp,follow_up,0.22814070351758794,0.22814070351758794,True
+Transaccional,WhatsApp,wait_time_seconds_mean,,,True
+Transaccional,WhatsApp,wait_time_seconds_median,,,True
+Transaccional,WhatsApp,wait_time_seconds_p90,,,True
+all interactions,(other),duration_seconds_mean,,,True
+all interactions,(other),duration_seconds_median,,,True
+all interactions,(other),duration_seconds_p90,,,True
+all interactions,(other),escalation,0.10071753587679384,0.10071753587679384,True
+all interactions,(other),fcr,0.7647444872243612,0.7647444872243612,True
+all interactions,(other),follow_up,0.3510238011900595,0.3510238011900595,True
+all interactions,(other),wait_time_seconds_mean,,,True
+all interactions,(other),wait_time_seconds_median,,,True
+all interactions,(other),wait_time_seconds_p90,,,True
+all interactions,App,duration_seconds_mean,321.023997658765,321.023997658765,True
+all interactions,App,duration_seconds_median,289.0,289.0,True
+all interactions,App,duration_seconds_p90,537.0,537.0,True
+all interactions,App,escalation,0.0998710362615688,0.0998710362615688,True
+all interactions,App,fcr,0.771279016841147,0.771279016841147,True
+all interactions,App,follow_up,0.3454710969503869,0.3454710969503869,True
+all interactions,App,wait_time_seconds_mean,,,True
+all interactions,App,wait_time_seconds_median,,,True
+all interactions,App,wait_time_seconds_p90,,,True
+all interactions,Email,duration_seconds_mean,,,True
+all interactions,Email,duration_seconds_median,,,True
+all interactions,Email,duration_seconds_p90,,,True
+all interactions,Email,escalation,0.10187706495298261,0.10187706495298261,True
+all interactions,Email,fcr,0.7680717423664815,0.7680717423664815,True
+all interactions,Email,follow_up,0.34408016555930726,0.34408016555930726,True
+all interactions,Email,wait_time_seconds_mean,,,True
+all interactions,Email,wait_time_seconds_median,,,True
+all interactions,Email,wait_time_seconds_p90,,,True
+all interactions,Phone,duration_seconds_mean,321.4589472781826,321.4589472781826,True
+all interactions,Phone,duration_seconds_median,291.0,291.0,True
+all interactions,Phone,duration_seconds_p90,538.0,538.0,True
+all interactions,Phone,escalation,0.09947706815259323,0.09947706815259323,True
+all interactions,Phone,fcr,0.7662768966995285,0.7662768966995285,True
+all interactions,Phone,follow_up,0.34841320188598374,0.34841320188598374,True
+all interactions,Phone,wait_time_seconds_mean,119.93708054040334,119.93708054040334,True
+all interactions,Phone,wait_time_seconds_median,119.0,119.0,True
+all interactions,Phone,wait_time_seconds_p90,196.0,196.0,True
+all interactions,Web,duration_seconds_mean,321.1316642120766,321.1316642120766,True
+all interactions,Web,duration_seconds_median,293.0,293.0,True
+all interactions,Web,duration_seconds_p90,536.0,536.0,True
+all interactions,Web,escalation,0.10515463917525773,0.10515463917525773,True
+all interactions,Web,fcr,0.7670103092783506,0.7670103092783506,True
+all interactions,Web,follow_up,0.34256259204712813,0.34256259204712813,True
+all interactions,Web,wait_time_seconds_mean,,,True
+all interactions,Web,wait_time_seconds_median,,,True
+all interactions,Web,wait_time_seconds_p90,,,True
+all interactions,WhatsApp,duration_seconds_mean,,,True
+all interactions,WhatsApp,duration_seconds_median,,,True
+all interactions,WhatsApp,duration_seconds_p90,,,True
+all interactions,WhatsApp,escalation,0.09909122684376093,0.09909122684376093,True
+all interactions,WhatsApp,fcr,0.7657724571828032,0.7657724571828032,True
+all interactions,WhatsApp,follow_up,0.3526301992310381,0.3526301992310381,True
+all interactions,WhatsApp,wait_time_seconds_mean,,,True
+all interactions,WhatsApp,wait_time_seconds_median,,,True
+all interactions,WhatsApp,wait_time_seconds_p90,,,True

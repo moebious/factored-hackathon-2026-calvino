@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | approved |
+| Status | done: published in `reports/baseline/`; the independent cross-check is preserved at `reports/baseline-independent/` |
 | Branch | `eval/baseline` |
 | Task | [T-104](../tasks/T-104-human-baseline.md) |
 | Depends on | T-101 (workflow choice), TSD-007 (data contracts), TSD-014 (merged full-data inventory) |

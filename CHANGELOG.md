@@ -26,7 +26,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Data contracts (TSD-007, T-102): row models and rules from DATA.md for the eight tables Calvino uses, a DuckDB audit over Parquet or CSV that reports known defects without failing, JSON Schemas and lineage in `contracts/data/`, and a synthetic lakehouse fixture.
 - Python package scaffold (TSD-000): `uv` project, shared types (`Route`, `GateVerdict`, `HumanAction`, `Stage`, `DecisionRecord`), the append-only decision log with a reader for replay, and a CI job running ruff and pytest.
 - Analysis scripts (`scripts/analysis/`) and tests (`tests/analysis/`): table fetch from the data bucket, Parquet cache, verification of the data analyst's decision-matrix numbers, a data-quality report and an independent T-104 headline baseline.
-- Aggregate reports on the full dataset (`reports/contact-reasons/`, `reports/data-quality/`, `reports/baseline/`): W1/W2 transaction mapping, ten data-quality findings with chance checks, and headline interaction and complaint metrics.
+- Aggregate reports on the full dataset (`reports/contact-reasons/`, `reports/data-quality/`, `reports/baseline-independent/`): W1/W2 transaction mapping, ten data-quality findings with chance checks, and headline interaction and complaint metrics.
 
 - Policy engine (TSD-001): `calvino.policy` with `decide_route`, `decide_gate` and `replay_decision`, the versioned `policy/v1.yaml` (thresholds as hypotheses, per-currency limits as policy assumptions), fail-closed handling of missing or malformed inputs, and records that hold every input read so decisions replay from the log.
 
@@ -80,6 +80,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Full-data human baseline specification (TSD-018, T-104): category-level interaction and complaint metrics, denominators and slices, and a byte-capped read-only source.
+- Full-data human baseline (TSD-018, T-104): a manifest-digest- and byte-ceiling-guarded four-table runner plus a call-table channel diagnostic, both read-only and aggregate-only; the measured baseline is published in `reports/baseline/` with per-cell counts and denominators, and the earlier independent cross-check is preserved unchanged in `reports/baseline-independent/` after all 128 headline and 108 grouped-channel cells matched (Web Chat, 22,856 calls, resolved from the first run's `(other)` group).
 - Design document (`docs/DESIGN.md`): harness architecture, Laya System One classifiers with a deterministic policy floor, governance constraints, fairness, human-in-the-loop and evaluation plan, with evidence labels on claims.
 - Decision log (`docs/DECISIONS.md`) and build plan (`docs/PLAN.md`).
 - README with description, architecture diagram, roadmap and project status.

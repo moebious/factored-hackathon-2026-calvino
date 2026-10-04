@@ -1,6 +1,6 @@
 # T-104 headline baseline (independent cross-check) [measured]
 
-Superseded as the published baseline by `reports/baseline/` (TSD-016, T-104):
+Superseded as the published baseline by `reports/baseline/` (TSD-018, T-104):
 every common headline cell matched, so the figures are unchanged. Preserved
 unchanged for review.
 

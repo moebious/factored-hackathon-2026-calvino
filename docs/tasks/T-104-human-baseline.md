@@ -10,9 +10,11 @@
 | Can run in parallel | yes |
 | References | BRD 3 |
 
+**Status.** Done (TSD-018): the measured baseline is published in `reports/baseline/` (aggregates only), reconciled cell by cell with the preserved independent cross-check in `reports/baseline-independent/`.
+
 **Goal.** Establish a reproducible, full-data human baseline for the chosen categories, with the limits of that comparison explicit.
 
-**Inputs.** Transaccional interactions and Transactions-category complaints on the full data; compare against the independent headline cross-check in `reports/baseline/`. TSD-014 re-confirmed the live inventory (`reports/data-quality/full-inventory.md`). The analyst's further delivery will not arrive.
+**Inputs.** Transaccional interactions and Transactions-category complaints on the full data; compare against the independent headline cross-check in `reports/baseline-independent/`. TSD-014 re-confirmed the live inventory (`reports/data-quality/full-inventory.md`). The analyst's further delivery will not arrive.
 
 **Outputs.** first-contact resolution, escalation, follow-up, handle and wait time and (if available) CSAT, overall and by country and segment; for complaints, resolution days, SLA breaches and compensation; claimed amounts per currency and in USD
 

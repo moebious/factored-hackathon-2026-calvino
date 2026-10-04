@@ -1,0 +1,129 @@
+population,slice_type,slice_value,metric,previous_value,observed_value,previous_n_valid,observed_n_valid,matches
+Transaccional,country,Argentina,duration_seconds_mean,220.1866403277729,220.1866403277729,41004,41004,True
+Transaccional,country,Argentina,duration_seconds_median,204.0,204.0,41004,41004,True
+Transaccional,country,Argentina,duration_seconds_p90,331.0,331.0,41004,41004,True
+Transaccional,country,Argentina,escalation,0.09762903902643727,0.09762903902643727,47660,47660,True
+Transaccional,country,Argentina,fcr,0.9156735207721359,0.9156735207721359,47660,47660,True
+Transaccional,country,Argentina,follow_up,0.220709190096517,0.220709190096517,47660,47660,True
+Transaccional,country,Argentina,wait_time_seconds_mean,120.05065256996087,120.05065256996087,33483,33483,True
+Transaccional,country,Argentina,wait_time_seconds_median,119.0,119.0,33483,33483,True
+Transaccional,country,Argentina,wait_time_seconds_p90,197.0,197.0,33483,33483,True
+Transaccional,country,Colombia,duration_seconds_mean,221.04799064222536,221.04799064222536,62408,62408,True
+Transaccional,country,Colombia,duration_seconds_median,205.0,205.0,62408,62408,True
+Transaccional,country,Colombia,duration_seconds_p90,333.0,333.0,62408,62408,True
+Transaccional,country,Colombia,escalation,0.10041235122946864,0.10041235122946864,72511,72511,True
+Transaccional,country,Colombia,fcr,0.9150473721228504,0.9150473721228504,72511,72511,True
+Transaccional,country,Colombia,follow_up,0.22095957854670326,0.22095957854670326,72511,72511,True
+Transaccional,country,Colombia,wait_time_seconds_mean,119.43267182198375,119.43267182198375,50692,50692,True
+Transaccional,country,Colombia,wait_time_seconds_median,119.0,119.0,50692,50692,True
+Transaccional,country,Colombia,wait_time_seconds_p90,196.0,196.0,50692,50692,True
+Transaccional,country,México,duration_seconds_mean,220.89952742763433,220.89952742763433,103053,103053,True
+Transaccional,country,México,duration_seconds_median,205.0,205.0,103053,103053,True
+Transaccional,country,México,duration_seconds_p90,334.0,334.0,103053,103053,True
+Transaccional,country,México,escalation,0.09932018184093089,0.09932018184093089,119885,119885,True
+Transaccional,country,México,fcr,0.9148684155649164,0.9148684155649164,119885,119885,True
+Transaccional,country,México,follow_up,0.22184593568836802,0.22184593568836802,119885,119885,True
+Transaccional,country,México,wait_time_seconds_mean,119.62186676837626,119.62186676837626,83899,83899,True
+Transaccional,country,México,wait_time_seconds_median,119.0,119.0,83899,83899,True
+Transaccional,country,México,wait_time_seconds_p90,196.0,196.0,83899,83899,True
+Transaccional,overall,all,duration_seconds_mean,220.8028237231492,220.8028237231492,206465,206465,True
+Transaccional,overall,all,duration_seconds_median,205.0,205.0,206465,206465,True
+Transaccional,overall,all,duration_seconds_p90,333.0,333.0,206465,206465,True
+Transaccional,overall,all,escalation,0.09931432665711334,0.09931432665711334,240056,240056,True
+Transaccional,overall,all,fcr,0.9150823141267038,0.9150823141267038,240056,240056,True
+Transaccional,overall,all,follow_up,0.2213525177458593,0.2213525177458593,240056,240056,True
+Transaccional,overall,all,wait_time_seconds_mean,119.65022549591251,119.65022549591251,168074,168074,True
+Transaccional,overall,all,wait_time_seconds_median,119.0,119.0,168074,168074,True
+Transaccional,overall,all,wait_time_seconds_p90,196.0,196.0,168074,168074,True
+all interactions,country,Argentina,duration_seconds_mean,321.6995892504889,321.6995892504889,117103,117103,True
+all interactions,country,Argentina,duration_seconds_median,291.0,291.0,117103,117103,True
+all interactions,country,Argentina,duration_seconds_p90,539.0,539.0,117103,117103,True
+all interactions,country,Argentina,escalation,0.0984470022080885,0.0984470022080885,136317,136317,True
+all interactions,country,Argentina,fcr,0.7658619247782742,0.7658619247782742,136317,136317,True
+all interactions,country,Argentina,follow_up,0.3491420732557201,0.3491420732557201,136317,136317,True
+all interactions,country,Argentina,wait_time_seconds_mean,120.02669154802591,120.02669154802591,95386,95386,True
+all interactions,country,Argentina,wait_time_seconds_median,119.0,119.0,95386,95386,True
+all interactions,country,Argentina,wait_time_seconds_p90,196.0,196.0,95386,95386,True
+all interactions,country,Colombia,duration_seconds_mean,321.4382964132946,321.4382964132946,177907,177907,True
+all interactions,country,Colombia,duration_seconds_median,290.0,290.0,177907,177907,True
+all interactions,country,Colombia,duration_seconds_p90,538.0,538.0,177907,177907,True
+all interactions,country,Colombia,escalation,0.10095749310895111,0.10095749310895111,206790,206790,True
+all interactions,country,Colombia,fcr,0.7667246965520577,0.7667246965520577,206790,206790,True
+all interactions,country,Colombia,follow_up,0.34799071521833747,0.34799071521833747,206790,206790,True
+all interactions,country,Colombia,wait_time_seconds_mean,119.6967084801633,119.6967084801633,145009,145009,True
+all interactions,country,Colombia,wait_time_seconds_median,119.0,119.0,145009,145009,True
+all interactions,country,Colombia,wait_time_seconds_p90,196.0,196.0,145009,145009,True
+all interactions,country,México,duration_seconds_mean,321.3670878353646,321.3670878353646,295052,295052,True
+all interactions,country,México,duration_seconds_median,291.0,291.0,295052,295052,True
+all interactions,country,México,duration_seconds_p90,538.0,538.0,295052,295052,True
+all interactions,country,México,escalation,0.0993301067341902,0.0993301067341902,343189,343189,True
+all interactions,country,México,fcr,0.7665717724052927,0.7665717724052927,343189,343189,True
+all interactions,country,México,follow_up,0.34820171975208997,0.34820171975208997,343189,343189,True
+all interactions,country,México,wait_time_seconds_mean,120.0465700861068,120.0465700861068,240283,240283,True
+all interactions,country,México,wait_time_seconds_median,119.0,119.0,240283,240283,True
+all interactions,country,México,wait_time_seconds_p90,196.0,196.0,240283,240283,True
+all interactions,overall,all,duration_seconds_mean,321.45454545454544,321.45454545454544,590062,590062,True
+all interactions,overall,all,duration_seconds_median,291.0,291.0,590062,590062,True
+all interactions,overall,all,duration_seconds_p90,538.0,538.0,590062,590062,True
+all interactions,overall,all,escalation,0.0996450511149708,0.0996450511149708,686296,686296,True
+all interactions,overall,all,fcr,0.7664768554676117,0.7664768554676117,686296,686296,True
+all interactions,overall,all,follow_up,0.3483249210253302,0.3483249210253302,686296,686296,True
+all interactions,overall,all,wait_time_seconds_mean,119.93708054040334,119.93708054040334,480678,480678,True
+all interactions,overall,all,wait_time_seconds_median,119.0,119.0,480678,480678,True
+all interactions,overall,all,wait_time_seconds_p90,196.0,196.0,480678,480678,True
+Transactions,country,Argentina,compensation_granted_share_of_all,0.07182524990744169,0.07182524990744169,2701,2701,True
+Transactions,country,Argentina,compensation_granted_share_of_resolved,0.2852941176470588,0.2852941176470588,680,680,True
+Transactions,country,Argentina,resolution_days_mean,15.435185185185185,15.435185185185185,648,648,True
+Transactions,country,Argentina,resolution_days_median,16.0,16.0,648,648,True
+Transactions,country,Argentina,resolution_days_p90,27.0,27.0,648,648,True
+Transactions,country,Argentina,sla_breached_share,0.20251758607922993,0.20251758607922993,2701,2701,True
+Transactions,country,Argentina,still_open_count,1999.0,1999,2701,2701,True
+Transactions,country,Colombia,compensation_granted_share_of_all,0.07526098567613498,0.07526098567613498,4119,4119,True
+Transactions,country,Colombia,compensation_granted_share_of_resolved,0.3106212424849699,0.3106212424849699,998,998,True
+Transactions,country,Colombia,resolution_days_mean,15.222340425531915,15.222340425531915,940,940,True
+Transactions,country,Colombia,resolution_days_median,15.0,15.0,940,940,True
+Transactions,country,Colombia,resolution_days_p90,28.0,28.0,940,940,True
+Transactions,country,Colombia,sla_breached_share,0.19980577810148095,0.19980577810148095,4119,4119,True
+Transactions,country,Colombia,still_open_count,3086.0,3086,4119,4119,True
+Transactions,country,México,compensation_granted_share_of_all,0.07263313609467456,0.07263313609467456,6760,6760,True
+Transactions,country,México,compensation_granted_share_of_resolved,0.2970356926799758,0.2970356926799758,1653,1653,True
+Transactions,country,México,resolution_days_mean,15.522511097019658,15.522511097019658,1577,1577,True
+Transactions,country,México,resolution_days_median,16.0,16.0,1577,1577,True
+Transactions,country,México,resolution_days_p90,27.0,27.0,1577,1577,True
+Transactions,country,México,sla_breached_share,0.2025147928994083,0.2025147928994083,6760,6760,True
+Transactions,country,México,still_open_count,5039.0,5039,6760,6760,True
+Transactions,overall,all,compensation_granted_share_of_all,0.07326951399116348,0.07326951399116348,13580,13580,True
+Transactions,overall,all,compensation_granted_share_of_resolved,0.29870909636745724,0.29870909636745724,3331,3331,True
+Transactions,overall,all,resolution_days_mean,15.415481832543444,15.415481832543444,3165,3165,True
+Transactions,overall,all,resolution_days_median,15.0,15.0,3165,3165,True
+Transactions,overall,all,resolution_days_p90,27.0,27.0,3165,3165,True
+Transactions,overall,all,sla_breached_share,0.2016936671575847,0.2016936671575847,13580,13580,True
+Transactions,overall,all,still_open_count,10124.0,10124,13580,13580,True
+all complaints,country,Argentina,compensation_granted_share_of_all,0.06756148770245951,0.06756148770245951,13336,13336,True
+all complaints,country,Argentina,compensation_granted_share_of_resolved,0.28431681918586305,0.28431681918586305,3169,3169,True
+all complaints,country,Argentina,resolution_days_mean,15.494352159468438,15.494352159468438,3010,3010,True
+all complaints,country,Argentina,resolution_days_median,16.0,16.0,3010,3010,True
+all complaints,country,Argentina,resolution_days_p90,27.0,27.0,3010,3010,True
+all complaints,country,Argentina,sla_breached_share,0.20410917816436713,0.20410917816436713,13336,13336,True
+all complaints,country,Argentina,still_open_count,10029.0,10029,13336,13336,True
+all complaints,country,Colombia,compensation_granted_share_of_all,0.07128139717425432,0.07128139717425432,20384,20384,True
+all complaints,country,Colombia,compensation_granted_share_of_resolved,0.2946663962685054,0.2946663962685054,4931,4931,True
+all complaints,country,Colombia,resolution_days_mean,15.603249251817015,15.603249251817015,4678,4678,True
+all complaints,country,Colombia,resolution_days_median,16.0,16.0,4678,4678,True
+all complaints,country,Colombia,resolution_days_p90,28.0,28.0,4678,4678,True
+all complaints,country,Colombia,sla_breached_share,0.1974587912087912,0.1974587912087912,20384,20384,True
+all complaints,country,Colombia,still_open_count,15259.0,15259,20384,20384,True
+all complaints,country,México,compensation_granted_share_of_all,0.0685243445692884,0.0685243445692884,33375,33375,True
+all complaints,country,México,compensation_granted_share_of_resolved,0.28512654282508415,0.28512654282508415,8021,8021,True
+all complaints,country,México,resolution_days_mean,15.642345276872964,15.642345276872964,7675,7675,True
+all complaints,country,México,resolution_days_median,16.0,16.0,7675,7675,True
+all complaints,country,México,resolution_days_p90,28.0,28.0,7675,7675,True
+all complaints,country,México,sla_breached_share,0.202187265917603,0.202187265917603,33375,33375,True
+all complaints,country,México,still_open_count,24981.0,24981,33375,33375,True
+all complaints,overall,all,compensation_granted_share_of_all,0.06917057902973396,0.06917057902973396,67095,67095,True
+all complaints,overall,all,compensation_granted_share_of_resolved,0.28788536691272254,0.28788536691272254,16121,16121,True
+all complaints,overall,all,resolution_days_mean,15.601445030267525,15.601445030267525,15363,15363,True
+all complaints,overall,all,resolution_days_median,16.0,16.0,15363,15363,True
+all complaints,overall,all,resolution_days_p90,28.0,28.0,15363,15363,True
+all complaints,overall,all,sla_breached_share,0.2011327222594828,0.2011327222594828,67095,67095,True
+all complaints,overall,all,still_open_count,50269.0,50269,67095,67095,True
