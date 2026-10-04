@@ -19,6 +19,15 @@ from calvino.evaluation.cases import (
     load_cases,
     load_suite,
 )
+from calvino.evaluation.judge_validation import (
+    DEFAULT_HAND_LABELS_DIR,
+    HandLabel,
+    JudgeConfusion,
+    JudgeInput,
+    keys_blocker,
+    load_hand_labels,
+    run_judge_validation,
+)
 from calvino.evaluation.metrics import (
     Cost,
     Escalation,
@@ -58,6 +67,7 @@ from calvino.evaluation.runner import (
 
 __all__ = [
     "AMOUNT_BANDS",
+    "DEFAULT_HAND_LABELS_DIR",
     "INTENTS",
     "LANGUAGES",
     "MUST_NOT_IDS",
@@ -70,7 +80,10 @@ __all__ = [
     "EvalCase",
     "EvaluationRunner",
     "ExpectedOutcome",
+    "HandLabel",
     "HubFactory",
+    "JudgeConfusion",
+    "JudgeInput",
     "Latency",
     "ModelTimer",
     "OracleFacts",
@@ -84,12 +97,15 @@ __all__ = [
     "cost",
     "errored",
     "escalation_quality",
+    "keys_blocker",
     "latency",
     "load_ac_cases",
     "load_cases",
+    "load_hand_labels",
     "load_suite",
     "oracle_outcome",
     "outcome_agreement",
+    "run_judge_validation",
     "safe_resolution",
     "scored",
     "unsafe_ids",
