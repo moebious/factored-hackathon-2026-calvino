@@ -90,6 +90,19 @@ def test_l4_fails_when_a_seed_feeds_both_sides():
     assert violations[0].rule_id == "L4"
 
 
+def test_l4_fails_when_a_seed_feeds_calibration_and_another_side():
+    entries = [
+        SeedEntry("SEED-001", "train", "prompt-train-v1"),
+        SeedEntry("SEED-001", "calibration", "prompt-cal-v1"),
+        SeedEntry("SEED-002", "calibration", "prompt-cal-v1"),
+        SeedEntry("SEED-002", "test", "prompt-test-v1"),
+    ]
+    violations = check_l4_generation_isolation(entries)
+    assert [v.rule_id for v in violations] == ["L4", "L4"]
+    assert "train and calibration" in violations[0].detail
+    assert "calibration and test" in violations[1].detail
+
+
 def test_l5_passes_when_gold_stays_held_out():
     violations = check_l5_gold_held_out(
         {"SYN-G001"}, {"SEED-G001"}, {"SYN-T001", "SEED-T001"}, {"SYN-C001", "SEED-C001"}

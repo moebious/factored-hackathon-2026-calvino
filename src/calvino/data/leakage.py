@@ -91,12 +91,25 @@ def check_l3_dataset_text(
 
 
 def check_l4_generation_isolation(entries: list[SeedEntry]) -> list[Violation]:
-    """L4: train and test messages come from disjoint seed-record sets under
-    separate prompts; no seed key feeds both sides."""
-    train_keys = {e.seed_key for e in entries if e.split == "train"}
-    test_keys = {e.seed_key for e in entries if e.split == "test"}
-    shared = sorted(train_keys & test_keys)
-    return [Violation("L4", f"seed {key} feeds train and test") for key in shared]
+    """L4: train, calibration and test messages come from disjoint seed-record
+    sets under separate prompts; no seed key feeds more than one side.
+    Calibration contamination would silently validate a threshold on its own
+    tuning data, so all three pairwise intersections are checked."""
+    keys = {
+        split: {e.seed_key for e in entries if e.split == split}
+        for split in ("train", "calibration", "test")
+    }
+    violations: list[Violation] = []
+    for first, second in (
+        ("train", "calibration"),
+        ("train", "test"),
+        ("calibration", "test"),
+    ):
+        shared = sorted(keys[first] & keys[second])
+        violations.extend(
+            Violation("L4", f"seed {key} feeds {first} and {second}") for key in shared
+        )
+    return violations
 
 
 def check_l5_gold_held_out(

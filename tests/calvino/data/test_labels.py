@@ -106,6 +106,42 @@ def test_filled_record_counts_as_labelled():
     assert record.is_labelled()
 
 
+def test_fraud_record_without_intent_counts_as_labelled():
+    record = GoldRecord(
+        gold_id="gold-002",
+        rubric_version="v1",
+        message="synthetic team-written message",
+        language_variant="es-MX",
+        seed_ref="hand-written",
+        labels={
+            "workflow_area": "fraud or stolen access",
+            "stuck_intent": None,
+            "clear_enough": "yes",
+            "needs_person": "yes",
+            "injection": "no",
+        },
+    )
+    assert record.is_labelled()
+
+
+def test_stuck_record_without_intent_counts_as_unlabelled():
+    record = GoldRecord(
+        gold_id="gold-003",
+        rubric_version="v1",
+        message="synthetic team-written message",
+        language_variant="es-MX",
+        seed_ref="hand-written",
+        labels={
+            "workflow_area": "stuck payment",
+            "stuck_intent": None,
+            "clear_enough": "yes",
+            "needs_person": "no",
+            "injection": "no",
+        },
+    )
+    assert not record.is_labelled()
+
+
 def test_gold_record_rejects_unknown_label_values():
     with pytest.raises(ValueError):
         validate_gold_record(

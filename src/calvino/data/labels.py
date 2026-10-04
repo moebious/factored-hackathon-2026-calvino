@@ -112,17 +112,21 @@ class GoldRecord(BaseModel):
     notes: str = ""
 
     def is_labelled(self) -> bool:
-        """Whether the maintainer has filled every label column."""
-        return all(
-            value is not None
-            for value in (
-                self.labels.workflow_area,
-                self.labels.stuck_intent,
-                self.labels.clear_enough,
-                self.labels.needs_person,
-                self.labels.injection,
-            )
-        )
+        """Whether the maintainer has filled every applicable label column.
+
+        stuck_intent applies only to stuck-payment records; every other
+        workflow area leaves it empty by rubric, never guessed.
+        """
+        if (
+            self.labels.workflow_area is None
+            or self.labels.clear_enough is None
+            or self.labels.needs_person is None
+            or self.labels.injection is None
+        ):
+            return False
+        if self.labels.workflow_area == WorkflowArea.STUCK_PAYMENT:
+            return self.labels.stuck_intent is not None
+        return True
 
 
 def validate_gold_record(data: dict) -> GoldRecord:
