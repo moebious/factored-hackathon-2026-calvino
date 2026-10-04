@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from calvino.api.app import PASSCODE_HEADER, RateLimiter, create_app
+from calvino.api.app import RateLimiter, create_app
 from calvino.api.config import ApiSettings
 from calvino.classifiers import LayaAnswer, workflow_questions
 from calvino.decision_log import read_records
@@ -35,8 +35,6 @@ ACT_SCRIPT = {
     "needs_human": {"human needed": 0.10, "can handle automatically": 0.90},
     "injection": {"risky": 0.02, "not risky": 0.98},
 }
-
-HEADERS = {PASSCODE_HEADER: "test-passcode"}
 
 
 class BrokenLoader:
@@ -78,7 +76,7 @@ def test_ready_follows_the_loader(fake_loader_factory, settings, policy):
 
 
 def test_decide_returns_the_glass_box(client):
-    response = client.post("/api/demo/decide", json={"text": "mi pago no llega"}, headers=HEADERS)
+    response = client.post("/api/demo/decide", json={"text": "mi pago no llega"})
 
     assert response.status_code == 200
     body = response.json()
@@ -93,42 +91,29 @@ def test_decide_returns_the_glass_box(client):
 
 
 def test_decide_writes_the_decision_log(client, settings):
-    response = client.post("/api/demo/decide", json={"text": "mi pago no llega"}, headers=HEADERS)
+    response = client.post("/api/demo/decide", json={"text": "mi pago no llega"})
 
     records = list(read_records(settings.decisions_log))
     assert [record.decision_id for record in records] == [response.json()["decision_id"]]
 
 
-def test_decide_rejects_a_missing_or_wrong_passcode(client):
-    assert client.post("/api/demo/decide", json={"text": "hola"}).status_code == 403
-    wrong = {PASSCODE_HEADER: "not-the-passcode"}
-    assert client.post("/api/demo/decide", json={"text": "hola"}, headers=wrong).status_code == 403
-
-
-def test_decide_is_disabled_without_a_configured_passcode(fake_loader_factory, policy, tmp_path):
-    settings = ApiSettings(data_dir=tmp_path / "data", demo_passcode=None)
-    with TestClient(create_app(fake_loader_factory(), settings, policy)) as started:
-        response = started.post("/api/demo/decide", json={"text": "hola"}, headers=HEADERS)
-    assert response.status_code == 503
+def test_decide_is_open_without_any_credentials(client):
+    """The demo is open: no passcode, no header, first request succeeds."""
+    assert client.post("/api/demo/decide", json={"text": "hola"}).status_code == 200
 
 
 def test_decide_validates_the_text(client):
-    assert client.post("/api/demo/decide", json={"text": ""}, headers=HEADERS).status_code == 422
+    assert client.post("/api/demo/decide", json={"text": ""}).status_code == 422
     long_text = "x" * 2001
-    assert (
-        client.post("/api/demo/decide", json={"text": long_text}, headers=HEADERS).status_code
-        == 422
-    )
+    assert client.post("/api/demo/decide", json={"text": long_text}).status_code == 422
 
 
 def test_decide_rate_limits_per_client(fake_loader_factory, policy, tmp_path):
-    settings = ApiSettings(
-        data_dir=tmp_path / "data", demo_passcode="test-passcode", demo_rate_limit_per_minute=2
-    )
+    settings = ApiSettings(data_dir=tmp_path / "data", demo_rate_limit_per_minute=2)
     with TestClient(create_app(fake_loader_factory(ACT_SCRIPT), settings, policy)) as started:
-        first = started.post("/api/demo/decide", json={"text": "uno"}, headers=HEADERS)
-        second = started.post("/api/demo/decide", json={"text": "dos"}, headers=HEADERS)
-        third = started.post("/api/demo/decide", json={"text": "tres"}, headers=HEADERS)
+        first = started.post("/api/demo/decide", json={"text": "uno"})
+        second = started.post("/api/demo/decide", json={"text": "dos"})
+        third = started.post("/api/demo/decide", json={"text": "tres"})
 
     assert (first.status_code, second.status_code) == (200, 200)
     assert third.status_code == 429
@@ -142,11 +127,9 @@ def test_rate_limit_keys_on_the_forwarded_client(fake_loader_factory, policy, tm
     limiter must key on the forwarded value or the per-client cap becomes a
     global one during judging (TSD-012).
     """
-    settings = ApiSettings(
-        data_dir=tmp_path / "data", demo_passcode="test-passcode", demo_rate_limit_per_minute=2
-    )
-    judge_a = {**HEADERS, "x-forwarded-for": "203.0.113.7, 10.0.0.1"}
-    judge_b = {**HEADERS, "x-forwarded-for": "198.51.100.4"}
+    settings = ApiSettings(data_dir=tmp_path / "data", demo_rate_limit_per_minute=2)
+    judge_a = {"x-forwarded-for": "203.0.113.7, 10.0.0.1"}
+    judge_b = {"x-forwarded-for": "198.51.100.4"}
     with TestClient(create_app(fake_loader_factory(ACT_SCRIPT), settings, policy)) as started:
         first = started.post("/api/demo/decide", json={"text": "uno"}, headers=judge_a)
         second = started.post("/api/demo/decide", json={"text": "dos"}, headers=judge_a)
@@ -160,10 +143,8 @@ def test_rate_limit_keys_on_the_forwarded_client(fake_loader_factory, policy, tm
 
 def test_a_blank_forwarded_header_falls_back_to_the_peer(fake_loader_factory, policy, tmp_path):
     """Without a usable forwarded value the direct peer is the client."""
-    settings = ApiSettings(
-        data_dir=tmp_path / "data", demo_passcode="test-passcode", demo_rate_limit_per_minute=2
-    )
-    headers = {**HEADERS, "x-forwarded-for": ""}
+    settings = ApiSettings(data_dir=tmp_path / "data", demo_rate_limit_per_minute=2)
+    headers = {"x-forwarded-for": ""}
     with TestClient(create_app(fake_loader_factory(ACT_SCRIPT), settings, policy)) as started:
         first = started.post("/api/demo/decide", json={"text": "uno"}, headers=headers)
         second = started.post("/api/demo/decide", json={"text": "dos"}, headers=headers)
@@ -172,18 +153,10 @@ def test_a_blank_forwarded_header_falls_back_to_the_peer(fake_loader_factory, po
     assert (first.status_code, second.status_code, third.status_code) == (200, 200, 429)
 
 
-def test_a_spoofed_forwarded_header_never_bypasses_the_passcode(client):
-    """The forwarded value changes only the rate limit, never authentication."""
-    headers = {**HEADERS, "x-forwarded-for": "203.0.113.9"}
-    headers[PASSCODE_HEADER] = "not-the-passcode"
-    response = client.post("/api/demo/decide", json={"text": "hola"}, headers=headers)
-    assert response.status_code == 403
-
-
 def test_broken_answers_map_to_502(policy, tmp_path):
-    settings = ApiSettings(data_dir=tmp_path / "data", demo_passcode="test-passcode")
+    settings = ApiSettings(data_dir=tmp_path / "data")
     with TestClient(create_app(BrokenLoader(), settings, policy)) as started:
-        response = started.post("/api/demo/decide", json={"text": "hola"}, headers=HEADERS)
+        response = started.post("/api/demo/decide", json={"text": "hola"})
     assert response.status_code == 502
     assert "decision failed" in response.json()["detail"]
 

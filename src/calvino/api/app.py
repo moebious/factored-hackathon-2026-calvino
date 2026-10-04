@@ -5,17 +5,15 @@
 System 1 decision on a short text) and the hub endpoints (TSD-010):
 ``POST /api/hub/message``, ``POST /api/hub/resume`` and
 ``GET /api/hub/personas``, serving the ``HubService`` over the synthetic
-bank fixture. Every demo endpoint sits behind the same passcode and the
-same per-client rate limit, and is disabled unless a passcode is
-configured (fail closed). The hub is wired at startup and stays disabled
-when its confirmation key is missing, so writes never lose their token
-path. The loader preloads during startup, never on the first request.
-Every collaborator is injectable so tests run without laya.
+bank fixture. Every demo endpoint is open, with the same per-client rate
+limit shared across them. The hub is wired at startup and stays disabled
+when its confirmation key is missing (fail closed), so writes never lose
+their token path. The loader preloads during startup, never on the first
+request. Every collaborator is injectable so tests run without laya.
 """
 
 from __future__ import annotations
 
-import secrets
 import time
 from collections import deque
 from collections.abc import AsyncIterator
@@ -38,8 +36,6 @@ from calvino.tools import ConfigurationError
 # "A short text" (TSD-003): the demo classifies one customer message, and the
 # bound keeps latency and abuse costs sane on a free-tier Space.
 MAX_DEMO_TEXT_CHARS = 2000
-
-PASSCODE_HEADER = "x-calvino-passcode"
 
 
 class DemoDecideRequest(BaseModel):
@@ -106,8 +102,8 @@ def client_key(request: Request) -> str:
     egress IP, so keying on the direct peer would turn the per-client cap
     into a global one during judging. Vercel forwards the browser's IP as
     the first ``X-Forwarded-For`` entry; a client hitting the Space URL
-    directly can spoof the header, which weakens the rate limit but never
-    the passcode (NFR-8 trade-off, TSD-012).
+    directly can spoof the header, which weakens the rate limit and
+    nothing else (the demo is open; NFR-8 trade-off, TSD-012).
     """
     forwarded = request.headers.get("x-forwarded-for", "")
     first = forwarded.split(",")[0].strip()
@@ -134,13 +130,7 @@ def create_app(
     limiter = RateLimiter(settings.demo_rate_limit_per_minute)
 
     def guard(request: Request) -> None:
-        """The passcode and the per-client rate limit every demo endpoint shares."""
-        if settings.demo_passcode is None:
-            # Fail closed: no passcode configured means the demo stays off.
-            raise HTTPException(status_code=503, detail="the demo endpoint is not configured")
-        given = request.headers.get(PASSCODE_HEADER, "")
-        if not secrets.compare_digest(given, settings.demo_passcode):
-            raise HTTPException(status_code=403, detail="invalid demo passcode")
+        """The per-client rate limit every open demo endpoint shares."""
         client = client_key(request)
         now = time.monotonic()
         if not limiter.allow(client, now):
@@ -163,7 +153,7 @@ def create_app(
         # 20-25 s call on CPU and must never happen on the first request.
         # Without laya installed this raises here, failing the boot fast.
         await anyio.to_thread.run_sync(loader.preload)
-        if app.state.hub is None and settings.demo_passcode is not None:
+        if app.state.hub is None:
             try:
                 app.state.hub = await anyio.to_thread.run_sync(
                     lambda: build_demo_hub(loader, settings, policy, log)
@@ -189,7 +179,7 @@ def create_app(
 
     @app.post("/api/demo/decide", response_model=DemoDecision)
     async def demo_decide(payload: DemoDecideRequest, request: Request) -> DemoDecision:
-        """Run one System 1 decision on a short text (passcode required)."""
+        """Run one System 1 decision on a short text."""
         guard(request)
         try:
             # classify and the policy call are blocking; keep the loop free.
@@ -209,7 +199,7 @@ def create_app(
 
     @app.post("/api/hub/message", response_model=HubReply)
     async def hub_message(payload: HubMessageRequest, request: Request) -> HubReply:
-        """Run one customer turn through the hub (passcode required)."""
+        """Run one customer turn through the hub."""
         guard(request)
         service = hub_or_503(request)
         try:
@@ -223,7 +213,7 @@ def create_app(
 
     @app.post("/api/hub/resume", response_model=HubReply)
     async def hub_resume(payload: HubResumeRequest, request: Request) -> HubReply:
-        """Continue a parked turn with the human's decision (passcode required)."""
+        """Continue a parked turn with the human's decision."""
         guard(request)
         service = hub_or_503(request)
         try:

@@ -3,7 +3,7 @@
 The app is assembled with an injected ``HubService`` built by the real
 ``build_demo_hub`` over the bundled fixture, a scripted System One loader
 and a fake confirmation verifier, so the endpoints are tested end to end
-without laya or the HMAC key. Covered: the passcode guard, the disabled
+without laya or the HMAC key. Covered: the open endpoints, the disabled
 hub (no confirmation key), the explain turn with its card and trace, the
 parked approval with the confirmation card and its resume, the operator
 queue flow, the fail-closed unknown persona and ref, and the shared rate
@@ -15,15 +15,13 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from calvino.api.app import PASSCODE_HEADER, create_app
+from calvino.api.app import create_app
 from calvino.api.config import ApiSettings, settings_from_env
 from calvino.api.hub import build_demo_hub
 from calvino.classifiers import LayaAnswer
 from calvino.decision_log import DecisionLog
 from calvino.policy import load_policy
 from calvino.tools import FakeConfirmationVerifier
-
-AUTH = {PASSCODE_HEADER: "s3cret"}
 
 DANA_EXPLAIN = "Su transferencia de 120.00 USD «Tuition» del 2026-06-15 está rechazada."
 
@@ -100,7 +98,7 @@ def make_hub_client(tmp_path, monkeypatch):
 
     def build(**probability_overrides: dict[str, float]) -> TestClient:
         loader = ScriptedLoader(route_probabilities(**probability_overrides))
-        settings = ApiSettings(data_dir=tmp_path, demo_passcode="s3cret")
+        settings = ApiSettings(data_dir=tmp_path)
         log = DecisionLog(settings.decisions_log)
         hub = build_demo_hub(
             loader, settings, load_policy(), log, confirmations=FakeConfirmationVerifier()
@@ -110,11 +108,10 @@ def make_hub_client(tmp_path, monkeypatch):
     return build
 
 
-def test_personas_needs_the_passcode(make_hub_client):
-    """The personas endpoint is behind the same guard as decide."""
+def test_personas_is_open(make_hub_client):
+    """The personas endpoint needs no credentials: first request works."""
     with make_hub_client() as client:
-        assert client.get("/api/hub/personas").status_code == 403
-        response = client.get("/api/hub/personas", headers=AUTH)
+        response = client.get("/api/hub/personas")
     assert response.status_code == 200
     assert response.json() == {"personas": ["ana", "camilo", "lucia", "dana"]}
 
@@ -125,7 +122,6 @@ def test_message_explain_returns_reply_card_and_trace(make_hub_client):
         response = client.post(
             "/api/hub/message",
             json={"persona": "dana", "text": "¿Por qué mi transferencia E-US-001 sigue pendiente?"},
-            headers=AUTH,
         )
     assert response.status_code == 200
     body = response.json()
@@ -149,7 +145,6 @@ def test_approval_parks_with_confirmation_card_and_resumes(make_hub_client):
         parked = client.post(
             "/api/hub/message",
             json={"persona": "dana", "text": "¿Pueden reintentar mi transferencia E-US-001?"},
-            headers=AUTH,
         ).json()
         assert parked["awaiting"] == "approve_action"
         assert parked["awaiting_ref"] == "persona-dana"
@@ -167,7 +162,6 @@ def test_approval_parks_with_confirmation_card_and_resumes(make_hub_client):
         final = client.post(
             "/api/hub/resume",
             json={"ref": parked["awaiting_ref"], "decision": True},
-            headers=AUTH,
         )
     assert final.status_code == 200
     body = final.json()
@@ -193,7 +187,6 @@ def test_ineligible_action_is_refused_with_a_card(make_hub_client):
         response = client.post(
             "/api/hub/message",
             json={"persona": "dana", "text": "Cancela mi transferencia E-US-001"},
-            headers=AUTH,
         )
     assert response.status_code == 200
     body = response.json()
@@ -208,7 +201,6 @@ def test_operator_queue_parks_and_resumes_over_http(make_hub_client):
         parked = client.post(
             "/api/hub/message",
             json={"persona": "ana", "text": "Quiero hablar con una persona"},
-            headers=AUTH,
         ).json()
         assert parked["awaiting"] == "operator_queue"
         case_ref = parked["case_ref"]
@@ -217,7 +209,6 @@ def test_operator_queue_parks_and_resumes_over_http(make_hub_client):
         final = client.post(
             "/api/hub/resume",
             json={"ref": case_ref, "decision": "assigned to operator 7"},
-            headers=AUTH,
         )
     assert final.status_code == 200
     assert case_ref in final.json()["reply"]
@@ -227,7 +218,8 @@ def test_unknown_persona_fails_closed(make_hub_client):
     """A persona outside the demo set is a 404, not a guessed session."""
     with make_hub_client() as client:
         response = client.post(
-            "/api/hub/message", json={"persona": "nobody", "text": "hola"}, headers=AUTH
+            "/api/hub/message",
+            json={"persona": "nobody", "text": "hola"},
         )
     assert response.status_code == 404
 
@@ -236,7 +228,8 @@ def test_resume_unknown_ref_fails_closed(make_hub_client):
     """An unknown ref is a 404: the service never guesses a thread."""
     with make_hub_client() as client:
         response = client.post(
-            "/api/hub/resume", json={"ref": "case-nope", "decision": "whatever"}, headers=AUTH
+            "/api/hub/resume",
+            json={"ref": "case-nope", "decision": "whatever"},
         )
     assert response.status_code == 404
 
@@ -247,7 +240,6 @@ def test_overlong_text_is_rejected(make_hub_client):
         response = client.post(
             "/api/hub/message",
             json={"persona": "dana", "text": "x" * 2001},
-            headers=AUTH,
         )
     assert response.status_code == 422
 
@@ -256,7 +248,8 @@ def test_overlong_operator_decision_is_rejected(make_hub_client):
     """The operator's decision string is bounded too: it reaches the log."""
     with make_hub_client() as client:
         response = client.post(
-            "/api/hub/resume", json={"ref": "case-1", "decision": "x" * 201}, headers=AUTH
+            "/api/hub/resume",
+            json={"ref": "case-1", "decision": "x" * 201},
         )
     assert response.status_code == 422
 
@@ -264,12 +257,12 @@ def test_overlong_operator_decision_is_rejected(make_hub_client):
 def test_rate_limit_covers_the_hub_endpoints(tmp_path, monkeypatch):
     """The per-client limit is shared: the third call in a minute is a 429."""
     monkeypatch.delenv("CALVINO_CONFIRMATION_KEY", raising=False)
-    settings = ApiSettings(data_dir=tmp_path, demo_passcode="s3cret", demo_rate_limit_per_minute=2)
+    settings = ApiSettings(data_dir=tmp_path, demo_rate_limit_per_minute=2)
     app = create_app(ScriptedLoader(route_probabilities()), settings)
     with TestClient(app) as client:
-        first = client.get("/api/hub/personas", headers=AUTH)
-        second = client.get("/api/hub/personas", headers=AUTH)
-        third = client.get("/api/hub/personas", headers=AUTH)
+        first = client.get("/api/hub/personas")
+        second = client.get("/api/hub/personas")
+        third = client.get("/api/hub/personas")
     assert first.status_code == 200
     assert second.status_code == 200
     assert third.status_code == 429
@@ -282,13 +275,13 @@ def test_hub_endpoints_stay_off_without_a_confirmation_key(tmp_path, monkeypatch
     settings = settings_from_env(
         env={
             "CALVINO_DATA_DIR": str(tmp_path),
-            "CALVINO_DEMO_PASSCODE": "s3cret",
         }
     )
     loader = ScriptedLoader(route_probabilities())
     app = create_app(loader, settings)  # no injected hub; startup tries to wire one
     with TestClient(app) as client:
         response = client.post(
-            "/api/hub/message", json={"persona": "dana", "text": "hola"}, headers=AUTH
+            "/api/hub/message",
+            json={"persona": "dana", "text": "hola"},
         )
     assert response.status_code == 503

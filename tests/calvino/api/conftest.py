@@ -69,5 +69,5 @@ def policy():
 
 @pytest.fixture
 def settings(tmp_path):
-    """API settings on a temporary data dir with a known demo passcode."""
-    return ApiSettings(data_dir=tmp_path / "data", demo_passcode="test-passcode")
+    """API settings on a temporary data dir."""
+    return ApiSettings(data_dir=tmp_path / "data")

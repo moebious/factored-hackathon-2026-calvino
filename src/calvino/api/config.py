@@ -1,12 +1,12 @@
 """Runtime configuration for the demo API (TSD-003).
 
 Every location and secret is configuration, never code: the durable-storage
-directory (``CALVINO_DATA_DIR``), the demo passcode (``CALVINO_DEMO_PASSCODE``)
-and the demo rate limit (``CALVINO_DEMO_RATE_LIMIT``) all come from environment
-variables. A Space's own disk is wiped on restart, so in the deployment
-``CALVINO_DATA_DIR`` must point at the persistent-storage mount (``/data``);
-``decisions.jsonl`` and the hub's checkpointer database both live there, which
-is what makes cases and the audit log survive restarts (DESIGN 4.0.2).
+directory (``CALVINO_DATA_DIR``) and the demo rate limit
+(``CALVINO_DEMO_RATE_LIMIT``) come from environment variables. A Space's own
+disk is wiped on restart, so in the deployment ``CALVINO_DATA_DIR`` must
+point at the persistent-storage mount (``/data``); ``decisions.jsonl`` and
+the hub's checkpointer database both live there, which is what makes cases
+and the audit log survive restarts (DESIGN 4.0.2).
 """
 
 from __future__ import annotations
@@ -39,7 +39,6 @@ class ApiSettings(BaseModel):
 
     data_dir: Path = DEFAULT_DATA_DIR
     bank_fixture: Path = DEFAULT_BANK_FIXTURE
-    demo_passcode: str | None = None
     demo_rate_limit_per_minute: int = Field(default=30, ge=1)
 
     @property
@@ -64,8 +63,5 @@ def settings_from_env(env: Mapping[str, str] | None = None) -> ApiSettings:
     return ApiSettings(
         data_dir=Path(source.get("CALVINO_DATA_DIR", str(DEFAULT_DATA_DIR))),
         bank_fixture=Path(source.get("CALVINO_BANK_FIXTURE", str(DEFAULT_BANK_FIXTURE))),
-        # An empty string counts as unset: without a passcode the demo
-        # endpoint stays disabled (fail closed) rather than open.
-        demo_passcode=source.get("CALVINO_DEMO_PASSCODE") or None,
         demo_rate_limit_per_minute=int(raw_limit) if raw_limit else 30,
     )

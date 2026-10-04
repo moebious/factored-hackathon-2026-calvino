@@ -16,21 +16,19 @@ import sqlite3
 
 from fastapi.testclient import TestClient
 
-from calvino.api.app import PASSCODE_HEADER, create_app
+from calvino.api.app import create_app
 from calvino.api.config import ApiSettings
 from calvino.decision_log import read_records
 
-HEADERS = {PASSCODE_HEADER: "test-passcode"}
-
 
 def test_state_survives_a_restart(fake_loader_factory, policy, tmp_path):
-    settings = ApiSettings(data_dir=tmp_path / "data", demo_passcode="test-passcode")
+    settings = ApiSettings(data_dir=tmp_path / "data")
 
     # First "process": serve one decision, then write a checkpoint row where
     # the hub's checkpointer will keep its database.
     payload = {"text": "mi pago no llega"}
     with TestClient(create_app(fake_loader_factory(), settings, policy)) as first:
-        response = first.post("/api/demo/decide", json=payload, headers=HEADERS)
+        response = first.post("/api/demo/decide", json=payload)
     assert response.status_code == 200
     decision_id = response.json()["decision_id"]
 
