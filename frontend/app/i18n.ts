@@ -10,7 +10,6 @@ export const STRINGS = {
     tagline:
       "Respuestas verificadas contra los datos del banco. Nada en esta pantalla es texto generado libremente.",
     persona: "Persona de demo",
-    passcode: "Passcode de demo",
     inputPlaceholder: "Escribe tu mensaje…",
     send: "Enviar",
     sending: "Enviando…",
@@ -70,7 +69,6 @@ export const STRINGS = {
     tagline:
       "Respostas verificadas contra os dados do banco. Nada nesta tela é texto gerado livremente.",
     persona: "Persona de demonstração",
-    passcode: "Passcode de demonstração",
     inputPlaceholder: "Escreva sua mensagem…",
     send: "Enviar",
     sending: "Enviando…",
