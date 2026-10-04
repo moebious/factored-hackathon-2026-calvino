@@ -79,6 +79,67 @@ not a replacement for the full inventory; run it only after reviewing its
 transfer size.
 Reviewed aggregate findings from the full run: [full-data inventory](reports/data-quality/full-inventory.md).
 
+The T-104 [human-baseline spec](docs/specs/TSD-018-human-baseline.md) has an
+aggregate-only four-table runner. Run this in your credentialed Terminal, with the
+same private `CALVINO_ENV_FILE` as the inventory. The first command lists only
+`customers`, `daily_exchange_rates`, `call_center_interactions` and `complaints`,
+and probes one byte. It prints a digest and total transfer bytes without keys.
+
+```bash
+uv run python scripts/baseline/run.py --source live-s3 --check-access
+# Review the four-table byte total and digest before approving a full read.
+uv run python scripts/baseline/run.py --source live-s3 --manifest-digest REVIEWED_DIGEST --max-bytes REVIEWED_BYTE_CEILING
+```
+
+The second command reads only version-matched objects within that ceiling and
+stages aggregate-only CSVs, a definitions README and a reconciliation against
+the independent baseline in the ignored, private `data/baseline-staging/`.
+It never promotes the staged report, uploads, or replaces the independent
+cross-check's results. A mismatch exits nonzero and remains a candidate
+for review. To exercise the command offline with synthetic CSV fixtures, use
+`uv run python scripts/baseline/run.py --source tests/fixtures/lakehouse`;
+it stages output marked **candidate**, never measured. Local Parquet is also
+accepted. Each invocation needs an empty staging directory; existing files
+are never automatically removed. CSV column projection does not reduce S3
+transfer bytes. The baseline is a category-level proxy, **not** an observed
+outcome rate for stuck-payment cases.
+
+The first guarded baseline run reconciled its overall/country cells, but grouped
+some calls under channel `(other)` because its channel allowlist was incomplete.
+Before using by-channel results, run a **metadata-only** call-table diagnostic
+manifest. It does not fetch source bodies or touch the existing staged output:
+
+```bash
+uv run python scripts/baseline/channel_diagnostic.py --manifest
+# Only after separately reviewing and approving that one-table digest and byte total:
+uv run python scripts/baseline/channel_diagnostic.py --run --manifest-digest REVIEWED_CALL_DIGEST --max-bytes REVIEWED_CALL_BYTE_CEILING
+```
+
+The guarded scan reads only the version-matched call objects, compares every
+previously grouped channel metric and stages a separate aggregate-only
+`data/channel-diagnostic/` report. It never overwrites the original baseline.
+Channel labels that are too small or unsafe to display remain explicitly
+grouped as `(other)`. A changed manifest, ceiling breach, row-count difference,
+or reconciliation mismatch prevents a publishable result. The first staged
+baseline README overstates unknown complaint categories: they are non-target
+categories, not missing ones; the original CSV metrics remain valid.
+
+Once **both** measured staging runs reconcile, prepare a separate, ignored
+review candidate with `uv run python scripts/baseline/prepare_review.py`.
+It combines the corrected channel slices with the unchanged overall, country,
+segment and complaint metrics in `data/baseline-review/`, and documents the
+earlier category-label correction. It refuses an existing nonempty review
+directory, leaves both measured inputs and the independent baseline untouched,
+and does not publish the candidate. The maintainer reviews and approves any
+promotion separately.
+
+The reconciled baseline is **published** at [reports/baseline/](reports/baseline/)
+`[measured]`: 468 interaction cells and 960 complaint cells, each with its
+counts and denominators, plus the two cell-by-cell reconciliation files. The
+independent cross-check that confirmed it is preserved unchanged at
+[reports/baseline-independent/](reports/baseline-independent/). Both remain
+category-level proxies, never case-level stuck-payment outcomes.
+
 Run the demo (deployment skeleton, [docs/DEPLOY.md](docs/DEPLOY.md) for the full path):
 
 ```bash

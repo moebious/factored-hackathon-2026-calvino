@@ -1,73 +1,469 @@
-population,slice_type,slice_value,metric,value,n_cases,n_null_excluded,small_n,label
-all interactions,overall,all,fcr,0.7664768554676117,686296,0,False,measured
-all interactions,overall,all,escalation,0.0996450511149708,686296,0,False,measured
-all interactions,overall,all,follow_up,0.3483249210253302,686296,0,False,measured
-all interactions,overall,all,duration_seconds_mean,321.45454545454544,590062,96234,False,measured
-all interactions,overall,all,duration_seconds_median,291.0,590062,96234,False,measured
-all interactions,overall,all,duration_seconds_p90,538.0,590062,96234,False,measured
-all interactions,overall,all,wait_time_seconds_mean,119.93708054040334,480678,205618,False,measured
-all interactions,overall,all,wait_time_seconds_median,119.0,480678,205618,False,measured
-all interactions,overall,all,wait_time_seconds_p90,196.0,480678,205618,False,measured
-all interactions,country,Argentina,fcr,0.7658619247782742,136317,0,False,measured
-all interactions,country,Argentina,escalation,0.0984470022080885,136317,0,False,measured
-all interactions,country,Argentina,follow_up,0.3491420732557201,136317,0,False,measured
-all interactions,country,Argentina,duration_seconds_mean,321.6995892504889,117103,19214,False,measured
-all interactions,country,Argentina,duration_seconds_median,291.0,117103,19214,False,measured
-all interactions,country,Argentina,duration_seconds_p90,539.0,117103,19214,False,measured
-all interactions,country,Argentina,wait_time_seconds_mean,120.02669154802591,95386,40931,False,measured
-all interactions,country,Argentina,wait_time_seconds_median,119.0,95386,40931,False,measured
-all interactions,country,Argentina,wait_time_seconds_p90,196.0,95386,40931,False,measured
-all interactions,country,Colombia,fcr,0.7667246965520577,206790,0,False,measured
-all interactions,country,Colombia,escalation,0.10095749310895111,206790,0,False,measured
-all interactions,country,Colombia,follow_up,0.34799071521833747,206790,0,False,measured
-all interactions,country,Colombia,duration_seconds_mean,321.4382964132946,177907,28883,False,measured
-all interactions,country,Colombia,duration_seconds_median,290.0,177907,28883,False,measured
-all interactions,country,Colombia,duration_seconds_p90,538.0,177907,28883,False,measured
-all interactions,country,Colombia,wait_time_seconds_mean,119.6967084801633,145009,61781,False,measured
-all interactions,country,Colombia,wait_time_seconds_median,119.0,145009,61781,False,measured
-all interactions,country,Colombia,wait_time_seconds_p90,196.0,145009,61781,False,measured
-all interactions,country,México,fcr,0.7665717724052927,343189,0,False,measured
-all interactions,country,México,escalation,0.0993301067341902,343189,0,False,measured
-all interactions,country,México,follow_up,0.34820171975208997,343189,0,False,measured
-all interactions,country,México,duration_seconds_mean,321.3670878353646,295052,48137,False,measured
-all interactions,country,México,duration_seconds_median,291.0,295052,48137,False,measured
-all interactions,country,México,duration_seconds_p90,538.0,295052,48137,False,measured
-all interactions,country,México,wait_time_seconds_mean,120.0465700861068,240283,102906,False,measured
-all interactions,country,México,wait_time_seconds_median,119.0,240283,102906,False,measured
-all interactions,country,México,wait_time_seconds_p90,196.0,240283,102906,False,measured
-Transaccional,overall,all,fcr,0.9150823141267038,240056,0,False,measured
-Transaccional,overall,all,escalation,0.09931432665711334,240056,0,False,measured
-Transaccional,overall,all,follow_up,0.2213525177458593,240056,0,False,measured
-Transaccional,overall,all,duration_seconds_mean,220.8028237231492,206465,33591,False,measured
-Transaccional,overall,all,duration_seconds_median,205.0,206465,33591,False,measured
-Transaccional,overall,all,duration_seconds_p90,333.0,206465,33591,False,measured
-Transaccional,overall,all,wait_time_seconds_mean,119.65022549591251,168074,71982,False,measured
-Transaccional,overall,all,wait_time_seconds_median,119.0,168074,71982,False,measured
-Transaccional,overall,all,wait_time_seconds_p90,196.0,168074,71982,False,measured
-Transaccional,country,Argentina,fcr,0.9156735207721359,47660,0,False,measured
-Transaccional,country,Argentina,escalation,0.09762903902643727,47660,0,False,measured
-Transaccional,country,Argentina,follow_up,0.220709190096517,47660,0,False,measured
-Transaccional,country,Argentina,duration_seconds_mean,220.1866403277729,41004,6656,False,measured
-Transaccional,country,Argentina,duration_seconds_median,204.0,41004,6656,False,measured
-Transaccional,country,Argentina,duration_seconds_p90,331.0,41004,6656,False,measured
-Transaccional,country,Argentina,wait_time_seconds_mean,120.05065256996087,33483,14177,False,measured
-Transaccional,country,Argentina,wait_time_seconds_median,119.0,33483,14177,False,measured
-Transaccional,country,Argentina,wait_time_seconds_p90,197.0,33483,14177,False,measured
-Transaccional,country,Colombia,fcr,0.9150473721228504,72511,0,False,measured
-Transaccional,country,Colombia,escalation,0.10041235122946864,72511,0,False,measured
-Transaccional,country,Colombia,follow_up,0.22095957854670326,72511,0,False,measured
-Transaccional,country,Colombia,duration_seconds_mean,221.04799064222536,62408,10103,False,measured
-Transaccional,country,Colombia,duration_seconds_median,205.0,62408,10103,False,measured
-Transaccional,country,Colombia,duration_seconds_p90,333.0,62408,10103,False,measured
-Transaccional,country,Colombia,wait_time_seconds_mean,119.43267182198375,50692,21819,False,measured
-Transaccional,country,Colombia,wait_time_seconds_median,119.0,50692,21819,False,measured
-Transaccional,country,Colombia,wait_time_seconds_p90,196.0,50692,21819,False,measured
-Transaccional,country,México,fcr,0.9148684155649164,119885,0,False,measured
-Transaccional,country,México,escalation,0.09932018184093089,119885,0,False,measured
-Transaccional,country,México,follow_up,0.22184593568836802,119885,0,False,measured
-Transaccional,country,México,duration_seconds_mean,220.89952742763433,103053,16832,False,measured
-Transaccional,country,México,duration_seconds_median,205.0,103053,16832,False,measured
-Transaccional,country,México,duration_seconds_p90,334.0,103053,16832,False,measured
-Transaccional,country,México,wait_time_seconds_mean,119.62186676837626,83899,35986,False,measured
-Transaccional,country,México,wait_time_seconds_median,119.0,83899,35986,False,measured
-Transaccional,country,México,wait_time_seconds_p90,196.0,83899,35986,False,measured
+population,slice_type,slice_value,metric,value,n_population,n_valid,n_null_excluded,n_invalid_excluded,n_unresolved_excluded,denominator,small_n,label
+Transaccional,country,Argentina,fcr,0.9156735207721359,47660,47660,0,0,0,47660,False,measured
+Transaccional,country,Argentina,escalation,0.09762903902643727,47660,47660,0,0,0,47660,False,measured
+Transaccional,country,Argentina,follow_up,0.220709190096517,47660,47660,0,0,0,47660,False,measured
+Transaccional,country,Argentina,duration_seconds_mean,220.1866403277729,47660,41004,6656,0,0,41004,False,measured
+Transaccional,country,Argentina,duration_seconds_median,204.0,47660,41004,6656,0,0,41004,False,measured
+Transaccional,country,Argentina,duration_seconds_p90,331.0,47660,41004,6656,0,0,41004,False,measured
+Transaccional,country,Argentina,wait_time_seconds_mean,120.05065256996087,47660,33483,14177,0,0,33483,False,measured
+Transaccional,country,Argentina,wait_time_seconds_median,119.0,47660,33483,14177,0,0,33483,False,measured
+Transaccional,country,Argentina,wait_time_seconds_p90,197.0,47660,33483,14177,0,0,33483,False,measured
+Transaccional,country,Colombia,fcr,0.9150473721228504,72511,72511,0,0,0,72511,False,measured
+Transaccional,country,Colombia,escalation,0.10041235122946864,72511,72511,0,0,0,72511,False,measured
+Transaccional,country,Colombia,follow_up,0.22095957854670326,72511,72511,0,0,0,72511,False,measured
+Transaccional,country,Colombia,duration_seconds_mean,221.04799064222536,72511,62408,10103,0,0,62408,False,measured
+Transaccional,country,Colombia,duration_seconds_median,205.0,72511,62408,10103,0,0,62408,False,measured
+Transaccional,country,Colombia,duration_seconds_p90,333.0,72511,62408,10103,0,0,62408,False,measured
+Transaccional,country,Colombia,wait_time_seconds_mean,119.43267182198375,72511,50692,21819,0,0,50692,False,measured
+Transaccional,country,Colombia,wait_time_seconds_median,119.0,72511,50692,21819,0,0,50692,False,measured
+Transaccional,country,Colombia,wait_time_seconds_p90,196.0,72511,50692,21819,0,0,50692,False,measured
+Transaccional,country,México,fcr,0.9148684155649164,119885,119885,0,0,0,119885,False,measured
+Transaccional,country,México,escalation,0.09932018184093089,119885,119885,0,0,0,119885,False,measured
+Transaccional,country,México,follow_up,0.22184593568836802,119885,119885,0,0,0,119885,False,measured
+Transaccional,country,México,duration_seconds_mean,220.89952742763433,119885,103053,16832,0,0,103053,False,measured
+Transaccional,country,México,duration_seconds_median,205.0,119885,103053,16832,0,0,103053,False,measured
+Transaccional,country,México,duration_seconds_p90,334.0,119885,103053,16832,0,0,103053,False,measured
+Transaccional,country,México,wait_time_seconds_mean,119.62186676837626,119885,83899,35986,0,0,83899,False,measured
+Transaccional,country,México,wait_time_seconds_median,119.0,119885,83899,35986,0,0,83899,False,measured
+Transaccional,country,México,wait_time_seconds_p90,196.0,119885,83899,35986,0,0,83899,False,measured
+Transaccional,country_x_segment,Argentina / Basic,fcr,0.9156605485379301,28658,28658,0,0,0,28658,False,measured
+Transaccional,country_x_segment,Argentina / Basic,escalation,0.09787842836206295,28658,28658,0,0,0,28658,False,measured
+Transaccional,country_x_segment,Argentina / Basic,follow_up,0.22018284597669063,28658,28658,0,0,0,28658,False,measured
+Transaccional,country_x_segment,Argentina / Basic,duration_seconds_mean,220.5539253434929,28658,24673,3985,0,0,24673,False,measured
+Transaccional,country_x_segment,Argentina / Basic,duration_seconds_median,204.0,28658,24673,3985,0,0,24673,False,measured
+Transaccional,country_x_segment,Argentina / Basic,duration_seconds_p90,332.0,28658,24673,3985,0,0,24673,False,measured
+Transaccional,country_x_segment,Argentina / Basic,wait_time_seconds_mean,119.67836228287841,28658,20150,8508,0,0,20150,False,measured
+Transaccional,country_x_segment,Argentina / Basic,wait_time_seconds_median,119.0,28658,20150,8508,0,0,20150,False,measured
+Transaccional,country_x_segment,Argentina / Basic,wait_time_seconds_p90,196.0,28658,20150,8508,0,0,20150,False,measured
+Transaccional,country_x_segment,Argentina / Plus,fcr,0.9156413281645036,11866,11866,0,0,0,11866,False,measured
+Transaccional,country_x_segment,Argentina / Plus,escalation,0.09733692904095735,11866,11866,0,0,0,11866,False,measured
+Transaccional,country_x_segment,Argentina / Plus,follow_up,0.22366425080060678,11866,11866,0,0,0,11866,False,measured
+Transaccional,country_x_segment,Argentina / Plus,duration_seconds_mean,220.02777232580962,11866,10190,1676,0,0,10190,False,measured
+Transaccional,country_x_segment,Argentina / Plus,duration_seconds_median,205.0,11866,10190,1676,0,0,10190,False,measured
+Transaccional,country_x_segment,Argentina / Plus,duration_seconds_p90,327.0,11866,10190,1676,0,0,10190,False,measured
+Transaccional,country_x_segment,Argentina / Plus,wait_time_seconds_mean,120.05908651522475,11866,8276,3590,0,0,8276,False,measured
+Transaccional,country_x_segment,Argentina / Plus,wait_time_seconds_median,119.0,11866,8276,3590,0,0,8276,False,measured
+Transaccional,country_x_segment,Argentina / Plus,wait_time_seconds_p90,197.0,11866,8276,3590,0,0,8276,False,measured
+Transaccional,country_x_segment,Argentina / Premium,fcr,0.9189245956731779,4761,4761,0,0,0,4761,False,measured
+Transaccional,country_x_segment,Argentina / Premium,escalation,0.10039907582440663,4761,4761,0,0,0,4761,False,measured
+Transaccional,country_x_segment,Argentina / Premium,follow_up,0.21340054610375972,4761,4761,0,0,0,4761,False,measured
+Transaccional,country_x_segment,Argentina / Premium,duration_seconds_mean,217.51368523949168,4761,4092,669,0,0,4092,False,measured
+Transaccional,country_x_segment,Argentina / Premium,duration_seconds_median,203.0,4761,4092,669,0,0,4092,False,measured
+Transaccional,country_x_segment,Argentina / Premium,duration_seconds_p90,328.9000000000001,4761,4092,669,0,0,4092,False,measured
+Transaccional,country_x_segment,Argentina / Premium,wait_time_seconds_mean,121.23909819044793,4761,3371,1390,0,0,3371,False,measured
+Transaccional,country_x_segment,Argentina / Premium,wait_time_seconds_median,121.0,4761,3371,1390,0,0,3371,False,measured
+Transaccional,country_x_segment,Argentina / Premium,wait_time_seconds_p90,197.0,4761,3371,1390,0,0,3371,False,measured
+Transaccional,country_x_segment,Argentina / Student,fcr,0.9094736842105263,2375,2375,0,0,0,2375,False,measured
+Transaccional,country_x_segment,Argentina / Student,escalation,0.09052631578947369,2375,2375,0,0,0,2375,False,measured
+Transaccional,country_x_segment,Argentina / Student,follow_up,0.22694736842105262,2375,2375,0,0,0,2375,False,measured
+Transaccional,country_x_segment,Argentina / Student,duration_seconds_mean,221.89214250854076,2375,2049,326,0,0,2049,False,measured
+Transaccional,country_x_segment,Argentina / Student,duration_seconds_median,204.0,2375,2049,326,0,0,2049,False,measured
+Transaccional,country_x_segment,Argentina / Student,duration_seconds_p90,342.0,2375,2049,326,0,0,2049,False,measured
+Transaccional,country_x_segment,Argentina / Student,wait_time_seconds_mean,122.08244365361803,2375,1686,689,0,0,1686,False,measured
+Transaccional,country_x_segment,Argentina / Student,wait_time_seconds_median,120.0,2375,1686,689,0,0,1686,False,measured
+Transaccional,country_x_segment,Argentina / Student,wait_time_seconds_p90,199.5,2375,1686,689,0,0,1686,False,measured
+Transaccional,country_x_segment,Colombia / Basic,fcr,0.9154997808484625,43349,43349,0,0,0,43349,False,measured
+Transaccional,country_x_segment,Colombia / Basic,escalation,0.1014094904150038,43349,43349,0,0,0,43349,False,measured
+Transaccional,country_x_segment,Colombia / Basic,follow_up,0.21952063484740134,43349,43349,0,0,0,43349,False,measured
+Transaccional,country_x_segment,Colombia / Basic,duration_seconds_mean,220.70345566568443,43349,37330,6019,0,0,37330,False,measured
+Transaccional,country_x_segment,Colombia / Basic,duration_seconds_median,204.0,43349,37330,6019,0,0,37330,False,measured
+Transaccional,country_x_segment,Colombia / Basic,duration_seconds_p90,333.0,43349,37330,6019,0,0,37330,False,measured
+Transaccional,country_x_segment,Colombia / Basic,wait_time_seconds_mean,119.83404746209624,43349,30340,13009,0,0,30340,False,measured
+Transaccional,country_x_segment,Colombia / Basic,wait_time_seconds_median,120.0,43349,30340,13009,0,0,30340,False,measured
+Transaccional,country_x_segment,Colombia / Basic,wait_time_seconds_p90,196.0,43349,30340,13009,0,0,30340,False,measured
+Transaccional,country_x_segment,Colombia / Plus,fcr,0.9132251855925213,18185,18185,0,0,0,18185,False,measured
+Transaccional,country_x_segment,Colombia / Plus,escalation,0.09755292823755843,18185,18185,0,0,0,18185,False,measured
+Transaccional,country_x_segment,Colombia / Plus,follow_up,0.2245257080010998,18185,18185,0,0,0,18185,False,measured
+Transaccional,country_x_segment,Colombia / Plus,duration_seconds_mean,220.85148641722193,18185,15608,2577,0,0,15608,False,measured
+Transaccional,country_x_segment,Colombia / Plus,duration_seconds_median,205.0,18185,15608,2577,0,0,15608,False,measured
+Transaccional,country_x_segment,Colombia / Plus,duration_seconds_p90,332.0,18185,15608,2577,0,0,15608,False,measured
+Transaccional,country_x_segment,Colombia / Plus,wait_time_seconds_mean,118.9996040544821,18185,12628,5557,0,0,12628,False,measured
+Transaccional,country_x_segment,Colombia / Plus,wait_time_seconds_median,119.0,18185,12628,5557,0,0,12628,False,measured
+Transaccional,country_x_segment,Colombia / Plus,wait_time_seconds_p90,196.0,18185,12628,5557,0,0,12628,False,measured
+Transaccional,country_x_segment,Colombia / Premium,fcr,0.9155294759825328,7328,7328,0,0,0,7328,False,measured
+Transaccional,country_x_segment,Colombia / Premium,escalation,0.10002729257641921,7328,7328,0,0,0,7328,False,measured
+Transaccional,country_x_segment,Colombia / Premium,follow_up,0.21820414847161573,7328,7328,0,0,0,7328,False,measured
+Transaccional,country_x_segment,Colombia / Premium,duration_seconds_mean,222.78659500474234,7328,6326,1002,0,0,6326,False,measured
+Transaccional,country_x_segment,Colombia / Premium,duration_seconds_median,206.0,7328,6326,1002,0,0,6326,False,measured
+Transaccional,country_x_segment,Colombia / Premium,duration_seconds_p90,336.0,7328,6326,1002,0,0,6326,False,measured
+Transaccional,country_x_segment,Colombia / Premium,wait_time_seconds_mean,118.7357281553398,7328,5150,2178,0,0,5150,False,measured
+Transaccional,country_x_segment,Colombia / Premium,wait_time_seconds_median,119.0,7328,5150,2178,0,0,5150,False,measured
+Transaccional,country_x_segment,Colombia / Premium,wait_time_seconds_p90,195.0,7328,5150,2178,0,0,5150,False,measured
+Transaccional,country_x_segment,Colombia / Student,fcr,0.9177856947108797,3649,3649,0,0,0,3649,False,measured
+Transaccional,country_x_segment,Colombia / Student,escalation,0.10359002466429158,3649,3649,0,0,0,3649,False,measured
+Transaccional,country_x_segment,Colombia / Student,follow_up,0.22581529186078378,3649,3649,0,0,0,3649,False,measured
+Transaccional,country_x_segment,Colombia / Student,duration_seconds_mean,222.6160941475827,3649,3144,505,0,0,3144,False,measured
+Transaccional,country_x_segment,Colombia / Student,duration_seconds_median,209.0,3649,3144,505,0,0,3144,False,measured
+Transaccional,country_x_segment,Colombia / Student,duration_seconds_p90,329.0,3649,3144,505,0,0,3144,False,measured
+Transaccional,country_x_segment,Colombia / Student,wait_time_seconds_mean,118.22066822066822,3649,2574,1075,0,0,2574,False,measured
+Transaccional,country_x_segment,Colombia / Student,wait_time_seconds_median,119.0,3649,2574,1075,0,0,2574,False,measured
+Transaccional,country_x_segment,Colombia / Student,wait_time_seconds_p90,192.0,3649,2574,1075,0,0,2574,False,measured
+Transaccional,country_x_segment,México / Basic,fcr,0.9152338952774366,71656,71656,0,0,0,71656,False,measured
+Transaccional,country_x_segment,México / Basic,escalation,0.09914033716646198,71656,71656,0,0,0,71656,False,measured
+Transaccional,country_x_segment,México / Basic,follow_up,0.22087473484425588,71656,71656,0,0,0,71656,False,measured
+Transaccional,country_x_segment,México / Basic,duration_seconds_mean,221.06493527534306,71656,61723,9933,0,0,61723,False,measured
+Transaccional,country_x_segment,México / Basic,duration_seconds_median,205.0,71656,61723,9933,0,0,61723,False,measured
+Transaccional,country_x_segment,México / Basic,duration_seconds_p90,334.0,71656,61723,9933,0,0,61723,False,measured
+Transaccional,country_x_segment,México / Basic,wait_time_seconds_mean,119.75650875796178,71656,50240,21416,0,0,50240,False,measured
+Transaccional,country_x_segment,México / Basic,wait_time_seconds_median,119.0,71656,50240,21416,0,0,50240,False,measured
+Transaccional,country_x_segment,México / Basic,wait_time_seconds_p90,196.0,71656,50240,21416,0,0,50240,False,measured
+Transaccional,country_x_segment,México / Plus,fcr,0.9134459615829669,30247,30247,0,0,0,30247,False,measured
+Transaccional,country_x_segment,México / Plus,escalation,0.09868747313783185,30247,30247,0,0,0,30247,False,measured
+Transaccional,country_x_segment,México / Plus,follow_up,0.22385691142923264,30247,30247,0,0,0,30247,False,measured
+Transaccional,country_x_segment,México / Plus,duration_seconds_mean,220.6024082436031,30247,25911,4336,0,0,25911,False,measured
+Transaccional,country_x_segment,México / Plus,duration_seconds_median,205.0,30247,25911,4336,0,0,25911,False,measured
+Transaccional,country_x_segment,México / Plus,duration_seconds_p90,334.0,30247,25911,4336,0,0,25911,False,measured
+Transaccional,country_x_segment,México / Plus,wait_time_seconds_mean,119.24919047619048,30247,21000,9247,0,0,21000,False,measured
+Transaccional,country_x_segment,México / Plus,wait_time_seconds_median,118.0,30247,21000,9247,0,0,21000,False,measured
+Transaccional,country_x_segment,México / Plus,wait_time_seconds_p90,194.0,30247,21000,9247,0,0,21000,False,measured
+Transaccional,country_x_segment,México / Premium,fcr,0.9155683690280065,12140,12140,0,0,0,12140,False,measured
+Transaccional,country_x_segment,México / Premium,escalation,0.10164744645799012,12140,12140,0,0,0,12140,False,measured
+Transaccional,country_x_segment,México / Premium,follow_up,0.22108731466227347,12140,12140,0,0,0,12140,False,measured
+Transaccional,country_x_segment,México / Premium,duration_seconds_mean,220.2484107108457,12140,10382,1758,0,0,10382,False,measured
+Transaccional,country_x_segment,México / Premium,duration_seconds_median,205.0,12140,10382,1758,0,0,10382,False,measured
+Transaccional,country_x_segment,México / Premium,duration_seconds_p90,332.89999999999964,12140,10382,1758,0,0,10382,False,measured
+Transaccional,country_x_segment,México / Premium,wait_time_seconds_mean,119.67443221727933,12140,8542,3598,0,0,8542,False,measured
+Transaccional,country_x_segment,México / Premium,wait_time_seconds_median,119.0,12140,8542,3598,0,0,8542,False,measured
+Transaccional,country_x_segment,México / Premium,wait_time_seconds_p90,195.0,12140,8542,3598,0,0,8542,False,measured
+Transaccional,country_x_segment,México / Student,fcr,0.9162957891133173,5842,5842,0,0,0,5842,False,measured
+Transaccional,country_x_segment,México / Student,escalation,0.0999657651489216,5842,5842,0,0,0,5842,False,measured
+Transaccional,country_x_segment,México / Student,follow_up,0.2249229715850736,5842,5842,0,0,0,5842,False,measured
+Transaccional,country_x_segment,México / Student,duration_seconds_mean,221.74310105221363,5842,5037,805,0,0,5037,False,measured
+Transaccional,country_x_segment,México / Student,duration_seconds_median,204.0,5842,5037,805,0,0,5037,False,measured
+Transaccional,country_x_segment,México / Student,duration_seconds_p90,337.40000000000055,5842,5037,805,0,0,5037,False,measured
+Transaccional,country_x_segment,México / Student,wait_time_seconds_mean,119.77070682535827,5842,4117,1725,0,0,4117,False,measured
+Transaccional,country_x_segment,México / Student,wait_time_seconds_median,119.0,5842,4117,1725,0,0,4117,False,measured
+Transaccional,country_x_segment,México / Student,wait_time_seconds_p90,194.4000000000001,5842,4117,1725,0,0,4117,False,measured
+Transaccional,overall,all,fcr,0.9150823141267038,240056,240056,0,0,0,240056,False,measured
+Transaccional,overall,all,escalation,0.09931432665711334,240056,240056,0,0,0,240056,False,measured
+Transaccional,overall,all,follow_up,0.2213525177458593,240056,240056,0,0,0,240056,False,measured
+Transaccional,overall,all,duration_seconds_mean,220.8028237231492,240056,206465,33591,0,0,206465,False,measured
+Transaccional,overall,all,duration_seconds_median,205.0,240056,206465,33591,0,0,206465,False,measured
+Transaccional,overall,all,duration_seconds_p90,333.0,240056,206465,33591,0,0,206465,False,measured
+Transaccional,overall,all,wait_time_seconds_mean,119.65022549591251,240056,168074,71982,0,0,168074,False,measured
+Transaccional,overall,all,wait_time_seconds_median,119.0,240056,168074,71982,0,0,168074,False,measured
+Transaccional,overall,all,wait_time_seconds_p90,196.0,240056,168074,71982,0,0,168074,False,measured
+Transaccional,segment,Basic,fcr,0.9153992329270585,143663,143663,0,0,0,143663,False,measured
+Transaccional,segment,Basic,escalation,0.09957330697535204,143663,143663,0,0,0,143663,False,measured
+Transaccional,segment,Basic,follow_up,0.22032812902417462,143663,143663,0,0,0,143663,False,measured
+Transaccional,segment,Basic,duration_seconds_mean,220.8539676381682,143663,123726,19937,0,0,123726,False,measured
+Transaccional,segment,Basic,duration_seconds_median,204.0,143663,123726,19937,0,0,123726,False,measured
+Transaccional,segment,Basic,duration_seconds_p90,333.0,143663,123726,19937,0,0,123726,False,measured
+Transaccional,segment,Basic,wait_time_seconds_mean,119.764231112876,143663,100730,42933,0,0,100730,False,measured
+Transaccional,segment,Basic,wait_time_seconds_median,119.0,143663,100730,42933,0,0,100730,False,measured
+Transaccional,segment,Basic,wait_time_seconds_p90,196.0,143663,100730,42933,0,0,100730,False,measured
+Transaccional,segment,Plus,fcr,0.9138114033632956,60298,60298,0,0,0,60298,False,measured
+Transaccional,segment,Plus,escalation,0.09807953829314404,60298,60298,0,0,0,60298,False,measured
+Transaccional,segment,Plus,follow_up,0.22402069720388737,60298,60298,0,0,0,60298,False,measured
+Transaccional,segment,Plus,duration_seconds_mean,220.56435049991296,60298,51709,8589,0,0,51709,False,measured
+Transaccional,segment,Plus,duration_seconds_median,205.0,60298,51709,8589,0,0,51709,False,measured
+Transaccional,segment,Plus,duration_seconds_p90,332.0,60298,51709,8589,0,0,51709,False,measured
+Transaccional,segment,Plus,wait_time_seconds_mean,119.33392993508973,60298,41904,18394,0,0,41904,False,measured
+Transaccional,segment,Plus,wait_time_seconds_median,119.0,60298,41904,18394,0,0,41904,False,measured
+Transaccional,segment,Plus,wait_time_seconds_p90,195.0,60298,41904,18394,0,0,41904,False,measured
+Transaccional,segment,Premium,fcr,0.9162161046679599,24229,24229,0,0,0,24229,False,measured
+Transaccional,segment,Premium,escalation,0.10091213009203846,24229,24229,0,0,0,24229,False,measured
+Transaccional,segment,Premium,follow_up,0.21870485781501506,24229,24229,0,0,0,24229,False,measured
+Transaccional,segment,Premium,duration_seconds_mean,220.48235576923076,24229,20800,3429,0,0,20800,False,measured
+Transaccional,segment,Premium,duration_seconds_median,205.0,24229,20800,3429,0,0,20800,False,measured
+Transaccional,segment,Premium,duration_seconds_p90,333.0,24229,20800,3429,0,0,20800,False,measured
+Transaccional,segment,Premium,wait_time_seconds_mean,119.70022856473071,24229,17063,7166,0,0,17063,False,measured
+Transaccional,segment,Premium,wait_time_seconds_median,119.0,24229,17063,7166,0,0,17063,False,measured
+Transaccional,segment,Premium,wait_time_seconds_p90,195.0,24229,17063,7166,0,0,17063,False,measured
+Transaccional,segment,Student,fcr,0.9153885049721895,11866,11866,0,0,0,11866,False,measured
+Transaccional,segment,Student,escalation,0.09919096578459465,11866,11866,0,0,0,11866,False,measured
+Transaccional,segment,Student,follow_up,0.22560256194168213,11866,11866,0,0,0,11866,False,measured
+Transaccional,segment,Student,duration_seconds_mean,222.04125122189637,11866,10230,1636,0,0,10230,False,measured
+Transaccional,segment,Student,duration_seconds_median,205.0,11866,10230,1636,0,0,10230,False,measured
+Transaccional,segment,Student,duration_seconds_p90,335.10000000000036,11866,10230,1636,0,0,10230,False,measured
+Transaccional,segment,Student,wait_time_seconds_mean,119.7596991763161,11866,8377,3489,0,0,8377,False,measured
+Transaccional,segment,Student,wait_time_seconds_median,119.0,11866,8377,3489,0,0,8377,False,measured
+Transaccional,segment,Student,wait_time_seconds_p90,194.0,11866,8377,3489,0,0,8377,False,measured
+all interactions,country,Argentina,fcr,0.7658619247782742,136317,136317,0,0,0,136317,False,measured
+all interactions,country,Argentina,escalation,0.0984470022080885,136317,136317,0,0,0,136317,False,measured
+all interactions,country,Argentina,follow_up,0.3491420732557201,136317,136317,0,0,0,136317,False,measured
+all interactions,country,Argentina,duration_seconds_mean,321.6995892504889,136317,117103,19214,0,0,117103,False,measured
+all interactions,country,Argentina,duration_seconds_median,291.0,136317,117103,19214,0,0,117103,False,measured
+all interactions,country,Argentina,duration_seconds_p90,539.0,136317,117103,19214,0,0,117103,False,measured
+all interactions,country,Argentina,wait_time_seconds_mean,120.02669154802591,136317,95386,40931,0,0,95386,False,measured
+all interactions,country,Argentina,wait_time_seconds_median,119.0,136317,95386,40931,0,0,95386,False,measured
+all interactions,country,Argentina,wait_time_seconds_p90,196.0,136317,95386,40931,0,0,95386,False,measured
+all interactions,country,Colombia,fcr,0.7667246965520577,206790,206790,0,0,0,206790,False,measured
+all interactions,country,Colombia,escalation,0.10095749310895111,206790,206790,0,0,0,206790,False,measured
+all interactions,country,Colombia,follow_up,0.34799071521833747,206790,206790,0,0,0,206790,False,measured
+all interactions,country,Colombia,duration_seconds_mean,321.4382964132946,206790,177907,28883,0,0,177907,False,measured
+all interactions,country,Colombia,duration_seconds_median,290.0,206790,177907,28883,0,0,177907,False,measured
+all interactions,country,Colombia,duration_seconds_p90,538.0,206790,177907,28883,0,0,177907,False,measured
+all interactions,country,Colombia,wait_time_seconds_mean,119.6967084801633,206790,145009,61781,0,0,145009,False,measured
+all interactions,country,Colombia,wait_time_seconds_median,119.0,206790,145009,61781,0,0,145009,False,measured
+all interactions,country,Colombia,wait_time_seconds_p90,196.0,206790,145009,61781,0,0,145009,False,measured
+all interactions,country,México,fcr,0.7665717724052927,343189,343189,0,0,0,343189,False,measured
+all interactions,country,México,escalation,0.0993301067341902,343189,343189,0,0,0,343189,False,measured
+all interactions,country,México,follow_up,0.34820171975208997,343189,343189,0,0,0,343189,False,measured
+all interactions,country,México,duration_seconds_mean,321.3670878353646,343189,295052,48137,0,0,295052,False,measured
+all interactions,country,México,duration_seconds_median,291.0,343189,295052,48137,0,0,295052,False,measured
+all interactions,country,México,duration_seconds_p90,538.0,343189,295052,48137,0,0,295052,False,measured
+all interactions,country,México,wait_time_seconds_mean,120.0465700861068,343189,240283,102906,0,0,240283,False,measured
+all interactions,country,México,wait_time_seconds_median,119.0,343189,240283,102906,0,0,240283,False,measured
+all interactions,country,México,wait_time_seconds_p90,196.0,343189,240283,102906,0,0,240283,False,measured
+all interactions,country_x_segment,Argentina / Basic,fcr,0.7657453169809019,81945,81945,0,0,0,81945,False,measured
+all interactions,country_x_segment,Argentina / Basic,escalation,0.09971322228323876,81945,81945,0,0,0,81945,False,measured
+all interactions,country_x_segment,Argentina / Basic,follow_up,0.34894136310940266,81945,81945,0,0,0,81945,False,measured
+all interactions,country_x_segment,Argentina / Basic,duration_seconds_mean,321.30461158151957,81945,70388,11557,0,0,70388,False,measured
+all interactions,country_x_segment,Argentina / Basic,duration_seconds_median,291.0,81945,70388,11557,0,0,70388,False,measured
+all interactions,country_x_segment,Argentina / Basic,duration_seconds_p90,538.0,81945,70388,11557,0,0,70388,False,measured
+all interactions,country_x_segment,Argentina / Basic,wait_time_seconds_mean,119.81244004116446,81945,57331,24614,0,0,57331,False,measured
+all interactions,country_x_segment,Argentina / Basic,wait_time_seconds_median,119.0,81945,57331,24614,0,0,57331,False,measured
+all interactions,country_x_segment,Argentina / Basic,wait_time_seconds_p90,196.0,81945,57331,24614,0,0,57331,False,measured
+all interactions,country_x_segment,Argentina / Plus,fcr,0.7655486907914092,33990,33990,0,0,0,33990,False,measured
+all interactions,country_x_segment,Argentina / Plus,escalation,0.09702853780523683,33990,33990,0,0,0,33990,False,measured
+all interactions,country_x_segment,Argentina / Plus,follow_up,0.35027949396881436,33990,33990,0,0,0,33990,False,measured
+all interactions,country_x_segment,Argentina / Plus,duration_seconds_mean,322.8544323270999,33990,29251,4739,0,0,29251,False,measured
+all interactions,country_x_segment,Argentina / Plus,duration_seconds_median,292.0,33990,29251,4739,0,0,29251,False,measured
+all interactions,country_x_segment,Argentina / Plus,duration_seconds_p90,542.0,33990,29251,4739,0,0,29251,False,measured
+all interactions,country_x_segment,Argentina / Plus,wait_time_seconds_mean,119.97261135810754,33990,23842,10148,0,0,23842,False,measured
+all interactions,country_x_segment,Argentina / Plus,wait_time_seconds_median,119.0,33990,23842,10148,0,0,23842,False,measured
+all interactions,country_x_segment,Argentina / Plus,wait_time_seconds_p90,196.0,33990,23842,10148,0,0,23842,False,measured
+all interactions,country_x_segment,Argentina / Premium,fcr,0.769350303389078,13514,13514,0,0,0,13514,False,measured
+all interactions,country_x_segment,Argentina / Premium,escalation,0.09745449163830103,13514,13514,0,0,0,13514,False,measured
+all interactions,country_x_segment,Argentina / Premium,follow_up,0.34556755956785556,13514,13514,0,0,0,13514,False,measured
+all interactions,country_x_segment,Argentina / Premium,duration_seconds_mean,320.7899072227521,13514,11533,1981,0,0,11533,False,measured
+all interactions,country_x_segment,Argentina / Premium,duration_seconds_median,287.0,13514,11533,1981,0,0,11533,False,measured
+all interactions,country_x_segment,Argentina / Premium,duration_seconds_p90,537.0,13514,11533,1981,0,0,11533,False,measured
+all interactions,country_x_segment,Argentina / Premium,wait_time_seconds_mean,121.02289182282794,13514,9392,4122,0,0,9392,False,measured
+all interactions,country_x_segment,Argentina / Premium,wait_time_seconds_median,121.0,13514,9392,4122,0,0,9392,False,measured
+all interactions,country_x_segment,Argentina / Premium,wait_time_seconds_p90,197.0,13514,9392,4122,0,0,9392,False,measured
+all interactions,country_x_segment,Argentina / Student,fcr,0.7619394292370414,6868,6868,0,0,0,6868,False,measured
+all interactions,country_x_segment,Argentina / Student,escalation,0.09231217239370997,6868,6868,0,0,0,6868,False,measured
+all interactions,country_x_segment,Argentina / Student,follow_up,0.35294117647058826,6868,6868,0,0,0,6868,False,measured
+all interactions,country_x_segment,Argentina / Student,duration_seconds_mean,322.46046197943014,6868,5931,937,0,0,5931,False,measured
+all interactions,country_x_segment,Argentina / Student,duration_seconds_median,294.0,6868,5931,937,0,0,5931,False,measured
+all interactions,country_x_segment,Argentina / Student,duration_seconds_p90,538.0,6868,5931,937,0,0,5931,False,measured
+all interactions,country_x_segment,Argentina / Student,wait_time_seconds_mean,120.90126529765608,6868,4821,2047,0,0,4821,False,measured
+all interactions,country_x_segment,Argentina / Student,wait_time_seconds_median,120.0,6868,4821,2047,0,0,4821,False,measured
+all interactions,country_x_segment,Argentina / Student,wait_time_seconds_p90,197.0,6868,4821,2047,0,0,4821,False,measured
+all interactions,country_x_segment,Colombia / Basic,fcr,0.7667812585742184,123918,123918,0,0,0,123918,False,measured
+all interactions,country_x_segment,Colombia / Basic,escalation,0.10210784551074098,123918,123918,0,0,0,123918,False,measured
+all interactions,country_x_segment,Colombia / Basic,follow_up,0.3472699688503688,123918,123918,0,0,0,123918,False,measured
+all interactions,country_x_segment,Colombia / Basic,duration_seconds_mean,321.3139038286449,123918,106539,17379,0,0,106539,False,measured
+all interactions,country_x_segment,Colombia / Basic,duration_seconds_median,290.0,123918,106539,17379,0,0,106539,False,measured
+all interactions,country_x_segment,Colombia / Basic,duration_seconds_p90,539.0,123918,106539,17379,0,0,106539,False,measured
+all interactions,country_x_segment,Colombia / Basic,wait_time_seconds_mean,119.84937291450926,123918,86910,37008,0,0,86910,False,measured
+all interactions,country_x_segment,Colombia / Basic,wait_time_seconds_median,120.0,123918,86910,37008,0,0,86910,False,measured
+all interactions,country_x_segment,Colombia / Basic,wait_time_seconds_p90,196.0,123918,86910,37008,0,0,86910,False,measured
+all interactions,country_x_segment,Colombia / Plus,fcr,0.7644910029184947,51739,51739,0,0,0,51739,False,measured
+all interactions,country_x_segment,Colombia / Plus,escalation,0.09930613270453623,51739,51739,0,0,0,51739,False,measured
+all interactions,country_x_segment,Colombia / Plus,follow_up,0.35087651481474325,51739,51739,0,0,0,51739,False,measured
+all interactions,country_x_segment,Colombia / Plus,duration_seconds_mean,321.6316994858208,51739,44537,7202,0,0,44537,False,measured
+all interactions,country_x_segment,Colombia / Plus,duration_seconds_median,291.0,51739,44537,7202,0,0,44537,False,measured
+all interactions,country_x_segment,Colombia / Plus,duration_seconds_p90,538.0,51739,44537,7202,0,0,44537,False,measured
+all interactions,country_x_segment,Colombia / Plus,wait_time_seconds_mean,119.56549114909834,51739,36211,15528,0,0,36211,False,measured
+all interactions,country_x_segment,Colombia / Plus,wait_time_seconds_median,119.0,51739,36211,15528,0,0,36211,False,measured
+all interactions,country_x_segment,Colombia / Plus,wait_time_seconds_p90,196.0,51739,36211,15528,0,0,36211,False,measured
+all interactions,country_x_segment,Colombia / Premium,fcr,0.7706674388301723,20721,20721,0,0,0,20721,False,measured
+all interactions,country_x_segment,Colombia / Premium,escalation,0.09951257178707591,20721,20721,0,0,0,20721,False,measured
+all interactions,country_x_segment,Colombia / Premium,follow_up,0.3437092804401332,20721,20721,0,0,0,20721,False,measured
+all interactions,country_x_segment,Colombia / Premium,duration_seconds_mean,321.56873496335254,20721,17873,2848,0,0,17873,False,measured
+all interactions,country_x_segment,Colombia / Premium,duration_seconds_median,291.0,20721,17873,2848,0,0,17873,False,measured
+all interactions,country_x_segment,Colombia / Premium,duration_seconds_p90,538.0,20721,17873,2848,0,0,17873,False,measured
+all interactions,country_x_segment,Colombia / Premium,wait_time_seconds_mean,119.26088148605113,20721,14589,6132,0,0,14589,False,measured
+all interactions,country_x_segment,Colombia / Premium,wait_time_seconds_median,119.0,20721,14589,6132,0,0,14589,False,measured
+all interactions,country_x_segment,Colombia / Premium,wait_time_seconds_p90,196.0,20721,14589,6132,0,0,14589,False,measured
+all interactions,country_x_segment,Colombia / Student,fcr,0.7693046484825201,10412,10412,0,0,0,10412,False,measured
+all interactions,country_x_segment,Colombia / Student,escalation,0.09834805993084902,10412,10412,0,0,0,10412,False,measured
+all interactions,country_x_segment,Colombia / Student,follow_up,0.3507491356127545,10412,10412,0,0,0,10412,False,measured
+all interactions,country_x_segment,Colombia / Student,duration_seconds_mean,321.69591426657735,10412,8958,1454,0,0,8958,False,measured
+all interactions,country_x_segment,Colombia / Student,duration_seconds_median,290.0,10412,8958,1454,0,0,8958,False,measured
+all interactions,country_x_segment,Colombia / Student,duration_seconds_p90,538.0,10412,8958,1454,0,0,8958,False,measured
+all interactions,country_x_segment,Colombia / Student,wait_time_seconds_mean,119.40101383751198,10412,7299,3113,0,0,7299,False,measured
+all interactions,country_x_segment,Colombia / Student,wait_time_seconds_median,119.0,10412,7299,3113,0,0,7299,False,measured
+all interactions,country_x_segment,Colombia / Student,wait_time_seconds_p90,194.0,10412,7299,3113,0,0,7299,False,measured
+all interactions,country_x_segment,México / Basic,fcr,0.7663227895003706,205112,205112,0,0,0,205112,False,measured
+all interactions,country_x_segment,México / Basic,escalation,0.09866804477553727,205112,205112,0,0,0,205112,False,measured
+all interactions,country_x_segment,México / Basic,follow_up,0.34796111392800033,205112,205112,0,0,0,205112,False,measured
+all interactions,country_x_segment,México / Basic,duration_seconds_mean,321.59600783044596,205112,176746,28366,0,0,176746,False,measured
+all interactions,country_x_segment,México / Basic,duration_seconds_median,291.0,205112,176746,28366,0,0,176746,False,measured
+all interactions,country_x_segment,México / Basic,duration_seconds_p90,539.0,205112,176746,28366,0,0,176746,False,measured
+all interactions,country_x_segment,México / Basic,wait_time_seconds_mean,120.24365327013822,205112,143893,61219,0,0,143893,False,measured
+all interactions,country_x_segment,México / Basic,wait_time_seconds_median,120.0,205112,143893,61219,0,0,143893,False,measured
+all interactions,country_x_segment,México / Basic,wait_time_seconds_p90,197.0,205112,143893,61219,0,0,143893,False,measured
+all interactions,country_x_segment,México / Plus,fcr,0.7674012377812482,86445,86445,0,0,0,86445,False,measured
+all interactions,country_x_segment,México / Plus,escalation,0.09945051767019492,86445,86445,0,0,0,86445,False,measured
+all interactions,country_x_segment,México / Plus,follow_up,0.3482676846549829,86445,86445,0,0,0,86445,False,measured
+all interactions,country_x_segment,México / Plus,duration_seconds_mean,321.0994099139852,86445,74057,12388,0,0,74057,False,measured
+all interactions,country_x_segment,México / Plus,duration_seconds_median,291.0,86445,74057,12388,0,0,74057,False,measured
+all interactions,country_x_segment,México / Plus,duration_seconds_p90,537.0,86445,74057,12388,0,0,74057,False,measured
+all interactions,country_x_segment,México / Plus,wait_time_seconds_mean,119.72958354073337,86445,60270,26175,0,0,60270,False,measured
+all interactions,country_x_segment,México / Plus,wait_time_seconds_median,119.0,86445,60270,26175,0,0,60270,False,measured
+all interactions,country_x_segment,México / Plus,wait_time_seconds_p90,195.0,86445,60270,26175,0,0,60270,False,measured
+all interactions,country_x_segment,México / Premium,fcr,0.7659121631338262,34769,34769,0,0,0,34769,False,measured
+all interactions,country_x_segment,México / Premium,escalation,0.1024188213638586,34769,34769,0,0,0,34769,False,measured
+all interactions,country_x_segment,México / Premium,follow_up,0.3489602807098277,34769,34769,0,0,0,34769,False,measured
+all interactions,country_x_segment,México / Premium,duration_seconds_mean,320.9243931957238,34769,29746,5023,0,0,29746,False,measured
+all interactions,country_x_segment,México / Premium,duration_seconds_median,291.0,34769,29746,5023,0,0,29746,False,measured
+all interactions,country_x_segment,México / Premium,duration_seconds_p90,536.0,34769,29746,5023,0,0,29746,False,measured
+all interactions,country_x_segment,México / Premium,wait_time_seconds_mean,119.95702867501647,34769,24272,10497,0,0,24272,False,measured
+all interactions,country_x_segment,México / Premium,wait_time_seconds_median,119.0,34769,24272,10497,0,0,24272,False,measured
+all interactions,country_x_segment,México / Premium,wait_time_seconds_p90,197.0,34769,24272,10497,0,0,24272,False,measured
+all interactions,country_x_segment,México / Student,fcr,0.7667081776670818,16863,16863,0,0,0,16863,False,measured
+all interactions,country_x_segment,México / Student,escalation,0.10039731957540177,16863,16863,0,0,0,16863,False,measured
+all interactions,country_x_segment,México / Student,follow_up,0.34922611634940404,16863,16863,0,0,0,16863,False,measured
+all interactions,country_x_segment,México / Student,duration_seconds_mean,320.8520995656071,16863,14503,2360,0,0,14503,False,measured
+all interactions,country_x_segment,México / Student,duration_seconds_median,290.0,16863,14503,2360,0,0,14503,False,measured
+all interactions,country_x_segment,México / Student,duration_seconds_p90,537.0,16863,14503,2360,0,0,14503,False,measured
+all interactions,country_x_segment,México / Student,wait_time_seconds_mean,119.44893652937205,16863,11848,5015,0,0,11848,False,measured
+all interactions,country_x_segment,México / Student,wait_time_seconds_median,119.0,16863,11848,5015,0,0,11848,False,measured
+all interactions,country_x_segment,México / Student,wait_time_seconds_p90,193.0,16863,11848,5015,0,0,11848,False,measured
+all interactions,overall,all,fcr,0.7664768554676117,686296,686296,0,0,0,686296,False,measured
+all interactions,overall,all,escalation,0.0996450511149708,686296,686296,0,0,0,686296,False,measured
+all interactions,overall,all,follow_up,0.3483249210253302,686296,686296,0,0,0,686296,False,measured
+all interactions,overall,all,duration_seconds_mean,321.45454545454544,686296,590062,96234,0,0,590062,False,measured
+all interactions,overall,all,duration_seconds_median,291.0,686296,590062,96234,0,0,590062,False,measured
+all interactions,overall,all,duration_seconds_p90,538.0,686296,590062,96234,0,0,590062,False,measured
+all interactions,overall,all,wait_time_seconds_mean,119.93708054040334,686296,480678,205618,0,0,480678,False,measured
+all interactions,overall,all,wait_time_seconds_median,119.0,686296,480678,205618,0,0,480678,False,measured
+all interactions,overall,all,wait_time_seconds_p90,196.0,686296,480678,205618,0,0,480678,False,measured
+all interactions,segment,Basic,fcr,0.7663458847861792,410975,410975,0,0,0,410975,False,measured
+all interactions,segment,Basic,escalation,0.09991362004988139,410975,410975,0,0,0,410975,False,measured
+all interactions,segment,Basic,follow_up,0.34794817202992884,410975,410975,0,0,0,410975,False,measured
+all interactions,segment,Basic,duration_seconds_mean,321.45303430004554,410975,353673,57302,0,0,353673,False,measured
+all interactions,segment,Basic,duration_seconds_median,291.0,410975,353673,57302,0,0,353673,False,measured
+all interactions,segment,Basic,duration_seconds_p90,539.0,410975,353673,57302,0,0,353673,False,measured
+all interactions,segment,Basic,wait_time_seconds_mean,120.03892633288679,410975,288134,122841,0,0,288134,False,measured
+all interactions,segment,Basic,wait_time_seconds_median,119.0,410975,288134,122841,0,0,288134,False,measured
+all interactions,segment,Basic,wait_time_seconds_p90,196.0,410975,288134,122841,0,0,288134,False,measured
+all interactions,segment,Plus,fcr,0.7661609766863754,172174,172174,0,0,0,172174,False,measured
+all interactions,segment,Plus,escalation,0.09892899043990382,172174,172174,0,0,0,172174,False,measured
+all interactions,segment,Plus,follow_up,0.3494488134096902,172174,172174,0,0,0,172174,False,measured
+all interactions,segment,Plus,duration_seconds_mean,321.6069870472454,172174,147845,24329,0,0,147845,False,measured
+all interactions,segment,Plus,duration_seconds_median,291.0,172174,147845,24329,0,0,147845,False,measured
+all interactions,segment,Plus,duration_seconds_p90,538.6000000000058,172174,147845,24329,0,0,147845,False,measured
+all interactions,segment,Plus,wait_time_seconds_mean,119.72835617462995,172174,120323,51851,0,0,120323,False,measured
+all interactions,segment,Plus,wait_time_seconds_median,119.0,172174,120323,51851,0,0,120323,False,measured
+all interactions,segment,Plus,wait_time_seconds_p90,196.0,172174,120323,51851,0,0,120323,False,measured
+all interactions,segment,Premium,fcr,0.7680134484957394,69004,69004,0,0,0,69004,False,measured
+all interactions,segment,Premium,escalation,0.1005738797750855,69004,69004,0,0,0,69004,False,measured
+all interactions,segment,Premium,follow_up,0.3467190307808243,69004,69004,0,0,0,69004,False,measured
+all interactions,segment,Premium,duration_seconds_mean,321.09286245604545,69004,59152,9852,0,0,59152,False,measured
+all interactions,segment,Premium,duration_seconds_median,290.0,69004,59152,9852,0,0,59152,False,measured
+all interactions,segment,Premium,duration_seconds_p90,537.0,69004,59152,9852,0,0,59152,False,measured
+all interactions,segment,Premium,wait_time_seconds_mean,119.95401322197584,69004,48253,20751,0,0,48253,False,measured
+all interactions,segment,Premium,wait_time_seconds_median,119.0,69004,48253,20751,0,0,48253,False,measured
+all interactions,segment,Premium,wait_time_seconds_p90,196.0,69004,48253,20751,0,0,48253,False,measured
+all interactions,segment,Student,fcr,0.7665407257710218,34143,34143,0,0,0,34143,False,measured
+all interactions,segment,Student,escalation,0.09814603286178719,34143,34143,0,0,0,34143,False,measured
+all interactions,segment,Student,follow_up,0.3504378642767185,34143,34143,0,0,0,34143,False,measured
+all interactions,segment,Student,duration_seconds_mean,321.4338255307567,34143,29392,4751,0,0,29392,False,measured
+all interactions,segment,Student,duration_seconds_median,291.0,34143,29392,4751,0,0,29392,False,measured
+all interactions,segment,Student,duration_seconds_p90,537.0,34143,29392,4751,0,0,29392,False,measured
+all interactions,segment,Student,wait_time_seconds_mean,119.72646862483312,34143,23968,10175,0,0,23968,False,measured
+all interactions,segment,Student,wait_time_seconds_median,120.0,34143,23968,10175,0,0,23968,False,measured
+all interactions,segment,Student,wait_time_seconds_p90,194.0,34143,23968,10175,0,0,23968,False,measured
+Transaccional,channel,App,fcr,0.9154625835669614,9274,9274,0,0,0,9274,False,measured
+Transaccional,channel,App,escalation,0.09747681690748329,9274,9274,0,0,0,9274,False,measured
+Transaccional,channel,App,follow_up,0.22050894975199484,9274,9274,0,0,0,9274,False,measured
+Transaccional,channel,App,duration_seconds_mean,225.3839935327405,9274,1237,8037,0,0,1237,False,measured
+Transaccional,channel,App,duration_seconds_median,207.0,9274,1237,8037,0,0,1237,False,measured
+Transaccional,channel,App,duration_seconds_p90,348.4000000000001,9274,1237,8037,0,0,1237,False,measured
+Transaccional,channel,App,wait_time_seconds_mean,,9274,0,9274,0,0,0,True,measured
+Transaccional,channel,App,wait_time_seconds_median,,9274,0,9274,0,0,0,True,measured
+Transaccional,channel,App,wait_time_seconds_p90,,9274,0,9274,0,0,0,True,measured
+Transaccional,channel,Email,fcr,0.9127852453891842,9597,9597,0,0,0,9597,False,measured
+Transaccional,channel,Email,escalation,0.099927060539752,9597,9597,0,0,0,9597,False,measured
+Transaccional,channel,Email,follow_up,0.2222569552985308,9597,9597,0,0,0,9597,False,measured
+Transaccional,channel,Email,duration_seconds_mean,,9597,0,9597,0,0,0,True,measured
+Transaccional,channel,Email,duration_seconds_median,,9597,0,9597,0,0,0,True,measured
+Transaccional,channel,Email,duration_seconds_p90,,9597,0,9597,0,0,0,True,measured
+Transaccional,channel,Email,wait_time_seconds_mean,,9597,0,9597,0,0,0,True,measured
+Transaccional,channel,Email,wait_time_seconds_median,,9597,0,9597,0,0,0,True,measured
+Transaccional,channel,Email,wait_time_seconds_p90,,9597,0,9597,0,0,0,True,measured
+Transaccional,channel,Phone,fcr,0.9151293863948246,204040,204040,0,0,0,204040,False,measured
+Transaccional,channel,Phone,escalation,0.09937757302489708,204040,204040,0,0,0,204040,False,measured
+Transaccional,channel,Phone,follow_up,0.22109880415604782,204040,204040,0,0,0,204040,False,measured
+Transaccional,channel,Phone,duration_seconds_mean,220.79650068613998,204040,204040,0,0,0,204040,False,measured
+Transaccional,channel,Phone,duration_seconds_median,205.0,204040,204040,0,0,0,204040,False,measured
+Transaccional,channel,Phone,duration_seconds_p90,333.0,204040,204040,0,0,0,204040,False,measured
+Transaccional,channel,Phone,wait_time_seconds_mean,119.65022549591251,204040,168074,35966,0,0,168074,False,measured
+Transaccional,channel,Phone,wait_time_seconds_median,119.0,204040,168074,35966,0,0,168074,False,measured
+Transaccional,channel,Phone,wait_time_seconds_p90,196.0,204040,168074,35966,0,0,168074,False,measured
+Transaccional,channel,Web,fcr,0.9183501683501684,1188,1188,0,0,0,1188,False,measured
+Transaccional,channel,Web,escalation,0.09259259259259259,1188,1188,0,0,0,1188,False,measured
+Transaccional,channel,Web,follow_up,0.20707070707070707,1188,1188,0,0,0,1188,False,measured
+Transaccional,channel,Web,duration_seconds_mean,217.11868686868686,1188,1188,0,0,0,1188,False,measured
+Transaccional,channel,Web,duration_seconds_median,202.0,1188,1188,0,0,0,1188,False,measured
+Transaccional,channel,Web,duration_seconds_p90,326.29999999999995,1188,1188,0,0,0,1188,False,measured
+Transaccional,channel,Web,wait_time_seconds_mean,,1188,0,1188,0,0,0,True,measured
+Transaccional,channel,Web,wait_time_seconds_median,,1188,0,1188,0,0,0,True,measured
+Transaccional,channel,Web,wait_time_seconds_p90,,1188,0,1188,0,0,0,True,measured
+Transaccional,channel,Web Chat,fcr,0.915343253720145,7997,7997,0,0,0,7997,False,measured
+Transaccional,channel,Web Chat,escalation,0.10041265474552957,7997,7997,0,0,0,7997,False,measured
+Transaccional,channel,Web Chat,follow_up,0.22308365637113917,7997,7997,0,0,0,7997,False,measured
+Transaccional,channel,Web Chat,duration_seconds_mean,,7997,0,7997,0,0,0,True,measured
+Transaccional,channel,Web Chat,duration_seconds_median,,7997,0,7997,0,0,0,True,measured
+Transaccional,channel,Web Chat,duration_seconds_p90,,7997,0,7997,0,0,0,True,measured
+Transaccional,channel,Web Chat,wait_time_seconds_mean,,7997,0,7997,0,0,0,True,measured
+Transaccional,channel,Web Chat,wait_time_seconds_median,,7997,0,7997,0,0,0,True,measured
+Transaccional,channel,Web Chat,wait_time_seconds_p90,,7997,0,7997,0,0,0,True,measured
+Transaccional,channel,WhatsApp,fcr,0.9154522613065327,7960,7960,0,0,0,7960,False,measured
+Transaccional,channel,WhatsApp,escalation,0.09899497487437187,7960,7960,0,0,0,7960,False,measured
+Transaccional,channel,WhatsApp,follow_up,0.22814070351758794,7960,7960,0,0,0,7960,False,measured
+Transaccional,channel,WhatsApp,duration_seconds_mean,,7960,0,7960,0,0,0,True,measured
+Transaccional,channel,WhatsApp,duration_seconds_median,,7960,0,7960,0,0,0,True,measured
+Transaccional,channel,WhatsApp,duration_seconds_p90,,7960,0,7960,0,0,0,True,measured
+Transaccional,channel,WhatsApp,wait_time_seconds_mean,,7960,0,7960,0,0,0,True,measured
+Transaccional,channel,WhatsApp,wait_time_seconds_median,,7960,0,7960,0,0,0,True,measured
+Transaccional,channel,WhatsApp,wait_time_seconds_p90,,7960,0,7960,0,0,0,True,measured
+all interactions,channel,App,fcr,0.771279016841147,26364,26364,0,0,0,26364,False,measured
+all interactions,channel,App,escalation,0.0998710362615688,26364,26364,0,0,0,26364,False,measured
+all interactions,channel,App,follow_up,0.3454710969503869,26364,26364,0,0,0,26364,False,measured
+all interactions,channel,App,duration_seconds_mean,321.023997658765,26364,3417,22947,0,0,3417,False,measured
+all interactions,channel,App,duration_seconds_median,289.0,26364,3417,22947,0,0,3417,False,measured
+all interactions,channel,App,duration_seconds_p90,537.0,26364,3417,22947,0,0,3417,False,measured
+all interactions,channel,App,wait_time_seconds_mean,,26364,0,26364,0,0,0,True,measured
+all interactions,channel,App,wait_time_seconds_median,,26364,0,26364,0,0,0,True,measured
+all interactions,channel,App,wait_time_seconds_p90,,26364,0,26364,0,0,0,True,measured
+all interactions,channel,Email,fcr,0.7680717423664815,27543,27543,0,0,0,27543,False,measured
+all interactions,channel,Email,escalation,0.10187706495298261,27543,27543,0,0,0,27543,False,measured
+all interactions,channel,Email,follow_up,0.34408016555930726,27543,27543,0,0,0,27543,False,measured
+all interactions,channel,Email,duration_seconds_mean,,27543,0,27543,0,0,0,True,measured
+all interactions,channel,Email,duration_seconds_median,,27543,0,27543,0,0,0,True,measured
+all interactions,channel,Email,duration_seconds_p90,,27543,0,27543,0,0,0,True,measured
+all interactions,channel,Email,wait_time_seconds_mean,,27543,0,27543,0,0,0,True,measured
+all interactions,channel,Email,wait_time_seconds_median,,27543,0,27543,0,0,0,True,measured
+all interactions,channel,Email,wait_time_seconds_p90,,27543,0,27543,0,0,0,True,measured
+all interactions,channel,Phone,fcr,0.7662768966995285,583250,583250,0,0,0,583250,False,measured
+all interactions,channel,Phone,escalation,0.09947706815259323,583250,583250,0,0,0,583250,False,measured
+all interactions,channel,Phone,follow_up,0.34841320188598374,583250,583250,0,0,0,583250,False,measured
+all interactions,channel,Phone,duration_seconds_mean,321.4589472781826,583250,583250,0,0,0,583250,False,measured
+all interactions,channel,Phone,duration_seconds_median,291.0,583250,583250,0,0,0,583250,False,measured
+all interactions,channel,Phone,duration_seconds_p90,538.0,583250,583250,0,0,0,583250,False,measured
+all interactions,channel,Phone,wait_time_seconds_mean,119.93708054040334,583250,480678,102572,0,0,480678,False,measured
+all interactions,channel,Phone,wait_time_seconds_median,119.0,583250,480678,102572,0,0,480678,False,measured
+all interactions,channel,Phone,wait_time_seconds_p90,196.0,583250,480678,102572,0,0,480678,False,measured
+all interactions,channel,Web,fcr,0.7670103092783506,3395,3395,0,0,0,3395,False,measured
+all interactions,channel,Web,escalation,0.10515463917525773,3395,3395,0,0,0,3395,False,measured
+all interactions,channel,Web,follow_up,0.34256259204712813,3395,3395,0,0,0,3395,False,measured
+all interactions,channel,Web,duration_seconds_mean,321.1316642120766,3395,3395,0,0,0,3395,False,measured
+all interactions,channel,Web,duration_seconds_median,293.0,3395,3395,0,0,0,3395,False,measured
+all interactions,channel,Web,duration_seconds_p90,536.0,3395,3395,0,0,0,3395,False,measured
+all interactions,channel,Web,wait_time_seconds_mean,,3395,0,3395,0,0,0,True,measured
+all interactions,channel,Web,wait_time_seconds_median,,3395,0,3395,0,0,0,True,measured
+all interactions,channel,Web,wait_time_seconds_p90,,3395,0,3395,0,0,0,True,measured
+all interactions,channel,Web Chat,fcr,0.7647444872243612,22856,22856,0,0,0,22856,False,measured
+all interactions,channel,Web Chat,escalation,0.10071753587679384,22856,22856,0,0,0,22856,False,measured
+all interactions,channel,Web Chat,follow_up,0.3510238011900595,22856,22856,0,0,0,22856,False,measured
+all interactions,channel,Web Chat,duration_seconds_mean,,22856,0,22856,0,0,0,True,measured
+all interactions,channel,Web Chat,duration_seconds_median,,22856,0,22856,0,0,0,True,measured
+all interactions,channel,Web Chat,duration_seconds_p90,,22856,0,22856,0,0,0,True,measured
+all interactions,channel,Web Chat,wait_time_seconds_mean,,22856,0,22856,0,0,0,True,measured
+all interactions,channel,Web Chat,wait_time_seconds_median,,22856,0,22856,0,0,0,True,measured
+all interactions,channel,Web Chat,wait_time_seconds_p90,,22856,0,22856,0,0,0,True,measured
+all interactions,channel,WhatsApp,fcr,0.7657724571828032,22888,22888,0,0,0,22888,False,measured
+all interactions,channel,WhatsApp,escalation,0.09909122684376093,22888,22888,0,0,0,22888,False,measured
+all interactions,channel,WhatsApp,follow_up,0.3526301992310381,22888,22888,0,0,0,22888,False,measured
+all interactions,channel,WhatsApp,duration_seconds_mean,,22888,0,22888,0,0,0,True,measured
+all interactions,channel,WhatsApp,duration_seconds_median,,22888,0,22888,0,0,0,True,measured
+all interactions,channel,WhatsApp,duration_seconds_p90,,22888,0,22888,0,0,0,True,measured
+all interactions,channel,WhatsApp,wait_time_seconds_mean,,22888,0,22888,0,0,0,True,measured
+all interactions,channel,WhatsApp,wait_time_seconds_median,,22888,0,22888,0,0,0,True,measured
+all interactions,channel,WhatsApp,wait_time_seconds_p90,,22888,0,22888,0,0,0,True,measured

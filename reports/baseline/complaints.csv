@@ -1,281 +1,961 @@
-population,slice_type,slice_value,metric,value,n_cases,n_null_excluded,small_n,label
-all complaints,overall,all,resolution_days_mean,15.601445030267525,15363,758,False,measured
-all complaints,overall,all,resolution_days_median,16.0,15363,758,False,measured
-all complaints,overall,all,resolution_days_p90,28.0,15363,758,False,measured
-all complaints,overall,all,still_open_count,50269.0,67095,0,False,measured
-all complaints,overall,all,sla_breached_share,0.2011327222594828,67095,0,False,measured
-all complaints,overall,all,compensation_granted_share_of_all,0.06917057902973396,67095,0,False,measured
-all complaints,overall,all,compensation_granted_share_of_resolved,0.28788536691272254,16121,0,False,measured
-all complaints,country,Argentina,resolution_days_mean,15.494352159468438,3010,159,False,measured
-all complaints,country,Argentina,resolution_days_median,16.0,3010,159,False,measured
-all complaints,country,Argentina,resolution_days_p90,27.0,3010,159,False,measured
-all complaints,country,Argentina,still_open_count,10029.0,13336,0,False,measured
-all complaints,country,Argentina,sla_breached_share,0.20410917816436713,13336,0,False,measured
-all complaints,country,Argentina,compensation_granted_share_of_all,0.06756148770245951,13336,0,False,measured
-all complaints,country,Argentina,compensation_granted_share_of_resolved,0.28431681918586305,3169,0,False,measured
-all complaints,country,Colombia,resolution_days_mean,15.603249251817015,4678,253,False,measured
-all complaints,country,Colombia,resolution_days_median,16.0,4678,253,False,measured
-all complaints,country,Colombia,resolution_days_p90,28.0,4678,253,False,measured
-all complaints,country,Colombia,still_open_count,15259.0,20384,0,False,measured
-all complaints,country,Colombia,sla_breached_share,0.1974587912087912,20384,0,False,measured
-all complaints,country,Colombia,compensation_granted_share_of_all,0.07128139717425432,20384,0,False,measured
-all complaints,country,Colombia,compensation_granted_share_of_resolved,0.2946663962685054,4931,0,False,measured
-all complaints,country,México,resolution_days_mean,15.642345276872964,7675,346,False,measured
-all complaints,country,México,resolution_days_median,16.0,7675,346,False,measured
-all complaints,country,México,resolution_days_p90,28.0,7675,346,False,measured
-all complaints,country,México,still_open_count,24981.0,33375,0,False,measured
-all complaints,country,México,sla_breached_share,0.202187265917603,33375,0,False,measured
-all complaints,country,México,compensation_granted_share_of_all,0.0685243445692884,33375,0,False,measured
-all complaints,country,México,compensation_granted_share_of_resolved,0.28512654282508415,8021,0,False,measured
-all complaints,case_type,Claim,resolution_days_mean,15.621600418410042,3824,187,False,measured
-all complaints,case_type,Claim,resolution_days_median,16.0,3824,187,False,measured
-all complaints,case_type,Claim,resolution_days_p90,27.0,3824,187,False,measured
-all complaints,case_type,Claim,still_open_count,12391.0,16598,0,False,measured
-all complaints,case_type,Claim,sla_breached_share,0.19942161706229666,16598,0,False,measured
-all complaints,case_type,Claim,compensation_granted_share_of_all,0.06826123629352934,16598,0,False,measured
-all complaints,case_type,Claim,compensation_granted_share_of_resolved,0.2824731987035652,4011,0,False,measured
-all complaints,case_type,Complaint,resolution_days_mean,15.610780387487823,9239,456,False,measured
-all complaints,case_type,Complaint,resolution_days_median,16.0,9239,456,False,measured
-all complaints,case_type,Complaint,resolution_days_p90,28.0,9239,456,False,measured
-all complaints,case_type,Complaint,still_open_count,30352.0,40452,0,False,measured
-all complaints,case_type,Complaint,sla_breached_share,0.20063284880846435,40452,0,False,measured
-all complaints,case_type,Complaint,compensation_granted_share_of_all,0.06976169287056264,40452,0,False,measured
-all complaints,case_type,Complaint,compensation_granted_share_of_resolved,0.29107787519339867,9695,0,False,measured
-all complaints,case_type,Request,resolution_days_mean,15.489456869009585,1565,73,False,measured
-all complaints,case_type,Request,resolution_days_median,15.0,1565,73,False,measured
-all complaints,case_type,Request,resolution_days_p90,28.0,1565,73,False,measured
-all complaints,case_type,Request,still_open_count,5055.0,6761,0,False,measured
-all complaints,case_type,Request,sla_breached_share,0.20248483952078095,6761,0,False,measured
-all complaints,case_type,Request,compensation_granted_share_of_all,0.06641029433515752,6761,0,False,measured
-all complaints,case_type,Request,compensation_granted_share_of_resolved,0.27411477411477414,1638,0,False,measured
-all complaints,case_type,Suggestion,resolution_days_mean,15.617687074829933,735,42,False,measured
-all complaints,case_type,Suggestion,resolution_days_median,16.0,735,42,False,measured
-all complaints,case_type,Suggestion,resolution_days_p90,28.0,735,42,False,measured
-all complaints,case_type,Suggestion,still_open_count,2471.0,3284,0,False,measured
-all complaints,case_type,Suggestion,sla_breached_share,0.21315468940316687,3284,0,False,measured
-all complaints,case_type,Suggestion,compensation_granted_share_of_all,0.07216808769792936,3284,0,False,measured
-all complaints,case_type,Suggestion,compensation_granted_share_of_resolved,0.305019305019305,777,0,False,measured
-all complaints,country x case_type,Argentina | Claim,resolution_days_mean,15.402702702702703,740,39,False,measured
-all complaints,country x case_type,Argentina | Claim,resolution_days_median,16.0,740,39,False,measured
-all complaints,country x case_type,Argentina | Claim,resolution_days_p90,27.0,740,39,False,measured
-all complaints,country x case_type,Argentina | Claim,still_open_count,2473.0,3280,0,False,measured
-all complaints,country x case_type,Argentina | Claim,sla_breached_share,0.20213414634146343,3280,0,False,measured
-all complaints,country x case_type,Argentina | Claim,compensation_granted_share_of_all,0.06798780487804879,3280,0,False,measured
-all complaints,country x case_type,Argentina | Claim,compensation_granted_share_of_resolved,0.2862644415917843,779,0,False,measured
-all complaints,country x case_type,Argentina | Complaint,resolution_days_mean,15.604510451045105,1818,93,False,measured
-all complaints,country x case_type,Argentina | Complaint,resolution_days_median,16.0,1818,93,False,measured
-all complaints,country x case_type,Argentina | Complaint,resolution_days_p90,28.0,1818,93,False,measured
-all complaints,country x case_type,Argentina | Complaint,still_open_count,6056.0,8051,0,False,measured
-all complaints,country x case_type,Argentina | Complaint,sla_breached_share,0.20618556701030927,8051,0,False,measured
-all complaints,country x case_type,Argentina | Complaint,compensation_granted_share_of_all,0.06943236864985716,8051,0,False,measured
-all complaints,country x case_type,Argentina | Complaint,compensation_granted_share_of_resolved,0.2925170068027211,1911,0,False,measured
-all complaints,country x case_type,Argentina | Request,resolution_days_mean,15.298076923076923,312,18,False,measured
-all complaints,country x case_type,Argentina | Request,resolution_days_median,16.0,312,18,False,measured
-all complaints,country x case_type,Argentina | Request,resolution_days_p90,28.0,312,18,False,measured
-all complaints,country x case_type,Argentina | Request,still_open_count,1006.0,1352,0,False,measured
-all complaints,country x case_type,Argentina | Request,sla_breached_share,0.19674556213017752,1352,0,False,measured
-all complaints,country x case_type,Argentina | Request,compensation_granted_share_of_all,0.05251479289940828,1352,0,False,measured
-all complaints,country x case_type,Argentina | Request,compensation_granted_share_of_resolved,0.21515151515151515,330,0,False,measured
-all complaints,country x case_type,Argentina | Suggestion,resolution_days_mean,14.985714285714286,140,9,False,measured
-all complaints,country x case_type,Argentina | Suggestion,resolution_days_median,15.0,140,9,False,measured
-all complaints,country x case_type,Argentina | Suggestion,resolution_days_p90,28.0,140,9,False,measured
-all complaints,country x case_type,Argentina | Suggestion,still_open_count,494.0,653,0,False,measured
-all complaints,country x case_type,Argentina | Suggestion,sla_breached_share,0.20367534456355282,653,0,False,measured
-all complaints,country x case_type,Argentina | Suggestion,compensation_granted_share_of_all,0.07350689127105667,653,0,False,measured
-all complaints,country x case_type,Argentina | Suggestion,compensation_granted_share_of_resolved,0.3221476510067114,149,0,False,measured
-all complaints,country x case_type,Colombia | Claim,resolution_days_mean,15.767624020887729,1149,63,False,measured
-all complaints,country x case_type,Colombia | Claim,resolution_days_median,16.0,1149,63,False,measured
-all complaints,country x case_type,Colombia | Claim,resolution_days_p90,28.0,1149,63,False,measured
-all complaints,country x case_type,Colombia | Claim,still_open_count,3702.0,4975,0,False,measured
-all complaints,country x case_type,Colombia | Claim,sla_breached_share,0.19336683417085426,4975,0,False,measured
-all complaints,country x case_type,Colombia | Claim,compensation_granted_share_of_all,0.07035175879396985,4975,0,False,measured
-all complaints,country x case_type,Colombia | Claim,compensation_granted_share_of_resolved,0.2887788778877888,1212,0,False,measured
-all complaints,country x case_type,Colombia | Complaint,resolution_days_mean,15.654661016949152,2832,151,False,measured
-all complaints,country x case_type,Colombia | Complaint,resolution_days_median,16.0,2832,151,False,measured
-all complaints,country x case_type,Colombia | Complaint,resolution_days_p90,28.0,2832,151,False,measured
-all complaints,country x case_type,Colombia | Complaint,still_open_count,9246.0,12338,0,False,measured
-all complaints,country x case_type,Colombia | Complaint,sla_breached_share,0.19816826065812937,12338,0,False,measured
-all complaints,country x case_type,Colombia | Complaint,compensation_granted_share_of_all,0.07213486788782623,12338,0,False,measured
-all complaints,country x case_type,Colombia | Complaint,compensation_granted_share_of_resolved,0.298357358364063,2983,0,False,measured
-all complaints,country x case_type,Colombia | Request,resolution_days_mean,15.193018480492814,487,24,False,measured
-all complaints,country x case_type,Colombia | Request,resolution_days_median,15.0,487,24,False,measured
-all complaints,country x case_type,Colombia | Request,resolution_days_p90,27.0,487,24,False,measured
-all complaints,country x case_type,Colombia | Request,still_open_count,1545.0,2071,0,False,measured
-all complaints,country x case_type,Colombia | Request,sla_breached_share,0.19410912602607436,2071,0,False,measured
-all complaints,country x case_type,Colombia | Request,compensation_granted_share_of_all,0.07049734427812651,2071,0,False,measured
-all complaints,country x case_type,Colombia | Request,compensation_granted_share_of_resolved,0.2857142857142857,511,0,False,measured
-all complaints,country x case_type,Colombia | Suggestion,resolution_days_mean,14.961904761904762,210,15,False,measured
-all complaints,country x case_type,Colombia | Suggestion,resolution_days_median,15.0,210,15,False,measured
-all complaints,country x case_type,Colombia | Suggestion,resolution_days_p90,27.0,210,15,False,measured
-all complaints,country x case_type,Colombia | Suggestion,still_open_count,766.0,1000,0,False,measured
-all complaints,country x case_type,Colombia | Suggestion,sla_breached_share,0.216,1000,0,False,measured
-all complaints,country x case_type,Colombia | Suggestion,compensation_granted_share_of_all,0.067,1000,0,False,measured
-all complaints,country x case_type,Colombia | Suggestion,compensation_granted_share_of_resolved,0.29777777777777775,225,0,False,measured
-all complaints,country x case_type,México | Claim,resolution_days_mean,15.61860465116279,1935,85,False,measured
-all complaints,country x case_type,México | Claim,resolution_days_median,15.0,1935,85,False,measured
-all complaints,country x case_type,México | Claim,resolution_days_p90,27.0,1935,85,False,measured
-all complaints,country x case_type,México | Claim,still_open_count,6216.0,8343,0,False,measured
-all complaints,country x case_type,México | Claim,sla_breached_share,0.20196571976507252,8343,0,False,measured
-all complaints,country x case_type,México | Claim,compensation_granted_share_of_all,0.06712213831954933,8343,0,False,measured
-all complaints,country x case_type,México | Claim,compensation_granted_share_of_resolved,0.27722772277227725,2020,0,False,measured
-all complaints,country x case_type,México | Complaint,resolution_days_mean,15.586184353889736,4589,212,False,measured
-all complaints,country x case_type,México | Complaint,resolution_days_median,16.0,4589,212,False,measured
-all complaints,country x case_type,México | Complaint,resolution_days_p90,28.0,4589,212,False,measured
-all complaints,country x case_type,México | Complaint,still_open_count,15050.0,20063,0,False,measured
-all complaints,country x case_type,México | Complaint,sla_breached_share,0.1999202512086926,20063,0,False,measured
-all complaints,country x case_type,México | Complaint,compensation_granted_share_of_all,0.06843443154064696,20063,0,False,measured
-all complaints,country x case_type,México | Complaint,compensation_granted_share_of_resolved,0.28598208706519473,4801,0,False,measured
-all complaints,country x case_type,México | Request,resolution_days_mean,15.755874673629243,766,31,False,measured
-all complaints,country x case_type,México | Request,resolution_days_median,15.0,766,31,False,measured
-all complaints,country x case_type,México | Request,resolution_days_p90,28.0,766,31,False,measured
-all complaints,country x case_type,México | Request,still_open_count,2504.0,3338,0,False,measured
-all complaints,country x case_type,México | Request,sla_breached_share,0.21000599161174355,3338,0,False,measured
-all complaints,country x case_type,México | Request,compensation_granted_share_of_all,0.0695026962252846,3338,0,False,measured
-all complaints,country x case_type,México | Request,compensation_granted_share_of_resolved,0.29109159347553326,797,0,False,measured
-all complaints,country x case_type,México | Suggestion,resolution_days_mean,16.205194805194804,385,18,False,measured
-all complaints,country x case_type,México | Suggestion,resolution_days_median,17.0,385,18,False,measured
-all complaints,country x case_type,México | Suggestion,resolution_days_p90,28.0,385,18,False,measured
-all complaints,country x case_type,México | Suggestion,still_open_count,1211.0,1631,0,False,measured
-all complaints,country x case_type,México | Suggestion,sla_breached_share,0.21520539546290618,1631,0,False,measured
-all complaints,country x case_type,México | Suggestion,compensation_granted_share_of_all,0.07480073574494175,1631,0,False,measured
-all complaints,country x case_type,México | Suggestion,compensation_granted_share_of_resolved,0.3027295285359802,403,0,False,measured
-Transactions,overall,all,resolution_days_mean,15.415481832543444,3165,166,False,measured
-Transactions,overall,all,resolution_days_median,15.0,3165,166,False,measured
-Transactions,overall,all,resolution_days_p90,27.0,3165,166,False,measured
-Transactions,overall,all,still_open_count,10124.0,13580,0,False,measured
-Transactions,overall,all,sla_breached_share,0.2016936671575847,13580,0,False,measured
-Transactions,overall,all,compensation_granted_share_of_all,0.07326951399116348,13580,0,False,measured
-Transactions,overall,all,compensation_granted_share_of_resolved,0.29870909636745724,3331,0,False,measured
-Transactions,country,Argentina,resolution_days_mean,15.435185185185185,648,32,False,measured
-Transactions,country,Argentina,resolution_days_median,16.0,648,32,False,measured
-Transactions,country,Argentina,resolution_days_p90,27.0,648,32,False,measured
-Transactions,country,Argentina,still_open_count,1999.0,2701,0,False,measured
-Transactions,country,Argentina,sla_breached_share,0.20251758607922993,2701,0,False,measured
-Transactions,country,Argentina,compensation_granted_share_of_all,0.07182524990744169,2701,0,False,measured
-Transactions,country,Argentina,compensation_granted_share_of_resolved,0.2852941176470588,680,0,False,measured
-Transactions,country,Colombia,resolution_days_mean,15.222340425531915,940,58,False,measured
-Transactions,country,Colombia,resolution_days_median,15.0,940,58,False,measured
-Transactions,country,Colombia,resolution_days_p90,28.0,940,58,False,measured
-Transactions,country,Colombia,still_open_count,3086.0,4119,0,False,measured
-Transactions,country,Colombia,sla_breached_share,0.19980577810148095,4119,0,False,measured
-Transactions,country,Colombia,compensation_granted_share_of_all,0.07526098567613498,4119,0,False,measured
-Transactions,country,Colombia,compensation_granted_share_of_resolved,0.3106212424849699,998,0,False,measured
-Transactions,country,México,resolution_days_mean,15.522511097019658,1577,76,False,measured
-Transactions,country,México,resolution_days_median,16.0,1577,76,False,measured
-Transactions,country,México,resolution_days_p90,27.0,1577,76,False,measured
-Transactions,country,México,still_open_count,5039.0,6760,0,False,measured
-Transactions,country,México,sla_breached_share,0.2025147928994083,6760,0,False,measured
-Transactions,country,México,compensation_granted_share_of_all,0.07263313609467456,6760,0,False,measured
-Transactions,country,México,compensation_granted_share_of_resolved,0.2970356926799758,1653,0,False,measured
-Transactions,case_type,Claim,resolution_days_mean,14.97966963151207,787,39,False,measured
-Transactions,case_type,Claim,resolution_days_median,15.0,787,39,False,measured
-Transactions,case_type,Claim,resolution_days_p90,27.0,787,39,False,measured
-Transactions,case_type,Claim,still_open_count,2476.0,3335,0,False,measured
-Transactions,case_type,Claim,sla_breached_share,0.20899550224887556,3335,0,False,measured
-Transactions,case_type,Claim,compensation_granted_share_of_all,0.07466266866566716,3335,0,False,measured
-Transactions,case_type,Claim,compensation_granted_share_of_resolved,0.30145278450363194,826,0,False,measured
-Transactions,case_type,Complaint,resolution_days_mean,15.522164948453609,1940,100,False,measured
-Transactions,case_type,Complaint,resolution_days_median,16.0,1940,100,False,measured
-Transactions,case_type,Complaint,resolution_days_p90,28.0,1940,100,False,measured
-Transactions,case_type,Complaint,still_open_count,6126.0,8239,0,False,measured
-Transactions,case_type,Complaint,sla_breached_share,0.20026702269692923,8239,0,False,measured
-Transactions,case_type,Complaint,compensation_granted_share_of_all,0.07330986770239106,8239,0,False,measured
-Transactions,case_type,Complaint,compensation_granted_share_of_resolved,0.296078431372549,2040,0,False,measured
-Transactions,case_type,Request,resolution_days_mean,15.675675675675675,296,14,False,measured
-Transactions,case_type,Request,resolution_days_median,15.0,296,14,False,measured
-Transactions,case_type,Request,resolution_days_p90,28.0,296,14,False,measured
-Transactions,case_type,Request,still_open_count,1006.0,1329,0,False,measured
-Transactions,case_type,Request,sla_breached_share,0.19187358916478556,1329,0,False,measured
-Transactions,case_type,Request,compensation_granted_share_of_all,0.06847253574115876,1329,0,False,measured
-Transactions,case_type,Request,compensation_granted_share_of_resolved,0.29354838709677417,310,0,False,measured
-Transactions,case_type,Suggestion,resolution_days_mean,15.830985915492958,142,13,False,measured
-Transactions,case_type,Suggestion,resolution_days_median,16.0,142,13,False,measured
-Transactions,case_type,Suggestion,resolution_days_p90,27.0,142,13,False,measured
-Transactions,case_type,Suggestion,still_open_count,516.0,677,0,False,measured
-Transactions,case_type,Suggestion,sla_breached_share,0.20236336779911374,677,0,False,measured
-Transactions,case_type,Suggestion,compensation_granted_share_of_all,0.07533234859675036,677,0,False,measured
-Transactions,case_type,Suggestion,compensation_granted_share_of_resolved,0.32903225806451614,155,0,False,measured
-Transactions,country x case_type,Argentina | Claim,resolution_days_mean,15.554285714285715,175,10,False,measured
-Transactions,country x case_type,Argentina | Claim,resolution_days_median,17.0,175,10,False,measured
-Transactions,country x case_type,Argentina | Claim,resolution_days_p90,26.0,175,10,False,measured
-Transactions,country x case_type,Argentina | Claim,still_open_count,497.0,685,0,False,measured
-Transactions,country x case_type,Argentina | Claim,sla_breached_share,0.2029197080291971,685,0,False,measured
-Transactions,country x case_type,Argentina | Claim,compensation_granted_share_of_all,0.07883211678832117,685,0,False,measured
-Transactions,country x case_type,Argentina | Claim,compensation_granted_share_of_resolved,0.2918918918918919,185,0,False,measured
-Transactions,country x case_type,Argentina | Complaint,resolution_days_mean,15.607792207792208,385,17,False,measured
-Transactions,country x case_type,Argentina | Complaint,resolution_days_median,16.0,385,17,False,measured
-Transactions,country x case_type,Argentina | Complaint,resolution_days_p90,28.0,385,17,False,measured
-Transactions,country x case_type,Argentina | Complaint,still_open_count,1208.0,1628,0,False,measured
-Transactions,country x case_type,Argentina | Complaint,sla_breached_share,0.20515970515970516,1628,0,False,measured
-Transactions,country x case_type,Argentina | Complaint,compensation_granted_share_of_all,0.07248157248157248,1628,0,False,measured
-Transactions,country x case_type,Argentina | Complaint,compensation_granted_share_of_resolved,0.2935323383084577,402,0,False,measured
-Transactions,country x case_type,Argentina | Request,resolution_days_mean,15.052631578947368,57,2,False,measured
-Transactions,country x case_type,Argentina | Request,resolution_days_median,14.0,57,2,False,measured
-Transactions,country x case_type,Argentina | Request,resolution_days_p90,28.0,57,2,False,measured
-Transactions,country x case_type,Argentina | Request,still_open_count,192.0,252,0,False,measured
-Transactions,country x case_type,Argentina | Request,sla_breached_share,0.19444444444444445,252,0,False,measured
-Transactions,country x case_type,Argentina | Request,compensation_granted_share_of_all,0.04365079365079365,252,0,False,measured
-Transactions,country x case_type,Argentina | Request,compensation_granted_share_of_resolved,0.1864406779661017,59,0,False,measured
-Transactions,country x case_type,Argentina | Suggestion,resolution_days_mean,13.32258064516129,31,3,False,measured
-Transactions,country x case_type,Argentina | Suggestion,resolution_days_median,14.0,31,3,False,measured
-Transactions,country x case_type,Argentina | Suggestion,resolution_days_p90,23.0,31,3,False,measured
-Transactions,country x case_type,Argentina | Suggestion,still_open_count,102.0,136,0,False,measured
-Transactions,country x case_type,Argentina | Suggestion,sla_breached_share,0.18382352941176472,136,0,False,measured
-Transactions,country x case_type,Argentina | Suggestion,compensation_granted_share_of_all,0.08088235294117647,136,0,False,measured
-Transactions,country x case_type,Argentina | Suggestion,compensation_granted_share_of_resolved,0.3235294117647059,34,0,False,measured
-Transactions,country x case_type,Colombia | Claim,resolution_days_mean,14.243119266055047,218,14,False,measured
-Transactions,country x case_type,Colombia | Claim,resolution_days_median,13.0,218,14,False,measured
-Transactions,country x case_type,Colombia | Claim,resolution_days_p90,27.0,218,14,False,measured
-Transactions,country x case_type,Colombia | Claim,still_open_count,747.0,990,0,False,measured
-Transactions,country x case_type,Colombia | Claim,sla_breached_share,0.2,990,0,False,measured
-Transactions,country x case_type,Colombia | Claim,compensation_granted_share_of_all,0.0696969696969697,990,0,False,measured
-Transactions,country x case_type,Colombia | Claim,compensation_granted_share_of_resolved,0.2974137931034483,232,0,False,measured
-Transactions,country x case_type,Colombia | Complaint,resolution_days_mean,15.613287904599659,587,33,False,measured
-Transactions,country x case_type,Colombia | Complaint,resolution_days_median,15.0,587,33,False,measured
-Transactions,country x case_type,Colombia | Complaint,resolution_days_p90,28.0,587,33,False,measured
-Transactions,country x case_type,Colombia | Complaint,still_open_count,1878.0,2516,0,False,measured
-Transactions,country x case_type,Colombia | Complaint,sla_breached_share,0.20349761526232116,2516,0,False,measured
-Transactions,country x case_type,Colombia | Complaint,compensation_granted_share_of_all,0.07710651828298887,2516,0,False,measured
-Transactions,country x case_type,Colombia | Complaint,compensation_granted_share_of_resolved,0.31290322580645163,620,0,False,measured
-Transactions,country x case_type,Colombia | Request,resolution_days_mean,15.476190476190476,105,5,False,measured
-Transactions,country x case_type,Colombia | Request,resolution_days_median,15.0,105,5,False,measured
-Transactions,country x case_type,Colombia | Request,resolution_days_p90,26.0,105,5,False,measured
-Transactions,country x case_type,Colombia | Request,still_open_count,291.0,404,0,False,measured
-Transactions,country x case_type,Colombia | Request,sla_breached_share,0.1707920792079208,404,0,False,measured
-Transactions,country x case_type,Colombia | Request,compensation_granted_share_of_all,0.07920792079207921,404,0,False,measured
-Transactions,country x case_type,Colombia | Request,compensation_granted_share_of_resolved,0.2909090909090909,110,0,False,measured
-Transactions,country x case_type,Colombia | Suggestion,resolution_days_mean,13.8,30,6,False,measured
-Transactions,country x case_type,Colombia | Suggestion,resolution_days_median,13.0,30,6,False,measured
-Transactions,country x case_type,Colombia | Suggestion,resolution_days_p90,25.0,30,6,False,measured
-Transactions,country x case_type,Colombia | Suggestion,still_open_count,170.0,209,0,False,measured
-Transactions,country x case_type,Colombia | Suggestion,sla_breached_share,0.21052631578947367,209,0,False,measured
-Transactions,country x case_type,Colombia | Suggestion,compensation_granted_share_of_all,0.07177033492822966,209,0,False,measured
-Transactions,country x case_type,Colombia | Suggestion,compensation_granted_share_of_resolved,0.4166666666666667,36,0,False,measured
-Transactions,country x case_type,México | Claim,resolution_days_mean,15.131979695431472,394,15,False,measured
-Transactions,country x case_type,México | Claim,resolution_days_median,15.0,394,15,False,measured
-Transactions,country x case_type,México | Claim,resolution_days_p90,27.0,394,15,False,measured
-Transactions,country x case_type,México | Claim,still_open_count,1232.0,1660,0,False,measured
-Transactions,country x case_type,México | Claim,sla_breached_share,0.21686746987951808,1660,0,False,measured
-Transactions,country x case_type,México | Claim,compensation_granted_share_of_all,0.07590361445783132,1660,0,False,measured
-Transactions,country x case_type,México | Claim,compensation_granted_share_of_resolved,0.3080684596577017,409,0,False,measured
-Transactions,country x case_type,México | Complaint,resolution_days_mean,15.432851239669422,968,50,False,measured
-Transactions,country x case_type,México | Complaint,resolution_days_median,16.0,968,50,False,measured
-Transactions,country x case_type,México | Complaint,resolution_days_p90,27.0,968,50,False,measured
-Transactions,country x case_type,México | Complaint,still_open_count,3040.0,4095,0,False,measured
-Transactions,country x case_type,México | Complaint,sla_breached_share,0.19633699633699633,4095,0,False,measured
-Transactions,country x case_type,México | Complaint,compensation_granted_share_of_all,0.0713064713064713,4095,0,False,measured
-Transactions,country x case_type,México | Complaint,compensation_granted_share_of_resolved,0.2868369351669941,1018,0,False,measured
-Transactions,country x case_type,México | Request,resolution_days_mean,16.097014925373134,134,7,False,measured
-Transactions,country x case_type,México | Request,resolution_days_median,15.5,134,7,False,measured
-Transactions,country x case_type,México | Request,resolution_days_p90,29.0,134,7,False,measured
-Transactions,country x case_type,México | Request,still_open_count,523.0,673,0,False,measured
-Transactions,country x case_type,México | Request,sla_breached_share,0.20356612184249628,673,0,False,measured
-Transactions,country x case_type,México | Request,compensation_granted_share_of_all,0.0713224368499257,673,0,False,measured
-Transactions,country x case_type,México | Request,compensation_granted_share_of_resolved,0.3404255319148936,141,0,False,measured
-Transactions,country x case_type,México | Suggestion,resolution_days_mean,17.54320987654321,81,4,False,measured
-Transactions,country x case_type,México | Suggestion,resolution_days_median,19.0,81,4,False,measured
-Transactions,country x case_type,México | Suggestion,resolution_days_p90,27.0,81,4,False,measured
-Transactions,country x case_type,México | Suggestion,still_open_count,244.0,332,0,False,measured
-Transactions,country x case_type,México | Suggestion,sla_breached_share,0.20481927710843373,332,0,False,measured
-Transactions,country x case_type,México | Suggestion,compensation_granted_share_of_all,0.07530120481927711,332,0,False,measured
-Transactions,country x case_type,México | Suggestion,compensation_granted_share_of_resolved,0.29411764705882354,85,0,False,measured
+population,slice_type,slice_value,metric,value,n_population,n_valid,n_null_excluded,n_invalid_excluded,n_unresolved_excluded,denominator,small_n,label
+Transactions,case_type,Claim,still_open_count,2476,3335,3335,0,0,0,3335,False,measured
+Transactions,case_type,Claim,sla_breached_share,0.20899550224887556,3335,3335,0,0,0,3335,False,measured
+Transactions,case_type,Claim,compensation_granted_share_of_all,0.07466266866566716,3335,3335,0,0,0,3335,False,measured
+Transactions,case_type,Claim,compensation_granted_share_of_resolved,0.30145278450363194,3335,826,0,0,2509,826,False,measured
+Transactions,case_type,Claim,resolution_days_mean,14.97966963151207,3335,787,39,0,2509,787,False,measured
+Transactions,case_type,Claim,resolution_days_median,15.0,3335,787,39,0,2509,787,False,measured
+Transactions,case_type,Claim,resolution_days_p90,27.0,3335,787,39,0,2509,787,False,measured
+Transactions,case_type,Claim,claimed_amount_usd_mean,680.246648689551,3335,1247,2088,0,0,1247,False,measured
+Transactions,case_type,Claim,claimed_amount_usd_median,13.8893466,3335,1247,2088,0,0,1247,False,measured
+Transactions,case_type,Claim,claimed_amount_usd_p90,2895.4960000000024,3335,1247,2088,0,0,1247,False,measured
+Transactions,case_type,Claim,claims_without_currency,61,3335,3335,0,0,0,3335,False,measured
+Transactions,case_type,Claim,claims_without_fx,0,3335,3335,0,0,0,3335,False,measured
+Transactions,case_type,Claim,claimed_amount_MXN_mean,2610.155860927152,3335,302,3033,0,0,302,False,measured
+Transactions,case_type,Claim,claimed_amount_MXN_median,2684.8050000000003,3335,302,3033,0,0,302,False,measured
+Transactions,case_type,Claim,claimed_amount_MXN_p90,4557.618,3335,302,3033,0,0,302,False,measured
+Transactions,case_type,Claim,claimed_amount_COP_mean,2515.7759202453985,3335,326,3009,0,0,326,False,measured
+Transactions,case_type,Claim,claimed_amount_COP_median,2450.13,3335,326,3009,0,0,326,False,measured
+Transactions,case_type,Claim,claimed_amount_COP_p90,4560.66,3335,326,3009,0,0,326,False,measured
+Transactions,case_type,Claim,claimed_amount_ARS_mean,2653.0497009966775,3335,301,3034,0,0,301,False,measured
+Transactions,case_type,Claim,claimed_amount_ARS_median,2698.58,3335,301,3034,0,0,301,False,measured
+Transactions,case_type,Claim,claimed_amount_ARS_p90,4611.44,3335,301,3034,0,0,301,False,measured
+Transactions,case_type,Claim,claimed_amount_USD_mean,2514.1104402515725,3335,318,3017,0,0,318,False,measured
+Transactions,case_type,Claim,claimed_amount_USD_median,2441.91,3335,318,3017,0,0,318,False,measured
+Transactions,case_type,Claim,claimed_amount_USD_p90,4519.369,3335,318,3017,0,0,318,False,measured
+Transactions,case_type,Complaint,still_open_count,6126,8239,8239,0,0,0,8239,False,measured
+Transactions,case_type,Complaint,sla_breached_share,0.20026702269692923,8239,8239,0,0,0,8239,False,measured
+Transactions,case_type,Complaint,compensation_granted_share_of_all,0.07330986770239106,8239,8239,0,0,0,8239,False,measured
+Transactions,case_type,Complaint,compensation_granted_share_of_resolved,0.296078431372549,8239,2040,0,0,6199,2040,False,measured
+Transactions,case_type,Complaint,resolution_days_mean,15.522164948453609,8239,1940,100,0,6199,1940,False,measured
+Transactions,case_type,Complaint,resolution_days_median,16.0,8239,1940,100,0,6199,1940,False,measured
+Transactions,case_type,Complaint,resolution_days_p90,28.0,8239,1940,100,0,6199,1940,False,measured
+Transactions,case_type,Complaint,claimed_amount_usd_mean,685.7942831453029,8239,3055,5184,0,0,3055,False,measured
+Transactions,case_type,Complaint,claimed_amount_usd_median,13.985281200000001,8239,3055,5184,0,0,3055,False,measured
+Transactions,case_type,Complaint,claimed_amount_usd_p90,3049.0019999999995,8239,3055,5184,0,0,3055,False,measured
+Transactions,case_type,Complaint,claims_without_currency,137,8239,8239,0,0,0,8239,False,measured
+Transactions,case_type,Complaint,claims_without_fx,0,8239,8239,0,0,0,8239,False,measured
+Transactions,case_type,Complaint,claimed_amount_MXN_mean,2577.4992041078303,8239,779,7460,0,0,779,False,measured
+Transactions,case_type,Complaint,claimed_amount_MXN_median,2614.47,8239,779,7460,0,0,779,False,measured
+Transactions,case_type,Complaint,claimed_amount_MXN_p90,4614.196000000001,8239,779,7460,0,0,779,False,measured
+Transactions,case_type,Complaint,claimed_amount_COP_mean,2427.9798938992044,8239,754,7485,0,0,754,False,measured
+Transactions,case_type,Complaint,claimed_amount_COP_median,2392.6800000000003,8239,754,7485,0,0,754,False,measured
+Transactions,case_type,Complaint,claimed_amount_COP_p90,4483.681,8239,754,7485,0,0,754,False,measured
+Transactions,case_type,Complaint,claimed_amount_ARS_mean,2468.130907894737,8239,760,7479,0,0,760,False,measured
+Transactions,case_type,Complaint,claimed_amount_ARS_median,2404.645,8239,760,7479,0,0,760,False,measured
+Transactions,case_type,Complaint,claimed_amount_ARS_p90,4415.001,8239,760,7479,0,0,760,False,measured
+Transactions,case_type,Complaint,claimed_amount_USD_mean,2586.9372572178477,8239,762,7477,0,0,762,False,measured
+Transactions,case_type,Complaint,claimed_amount_USD_median,2552.705,8239,762,7477,0,0,762,False,measured
+Transactions,case_type,Complaint,claimed_amount_USD_p90,4536.005999999999,8239,762,7477,0,0,762,False,measured
+Transactions,case_type,Request,still_open_count,1006,1329,1329,0,0,0,1329,False,measured
+Transactions,case_type,Request,sla_breached_share,0.19187358916478556,1329,1329,0,0,0,1329,False,measured
+Transactions,case_type,Request,compensation_granted_share_of_all,0.06847253574115876,1329,1329,0,0,0,1329,False,measured
+Transactions,case_type,Request,compensation_granted_share_of_resolved,0.29354838709677417,1329,310,0,0,1019,310,False,measured
+Transactions,case_type,Request,resolution_days_mean,15.675675675675675,1329,296,14,0,1019,296,False,measured
+Transactions,case_type,Request,resolution_days_median,15.0,1329,296,14,0,1019,296,False,measured
+Transactions,case_type,Request,resolution_days_p90,28.0,1329,296,14,0,1019,296,False,measured
+Transactions,case_type,Request,claimed_amount_usd_mean,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_usd_median,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_usd_p90,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claims_without_currency,0,1329,1329,0,0,0,1329,False,measured
+Transactions,case_type,Request,claims_without_fx,0,1329,1329,0,0,0,1329,False,measured
+Transactions,case_type,Request,claimed_amount_MXN_mean,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_MXN_median,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_MXN_p90,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_COP_mean,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_COP_median,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_COP_p90,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_ARS_mean,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_ARS_median,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_ARS_p90,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_USD_mean,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_USD_median,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Request,claimed_amount_USD_p90,,1329,0,1329,0,0,0,True,measured
+Transactions,case_type,Suggestion,still_open_count,516,677,677,0,0,0,677,False,measured
+Transactions,case_type,Suggestion,sla_breached_share,0.20236336779911374,677,677,0,0,0,677,False,measured
+Transactions,case_type,Suggestion,compensation_granted_share_of_all,0.07533234859675036,677,677,0,0,0,677,False,measured
+Transactions,case_type,Suggestion,compensation_granted_share_of_resolved,0.32903225806451614,677,155,0,0,522,155,False,measured
+Transactions,case_type,Suggestion,resolution_days_mean,15.830985915492958,677,142,13,0,522,142,False,measured
+Transactions,case_type,Suggestion,resolution_days_median,16.0,677,142,13,0,522,142,False,measured
+Transactions,case_type,Suggestion,resolution_days_p90,27.0,677,142,13,0,522,142,False,measured
+Transactions,case_type,Suggestion,claimed_amount_usd_mean,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_usd_median,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_usd_p90,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claims_without_currency,0,677,677,0,0,0,677,False,measured
+Transactions,case_type,Suggestion,claims_without_fx,0,677,677,0,0,0,677,False,measured
+Transactions,case_type,Suggestion,claimed_amount_MXN_mean,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_MXN_median,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_MXN_p90,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_COP_mean,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_COP_median,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_COP_p90,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_ARS_mean,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_ARS_median,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_ARS_p90,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_USD_mean,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_USD_median,,677,0,677,0,0,0,True,measured
+Transactions,case_type,Suggestion,claimed_amount_USD_p90,,677,0,677,0,0,0,True,measured
+Transactions,country,Argentina,still_open_count,1999,2701,2701,0,0,0,2701,False,measured
+Transactions,country,Argentina,sla_breached_share,0.20251758607922993,2701,2701,0,0,0,2701,False,measured
+Transactions,country,Argentina,compensation_granted_share_of_all,0.07182524990744169,2701,2701,0,0,0,2701,False,measured
+Transactions,country,Argentina,compensation_granted_share_of_resolved,0.2852941176470588,2701,680,0,0,2021,680,False,measured
+Transactions,country,Argentina,resolution_days_mean,15.435185185185185,2701,648,32,0,2021,648,False,measured
+Transactions,country,Argentina,resolution_days_median,16.0,2701,648,32,0,2021,648,False,measured
+Transactions,country,Argentina,resolution_days_p90,27.0,2701,648,32,0,2021,648,False,measured
+Transactions,country,Argentina,claimed_amount_usd_mean,666.9723503503444,2701,871,1830,0,0,871,False,measured
+Transactions,country,Argentina,claimed_amount_usd_median,15.255109800000001,2701,871,1830,0,0,871,False,measured
+Transactions,country,Argentina,claimed_amount_usd_p90,2922.09,2701,871,1830,0,0,871,False,measured
+Transactions,country,Argentina,claims_without_currency,32,2701,2701,0,0,0,2701,False,measured
+Transactions,country,Argentina,claims_without_fx,0,2701,2701,0,0,0,2701,False,measured
+Transactions,country,Argentina,claimed_amount_MXN_mean,2501.6238392857144,2701,224,2477,0,0,224,False,measured
+Transactions,country,Argentina,claimed_amount_MXN_median,2368.875,2701,224,2477,0,0,224,False,measured
+Transactions,country,Argentina,claimed_amount_MXN_p90,4390.573,2701,224,2477,0,0,224,False,measured
+Transactions,country,Argentina,claimed_amount_COP_mean,2376.892107843137,2701,204,2497,0,0,204,False,measured
+Transactions,country,Argentina,claimed_amount_COP_median,2254.015,2701,204,2497,0,0,204,False,measured
+Transactions,country,Argentina,claimed_amount_COP_p90,4432.042,2701,204,2497,0,0,204,False,measured
+Transactions,country,Argentina,claimed_amount_ARS_mean,2649.652747747748,2701,222,2479,0,0,222,False,measured
+Transactions,country,Argentina,claimed_amount_ARS_median,2706.01,2701,222,2479,0,0,222,False,measured
+Transactions,country,Argentina,claimed_amount_ARS_p90,4504.5,2701,222,2479,0,0,222,False,measured
+Transactions,country,Argentina,claimed_amount_USD_mean,2471.489457013575,2701,221,2480,0,0,221,False,measured
+Transactions,country,Argentina,claimed_amount_USD_median,2462.92,2701,221,2480,0,0,221,False,measured
+Transactions,country,Argentina,claimed_amount_USD_p90,4438.76,2701,221,2480,0,0,221,False,measured
+Transactions,country,Colombia,still_open_count,3086,4119,4119,0,0,0,4119,False,measured
+Transactions,country,Colombia,sla_breached_share,0.19980577810148095,4119,4119,0,0,0,4119,False,measured
+Transactions,country,Colombia,compensation_granted_share_of_all,0.07526098567613498,4119,4119,0,0,0,4119,False,measured
+Transactions,country,Colombia,compensation_granted_share_of_resolved,0.3106212424849699,4119,998,0,0,3121,998,False,measured
+Transactions,country,Colombia,resolution_days_mean,15.222340425531915,4119,940,58,0,3121,940,False,measured
+Transactions,country,Colombia,resolution_days_median,15.0,4119,940,58,0,3121,940,False,measured
+Transactions,country,Colombia,resolution_days_p90,28.0,4119,940,58,0,3121,940,False,measured
+Transactions,country,Colombia,claimed_amount_usd_mean,677.5845116675969,4119,1290,2829,0,0,1290,False,measured
+Transactions,country,Colombia,claimed_amount_usd_median,13.184695699999999,4119,1290,2829,0,0,1290,False,measured
+Transactions,country,Colombia,claimed_amount_usd_p90,2918.7700000000004,4119,1290,2829,0,0,1290,False,measured
+Transactions,country,Colombia,claims_without_currency,66,4119,4119,0,0,0,4119,False,measured
+Transactions,country,Colombia,claims_without_fx,0,4119,4119,0,0,0,4119,False,measured
+Transactions,country,Colombia,claimed_amount_MXN_mean,2640.0702960526314,4119,304,3815,0,0,304,False,measured
+Transactions,country,Colombia,claimed_amount_MXN_median,2704.14,4119,304,3815,0,0,304,False,measured
+Transactions,country,Colombia,claimed_amount_MXN_p90,4685.955,4119,304,3815,0,0,304,False,measured
+Transactions,country,Colombia,claimed_amount_COP_mean,2555.4307228915663,4119,332,3787,0,0,332,False,measured
+Transactions,country,Colombia,claimed_amount_COP_median,2512.09,4119,332,3787,0,0,332,False,measured
+Transactions,country,Colombia,claimed_amount_COP_p90,4567.642,4119,332,3787,0,0,332,False,measured
+Transactions,country,Colombia,claimed_amount_ARS_mean,2423.825896656535,4119,329,3790,0,0,329,False,measured
+Transactions,country,Colombia,claimed_amount_ARS_median,2398.7,4119,329,3790,0,0,329,False,measured
+Transactions,country,Colombia,claimed_amount_ARS_p90,4493.524,4119,329,3790,0,0,329,False,measured
+Transactions,country,Colombia,claimed_amount_USD_mean,2536.6147384615388,4119,325,3794,0,0,325,False,measured
+Transactions,country,Colombia,claimed_amount_USD_median,2408.06,4119,325,3794,0,0,325,False,measured
+Transactions,country,Colombia,claimed_amount_USD_p90,4487.4220000000005,4119,325,3794,0,0,325,False,measured
+Transactions,country,México,still_open_count,5039,6760,6760,0,0,0,6760,False,measured
+Transactions,country,México,sla_breached_share,0.2025147928994083,6760,6760,0,0,0,6760,False,measured
+Transactions,country,México,compensation_granted_share_of_all,0.07263313609467456,6760,6760,0,0,0,6760,False,measured
+Transactions,country,México,compensation_granted_share_of_resolved,0.2970356926799758,6760,1653,0,0,5107,1653,False,measured
+Transactions,country,México,resolution_days_mean,15.522511097019658,6760,1577,76,0,5107,1577,False,measured
+Transactions,country,México,resolution_days_median,16.0,6760,1577,76,0,5107,1577,False,measured
+Transactions,country,México,resolution_days_p90,27.0,6760,1577,76,0,5107,1577,False,measured
+Transactions,country,México,claimed_amount_usd_mean,695.1668233154694,6760,2141,4619,0,0,2141,False,measured
+Transactions,country,México,claimed_amount_usd_median,14.9083551,6760,2141,4619,0,0,2141,False,measured
+Transactions,country,México,claimed_amount_usd_p90,3145.64,6760,2141,4619,0,0,2141,False,measured
+Transactions,country,México,claims_without_currency,100,6760,6760,0,0,0,6760,False,measured
+Transactions,country,México,claims_without_fx,0,6760,6760,0,0,0,6760,False,measured
+Transactions,country,México,claimed_amount_MXN_mean,2591.670596745027,6760,553,6207,0,0,553,False,measured
+Transactions,country,México,claimed_amount_MXN_median,2693.89,6760,553,6207,0,0,553,False,measured
+Transactions,country,México,claimed_amount_MXN_p90,4572.349999999999,6760,553,6207,0,0,553,False,measured
+Transactions,country,México,claimed_amount_COP_mean,2421.9683823529413,6760,544,6216,0,0,544,False,measured
+Transactions,country,México,claimed_amount_COP_median,2392.115,6760,544,6216,0,0,544,False,measured
+Transactions,country,México,claimed_amount_COP_p90,4430.969,6760,544,6216,0,0,544,False,measured
+Transactions,country,México,claimed_amount_ARS_mean,2526.8349411764707,6760,510,6250,0,0,510,False,measured
+Transactions,country,México,claimed_amount_ARS_median,2502.505,6760,510,6250,0,0,510,False,measured
+Transactions,country,México,claimed_amount_ARS_p90,4441.157,6760,510,6250,0,0,510,False,measured
+Transactions,country,México,claimed_amount_USD_mean,2621.9744382022473,6760,534,6226,0,0,534,False,measured
+Transactions,country,México,claimed_amount_USD_median,2634.74,6760,534,6226,0,0,534,False,measured
+Transactions,country,México,claimed_amount_USD_p90,4565.106000000001,6760,534,6226,0,0,534,False,measured
+Transactions,country_x_case_type,Argentina / Claim,still_open_count,497,685,685,0,0,0,685,False,measured
+Transactions,country_x_case_type,Argentina / Claim,sla_breached_share,0.2029197080291971,685,685,0,0,0,685,False,measured
+Transactions,country_x_case_type,Argentina / Claim,compensation_granted_share_of_all,0.07883211678832117,685,685,0,0,0,685,False,measured
+Transactions,country_x_case_type,Argentina / Claim,compensation_granted_share_of_resolved,0.2918918918918919,685,185,0,0,500,185,False,measured
+Transactions,country_x_case_type,Argentina / Claim,resolution_days_mean,15.554285714285715,685,175,10,0,500,175,False,measured
+Transactions,country_x_case_type,Argentina / Claim,resolution_days_median,17.0,685,175,10,0,500,175,False,measured
+Transactions,country_x_case_type,Argentina / Claim,resolution_days_p90,26.0,685,175,10,0,500,175,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_usd_mean,665.3395612448659,685,261,424,0,0,261,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_usd_median,13.56692535,685,261,424,0,0,261,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_usd_p90,2568.89,685,261,424,0,0,261,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claims_without_currency,10,685,685,0,0,0,685,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claims_without_fx,0,685,685,0,0,0,685,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_MXN_mean,2600.697076923077,685,65,620,0,0,65,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_MXN_median,2675.37,685,65,620,0,0,65,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_MXN_p90,4385.794,685,65,620,0,0,65,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_COP_mean,2348.2703278688523,685,61,624,0,0,61,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_COP_median,2219.24,685,61,624,0,0,61,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_COP_p90,4300.29,685,61,624,0,0,61,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_ARS_mean,2735.651428571429,685,70,615,0,0,70,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_ARS_median,2882.075,685,70,615,0,0,70,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_ARS_p90,4614.141,685,70,615,0,0,70,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_USD_mean,2509.761076923077,685,65,620,0,0,65,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_USD_median,2399.66,685,65,620,0,0,65,False,measured
+Transactions,country_x_case_type,Argentina / Claim,claimed_amount_USD_p90,4732.154,685,65,620,0,0,65,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,still_open_count,1208,1628,1628,0,0,0,1628,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,sla_breached_share,0.20515970515970516,1628,1628,0,0,0,1628,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,compensation_granted_share_of_all,0.07248157248157248,1628,1628,0,0,0,1628,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,compensation_granted_share_of_resolved,0.2935323383084577,1628,402,0,0,1226,402,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,resolution_days_mean,15.607792207792208,1628,385,17,0,1226,385,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,resolution_days_median,16.0,1628,385,17,0,1226,385,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,resolution_days_p90,28.0,1628,385,17,0,1226,385,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_usd_mean,667.6709699512131,1628,610,1018,0,0,610,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_usd_median,19.287514205,1628,610,1018,0,0,610,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_usd_p90,2952.847,1628,610,1018,0,0,610,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claims_without_currency,22,1628,1628,0,0,0,1628,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claims_without_fx,0,1628,1628,0,0,0,1628,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_MXN_mean,2461.1222012578614,1628,159,1469,0,0,159,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_MXN_median,2328.0,1628,159,1469,0,0,159,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_MXN_p90,4379.930000000002,1628,159,1469,0,0,159,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_COP_mean,2389.1013986013986,1628,143,1485,0,0,143,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_COP_median,2291.24,1628,143,1485,0,0,143,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_COP_p90,4452.916,1628,143,1485,0,0,143,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_ARS_mean,2610.048092105263,1628,152,1476,0,0,152,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_ARS_median,2584.2799999999997,1628,152,1476,0,0,152,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_ARS_p90,4468.757,1628,152,1476,0,0,152,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_USD_mean,2455.542948717949,1628,156,1472,0,0,156,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_USD_median,2492.19,1628,156,1472,0,0,156,False,measured
+Transactions,country_x_case_type,Argentina / Complaint,claimed_amount_USD_p90,4281.110000000001,1628,156,1472,0,0,156,False,measured
+Transactions,country_x_case_type,Argentina / Request,still_open_count,192,252,252,0,0,0,252,False,measured
+Transactions,country_x_case_type,Argentina / Request,sla_breached_share,0.19444444444444445,252,252,0,0,0,252,False,measured
+Transactions,country_x_case_type,Argentina / Request,compensation_granted_share_of_all,0.04365079365079365,252,252,0,0,0,252,False,measured
+Transactions,country_x_case_type,Argentina / Request,compensation_granted_share_of_resolved,0.1864406779661017,252,59,0,0,193,59,False,measured
+Transactions,country_x_case_type,Argentina / Request,resolution_days_mean,15.052631578947368,252,57,2,0,193,57,False,measured
+Transactions,country_x_case_type,Argentina / Request,resolution_days_median,14.0,252,57,2,0,193,57,False,measured
+Transactions,country_x_case_type,Argentina / Request,resolution_days_p90,28.0,252,57,2,0,193,57,False,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_usd_mean,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_usd_median,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_usd_p90,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claims_without_currency,0,252,252,0,0,0,252,False,measured
+Transactions,country_x_case_type,Argentina / Request,claims_without_fx,0,252,252,0,0,0,252,False,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_MXN_mean,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_MXN_median,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_MXN_p90,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_COP_mean,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_COP_median,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_COP_p90,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_ARS_mean,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_ARS_median,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_ARS_p90,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_USD_mean,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_USD_median,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Request,claimed_amount_USD_p90,,252,0,252,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,still_open_count,102,136,136,0,0,0,136,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,sla_breached_share,0.18382352941176472,136,136,0,0,0,136,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,compensation_granted_share_of_all,0.08088235294117647,136,136,0,0,0,136,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,compensation_granted_share_of_resolved,0.3235294117647059,136,34,0,0,102,34,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,resolution_days_mean,13.32258064516129,136,31,3,0,102,31,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,resolution_days_median,14.0,136,31,3,0,102,31,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,resolution_days_p90,23.0,136,31,3,0,102,31,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_usd_mean,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_usd_median,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_usd_p90,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claims_without_currency,0,136,136,0,0,0,136,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claims_without_fx,0,136,136,0,0,0,136,False,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_MXN_mean,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_MXN_median,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_MXN_p90,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_COP_mean,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_COP_median,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_COP_p90,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_ARS_mean,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_ARS_median,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_ARS_p90,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_USD_mean,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_USD_median,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Argentina / Suggestion,claimed_amount_USD_p90,,136,0,136,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Claim,still_open_count,747,990,990,0,0,0,990,False,measured
+Transactions,country_x_case_type,Colombia / Claim,sla_breached_share,0.2,990,990,0,0,0,990,False,measured
+Transactions,country_x_case_type,Colombia / Claim,compensation_granted_share_of_all,0.0696969696969697,990,990,0,0,0,990,False,measured
+Transactions,country_x_case_type,Colombia / Claim,compensation_granted_share_of_resolved,0.2974137931034483,990,232,0,0,758,232,False,measured
+Transactions,country_x_case_type,Colombia / Claim,resolution_days_mean,14.243119266055047,990,218,14,0,758,218,False,measured
+Transactions,country_x_case_type,Colombia / Claim,resolution_days_median,13.0,990,218,14,0,758,218,False,measured
+Transactions,country_x_case_type,Colombia / Claim,resolution_days_p90,27.0,990,218,14,0,758,218,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_usd_mean,740.5822397901676,990,358,632,0,0,358,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_usd_median,13.91254104,990,358,632,0,0,358,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_usd_p90,2807.0940000000005,990,358,632,0,0,358,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claims_without_currency,20,990,990,0,0,0,990,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claims_without_fx,0,990,990,0,0,0,990,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_MXN_mean,2645.1153164556963,990,79,911,0,0,79,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_MXN_median,2701.66,990,79,911,0,0,79,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_MXN_p90,4472.584000000001,990,79,911,0,0,79,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_COP_mean,2832.772525252525,990,99,891,0,0,99,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_COP_median,3026.23,990,99,891,0,0,99,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_COP_p90,4698.49,990,99,891,0,0,99,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_ARS_mean,2488.5418518518522,990,81,909,0,0,81,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_ARS_median,2579.4,990,81,909,0,0,81,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_ARS_p90,4574.17,990,81,909,0,0,81,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_USD_mean,2547.340101010101,990,99,891,0,0,99,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_USD_median,2375.1,990,99,891,0,0,99,False,measured
+Transactions,country_x_case_type,Colombia / Claim,claimed_amount_USD_p90,4342.0560000000005,990,99,891,0,0,99,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,still_open_count,1878,2516,2516,0,0,0,2516,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,sla_breached_share,0.20349761526232116,2516,2516,0,0,0,2516,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,compensation_granted_share_of_all,0.07710651828298887,2516,2516,0,0,0,2516,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,compensation_granted_share_of_resolved,0.31290322580645163,2516,620,0,0,1896,620,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,resolution_days_mean,15.613287904599659,2516,587,33,0,1896,587,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,resolution_days_median,15.0,2516,587,33,0,1896,587,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,resolution_days_p90,28.0,2516,587,33,0,1896,587,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_usd_mean,653.3858135260944,2516,932,1584,0,0,932,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_usd_median,12.932751894999999,2516,932,1584,0,0,932,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_usd_p90,2944.2759999999994,2516,932,1584,0,0,932,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claims_without_currency,46,2516,2516,0,0,0,2516,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claims_without_fx,0,2516,2516,0,0,0,2516,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_MXN_mean,2638.2989333333335,2516,225,2291,0,0,225,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_MXN_median,2706.62,2516,225,2291,0,0,225,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_MXN_p90,4730.277999999999,2516,225,2291,0,0,225,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_COP_mean,2437.5902145922746,2516,233,2283,0,0,233,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_COP_median,2434.71,2516,233,2283,0,0,233,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_COP_p90,4463.274,2516,233,2283,0,0,233,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_ARS_mean,2402.688830645161,2516,248,2268,0,0,248,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_ARS_median,2351.7250000000004,2516,248,2268,0,0,248,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_ARS_p90,4432.895000000001,2516,248,2268,0,0,248,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_USD_mean,2531.916460176991,2516,226,2290,0,0,226,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_USD_median,2424.815,2516,226,2290,0,0,226,False,measured
+Transactions,country_x_case_type,Colombia / Complaint,claimed_amount_USD_p90,4575.035,2516,226,2290,0,0,226,False,measured
+Transactions,country_x_case_type,Colombia / Request,still_open_count,291,404,404,0,0,0,404,False,measured
+Transactions,country_x_case_type,Colombia / Request,sla_breached_share,0.1707920792079208,404,404,0,0,0,404,False,measured
+Transactions,country_x_case_type,Colombia / Request,compensation_granted_share_of_all,0.07920792079207921,404,404,0,0,0,404,False,measured
+Transactions,country_x_case_type,Colombia / Request,compensation_granted_share_of_resolved,0.2909090909090909,404,110,0,0,294,110,False,measured
+Transactions,country_x_case_type,Colombia / Request,resolution_days_mean,15.476190476190476,404,105,5,0,294,105,False,measured
+Transactions,country_x_case_type,Colombia / Request,resolution_days_median,15.0,404,105,5,0,294,105,False,measured
+Transactions,country_x_case_type,Colombia / Request,resolution_days_p90,26.0,404,105,5,0,294,105,False,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_usd_mean,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_usd_median,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_usd_p90,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claims_without_currency,0,404,404,0,0,0,404,False,measured
+Transactions,country_x_case_type,Colombia / Request,claims_without_fx,0,404,404,0,0,0,404,False,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_MXN_mean,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_MXN_median,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_MXN_p90,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_COP_mean,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_COP_median,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_COP_p90,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_ARS_mean,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_ARS_median,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_ARS_p90,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_USD_mean,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_USD_median,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Request,claimed_amount_USD_p90,,404,0,404,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,still_open_count,170,209,209,0,0,0,209,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,sla_breached_share,0.21052631578947367,209,209,0,0,0,209,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,compensation_granted_share_of_all,0.07177033492822966,209,209,0,0,0,209,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,compensation_granted_share_of_resolved,0.4166666666666667,209,36,0,0,173,36,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,resolution_days_mean,13.8,209,30,6,0,173,30,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,resolution_days_median,13.0,209,30,6,0,173,30,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,resolution_days_p90,25.0,209,30,6,0,173,30,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_usd_mean,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_usd_median,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_usd_p90,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claims_without_currency,0,209,209,0,0,0,209,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claims_without_fx,0,209,209,0,0,0,209,False,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_MXN_mean,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_MXN_median,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_MXN_p90,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_COP_mean,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_COP_median,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_COP_p90,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_ARS_mean,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_ARS_median,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_ARS_p90,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_USD_mean,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_USD_median,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,Colombia / Suggestion,claimed_amount_USD_p90,,209,0,209,0,0,0,True,measured
+Transactions,country_x_case_type,México / Claim,still_open_count,1232,1660,1660,0,0,0,1660,False,measured
+Transactions,country_x_case_type,México / Claim,sla_breached_share,0.21686746987951808,1660,1660,0,0,0,1660,False,measured
+Transactions,country_x_case_type,México / Claim,compensation_granted_share_of_all,0.07590361445783132,1660,1660,0,0,0,1660,False,measured
+Transactions,country_x_case_type,México / Claim,compensation_granted_share_of_resolved,0.3080684596577017,1660,409,0,0,1251,409,False,measured
+Transactions,country_x_case_type,México / Claim,resolution_days_mean,15.131979695431472,1660,394,15,0,1251,394,False,measured
+Transactions,country_x_case_type,México / Claim,resolution_days_median,15.0,1660,394,15,0,1251,394,False,measured
+Transactions,country_x_case_type,México / Claim,resolution_days_p90,27.0,1660,394,15,0,1251,394,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_usd_mean,652.0469802326114,1660,628,1032,0,0,628,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_usd_median,14.104763004999999,1660,628,1032,0,0,628,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_usd_p90,2950.900000000004,1660,628,1032,0,0,628,False,measured
+Transactions,country_x_case_type,México / Claim,claims_without_currency,31,1660,1660,0,0,0,1660,False,measured
+Transactions,country_x_case_type,México / Claim,claims_without_fx,0,1660,1660,0,0,0,1660,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_MXN_mean,2596.567405063291,1660,158,1502,0,0,158,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_MXN_median,2684.8050000000003,1660,158,1502,0,0,158,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_MXN_p90,4562.223,1660,158,1502,0,0,158,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_COP_mean,2388.2769879518073,1660,166,1494,0,0,166,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_COP_median,2342.73,1660,166,1494,0,0,166,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_COP_p90,4342.66,1660,166,1494,0,0,166,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_ARS_mean,2703.3364666666666,1660,150,1510,0,0,150,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_ARS_median,2704.675,1660,150,1510,0,0,150,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_ARS_p90,4579.465999999999,1660,150,1510,0,0,150,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_USD_mean,2494.5842857142857,1660,154,1506,0,0,154,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_USD_median,2582.7,1660,154,1506,0,0,154,False,measured
+Transactions,country_x_case_type,México / Claim,claimed_amount_USD_p90,4510.273,1660,154,1506,0,0,154,False,measured
+Transactions,country_x_case_type,México / Complaint,still_open_count,3040,4095,4095,0,0,0,4095,False,measured
+Transactions,country_x_case_type,México / Complaint,sla_breached_share,0.19633699633699633,4095,4095,0,0,0,4095,False,measured
+Transactions,country_x_case_type,México / Complaint,compensation_granted_share_of_all,0.0713064713064713,4095,4095,0,0,0,4095,False,measured
+Transactions,country_x_case_type,México / Complaint,compensation_granted_share_of_resolved,0.2868369351669941,4095,1018,0,0,3077,1018,False,measured
+Transactions,country_x_case_type,México / Complaint,resolution_days_mean,15.432851239669422,4095,968,50,0,3077,968,False,measured
+Transactions,country_x_case_type,México / Complaint,resolution_days_median,16.0,4095,968,50,0,3077,968,False,measured
+Transactions,country_x_case_type,México / Complaint,resolution_days_p90,27.0,4095,968,50,0,3077,968,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_usd_mean,713.0645506492664,4095,1513,2582,0,0,1513,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_usd_median,22.29923619,4095,1513,2582,0,0,1513,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_usd_p90,3176.3619999999987,4095,1513,2582,0,0,1513,False,measured
+Transactions,country_x_case_type,México / Complaint,claims_without_currency,69,4095,4095,0,0,0,4095,False,measured
+Transactions,country_x_case_type,México / Complaint,claims_without_fx,0,4095,4095,0,0,0,4095,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_MXN_mean,2589.7118734177216,4095,395,3700,0,0,395,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_MXN_median,2707.37,4095,395,3700,0,0,395,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_MXN_p90,4573.7519999999995,4095,395,3700,0,0,395,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_COP_mean,2436.764074074074,4095,378,3717,0,0,378,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_COP_median,2398.165,4095,378,3717,0,0,378,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_COP_p90,4492.578,4095,378,3717,0,0,378,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_ARS_mean,2453.2926388888886,4095,360,3735,0,0,360,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_ARS_median,2374.99,4095,360,3735,0,0,360,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_ARS_p90,4364.692,4095,360,3735,0,0,360,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_USD_mean,2673.6009736842107,4095,380,3715,0,0,380,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_USD_median,2675.54,4095,380,3715,0,0,380,False,measured
+Transactions,country_x_case_type,México / Complaint,claimed_amount_USD_p90,4581.244000000001,4095,380,3715,0,0,380,False,measured
+Transactions,country_x_case_type,México / Request,still_open_count,523,673,673,0,0,0,673,False,measured
+Transactions,country_x_case_type,México / Request,sla_breached_share,0.20356612184249628,673,673,0,0,0,673,False,measured
+Transactions,country_x_case_type,México / Request,compensation_granted_share_of_all,0.0713224368499257,673,673,0,0,0,673,False,measured
+Transactions,country_x_case_type,México / Request,compensation_granted_share_of_resolved,0.3404255319148936,673,141,0,0,532,141,False,measured
+Transactions,country_x_case_type,México / Request,resolution_days_mean,16.097014925373134,673,134,7,0,532,134,False,measured
+Transactions,country_x_case_type,México / Request,resolution_days_median,15.5,673,134,7,0,532,134,False,measured
+Transactions,country_x_case_type,México / Request,resolution_days_p90,29.0,673,134,7,0,532,134,False,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_usd_mean,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_usd_median,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_usd_p90,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claims_without_currency,0,673,673,0,0,0,673,False,measured
+Transactions,country_x_case_type,México / Request,claims_without_fx,0,673,673,0,0,0,673,False,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_MXN_mean,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_MXN_median,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_MXN_p90,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_COP_mean,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_COP_median,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_COP_p90,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_ARS_mean,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_ARS_median,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_ARS_p90,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_USD_mean,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_USD_median,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Request,claimed_amount_USD_p90,,673,0,673,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,still_open_count,244,332,332,0,0,0,332,False,measured
+Transactions,country_x_case_type,México / Suggestion,sla_breached_share,0.20481927710843373,332,332,0,0,0,332,False,measured
+Transactions,country_x_case_type,México / Suggestion,compensation_granted_share_of_all,0.07530120481927711,332,332,0,0,0,332,False,measured
+Transactions,country_x_case_type,México / Suggestion,compensation_granted_share_of_resolved,0.29411764705882354,332,85,0,0,247,85,False,measured
+Transactions,country_x_case_type,México / Suggestion,resolution_days_mean,17.54320987654321,332,81,4,0,247,81,False,measured
+Transactions,country_x_case_type,México / Suggestion,resolution_days_median,19.0,332,81,4,0,247,81,False,measured
+Transactions,country_x_case_type,México / Suggestion,resolution_days_p90,27.0,332,81,4,0,247,81,False,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_usd_mean,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_usd_median,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_usd_p90,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claims_without_currency,0,332,332,0,0,0,332,False,measured
+Transactions,country_x_case_type,México / Suggestion,claims_without_fx,0,332,332,0,0,0,332,False,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_MXN_mean,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_MXN_median,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_MXN_p90,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_COP_mean,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_COP_median,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_COP_p90,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_ARS_mean,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_ARS_median,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_ARS_p90,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_USD_mean,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_USD_median,,332,0,332,0,0,0,True,measured
+Transactions,country_x_case_type,México / Suggestion,claimed_amount_USD_p90,,332,0,332,0,0,0,True,measured
+Transactions,overall,all,still_open_count,10124,13580,13580,0,0,0,13580,False,measured
+Transactions,overall,all,sla_breached_share,0.2016936671575847,13580,13580,0,0,0,13580,False,measured
+Transactions,overall,all,compensation_granted_share_of_all,0.07326951399116348,13580,13580,0,0,0,13580,False,measured
+Transactions,overall,all,compensation_granted_share_of_resolved,0.29870909636745724,13580,3331,0,0,10249,3331,False,measured
+Transactions,overall,all,resolution_days_mean,15.415481832543444,13580,3165,166,0,10249,3165,False,measured
+Transactions,overall,all,resolution_days_median,15.0,13580,3165,166,0,10249,3165,False,measured
+Transactions,overall,all,resolution_days_p90,27.0,13580,3165,166,0,10249,3165,False,measured
+Transactions,overall,all,claimed_amount_usd_mean,684.1862170908345,13580,4302,9278,0,0,4302,False,measured
+Transactions,overall,all,claimed_amount_usd_median,13.940456495000001,13580,4302,9278,0,0,4302,False,measured
+Transactions,overall,all,claimed_amount_usd_p90,3001.7400000000007,13580,4302,9278,0,0,4302,False,measured
+Transactions,overall,all,claims_without_currency,198,13580,13580,0,0,0,13580,False,measured
+Transactions,overall,all,claims_without_fx,0,13580,13580,0,0,0,13580,False,measured
+Transactions,overall,all,claimed_amount_MXN_mean,2586.622525439408,13580,1081,12499,0,0,1081,False,measured
+Transactions,overall,all,claimed_amount_MXN_median,2669.14,13580,1081,12499,0,0,1081,False,measured
+Transactions,overall,all,claimed_amount_MXN_p90,4605.22,13580,1081,12499,0,0,1081,False,measured
+Transactions,overall,all,claimed_amount_COP_mean,2454.481287037037,13580,1080,12500,0,0,1080,False,measured
+Transactions,overall,all,claimed_amount_COP_median,2408.7299999999996,13580,1080,12500,0,0,1080,False,measured
+Transactions,overall,all,claimed_amount_COP_p90,4511.532,13580,1080,12500,0,0,1080,False,measured
+Transactions,overall,all,claimed_amount_ARS_mean,2520.5913760603207,13580,1061,12519,0,0,1061,False,measured
+Transactions,overall,all,claimed_amount_ARS_median,2501.53,13580,1061,12519,0,0,1061,False,measured
+Transactions,overall,all,claimed_amount_ARS_p90,4460.12,13580,1061,12519,0,0,1061,False,measured
+Transactions,overall,all,claimed_amount_USD_mean,2565.493805555556,13580,1080,12500,0,0,1080,False,measured
+Transactions,overall,all,claimed_amount_USD_median,2537.02,13580,1080,12500,0,0,1080,False,measured
+Transactions,overall,all,claimed_amount_USD_p90,4530.193,13580,1080,12500,0,0,1080,False,measured
+all complaints,case_type,Claim,still_open_count,12391,16598,16598,0,0,0,16598,False,measured
+all complaints,case_type,Claim,sla_breached_share,0.19942161706229666,16598,16598,0,0,0,16598,False,measured
+all complaints,case_type,Claim,compensation_granted_share_of_all,0.06826123629352934,16598,16598,0,0,0,16598,False,measured
+all complaints,case_type,Claim,compensation_granted_share_of_resolved,0.2824731987035652,16598,4011,0,0,12587,4011,False,measured
+all complaints,case_type,Claim,resolution_days_mean,15.621600418410042,16598,3824,187,0,12587,3824,False,measured
+all complaints,case_type,Claim,resolution_days_median,16.0,16598,3824,187,0,12587,3824,False,measured
+all complaints,case_type,Claim,resolution_days_p90,27.0,16598,3824,187,0,12587,3824,False,measured
+all complaints,case_type,Claim,claimed_amount_usd_mean,695.8415490122649,16598,6049,10549,0,0,6049,False,measured
+all complaints,case_type,Claim,claimed_amount_usd_median,13.720462300000001,16598,6049,10549,0,0,6049,False,measured
+all complaints,case_type,Claim,claimed_amount_usd_p90,3135.883999999999,16598,6049,10549,0,0,6049,False,measured
+all complaints,case_type,Claim,claims_without_currency,302,16598,16598,0,0,0,16598,False,measured
+all complaints,case_type,Claim,claims_without_fx,0,16598,16598,0,0,0,16598,False,measured
+all complaints,case_type,Claim,claimed_amount_MXN_mean,2535.141089918256,16598,1468,15130,0,0,1468,False,measured
+all complaints,case_type,Claim,claimed_amount_MXN_median,2586.995,16598,1468,15130,0,0,1468,False,measured
+all complaints,case_type,Claim,claimed_amount_MXN_p90,4543.4439999999995,16598,1468,15130,0,0,1468,False,measured
+all complaints,case_type,Claim,claimed_amount_COP_mean,2502.971673280423,16598,1512,15086,0,0,1512,False,measured
+all complaints,case_type,Claim,claimed_amount_COP_median,2459.87,16598,1512,15086,0,0,1512,False,measured
+all complaints,case_type,Claim,claimed_amount_COP_p90,4517.558,16598,1512,15086,0,0,1512,False,measured
+all complaints,case_type,Claim,claimed_amount_ARS_mean,2556.5715268676277,16598,1526,15072,0,0,1526,False,measured
+all complaints,case_type,Claim,claimed_amount_ARS_median,2544.745,16598,1526,15072,0,0,1526,False,measured
+all complaints,case_type,Claim,claimed_amount_ARS_p90,4493.42,16598,1526,15072,0,0,1526,False,measured
+all complaints,case_type,Claim,claimed_amount_USD_mean,2578.24194426442,16598,1543,15055,0,0,1543,False,measured
+all complaints,case_type,Claim,claimed_amount_USD_median,2564.32,16598,1543,15055,0,0,1543,False,measured
+all complaints,case_type,Claim,claimed_amount_USD_p90,4596.192,16598,1543,15055,0,0,1543,False,measured
+all complaints,case_type,Complaint,still_open_count,30352,40452,40452,0,0,0,40452,False,measured
+all complaints,case_type,Complaint,sla_breached_share,0.20063284880846435,40452,40452,0,0,0,40452,False,measured
+all complaints,case_type,Complaint,compensation_granted_share_of_all,0.06976169287056264,40452,40452,0,0,0,40452,False,measured
+all complaints,case_type,Complaint,compensation_granted_share_of_resolved,0.29107787519339867,40452,9695,0,0,30757,9695,False,measured
+all complaints,case_type,Complaint,resolution_days_mean,15.610780387487823,40452,9239,456,0,30757,9239,False,measured
+all complaints,case_type,Complaint,resolution_days_median,16.0,40452,9239,456,0,30757,9239,False,measured
+all complaints,case_type,Complaint,resolution_days_p90,28.0,40452,9239,456,0,30757,9239,False,measured
+all complaints,case_type,Complaint,claimed_amount_usd_mean,673.9403061389634,40452,14662,25790,0,0,14662,False,measured
+all complaints,case_type,Complaint,claimed_amount_usd_median,13.856987329999999,40452,14662,25790,0,0,14662,False,measured
+all complaints,case_type,Complaint,claimed_amount_usd_p90,3047.2009999999996,40452,14662,25790,0,0,14662,False,measured
+all complaints,case_type,Complaint,claims_without_currency,738,40452,40452,0,0,0,40452,False,measured
+all complaints,case_type,Complaint,claims_without_fx,0,40452,40452,0,0,0,40452,False,measured
+all complaints,case_type,Complaint,claimed_amount_MXN_mean,2536.475831331732,40452,3747,36705,0,0,3747,False,measured
+all complaints,case_type,Complaint,claimed_amount_MXN_median,2534.38,40452,3747,36705,0,0,3747,False,measured
+all complaints,case_type,Complaint,claimed_amount_MXN_p90,4506.696,40452,3747,36705,0,0,3747,False,measured
+all complaints,case_type,Complaint,claimed_amount_COP_mean,2506.294589673913,40452,3680,36772,0,0,3680,False,measured
+all complaints,case_type,Complaint,claimed_amount_COP_median,2471.81,40452,3680,36772,0,0,3680,False,measured
+all complaints,case_type,Complaint,claimed_amount_COP_p90,4511.544,40452,3680,36772,0,0,3680,False,measured
+all complaints,case_type,Complaint,claimed_amount_ARS_mean,2518.0022268441485,40452,3606,36846,0,0,3606,False,measured
+all complaints,case_type,Complaint,claimed_amount_ARS_median,2511.115,40452,3606,36846,0,0,3606,False,measured
+all complaints,case_type,Complaint,claimed_amount_ARS_p90,4501.68,40452,3606,36846,0,0,3606,False,measured
+all complaints,case_type,Complaint,claimed_amount_USD_mean,2561.118950124001,40452,3629,36823,0,0,3629,False,measured
+all complaints,case_type,Complaint,claimed_amount_USD_median,2563.84,40452,3629,36823,0,0,3629,False,measured
+all complaints,case_type,Complaint,claimed_amount_USD_p90,4519.796,40452,3629,36823,0,0,3629,False,measured
+all complaints,case_type,Request,still_open_count,5055,6761,6761,0,0,0,6761,False,measured
+all complaints,case_type,Request,sla_breached_share,0.20248483952078095,6761,6761,0,0,0,6761,False,measured
+all complaints,case_type,Request,compensation_granted_share_of_all,0.06641029433515752,6761,6761,0,0,0,6761,False,measured
+all complaints,case_type,Request,compensation_granted_share_of_resolved,0.27411477411477414,6761,1638,0,0,5123,1638,False,measured
+all complaints,case_type,Request,resolution_days_mean,15.489456869009585,6761,1565,73,0,5123,1565,False,measured
+all complaints,case_type,Request,resolution_days_median,15.0,6761,1565,73,0,5123,1565,False,measured
+all complaints,case_type,Request,resolution_days_p90,28.0,6761,1565,73,0,5123,1565,False,measured
+all complaints,case_type,Request,claimed_amount_usd_mean,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_usd_median,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_usd_p90,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claims_without_currency,0,6761,6761,0,0,0,6761,False,measured
+all complaints,case_type,Request,claims_without_fx,0,6761,6761,0,0,0,6761,False,measured
+all complaints,case_type,Request,claimed_amount_MXN_mean,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_MXN_median,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_MXN_p90,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_COP_mean,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_COP_median,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_COP_p90,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_ARS_mean,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_ARS_median,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_ARS_p90,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_USD_mean,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_USD_median,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Request,claimed_amount_USD_p90,,6761,0,6761,0,0,0,True,measured
+all complaints,case_type,Suggestion,still_open_count,2471,3284,3284,0,0,0,3284,False,measured
+all complaints,case_type,Suggestion,sla_breached_share,0.21315468940316687,3284,3284,0,0,0,3284,False,measured
+all complaints,case_type,Suggestion,compensation_granted_share_of_all,0.07216808769792936,3284,3284,0,0,0,3284,False,measured
+all complaints,case_type,Suggestion,compensation_granted_share_of_resolved,0.305019305019305,3284,777,0,0,2507,777,False,measured
+all complaints,case_type,Suggestion,resolution_days_mean,15.617687074829933,3284,735,42,0,2507,735,False,measured
+all complaints,case_type,Suggestion,resolution_days_median,16.0,3284,735,42,0,2507,735,False,measured
+all complaints,case_type,Suggestion,resolution_days_p90,28.0,3284,735,42,0,2507,735,False,measured
+all complaints,case_type,Suggestion,claimed_amount_usd_mean,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_usd_median,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_usd_p90,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claims_without_currency,0,3284,3284,0,0,0,3284,False,measured
+all complaints,case_type,Suggestion,claims_without_fx,0,3284,3284,0,0,0,3284,False,measured
+all complaints,case_type,Suggestion,claimed_amount_MXN_mean,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_MXN_median,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_MXN_p90,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_COP_mean,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_COP_median,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_COP_p90,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_ARS_mean,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_ARS_median,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_ARS_p90,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_USD_mean,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_USD_median,,3284,0,3284,0,0,0,True,measured
+all complaints,case_type,Suggestion,claimed_amount_USD_p90,,3284,0,3284,0,0,0,True,measured
+all complaints,country,Argentina,still_open_count,10029,13336,13336,0,0,0,13336,False,measured
+all complaints,country,Argentina,sla_breached_share,0.20410917816436713,13336,13336,0,0,0,13336,False,measured
+all complaints,country,Argentina,compensation_granted_share_of_all,0.06756148770245951,13336,13336,0,0,0,13336,False,measured
+all complaints,country,Argentina,compensation_granted_share_of_resolved,0.28431681918586305,13336,3169,0,0,10167,3169,False,measured
+all complaints,country,Argentina,resolution_days_mean,15.494352159468438,13336,3010,159,0,10167,3010,False,measured
+all complaints,country,Argentina,resolution_days_median,16.0,13336,3010,159,0,10167,3010,False,measured
+all complaints,country,Argentina,resolution_days_p90,27.0,13336,3010,159,0,10167,3010,False,measured
+all complaints,country,Argentina,claimed_amount_usd_mean,665.0841957550474,13336,4113,9223,0,0,4113,False,measured
+all complaints,country,Argentina,claimed_amount_usd_median,13.820883699999998,13336,4113,9223,0,0,4113,False,measured
+all complaints,country,Argentina,claimed_amount_usd_p90,3124.4120000000003,13336,4113,9223,0,0,4113,False,measured
+all complaints,country,Argentina,claims_without_currency,208,13336,13336,0,0,0,13336,False,measured
+all complaints,country,Argentina,claims_without_fx,0,13336,13336,0,0,0,13336,False,measured
+all complaints,country,Argentina,claimed_amount_MXN_mean,2531.1128491096533,13336,1067,12269,0,0,1067,False,measured
+all complaints,country,Argentina,claimed_amount_MXN_median,2510.31,13336,1067,12269,0,0,1067,False,measured
+all complaints,country,Argentina,claimed_amount_MXN_p90,4484.934,13336,1067,12269,0,0,1067,False,measured
+all complaints,country,Argentina,claimed_amount_COP_mean,2455.153189823875,13336,1022,12314,0,0,1022,False,measured
+all complaints,country,Argentina,claimed_amount_COP_median,2351.955,13336,1022,12314,0,0,1022,False,measured
+all complaints,country,Argentina,claimed_amount_COP_p90,4461.0160000000005,13336,1022,12314,0,0,1022,False,measured
+all complaints,country,Argentina,claimed_amount_ARS_mean,2525.1440408958133,13336,1027,12309,0,0,1027,False,measured
+all complaints,country,Argentina,claimed_amount_ARS_median,2476.95,13336,1027,12309,0,0,1027,False,measured
+all complaints,country,Argentina,claimed_amount_ARS_p90,4538.987999999999,13336,1027,12309,0,0,1027,False,measured
+all complaints,country,Argentina,claimed_amount_USD_mean,2576.41148445336,13336,997,12339,0,0,997,False,measured
+all complaints,country,Argentina,claimed_amount_USD_median,2648.43,13336,997,12339,0,0,997,False,measured
+all complaints,country,Argentina,claimed_amount_USD_p90,4521.9619999999995,13336,997,12339,0,0,997,False,measured
+all complaints,country,Colombia,still_open_count,15259,20384,20384,0,0,0,20384,False,measured
+all complaints,country,Colombia,sla_breached_share,0.1974587912087912,20384,20384,0,0,0,20384,False,measured
+all complaints,country,Colombia,compensation_granted_share_of_all,0.07128139717425432,20384,20384,0,0,0,20384,False,measured
+all complaints,country,Colombia,compensation_granted_share_of_resolved,0.2946663962685054,20384,4931,0,0,15453,4931,False,measured
+all complaints,country,Colombia,resolution_days_mean,15.603249251817015,20384,4678,253,0,15453,4678,False,measured
+all complaints,country,Colombia,resolution_days_median,16.0,20384,4678,253,0,15453,4678,False,measured
+all complaints,country,Colombia,resolution_days_p90,28.0,20384,4678,253,0,15453,4678,False,measured
+all complaints,country,Colombia,claimed_amount_usd_mean,682.0627029011248,20384,6365,14019,0,0,6365,False,measured
+all complaints,country,Colombia,claimed_amount_usd_median,13.7808045,20384,6365,14019,0,0,6365,False,measured
+all complaints,country,Colombia,claimed_amount_usd_p90,3020.3360000000002,20384,6365,14019,0,0,6365,False,measured
+all complaints,country,Colombia,claims_without_currency,293,20384,20384,0,0,0,20384,False,measured
+all complaints,country,Colombia,claims_without_fx,0,20384,20384,0,0,0,20384,False,measured
+all complaints,country,Colombia,claimed_amount_MXN_mean,2564.7579593134137,20384,1573,18811,0,0,1573,False,measured
+all complaints,country,Colombia,claimed_amount_MXN_median,2588.85,20384,1573,18811,0,0,1573,False,measured
+all complaints,country,Colombia,claimed_amount_MXN_p90,4522.892,20384,1573,18811,0,0,1573,False,measured
+all complaints,country,Colombia,claimed_amount_COP_mean,2548.6792475884245,20384,1555,18829,0,0,1555,False,measured
+all complaints,country,Colombia,claimed_amount_COP_median,2516.05,20384,1555,18829,0,0,1555,False,measured
+all complaints,country,Colombia,claimed_amount_COP_p90,4565.9580000000005,20384,1555,18829,0,0,1555,False,measured
+all complaints,country,Colombia,claimed_amount_ARS_mean,2555.4171376146787,20384,1635,18749,0,0,1635,False,measured
+all complaints,country,Colombia,claimed_amount_ARS_median,2575.18,20384,1635,18749,0,0,1635,False,measured
+all complaints,country,Colombia,claimed_amount_ARS_p90,4507.06,20384,1635,18749,0,0,1635,False,measured
+all complaints,country,Colombia,claimed_amount_USD_mean,2553.870393258427,20384,1602,18782,0,0,1602,False,measured
+all complaints,country,Colombia,claimed_amount_USD_median,2512.045,20384,1602,18782,0,0,1602,False,measured
+all complaints,country,Colombia,claimed_amount_USD_p90,4500.7210000000005,20384,1602,18782,0,0,1602,False,measured
+all complaints,country,México,still_open_count,24981,33375,33375,0,0,0,33375,False,measured
+all complaints,country,México,sla_breached_share,0.202187265917603,33375,33375,0,0,0,33375,False,measured
+all complaints,country,México,compensation_granted_share_of_all,0.0685243445692884,33375,33375,0,0,0,33375,False,measured
+all complaints,country,México,compensation_granted_share_of_resolved,0.28512654282508415,33375,8021,0,0,25354,8021,False,measured
+all complaints,country,México,resolution_days_mean,15.642345276872964,33375,7675,346,0,25354,7675,False,measured
+all complaints,country,México,resolution_days_median,16.0,33375,7675,346,0,25354,7675,False,measured
+all complaints,country,México,resolution_days_p90,28.0,33375,7675,346,0,25354,7675,False,measured
+all complaints,country,México,claimed_amount_usd_mean,685.3941070535034,33375,10233,23142,0,0,10233,False,measured
+all complaints,country,México,claimed_amount_usd_median,13.784773499999998,33375,10233,23142,0,0,10233,False,measured
+all complaints,country,México,claimed_amount_usd_p90,3084.9460000000013,33375,10233,23142,0,0,10233,False,measured
+all complaints,country,México,claims_without_currency,539,33375,33375,0,0,0,33375,False,measured
+all complaints,country,México,claims_without_fx,0,33375,33375,0,0,0,33375,False,measured
+all complaints,country,México,claimed_amount_MXN_mean,2520.6603417475726,33375,2575,30800,0,0,2575,False,measured
+all complaints,country,México,claimed_amount_MXN_median,2543.34,33375,2575,30800,0,0,2575,False,measured
+all complaints,country,México,claimed_amount_MXN_p90,4511.228,33375,2575,30800,0,0,2575,False,measured
+all complaints,country,México,claimed_amount_COP_mean,2499.156585086042,33375,2615,30760,0,0,2615,False,measured
+all complaints,country,México,claimed_amount_COP_median,2489.82,33375,2615,30760,0,0,2615,False,measured
+all complaints,country,México,claimed_amount_COP_p90,4489.614,33375,2615,30760,0,0,2615,False,measured
+all complaints,country,México,claimed_amount_ARS_mean,2514.0948299595143,33375,2470,30905,0,0,2470,False,measured
+all complaints,country,México,claimed_amount_ARS_median,2516.71,33375,2470,30905,0,0,2470,False,measured
+all complaints,country,México,claimed_amount_ARS_p90,4475.38,33375,2470,30905,0,0,2470,False,measured
+all complaints,country,México,claimed_amount_USD_mean,2569.974881461329,33375,2573,30802,0,0,2573,False,measured
+all complaints,country,México,claimed_amount_USD_median,2565.86,33375,2573,30802,0,0,2573,False,measured
+all complaints,country,México,claimed_amount_USD_p90,4564.702,33375,2573,30802,0,0,2573,False,measured
+all complaints,country_x_case_type,Argentina / Claim,still_open_count,2473,3280,3280,0,0,0,3280,False,measured
+all complaints,country_x_case_type,Argentina / Claim,sla_breached_share,0.20213414634146343,3280,3280,0,0,0,3280,False,measured
+all complaints,country_x_case_type,Argentina / Claim,compensation_granted_share_of_all,0.06798780487804879,3280,3280,0,0,0,3280,False,measured
+all complaints,country_x_case_type,Argentina / Claim,compensation_granted_share_of_resolved,0.2862644415917843,3280,779,0,0,2501,779,False,measured
+all complaints,country_x_case_type,Argentina / Claim,resolution_days_mean,15.402702702702703,3280,740,39,0,2501,740,False,measured
+all complaints,country_x_case_type,Argentina / Claim,resolution_days_median,16.0,3280,740,39,0,2501,740,False,measured
+all complaints,country_x_case_type,Argentina / Claim,resolution_days_p90,27.0,3280,740,39,0,2501,740,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_usd_mean,674.8301130876276,3280,1214,2066,0,0,1214,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_usd_median,13.783990495000001,3280,1214,2066,0,0,1214,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_usd_p90,3104.2100000000028,3280,1214,2066,0,0,1214,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claims_without_currency,50,3280,3280,0,0,0,3280,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claims_without_fx,0,3280,3280,0,0,0,3280,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_MXN_mean,2482.08498392283,3280,311,2969,0,0,311,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_MXN_median,2410.44,3280,311,2969,0,0,311,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_MXN_p90,4566.23,3280,311,2969,0,0,311,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_COP_mean,2420.9963604240284,3280,283,2997,0,0,283,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_COP_median,2356.67,3280,283,2997,0,0,283,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_COP_p90,4433.58,3280,283,2997,0,0,283,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_ARS_mean,2550.317398119122,3280,319,2961,0,0,319,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_ARS_median,2524.04,3280,319,2961,0,0,319,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_ARS_p90,4551.545999999999,3280,319,2961,0,0,319,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_USD_mean,2562.6337209302324,3280,301,2979,0,0,301,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_USD_median,2568.89,3280,301,2979,0,0,301,False,measured
+all complaints,country_x_case_type,Argentina / Claim,claimed_amount_USD_p90,4514.84,3280,301,2979,0,0,301,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,still_open_count,6056,8051,8051,0,0,0,8051,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,sla_breached_share,0.20618556701030927,8051,8051,0,0,0,8051,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,compensation_granted_share_of_all,0.06943236864985716,8051,8051,0,0,0,8051,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,compensation_granted_share_of_resolved,0.2925170068027211,8051,1911,0,0,6140,1911,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,resolution_days_mean,15.604510451045105,8051,1818,93,0,6140,1818,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,resolution_days_median,16.0,8051,1818,93,0,6140,1818,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,resolution_days_p90,28.0,8051,1818,93,0,6140,1818,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_usd_mean,661.002945792387,8051,2899,5152,0,0,2899,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_usd_median,13.838659200000002,8051,2899,5152,0,0,2899,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_usd_p90,3124.9120000000003,8051,2899,5152,0,0,2899,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claims_without_currency,158,8051,8051,0,0,0,8051,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claims_without_fx,0,8051,8051,0,0,0,8051,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_MXN_mean,2551.2817195767198,8051,756,7295,0,0,756,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_MXN_median,2530.59,8051,756,7295,0,0,756,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_MXN_p90,4484.495,8051,756,7295,0,0,756,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_COP_mean,2468.233545331529,8051,739,7312,0,0,739,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_COP_median,2350.15,8051,739,7312,0,0,739,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_COP_p90,4479.962,8051,739,7312,0,0,739,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_ARS_mean,2513.8018079096046,8051,708,7343,0,0,708,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_ARS_median,2439.21,8051,708,7343,0,0,708,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_ARS_p90,4515.132000000001,8051,708,7343,0,0,708,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_USD_mean,2582.369971264368,8051,696,7355,0,0,696,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_USD_median,2676.87,8051,696,7355,0,0,696,False,measured
+all complaints,country_x_case_type,Argentina / Complaint,claimed_amount_USD_p90,4536.504999999999,8051,696,7355,0,0,696,False,measured
+all complaints,country_x_case_type,Argentina / Request,still_open_count,1006,1352,1352,0,0,0,1352,False,measured
+all complaints,country_x_case_type,Argentina / Request,sla_breached_share,0.19674556213017752,1352,1352,0,0,0,1352,False,measured
+all complaints,country_x_case_type,Argentina / Request,compensation_granted_share_of_all,0.05251479289940828,1352,1352,0,0,0,1352,False,measured
+all complaints,country_x_case_type,Argentina / Request,compensation_granted_share_of_resolved,0.21515151515151515,1352,330,0,0,1022,330,False,measured
+all complaints,country_x_case_type,Argentina / Request,resolution_days_mean,15.298076923076923,1352,312,18,0,1022,312,False,measured
+all complaints,country_x_case_type,Argentina / Request,resolution_days_median,16.0,1352,312,18,0,1022,312,False,measured
+all complaints,country_x_case_type,Argentina / Request,resolution_days_p90,28.0,1352,312,18,0,1022,312,False,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_usd_mean,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_usd_median,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_usd_p90,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claims_without_currency,0,1352,1352,0,0,0,1352,False,measured
+all complaints,country_x_case_type,Argentina / Request,claims_without_fx,0,1352,1352,0,0,0,1352,False,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_MXN_mean,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_MXN_median,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_MXN_p90,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_COP_mean,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_COP_median,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_COP_p90,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_ARS_mean,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_ARS_median,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_ARS_p90,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_USD_mean,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_USD_median,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Request,claimed_amount_USD_p90,,1352,0,1352,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,still_open_count,494,653,653,0,0,0,653,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,sla_breached_share,0.20367534456355282,653,653,0,0,0,653,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,compensation_granted_share_of_all,0.07350689127105667,653,653,0,0,0,653,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,compensation_granted_share_of_resolved,0.3221476510067114,653,149,0,0,504,149,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,resolution_days_mean,14.985714285714286,653,140,9,0,504,140,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,resolution_days_median,15.0,653,140,9,0,504,140,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,resolution_days_p90,28.0,653,140,9,0,504,140,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_usd_mean,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_usd_median,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_usd_p90,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claims_without_currency,0,653,653,0,0,0,653,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claims_without_fx,0,653,653,0,0,0,653,False,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_MXN_mean,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_MXN_median,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_MXN_p90,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_COP_mean,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_COP_median,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_COP_p90,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_ARS_mean,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_ARS_median,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_ARS_p90,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_USD_mean,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_USD_median,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Argentina / Suggestion,claimed_amount_USD_p90,,653,0,653,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Claim,still_open_count,3702,4975,4975,0,0,0,4975,False,measured
+all complaints,country_x_case_type,Colombia / Claim,sla_breached_share,0.19336683417085426,4975,4975,0,0,0,4975,False,measured
+all complaints,country_x_case_type,Colombia / Claim,compensation_granted_share_of_all,0.07035175879396985,4975,4975,0,0,0,4975,False,measured
+all complaints,country_x_case_type,Colombia / Claim,compensation_granted_share_of_resolved,0.2887788778877888,4975,1212,0,0,3763,1212,False,measured
+all complaints,country_x_case_type,Colombia / Claim,resolution_days_mean,15.767624020887729,4975,1149,63,0,3763,1149,False,measured
+all complaints,country_x_case_type,Colombia / Claim,resolution_days_median,16.0,4975,1149,63,0,3763,1149,False,measured
+all complaints,country_x_case_type,Colombia / Claim,resolution_days_p90,28.0,4975,1149,63,0,3763,1149,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_usd_mean,723.3493524529855,4975,1802,3173,0,0,1802,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_usd_median,13.740465295,4975,1802,3173,0,0,1802,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_usd_p90,3255.443,4975,1802,3173,0,0,1802,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claims_without_currency,95,4975,4975,0,0,0,4975,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claims_without_fx,0,4975,4975,0,0,0,4975,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_MXN_mean,2663.878419811321,4975,424,4551,0,0,424,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_MXN_median,2730.725,4975,424,4551,0,0,424,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_MXN_p90,4571.815,4975,424,4551,0,0,424,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_COP_mean,2620.407466666667,4975,450,4525,0,0,450,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_COP_median,2668.835,4975,450,4525,0,0,450,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_COP_p90,4571.138000000001,4975,450,4525,0,0,450,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_ARS_mean,2536.732609649123,4975,456,4519,0,0,456,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_ARS_median,2571.8999999999996,4975,456,4519,0,0,456,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_ARS_p90,4354.0599999999995,4975,456,4519,0,0,456,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_USD_mean,2613.2814194915254,4975,472,4503,0,0,472,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_USD_median,2564.58,4975,472,4503,0,0,472,False,measured
+all complaints,country_x_case_type,Colombia / Claim,claimed_amount_USD_p90,4608.9400000000005,4975,472,4503,0,0,472,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,still_open_count,9246,12338,12338,0,0,0,12338,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,sla_breached_share,0.19816826065812937,12338,12338,0,0,0,12338,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,compensation_granted_share_of_all,0.07213486788782623,12338,12338,0,0,0,12338,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,compensation_granted_share_of_resolved,0.298357358364063,12338,2983,0,0,9355,2983,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,resolution_days_mean,15.654661016949152,12338,2832,151,0,9355,2832,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,resolution_days_median,16.0,12338,2832,151,0,9355,2832,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,resolution_days_p90,28.0,12338,2832,151,0,9355,2832,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_usd_mean,665.7579598609204,12338,4563,7775,0,0,4563,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_usd_median,13.7870289,12338,4563,7775,0,0,4563,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_usd_p90,2958.444000000001,12338,4563,7775,0,0,4563,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claims_without_currency,198,12338,12338,0,0,0,12338,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claims_without_fx,0,12338,12338,0,0,0,12338,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_MXN_mean,2528.180870322019,12338,1149,11189,0,0,1149,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_MXN_median,2533.22,12338,1149,11189,0,0,1149,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_MXN_p90,4503.92,12338,1149,11189,0,0,1149,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_COP_mean,2519.4686606334844,12338,1105,11233,0,0,1105,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_COP_median,2460.82,12338,1105,11233,0,0,1105,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_COP_p90,4545.05,12338,1105,11233,0,0,1105,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_ARS_mean,2562.643723494487,12338,1179,11159,0,0,1179,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_ARS_median,2578.21,12338,1179,11159,0,0,1179,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_ARS_p90,4549.7699999999995,12338,1179,11159,0,0,1179,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_USD_mean,2529.054460176991,12338,1130,11208,0,0,1130,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_USD_median,2486.555,12338,1130,11208,0,0,1130,False,measured
+all complaints,country_x_case_type,Colombia / Complaint,claimed_amount_USD_p90,4442.777,12338,1130,11208,0,0,1130,False,measured
+all complaints,country_x_case_type,Colombia / Request,still_open_count,1545,2071,2071,0,0,0,2071,False,measured
+all complaints,country_x_case_type,Colombia / Request,sla_breached_share,0.19410912602607436,2071,2071,0,0,0,2071,False,measured
+all complaints,country_x_case_type,Colombia / Request,compensation_granted_share_of_all,0.07049734427812651,2071,2071,0,0,0,2071,False,measured
+all complaints,country_x_case_type,Colombia / Request,compensation_granted_share_of_resolved,0.2857142857142857,2071,511,0,0,1560,511,False,measured
+all complaints,country_x_case_type,Colombia / Request,resolution_days_mean,15.193018480492814,2071,487,24,0,1560,487,False,measured
+all complaints,country_x_case_type,Colombia / Request,resolution_days_median,15.0,2071,487,24,0,1560,487,False,measured
+all complaints,country_x_case_type,Colombia / Request,resolution_days_p90,27.0,2071,487,24,0,1560,487,False,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_usd_mean,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_usd_median,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_usd_p90,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claims_without_currency,0,2071,2071,0,0,0,2071,False,measured
+all complaints,country_x_case_type,Colombia / Request,claims_without_fx,0,2071,2071,0,0,0,2071,False,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_MXN_mean,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_MXN_median,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_MXN_p90,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_COP_mean,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_COP_median,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_COP_p90,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_ARS_mean,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_ARS_median,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_ARS_p90,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_USD_mean,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_USD_median,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Request,claimed_amount_USD_p90,,2071,0,2071,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,still_open_count,766,1000,1000,0,0,0,1000,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,sla_breached_share,0.216,1000,1000,0,0,0,1000,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,compensation_granted_share_of_all,0.067,1000,1000,0,0,0,1000,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,compensation_granted_share_of_resolved,0.29777777777777775,1000,225,0,0,775,225,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,resolution_days_mean,14.961904761904762,1000,210,15,0,775,210,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,resolution_days_median,15.0,1000,210,15,0,775,210,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,resolution_days_p90,27.0,1000,210,15,0,775,210,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_usd_mean,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_usd_median,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_usd_p90,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claims_without_currency,0,1000,1000,0,0,0,1000,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claims_without_fx,0,1000,1000,0,0,0,1000,False,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_MXN_mean,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_MXN_median,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_MXN_p90,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_COP_mean,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_COP_median,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_COP_p90,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_ARS_mean,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_ARS_median,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_ARS_p90,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_USD_mean,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_USD_median,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,Colombia / Suggestion,claimed_amount_USD_p90,,1000,0,1000,0,0,0,True,measured
+all complaints,country_x_case_type,México / Claim,still_open_count,6216,8343,8343,0,0,0,8343,False,measured
+all complaints,country_x_case_type,México / Claim,sla_breached_share,0.20196571976507252,8343,8343,0,0,0,8343,False,measured
+all complaints,country_x_case_type,México / Claim,compensation_granted_share_of_all,0.06712213831954933,8343,8343,0,0,0,8343,False,measured
+all complaints,country_x_case_type,México / Claim,compensation_granted_share_of_resolved,0.27722772277227725,8343,2020,0,0,6323,2020,False,measured
+all complaints,country_x_case_type,México / Claim,resolution_days_mean,15.61860465116279,8343,1935,85,0,6323,1935,False,measured
+all complaints,country_x_case_type,México / Claim,resolution_days_median,15.0,8343,1935,85,0,6323,1935,False,measured
+all complaints,country_x_case_type,México / Claim,resolution_days_p90,27.0,8343,1935,85,0,6323,1935,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_usd_mean,687.9084205626542,8343,3033,5310,0,0,3033,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_usd_median,13.644932700000002,8343,3033,5310,0,0,3033,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_usd_p90,3096.7520000000004,8343,3033,5310,0,0,3033,False,measured
+all complaints,country_x_case_type,México / Claim,claims_without_currency,157,8343,8343,0,0,0,8343,False,measured
+all complaints,country_x_case_type,México / Claim,claims_without_fx,0,8343,8343,0,0,0,8343,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_MXN_mean,2483.1845020463848,8343,733,7610,0,0,733,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_MXN_median,2540.72,8343,733,7610,0,0,733,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_MXN_p90,4481.858000000001,8343,733,7610,0,0,733,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_COP_mean,2464.91378690629,8343,779,7564,0,0,779,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_COP_median,2420.98,8343,779,7564,0,0,779,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_COP_p90,4480.3240000000005,8343,779,7564,0,0,779,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_ARS_mean,2571.2740745672436,8343,751,7592,0,0,751,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_ARS_median,2539.48,8343,751,7592,0,0,751,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_ARS_p90,4512.05,8343,751,7592,0,0,751,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_USD_mean,2562.8645974025976,8343,770,7573,0,0,770,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_USD_median,2552.0299999999997,8343,770,7573,0,0,770,False,measured
+all complaints,country_x_case_type,México / Claim,claimed_amount_USD_p90,4600.088,8343,770,7573,0,0,770,False,measured
+all complaints,country_x_case_type,México / Complaint,still_open_count,15050,20063,20063,0,0,0,20063,False,measured
+all complaints,country_x_case_type,México / Complaint,sla_breached_share,0.1999202512086926,20063,20063,0,0,0,20063,False,measured
+all complaints,country_x_case_type,México / Complaint,compensation_granted_share_of_all,0.06843443154064696,20063,20063,0,0,0,20063,False,measured
+all complaints,country_x_case_type,México / Complaint,compensation_granted_share_of_resolved,0.28598208706519473,20063,4801,0,0,15262,4801,False,measured
+all complaints,country_x_case_type,México / Complaint,resolution_days_mean,15.586184353889736,20063,4589,212,0,15262,4589,False,measured
+all complaints,country_x_case_type,México / Complaint,resolution_days_median,16.0,20063,4589,212,0,15262,4589,False,measured
+all complaints,country_x_case_type,México / Complaint,resolution_days_p90,28.0,20063,4589,212,0,15262,4589,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_usd_mean,684.3349524877736,20063,7200,12863,0,0,7200,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_usd_median,13.895575514999999,20063,7200,12863,0,0,7200,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_usd_p90,3080.9680000000008,20063,7200,12863,0,0,7200,False,measured
+all complaints,country_x_case_type,México / Complaint,claims_without_currency,382,20063,20063,0,0,0,20063,False,measured
+all complaints,country_x_case_type,México / Complaint,claims_without_fx,0,20063,20063,0,0,0,20063,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_MXN_mean,2535.573365906623,20063,1842,18221,0,0,1842,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_MXN_median,2544.17,20063,1842,18221,0,0,1842,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_MXN_p90,4518.104,20063,1842,18221,0,0,1842,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_COP_mean,2513.68552832244,20063,1836,18227,0,0,1836,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_COP_median,2521.54,20063,1836,18227,0,0,1836,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_COP_p90,4492.09,20063,1836,18227,0,0,1836,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_ARS_mean,2489.1142524723678,20063,1719,18344,0,0,1719,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_ARS_median,2504.3,20063,1719,18344,0,0,1719,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_ARS_p90,4461.852,20063,1719,18344,0,0,1719,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_USD_mean,2573.0114420410428,20063,1803,18260,0,0,1803,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_USD_median,2573.47,20063,1803,18260,0,0,1803,False,measured
+all complaints,country_x_case_type,México / Complaint,claimed_amount_USD_p90,4553.532,20063,1803,18260,0,0,1803,False,measured
+all complaints,country_x_case_type,México / Request,still_open_count,2504,3338,3338,0,0,0,3338,False,measured
+all complaints,country_x_case_type,México / Request,sla_breached_share,0.21000599161174355,3338,3338,0,0,0,3338,False,measured
+all complaints,country_x_case_type,México / Request,compensation_granted_share_of_all,0.0695026962252846,3338,3338,0,0,0,3338,False,measured
+all complaints,country_x_case_type,México / Request,compensation_granted_share_of_resolved,0.29109159347553326,3338,797,0,0,2541,797,False,measured
+all complaints,country_x_case_type,México / Request,resolution_days_mean,15.755874673629243,3338,766,31,0,2541,766,False,measured
+all complaints,country_x_case_type,México / Request,resolution_days_median,15.0,3338,766,31,0,2541,766,False,measured
+all complaints,country_x_case_type,México / Request,resolution_days_p90,28.0,3338,766,31,0,2541,766,False,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_usd_mean,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_usd_median,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_usd_p90,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claims_without_currency,0,3338,3338,0,0,0,3338,False,measured
+all complaints,country_x_case_type,México / Request,claims_without_fx,0,3338,3338,0,0,0,3338,False,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_MXN_mean,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_MXN_median,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_MXN_p90,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_COP_mean,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_COP_median,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_COP_p90,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_ARS_mean,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_ARS_median,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_ARS_p90,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_USD_mean,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_USD_median,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Request,claimed_amount_USD_p90,,3338,0,3338,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,still_open_count,1211,1631,1631,0,0,0,1631,False,measured
+all complaints,country_x_case_type,México / Suggestion,sla_breached_share,0.21520539546290618,1631,1631,0,0,0,1631,False,measured
+all complaints,country_x_case_type,México / Suggestion,compensation_granted_share_of_all,0.07480073574494175,1631,1631,0,0,0,1631,False,measured
+all complaints,country_x_case_type,México / Suggestion,compensation_granted_share_of_resolved,0.3027295285359802,1631,403,0,0,1228,403,False,measured
+all complaints,country_x_case_type,México / Suggestion,resolution_days_mean,16.205194805194804,1631,385,18,0,1228,385,False,measured
+all complaints,country_x_case_type,México / Suggestion,resolution_days_median,17.0,1631,385,18,0,1228,385,False,measured
+all complaints,country_x_case_type,México / Suggestion,resolution_days_p90,28.0,1631,385,18,0,1228,385,False,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_usd_mean,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_usd_median,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_usd_p90,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claims_without_currency,0,1631,1631,0,0,0,1631,False,measured
+all complaints,country_x_case_type,México / Suggestion,claims_without_fx,0,1631,1631,0,0,0,1631,False,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_MXN_mean,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_MXN_median,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_MXN_p90,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_COP_mean,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_COP_median,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_COP_p90,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_ARS_mean,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_ARS_median,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_ARS_p90,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_USD_mean,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_USD_median,,1631,0,1631,0,0,0,True,measured
+all complaints,country_x_case_type,México / Suggestion,claimed_amount_USD_p90,,1631,0,1631,0,0,0,True,measured
+all complaints,overall,all,still_open_count,50269,67095,67095,0,0,0,67095,False,measured
+all complaints,overall,all,sla_breached_share,0.2011327222594828,67095,67095,0,0,0,67095,False,measured
+all complaints,overall,all,compensation_granted_share_of_all,0.06917057902973396,67095,67095,0,0,0,67095,False,measured
+all complaints,overall,all,compensation_granted_share_of_resolved,0.28788536691272254,67095,16121,0,0,50974,16121,False,measured
+all complaints,overall,all,resolution_days_mean,15.601445030267525,67095,15363,758,0,50974,15363,False,measured
+all complaints,overall,all,resolution_days_median,16.0,67095,15363,758,0,50974,15363,False,measured
+all complaints,overall,all,resolution_days_p90,28.0,67095,15363,758,0,50974,15363,False,measured
+all complaints,overall,all,claimed_amount_usd_mean,680.3369368251011,67095,20711,46384,0,0,20711,False,measured
+all complaints,overall,all,claimed_amount_usd_median,13.787749609999999,67095,20711,46384,0,0,20711,False,measured
+all complaints,overall,all,claimed_amount_usd_p90,3070.18,67095,20711,46384,0,0,20711,False,measured
+all complaints,overall,all,claims_without_currency,1040,67095,67095,0,0,0,67095,False,measured
+all complaints,overall,all,claims_without_fx,0,67095,67095,0,0,0,67095,False,measured
+all complaints,overall,all,claimed_amount_MXN_mean,2536.1001073825505,67095,5215,61880,0,0,5215,False,measured
+all complaints,overall,all,claimed_amount_MXN_median,2551.21,67095,5215,61880,0,0,5215,False,measured
+all complaints,overall,all,claimed_amount_MXN_p90,4510.838000000001,67095,5215,61880,0,0,5215,False,measured
+all complaints,overall,all,claimed_amount_COP_mean,2505.326899075501,67095,5192,61903,0,0,5192,False,measured
+all complaints,overall,all,claimed_amount_COP_median,2467.195,67095,5192,61903,0,0,5192,False,measured
+all complaints,overall,all,claimed_amount_COP_p90,4513.941,67095,5192,61903,0,0,5192,False,measured
+all complaints,overall,all,claimed_amount_ARS_mean,2529.4708067030397,67095,5132,61963,0,0,5132,False,measured
+all complaints,overall,all,claimed_amount_ARS_median,2521.17,67095,5132,61963,0,0,5132,False,measured
+all complaints,overall,all,claimed_amount_ARS_p90,4500.366000000002,67095,5132,61963,0,0,5132,False,measured
+all complaints,overall,all,claimed_amount_USD_mean,2566.2273762567675,67095,5172,61923,0,0,5172,False,measured
+all complaints,overall,all,claimed_amount_USD_median,2563.865,67095,5172,61923,0,0,5172,False,measured
+all complaints,overall,all,claimed_amount_USD_p90,4549.457,67095,5172,61923,0,0,5172,False,measured

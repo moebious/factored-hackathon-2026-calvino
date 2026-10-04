@@ -1,7 +1,7 @@
 """Independent T-104 headline baseline for interactions and complaints.
 
 One command: `python scripts/analysis/baseline.py` (needs data/cache from build_cache.py).
-Writes reports/baseline/interactions.csv, complaints.csv and README.md. Every number is
+Writes reports/baseline-independent/interactions.csv, complaints.csv and README.md. Every number is
 aggregate-only and measured on the full live `data/` prefix.
 
 Definitions (also written into the README) are fixed here, before any number is read:
@@ -35,7 +35,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 CACHE = ROOT / "data" / "cache"
-OUT = ROOT / "reports" / "baseline"
+OUT = ROOT / "reports" / "baseline-independent"
 MIN_CASES = 30
 RESOLVED = ["Resolved", "Closed"]
 OPEN = ["Open", "In Process", "Escalated"]
