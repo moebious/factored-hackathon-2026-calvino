@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed — awaiting maintainer approval before any code |
+| Status | implemented |
 | Branch | `feat/labels-splits` |
 | Depends on | T-101 (workflow choice); TSD-007 (data contracts); DATA.md findings |
 | Required by | T-106 (message set); T-201 (calibration); T-303 (evaluation) |
