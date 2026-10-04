@@ -77,7 +77,7 @@ def fake_loader_factory():
 
 @pytest.fixture(scope="session")
 def policy() -> Policy:
-    """The released policy/v1.yaml, loaded exactly as the hub loads it."""
+    """The released policy (v2), loaded exactly as the hub loads it."""
     return load_policy()
 
 

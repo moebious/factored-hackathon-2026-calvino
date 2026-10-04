@@ -1,7 +1,8 @@
-"""Policy configuration: the pydantic model of ``policy/v1.yaml`` and its loader.
+"""Policy configuration: the pydantic model of the versioned policy files and its loader.
 
-Every threshold and limit the policy engine reads lives in that file and nowhere else. A released
-version is never edited; a change is a new file, so logged decisions replay under their version.
+Every threshold and limit the policy engine reads lives in those files and nowhere else. A
+released version is never edited; a change is a new file (the default loads the newest, v2), so
+logged decisions replay under their version.
 """
 
 from __future__ import annotations
@@ -12,8 +13,9 @@ from typing import Annotated, Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-# <repo>/policy/v1.yaml, found from this file (src/calvino/policy/config.py).
-DEFAULT_POLICY_PATH = Path(__file__).resolve().parents[3] / "policy" / "v1.yaml"
+# <repo>/policy/v2.yaml, found from this file (src/calvino/policy/config.py). v1 stays on disk:
+# decisions logged under it replay under it (decision 30 lowered only route.min_clear_enough).
+DEFAULT_POLICY_PATH = Path(__file__).resolve().parents[3] / "policy" / "v2.yaml"
 
 Probability = Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)]
 Limits = dict[str, Annotated[float, Field(gt=0, allow_inf_nan=False)]]

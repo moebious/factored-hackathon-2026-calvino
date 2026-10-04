@@ -1,8 +1,8 @@
 """Tests for the demo decision core: score mapping, verdicts and the log append.
 
-The scripted probability sets are chosen against the policy/v1.yaml thresholds
+The scripted probability sets are chosen against the policy/v2.yaml thresholds
 so each one lands on exactly one route rule: RT-ACT needs needs_human < 0.30
-with clear >= 0.50 and confidence >= 0.60; RT-ESCALATE needs needs_human >=
+with clear >= 0.30 and confidence >= 0.60; RT-ESCALATE needs needs_human >=
 0.70; RT-OUT-OF-SCOPE needs the out-of-scope option >= 0.60 while
 dispute+fraud stays below 0.50.
 """
@@ -95,7 +95,7 @@ def test_demo_decision_acts_and_logs(fake_loader_factory, policy, tmp_path):
     assert decision.route is Route.AGENTS
     assert decision.rule_id == "RT-ACT"
     assert decision.human_action is HumanAction.NONE
-    assert decision.policy_version == "v1"
+    assert decision.policy_version == "v2"
     assert set(decision.answers) == set(workflow_questions())
 
     records = list(read_records(log.path))

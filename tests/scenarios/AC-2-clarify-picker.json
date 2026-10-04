@@ -2,7 +2,7 @@
   "id": "AC-2",
   "title": "ambiguous message gets the clarify question and the problem-payment picker",
   "persona": "ana",
-  "message": "Hola, tengo un problema con un pago",
+  "message": "Buenas, tengo una duda con un pago de mi cuenta",
   "probabilities": {
     "workflow_area": {
       "stuck payment": 0.97,

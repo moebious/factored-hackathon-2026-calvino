@@ -1,0 +1,59 @@
+# Calvino policy v2 (decision 30): identical to v1 except the route's
+# min_clear_enough, lowered from 0.50 to 0.30 on the first live measurement
+# of laya 0.3.24's scores. v1 stays on disk unchanged: it is immutable once
+# released, and decisions logged under v1 replay under v1.
+#
+# Evidence labels: the remaining thresholds are still [hypothesis] until the
+# classifier evaluation (T-201) calibrates them on the labelled message set;
+# min_clear_enough (route) is [measured] on the demo scenario sweep; the
+# amount limits are POLICY ASSUMPTIONS, not measurements.
+version: v2
+
+assumptions: >
+  Thresholds are hypotheses pending calibration (T-201), except the route's
+  min_clear_enough: the first live sweep of the demo scenarios against laya
+  0.3.24 [measured] showed terse routine commands score clear_enough
+  0.20-0.35 while needs_human stays below act_below ("Reintentar
+  transferencia E-US-001": needs_human 0.176, confidence 0.662, clear_enough
+  0.338), so under v1's 0.50 no wording of a routine action request could
+  reach the agent path; 17 variants were measured, none passed. The Gate's
+  own min_clear_enough (0.70) is unchanged, so an unclear write still parks
+  for explicit confirmation (GATE-UNCLEAR -> ask). See decision 30; T-201
+  revisits this value on the labelled message set. Amount limits are policy
+  assumptions per currency, set at 500 USD (gate) and 5,000 USD (hard rule)
+  using round exchange rates close to the dataset's (about 17 MXN, 4,000 COP
+  and 350 ARS per USD, from the implied rates in reports/data-quality/f09);
+  they are illustrative, not derived from the data.
+
+route:
+  # Probabilities come from calibrated Laya answers; ties go to the safer side.
+  escalate_at: 0.70           # needs_human at or above: send to a person
+  act_below: 0.30             # needs_human strictly below: the agent path may act
+  out_of_scope_at: 0.60       # workflow area "out of scope" at or above
+  dispute_or_fraud_at: 0.50   # workflow area "dispute or fraud" at or above: a person handles it
+  injection_at: 0.50          # injection or manipulation at or above: a person handles it
+  min_clear_enough: 0.30      # below: ask the customer a clarifying question (v1: 0.50; decision 30 [measured])
+  min_confidence: 0.60        # below: ask the customer a clarifying question
+
+hard_rules:
+  auth_failure_limit: 3       # HR-AUTH fires at this many failed authentications or more
+  amount_limit:               # HR-AMOUNT fires above these amounts [policy assumption]
+    MXN: 85000
+    COP: 20000000
+    ARS: 1750000
+    USD: 5000
+
+gate:
+  allow_amount_limit:         # above these amounts an action needs a person's approval [policy assumption]
+    MXN: 8500
+    COP: 2000000
+    ARS: 175000
+    USD: 500
+  min_clear_enough: 0.70      # below: ask a person instead of acting on a guess
+  min_confidence: 0.60        # below: ask a person
+  injection_at: 0.50          # at or above: block
+  on_missing_scores: ask      # "ask" (escalate to a person) or "block" when Laya scores are absent
+  eligible_statuses:          # transaction statuses each action may be applied to
+    request_cancellation: [pending]
+    retry_payment: [declined]
+    open_investigation: [pending, declined, reversed]
