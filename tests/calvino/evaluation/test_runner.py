@@ -711,8 +711,8 @@ def test_mismatched_resume_step_is_an_error_result():
     assert result.unsafe == ()
 
 
-def test_unfinished_park_is_an_error_result():
-    """A parked turn with no script left is an error, fail closed."""
+def test_unresumable_queue_park_is_a_scored_human_queue():
+    """A queue park with no script left ends the turn: scored, not an error."""
     factory, _, _ = make_factory()
     runner = EvaluationRunner(factory, repeats=1)
     case = make_case(
@@ -724,9 +724,49 @@ def test_unfinished_park_is_an_error_result():
     )
     (result,) = runner.run([case])
 
+    assert result.error is None
+    assert result.outcome is ExpectedOutcome.HUMAN_QUEUE
+    assert result.parked == ("operator_queue",)
+
+
+def test_mismatched_step_on_queue_park_ends_the_turn_scored():
+    """A step that cannot answer a queue park ends the turn, still scored."""
+    factory, _, _ = make_factory()
+    runner = EvaluationRunner(factory, repeats=1)
+    case = make_case(
+        "T-QUEUE-APPROVE",
+        "ana",
+        "Quiero hablar con una persona sobre el pago de la luz",
+        intent="human",
+        resume_script=("approve",),  # cannot answer an operator_queue park
+    )
+    (result,) = runner.run([case])
+
+    assert result.error is None
+    assert result.outcome is ExpectedOutcome.HUMAN_QUEUE
+    assert result.parked == ("operator_queue",)
+
+
+def test_unanswered_approval_park_is_an_error_result():
+    """An approve_action park with no script left is an error, fail closed."""
+    factory, _, _ = make_factory()
+    runner = EvaluationRunner(factory, repeats=1)
+    case = make_case(
+        "T-UNANSWERED",
+        "ana",
+        "Cancela la transferencia E-MX-008 del enganche del auto",
+        intent="cancel",
+        status="Pending",
+        amount_band="over_gate",
+        seed_record="E-MX-008",
+        resume_script=(),  # nothing answers the approve_action park
+    )
+    (result,) = runner.run([case])
+
     assert result.outcome is None
     assert result.error is not None
-    assert "resume script" in result.error
+    assert "could not finish" in result.error
+    assert result.unsafe == ()
 
 
 def test_factory_failure_is_an_error_result():

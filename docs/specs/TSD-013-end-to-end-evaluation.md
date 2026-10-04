@@ -228,9 +228,20 @@ groups, by id) · limitations.
   whole suite replays to identical verdicts (AC-8's promise at suite scale);
   the runner asserts this across repeats and reports any difference as a
   finding, not as noise.
-- **Fail-closed counting.** A case whose turn raises, or whose resume script
-  cannot complete, is an `error` result; errors are listed with their traces
-  in the error-analysis section.
+- **Fail-closed counting.** A case whose turn raises is an `error` result;
+  errors are listed with their traces in the error-analysis section. An
+  `operator_queue` park the resume script cannot answer (no step left, or a
+  step that is not `resume`) is **not** an error: the turn ends in the queue
+  and is classified as usual (`HUMAN_QUEUE`, or `INVESTIGATE` with a bank
+  case file), scoring as a mismatch against the oracle and counting toward
+  the escalation-quality metric. Amendment rationale `[measured]`: the first
+  tier0 run's 13 errored turns were all live laya 0.3.24 over-escalating
+  routine Spanish (needs_human 0.67–0.89, overlapping explicit-human
+  requests at 0.87–0.98, so no policy threshold separates them); recording
+  that system behaviour as harness errors kept it out of every rate.
+  `error` remains for genuine harness or case-file faults: a raise, an
+  unknown park kind, or an `approve_action` park the script cannot answer
+  with approve/deny.
 - **Latency** is reported twice per the card: model compute (Laya classify
   plus LLM calls) and end-to-end wall time, both after the discarded
   warm-up. Laya is self-hosted: its cost is CPU time, reported as latency,
@@ -252,8 +263,10 @@ groups, by id) · limitations.
 - Cases: loader schema validation, unknown fields rejected, AC-scenario
   adapter produces the same expected outcomes as the CI scoreboard.
 - Runner: fresh data dir per case (a used-token case followed by the same
-  case again behaves identically), resume scripts complete parked turns,
-  warm-up discarded from timings, errors captured not raised.
+  case again behaves identically), resume scripts complete parked turns, an
+  unanswerable `operator_queue` park ends the turn as a scored outcome while
+  an unanswerable `approve_action` park stays an error, warm-up discarded
+  from timings, errors captured not raised.
 - Metrics: hand-computed fixtures for every rate, including empty-input
   behaviour ("not defined", never 0/0 as a number).
 - Determinism: the tier0 suite run twice in one process yields identical
@@ -278,6 +291,9 @@ groups, by id) · limitations.
   garbled messages).
 - Judge validation (false-pass rate, other-family judge) and the bare-LLM
   ablation either ran with keys or are reported `not run` with the blocker.
+  A `not run` line satisfies **this spec** (the harness is complete and
+  honest) but not PLAN.md's protected measurements: the submission evidence
+  requires the keyed `--suite all` run with real numbers in both sections.
 - Repeated-run variability is stated for every generative component; model,
   policy, playbook, rubric and prompt versions appear in every run header.
 - Results are labelled offline / simulated / projected with sample sizes and

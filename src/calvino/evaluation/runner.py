@@ -5,8 +5,11 @@ injected factory, with a **fresh ``CALVINO_DATA_DIR`` per repeat** so
 one-shot demo semantics (the idempotent retry, the used-token memory, the
 sqlite checkpoints) never leak between cases. One warm-up turn per runner
 is discarded before any timing (T-303 card). Parked turns are finished by
-replaying the case's resume script; a script that cannot finish the turn
-is a fail-closed ``error`` result, never a raise.
+replaying the case's resume script. An ``operator_queue`` park the script
+cannot answer ends the turn as a scored outcome (TSD-013 amendment: live
+laya over-escalation must show up as a mismatch, not vanish as a harness
+error); any other park the script cannot finish is a fail-closed ``error``
+result, never a raise.
 
 What the classification reads, and nothing else: the ``HubReply`` fields
 (``route``, ``card``, ``awaiting``, ``case_ref``, ``trace``). Bank case
@@ -360,7 +363,17 @@ class EvaluationRunner:
         script = list(case.resume_script)
         error: str | None = None
         while final.awaiting is not None:
-            if not script:
+            step = script[0] if script else None
+            if final.awaiting == "operator_queue" and step != "resume":
+                # Queued for an operator with no resume to answer it: the
+                # turn ends in the queue. That is the observed outcome (the
+                # classifier scores HUMAN_QUEUE or INVESTIGATE), not a
+                # harness error: over-escalation must show up as a scored
+                # mismatch, not disappear from every rate (TSD-013
+                # amendment, measured on the first tier0 run).
+                parked.append("operator_queue")
+                break
+            if step is None:
                 error = (
                     f"resume script could not finish the parked turn (awaiting={final.awaiting})"
                 )
@@ -376,9 +389,6 @@ class EvaluationRunner:
                 denied = denied or step == "deny"
                 decision = step == "approve"
             elif final.awaiting == "operator_queue":
-                if step != "resume":
-                    error = f"resume step {step!r} cannot answer an operator_queue park"
-                    break
                 decision = f"evaluation runner: {step}"
             else:
                 error = f"unknown park kind {final.awaiting!r}"
