@@ -68,7 +68,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-206](T-206-workflow-tools.md) | Workflow-specific tools and adapter data | 2 | T-002, T-101 | — | standard | yes | todo | maintainer |
 | [T-301](T-301-support-agent.md) | Support agent and company brain | 3 | T-204, T-206 | LLM provider keys | standard | no | todo | maintainer |
 | [T-302](T-302-console-queue.md) | Handoff queue and audit timeline | 3 | T-204 | — | standard | yes | todo | maintainer |
-| [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | todo | maintainer |
+| [T-303](T-303-end-to-end-evaluation.md) | End-to-end evaluation | 3 | T-301, T-203 | — | judgment checkpoint | no | spec | maintainer |
 | [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | review | maintainer |
 | [T-305](T-305-gradio-demo-adapter.md) | Gradio demo adapter (free hosted demo) | 3 | T-005 | free Space (maintainer) | standard | yes | spec | maintainer |
 | [T-401](T-401-durable-cases.md) | Durable cases | 3 | T-204, T-302 | — | standard | yes | todo | maintainer |
