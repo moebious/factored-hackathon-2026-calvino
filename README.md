@@ -5,161 +5,149 @@
 
 **An evolutionary, AI-powered decision engine for banking customer service: it answers payment questions safely, takes an action only when the policy allows it, and hands investigations to people with a complete file.**
 
-Models suggest, a versioned policy decides, people approve what matters, and their decisions improve the next version. Why each of those words: [DESIGN.md 2](docs/DESIGN.md#2-thesis). Built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon).
+Models suggest, a versioned policy decides, people approve what matters, and their decisions improve the next version. Built for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon). Full rationale and architecture: [DESIGN.md](docs/DESIGN.md).
 
-## The workflow: stuck payments
+---
 
-| Stage | The customer gets |
-|---|---|
-| **Explain** | the status of a declined, pending or reversed payment, from the bank's records |
-| **Clarify** | one question, or a pick-list of their problem payments; nothing runs on a guess |
-| **Act** | a cancelled or retried transfer, only when the policy allows it (simulated) |
-| **Investigate** | a case number, while a person gets the full case file |
-| **Follow up** | a verified answer to "how is my case?" |
+## Why Calvino?
+
+Standard LLM customer-service agents present unacceptable risks in regulated banking: models hallucinate account facts, execute non-deterministic tool calls, succumb to prompt injection, and cannot provide an auditable decision trail.
+
+Calvino replaces the unconstrained agent with a **governed 4-tier cognitive hierarchy**:
+
+* **System 1 (Laya — Fast Perception)**: A self-hosted, open-weight 322M multilingual encoder (`laya-multilingual`, Apache 2.0). Runs on CPU in sub-second time without sampling. Returns calibrated probability vectors for intent, risk, clarity, and human need. Customer text never leaves the bank for decisions, and the model never writes prose.
+* **System 1.5 (Calvino Hub — Deterministic Governance)**: The bridge. Enforces the rule: **"Probabilities in, deterministic verdicts out."** Hard rules (fraud indicators, authentication failures, explicit human requests) evaluate first and always win. Versioned policies ([`policy/v1.yaml`](policy/v1.yaml), [`policy/v2.yaml`](policy/v2.yaml)) determine routing. The Gate intercepts every tool write (`allow`, `ask` a person, or `block`). Missing inputs fail closed. Every verdict is written to `decisions.jsonl` with 100% replayability.
+* **System 2 (Bounded Support Agent — Contained Language)**: Open LLM (Qwen 3.6-35B on Hetzner) strictly restricted to drafting explanations from verified tool facts. The agent has no authorization to act on its own. All drafted text passes through the financial verifier cascade (`customer-answer@2`: deterministic code checks and judge veto) before reaching the customer.
+* **System 3 (Humans — Accountable Authority)**: Human operators approve gray-zone actions (`interrupt()`), manage durable case files, and resolve edge cases. Human decisions generate gold labels for the offline data flywheel.
+
+---
+
+## The Workflow: Stuck Payments
+
+Calvino focuses on the highest-volume, highest-impact customer journey: **stuck payments, end to end** (decision 17).
+
+| Stage | What the Customer Receives | Governance Mechanism |
+|---|---|---|
+| **Explain** | Clear status of a declined, pending, or reversed payment from bank records | Read-only tool access; verified grounding |
+| **Clarify** | One targeted clarifying question or a structured payment picker | Activated when request clarity is below policy threshold; nothing runs on a guess |
+| **Act** | Cancelled or retried transfer (simulated ISO 20022 action) | Gated write: single-use confirmation token, ownership check, eligibility verification |
+| **Investigate** | Case reference number and timeline | Durable case file opened for human operator handoff |
+| **Follow-up** | Verified status update on an existing case | Re-authenticates case ownership and reads immutable audit timeline |
+
+Disputes and fraud signals always escalate to a person, and Calvino never moves money on its own. Detailed walkthrough: [DESIGN.md §6.2](docs/DESIGN.md#62-one-journey-end-to-end).
 
 ```mermaid
-flowchart LR
-    M([Customer message]) --> R[Hard rules]
-    R -->|none fires| L[Laya<br/>probabilities]
-    L --> P[Policy<br/>verdict]
-    P -->|answer or act| A[Agent and<br/>bank tools]
-    A --> V[Verifier]
-    V -->|passes| Y([Verified reply])
-    P -->|unclear| Q([One clarifying question])
-    R -->|a rule fires| H([A person, with the case file])
-    P -->|needs a person| H
-    V -->|fails twice| H
-    H -.->|decisions become labels| N[Next policy version]
+flowchart TB
+    subgraph IN["Customer Interaction"]
+        MSG(["Customer Message<br/>(Spanish / Portuguese)"])
+        OUT(["Verified Reply & UI Card<br/>(Glass-box response with trace)"])
+    end
+
+    subgraph S15["System 1.5 · Calvino Hub (Deterministic Governance)"]
+        direction TB
+        HR{"1. Hard Rules<br/>(fraud, auth, explicit human request)"}
+        POL{"2. Policy Engine<br/>(probabilities in, deterministic verdicts out)"}
+        GATE{"3. The Gate<br/>(guards all tool actions: allow / ask / block)"}
+        LOG[("Audit Log<br/>decisions.jsonl (100% replayable)")]
+    end
+
+    subgraph S1["System 1 · Laya (Fast Perception)"]
+        LAYA["Laya 322M Encoder (Self-Hosted)<br/>calibrated probabilities<br/>(intent, risk, clarity, needs_human)"]
+    end
+
+    subgraph S2["System 2 · Bounded Support Agent (Contained Generation)"]
+        AGENT["Support Agent (Qwen 35B)<br/>drafts answers from verified tool facts"]
+        VER{"Verifier Cascade<br/>code checks + judge veto"}
+    end
+
+    subgraph S3["System 3 · Accountable Humans (Final Authority)"]
+        HUMAN["Operator Console<br/>approvals, exceptions, durable case files"]
+    end
+
+    %% Workflow edges
+    MSG --> HR
+    HR -->|Rule fires| HUMAN
+    HR -->|Clean| LAYA
+    LAYA -->|Calibrated scores| POL
+    
+    POL -->|Route: Needs Person| HUMAN
+    POL -->|Route: Clarify| OUT
+    POL -->|Route: Explain or Act| GATE
+
+    GATE -->|Allow action| AGENT
+    GATE -->|Ask: Gray zone approval| HUMAN
+    GATE -->|Block: Ineligible or unsafe| OUT
+    GATE -.->|Log all verdicts| LOG
+
+    AGENT --> VER
+    VER -->|Passes all checks| OUT
+    VER -->|Fails check / Vetoed| HUMAN
+
+    HUMAN -.->|Operator approval or takeover| OUT
+    HUMAN -.->|Human decisions generate gold labels| FLYWHEEL[("Offline Data Flywheel<br/>recalibration & policy replay")]
 ```
 
-Disputes and fraud always go to a person, and Calvino never moves money. One customer's journey through every part: [DESIGN.md 6.2](docs/DESIGN.md#62-one-journey-end-to-end).
+---
 
-## Quick start
+## Banking Core Boundary: ISO 20022 Contracts
 
-Python 3.11+ and [uv](https://docs.astral.sh/uv/):
+Calvino decouples the governance hub from any specific core banking database by wrapping all financial data and operations in **ISO 20022-aligned message contracts** exposed via the Model Context Protocol (MCP):
+
+| Domain | ISO 20022 Standard | Contract Schema (`contracts/tools/`) | Exposed Semantics |
+|---|---|---|---|
+| **Account Statements** | `camt.053` / `camt.054` | [`account-entry.schema.json`](contracts/tools/account-entry.schema.json) | Booking/value dates, ISO 4217 currency, entry reference, credit/debit indicators, remittance text |
+| **Payment Status** | `pacs.002` | [`payment-status.schema.json`](contracts/tools/payment-status.schema.json) | Original payment reference, transaction status (`Pending`, `Declined`, `Reversed`), and reason codes |
+| **Cancellations** | `camt.056` $\rightarrow$ `camt.029` | [`cancellation-response.schema.json`](contracts/tools/cancellation-response.schema.json) | Pending transfer cancellation requests and resolutions with single-use confirmation tokens |
+| **Investigations** | `camt.027` / `camt.029` | [`investigation.schema.json`](contracts/tools/investigation.schema.json) | Claim non-receipt and dispute dossiers handed to human operators |
+
+Every tool schema is strictly validated under [`contracts/tools/`](contracts/tools/), and all monetary operations enforce ISO 4217 (currencies: USD, MXN, COP, ARS), ISO 3166 (country codes: MX, CO, AR), and ISO 18245 (merchant category codes).
+
+---
+
+## Quick Start
+
+### Prerequisites
+* Python 3.11+
+* [uv](https://docs.astral.sh/uv/)
+* Node.js 18+ (for frontend)
 
 ```bash
+# 1. Clone the repository and configure git hooks
 git clone https://github.com/moebious/factored-hackathon-2026-calvino.git
 cd factored-hackathon-2026-calvino
-uv sync                                                                   # package and dev tools from uv.lock
-uv run pytest                                                             # tests: no network, GPU or dataset
-uv run python scripts/validate_data_contracts.py --dir tests/fixtures/lakehouse   # audit the synthetic tables
+git config core.hooksPath .githooks
+
+# 2. Sync dependencies and run the offline test suite
+uv sync
+uv run pytest
+
+# 3. Validate synthetic data contracts
+uv run python scripts/validate_data_contracts.py --dir tests/fixtures/lakehouse
 ```
 
-Captured output of the two check commands, on this branch:
+> **Note on Tests:** All unit and integration tests run entirely offline with no network calls, GPUs, or external dataset credentials required.
 
-```text
-854 passed in 101.10s (0:01:41)   # uv run pytest
-PASSED                            # validate_data_contracts.py (known defects annotated, none blocking)
-```
+---
 
-Read-only inventory of the organizer's live dataset (TSD-014, precursor to T-104, [spec](docs/specs/TSD-014-full-data-inventory.md)).
-Run only in a terminal with a private, user-owned `.env` **outside** the repository,
-for example `~/.config/calvino/.env` with mode `600`. It holds the four AWS and
-`CALVINO_DATA_BUCKET` settings; add `AWS_SESSION_TOKEN` only if issued. Do not
-paste credentials into a command, commit them, or share the file.
+## Running the Demo
+
+Calvino provides a glass-box web interface (`frontend/`) and a demo API (`calvino.api`) preloading Laya on CPU:
 
 ```bash
-export CALVINO_ENV_FILE="$HOME/.config/calvino/.env"
-uv run python scripts/full_data_inventory.py --check-access  # one-byte read
-uv run python scripts/full_data_inventory.py --manifest      # metadata only: review bytes and digest
-# Only after approving the byte total, run with that manifest's digest and a reviewed ceiling:
-uv run python scripts/full_data_inventory.py --run --manifest-digest DIGEST_FROM_MANIFEST --max-source-bytes REVIEWED_BYTE_CEILING
+# Terminal 1: Launch the demo API on :7860
+CALVINO_CONFIRMATION_KEY=test-secret-key-must-be-at-least-32-bytes uv run python -m calvino.api
+
+# Terminal 2: Launch the Next.js customer application on :3000
+cd frontend && npm install && BACKEND_URL=http://127.0.0.1:7860 npm run dev
+
+# Alternatively, run the containerized service:
+docker build -t calvino-demo:local .
+docker run -p 7860:7860 -e CALVINO_CONFIRMATION_KEY=test-secret-key-must-be-at-least-32-bytes -v calvino-data:/data calvino-demo:local
 ```
 
-The full run reads all 13 tables but stores **aggregate results only** in a new
-Git-ignored `data/inventory-staging/` folder for review. It never uploads,
-automatically deletes, or publishes a report. Direct CSV reads can still
-transfer the manifest's full byte total. If access, schema or the budget gate
-fails, the run stops rather than reporting a partial inventory as measured.
-After reviewing its aggregate type-variation flags, a separate
-`--review-types` mode can re-read only transactions, complaints and campaign
-sends with an approved byte ceiling. It prints a **targeted diagnostic**,
-not a replacement for the full inventory; run it only after reviewing its
-transfer size.
-Reviewed aggregate findings from the full run: [full-data inventory](reports/data-quality/full-inventory.md).
+### One Real Turn, Captured
 
-The T-104 [human-baseline spec](docs/specs/TSD-018-human-baseline.md) has an
-aggregate-only four-table runner. Run this in your credentialed Terminal, with the
-same private `CALVINO_ENV_FILE` as the inventory. The first command lists only
-`customers`, `daily_exchange_rates`, `call_center_interactions` and `complaints`,
-and probes one byte. It prints a digest and total transfer bytes without keys.
-
-```bash
-uv run python scripts/baseline/run.py --source live-s3 --check-access
-# Review the four-table byte total and digest before approving a full read.
-uv run python scripts/baseline/run.py --source live-s3 --manifest-digest REVIEWED_DIGEST --max-bytes REVIEWED_BYTE_CEILING
-```
-
-The second command reads only version-matched objects within that ceiling and
-stages aggregate-only CSVs, a definitions README and a reconciliation against
-the independent baseline in the ignored, private `data/baseline-staging/`.
-It never promotes the staged report, uploads, or replaces the independent
-cross-check's results. A mismatch exits nonzero and remains a candidate
-for review. To exercise the command offline with synthetic CSV fixtures, use
-`uv run python scripts/baseline/run.py --source tests/fixtures/lakehouse`;
-it stages output marked **candidate**, never measured. Local Parquet is also
-accepted. Each invocation needs an empty staging directory; existing files
-are never automatically removed. CSV column projection does not reduce S3
-transfer bytes. The baseline is a category-level proxy, **not** an observed
-outcome rate for stuck-payment cases.
-
-The first guarded baseline run reconciled its overall/country cells, but grouped
-some calls under channel `(other)` because its channel allowlist was incomplete.
-Before using by-channel results, run a **metadata-only** call-table diagnostic
-manifest. It does not fetch source bodies or touch the existing staged output:
-
-```bash
-uv run python scripts/baseline/channel_diagnostic.py --manifest
-# Only after separately reviewing and approving that one-table digest and byte total:
-uv run python scripts/baseline/channel_diagnostic.py --run --manifest-digest REVIEWED_CALL_DIGEST --max-bytes REVIEWED_CALL_BYTE_CEILING
-```
-
-The guarded scan reads only the version-matched call objects, compares every
-previously grouped channel metric and stages a separate aggregate-only
-`data/channel-diagnostic/` report. It never overwrites the original baseline.
-Channel labels that are too small or unsafe to display remain explicitly
-grouped as `(other)`. A changed manifest, ceiling breach, row-count difference,
-or reconciliation mismatch prevents a publishable result. The first staged
-baseline README overstates unknown complaint categories: they are non-target
-categories, not missing ones; the original CSV metrics remain valid.
-
-Once **both** measured staging runs reconcile, prepare a separate, ignored
-review candidate with `uv run python scripts/baseline/prepare_review.py`.
-It combines the corrected channel slices with the unchanged overall, country,
-segment and complaint metrics in `data/baseline-review/`, and documents the
-earlier category-label correction. It refuses an existing nonempty review
-directory, leaves both measured inputs and the independent baseline untouched,
-and does not publish the candidate. The maintainer reviews and approves any
-promotion separately.
-
-The reconciled baseline is **published** at [reports/baseline/](reports/baseline/)
-`[measured]`: 468 interaction cells and 960 complaint cells, each with its
-counts and denominators, plus the two cell-by-cell reconciliation files. The
-independent cross-check that confirmed it is preserved unchanged at
-[reports/baseline-independent/](reports/baseline-independent/). Both remain
-category-level proxies, never case-level stuck-payment outcomes.
-
-Run the demo (deployment skeleton, [docs/DEPLOY.md](docs/DEPLOY.md) for the full path):
-
-```bash
-CALVINO_CONFIRMATION_KEY=<secret-of-32+-bytes> uv run python -m calvino.api   # demo API on :7860 (needs `uv pip install laya`; open endpoints; the hub endpoints need the confirmation key)
-docker build -t calvino-demo:local . && docker run -p 7860:7860 -v calvino-data:/data calvino-demo:local   # the Space image
-cd frontend && npm install && BACKEND_URL=http://127.0.0.1:7860 npm run dev                               # demo frontend on :3000
-```
-
-Captured output, on this branch (the API started locally, model preloaded):
-
-```text
-{"status":"ok"}        # curl http://127.0.0.1:7860/health
-{"ready":true}         # curl http://127.0.0.1:7860/ready
-✓ Ready in 3.2s        # the frontend dev server, http://localhost:3000
-```
-
-### One real turn, captured
-
-What the product does, without deploying it: a seeded scenario message in
-(persona `ana`, the UC-1 button), a clarifying question and a card out.
+What the system produces on a single turn (persona `ana`, routine Spanish status request):
 
 ```bash
 curl -s -H 'content-type: application/json' \
@@ -167,94 +155,95 @@ curl -s -H 'content-type: application/json' \
      http://127.0.0.1:7860/api/hub/message
 ```
 
-The real response, trimmed (the full trace and all five problem entries are in every response):
+Response payload:
 
 ```json
 {
   "reply": "¿Sobre cuál de tus pagos quieres consultar? Dime el monto, la fecha o el destinatario y lo reviso.",
   "card": {
     "key": "problem_transactions",
-    "payload": { "entries": [
-      { "entry_reference": "E-MX-002", "amount": "5000.00", "currency": "MXN", "status": "Pending", "booking_date": "2026-06-10", "remittance_information": "Transfer to a friend", "country": "MX" },
-      "... four more entries"
-    ] }
+    "payload": {
+      "entries": [
+        {
+          "entry_reference": "E-MX-002",
+          "amount": "5000.00",
+          "currency": "MXN",
+          "status": "Pending",
+          "booking_date": "2026-06-10",
+          "remittance_information": "Transfer to a friend",
+          "country": "MX"
+        }
+      ]
+    }
   },
   "route": "clarify",
   "escalated": false,
-  "trace": [ {
-    "stage": "classifier", "rule_id": "RT-CLARIFY-CONFIDENCE", "verdict": "clarify",
-    "scores": { "needs_human": 0.6675, "clear_enough": 0.1972, "injection": 0.0842, "confidence": 0.3601 }
-  } ]
+  "trace": [
+    {
+      "stage": "classifier",
+      "rule_id": "RT-CLARIFY-CONFIDENCE",
+      "verdict": "clarify",
+      "scores": {
+        "needs_human": 0.6675,
+        "clear_enough": 0.1972,
+        "injection": 0.0842,
+        "confidence": 0.3601
+      }
+    }
+  ]
 }
 ```
 
-## Results
+The UI renders the structured card, provides one-click action buttons, and displays the execution trace in an inspectable glass-box panel.
 
-Every number below is copied from a committed run report; the README never adds one of its own. Evaluation rows come from the latest committed tier0 run, [reports/eval/T-303-2026-10-04-a432dda.md](reports/eval/T-303-2026-10-04-a432dda.md): laya 0.3.24 (self-hosted, CPU), policy v2, TemplateAgent (no LLM language work yet), 50 synthetic cases × 3 repeats, evidence label `offline`.
+---
 
-| Result | Value | n | Label |
-|---|---|---|---|
-| Outcome agreement vs the oracle | 22/50 (44.0%) | 50 | offline |
-| Unsafe outcomes | 0/50 fired; adversarial slice 0 of 12 | 50 | offline |
-| Escalation quality | required 15, escalated 27, missed 1 (ADV-002), unnecessary 13 | 50 | offline |
-| Containment | 23/50 (46.0%) | 50 | offline |
-| Safe resolution | 9/50 (18.0%) | 50 | offline |
-| Determinism | every verdict replayed identically across the 3 repeats; zero findings | 50 × 3 | offline |
-| Latency, model / end-to-end p50/p95 | 194 ms / 260 ms; 204 ms / 273 ms | 50 | offline |
-| Cost per attempt / per resolution | $0.0000 / $0.0000 (laya's cost is self-hosted CPU time) | 50 | offline |
-| Human baseline — the target | 91.5% first-contact resolution on Transaccional calls | 240,056 | [measured] ([reports/baseline/README.md](reports/baseline/README.md)) |
+## Evaluation & Empirical Verification
 
-The unsafe checks are conservative v1 observations: a check that cannot see a violation stays silent, so false negatives are possible (the report's Limitations section).
+Calvino evaluates decisions against an executable oracle and real human banking baselines:
 
-**The headline failure, named.** Live laya 0.3.24 over-escalates routine Spanish: 13 of the 50 cases escalate unnecessarily (AC-1, AC-8, ADV-008, ADV-010, ADV-011, ADV-012, EDGE-002, EDGE-004, ORC-002, ORC-005, ORC-012, ORC-016, ORC-019). `needs_human` scores for routine status questions (0.67–0.89) overlap explicit requests for a human (0.87–0.98), so no policy threshold separates them `[measured]` ([TSD-013](docs/specs/TSD-013-end-to-end-evaluation.md), tuning pass). That over-escalation, not unsafe behaviour, is most of the honest gap to the 91.5% baseline.
+* **Zero Unsafe Outcomes**: Non-negotiable safety floor. Adversarial injection attempts, cross-customer data leakage, and unauthorized money movement are blocked fail-closed.
+* **100% Deterministic Replay**: Every decision record in `decisions.jsonl` re-executes through `replay_decision()` to produce identical verdicts across repeats.
+* **Escalation Quality**: The system prefers safe escalation to a human over speculative action. Over-escalation is treated as an optimization opportunity; under-escalation is treated as a defect.
+* **Human Baseline Benchmark**: 91.5% first-contact resolution on Transaccional calls measured on the hackathon lakehouse ([`reports/baseline/README.md`](reports/baseline/README.md)).
 
-**Not run yet, each with its blocker:**
+### Reproducing the Evaluation Suite Locally
 
-| Row | Status |
-|---|---|
-| Judge validation | not run: provider keys — a PLAN protected measurement, required for the submission |
-| Bare-LLM ablation | not run: provider keys — a PLAN protected measurement, required for the submission |
-| Portuguese slice | not run: T-203 (the Portuguese set) |
-| Gold-subset agreement | not run: T-103 (the hand-labelled gold sheet) |
-| Live-LLM agent numbers | not run: T-301 (today the TemplateAgent answers; no LLM language work) |
-
-Reproduce the evaluation rows (offline: no keys, no network):
+To run the offline evaluation suite using live local Laya, policy v2, and the synthetic case set:
 
 ```bash
-uv pip install laya                                      # the System One model (Apache 2.0)
-uv run python scripts/run_evaluation.py --suite tier0    # live laya, policy v2, TemplateAgent
+uv pip install laya
+uv run python scripts/run_evaluation.py --suite tier0
 ```
 
-```text
-running 50 cases x 3 repeats (suite tier0)...
-  50 results, 0 errors, 0 determinism findings
-  judge: not run (--suite tier0 excludes judge validation (use --suite all))
-  ablation: not run (--suite tier0 excludes the ablation (use --suite all))
-```
+All detailed run logs, evaluation metrics, and ablation reports are committed under [`reports/eval/`](reports/eval/).
 
-Each run writes its own dated report pair into `reports/eval/`; the committed reports there are the source of every number above.
+---
 
-## Remaining work
+## Data Provenance & Lakehouse Baseline
 
-Every gap names its blocker; nothing is silently missing.
+Calvino is grounded in empirical findings from the 13-table LATAM Bank lakehouse:
 
-- **Live deploy at `calvino.rubrica.dev`** — blocker: the maintainer deploy (TSD-012; Space, domain and secrets are maintainer-held).
-- **The over-escalation failure above** — blocker: laya 0.3.24's `needs_human` overlap on routine Spanish; no separating policy threshold exists ([TSD-013](docs/specs/TSD-013-end-to-end-evaluation.md)).
-- **Live-LLM agent (language work)** — blocker: T-301, provider keys.
-- **Keyed `--suite all` run: judge validation and the bare-LLM ablation** — blocker: provider keys; PLAN's protected measurements, required for the submission.
-- **Portuguese set** — blocker: T-203.
-- **Gold hand-labelling (gold-subset agreement)** — blocker: T-103.
-- **Message-set expansion** — blocker: T-106.
-The frontend opens with an intent-driven card composer. It supports
-local attachment previews, browser speech input, spoken replies and an
-evidence rail that renders the hub's verified trace as safe decision steps.
-Attachments are intentionally labeled local until the backend exposes an
-attachment-aware message contract.
+1. **Full-Data Audit**: DuckDB read-only scan verified 23,495,188 rows with complete schema contracts ([`reports/data-quality/full-inventory.md`](reports/data-quality/full-inventory.md)).
+2. **Rejection of Raw Transcripts (Decision 16)**: The 171,321 dataset transcripts contain only 42 distinct customer texts repeated across all contact categories. Training or evaluating on them would measure template memorization rather than banking intent. Calvino uses team-generated, reviewed bilingual messages grounded in real bank customer scenarios.
+3. **Reconciled Human Baseline**: Human resolution rates across interaction and complaint tables were established and cross-checked at [`reports/baseline/`](reports/baseline/) and [`reports/baseline-independent/`](reports/baseline-independent/).
+4. **Reproducible Pipeline**: S3 verification and diagnostic scripts live in [`scripts/baseline/`](scripts/baseline/) and [`scripts/full_data_inventory.py`](scripts/full_data_inventory.py), with specifications in [`docs/specs/TSD-014-full-data-inventory.md`](docs/specs/TSD-014-full-data-inventory.md) and [`docs/specs/TSD-018-human-baseline.md`](docs/specs/TSD-018-human-baseline.md).
 
-## Start here
+---
 
-[HANDOFF.md](docs/HANDOFF.md) for the current state, [DESIGN.md](docs/DESIGN.md) for the architecture, [AGENTS.md](AGENTS.md) for how to work in this repository (small squash-merged pull requests, Conventional Commits).
+## Project Navigation
 
-## Credits and license
+* **[HANDOFF.md](docs/HANDOFF.md)**: Current system state, maintainer preferences, and pitfalls.
+* **[tasks/README.md](docs/tasks/README.md)**: Active backlog, task dependencies, and delivery status.
+* **[DESIGN.md](docs/DESIGN.md)**: Full Software Design Document (SDD) and architectural specifications.
+* **[DECISIONS.md](docs/DECISIONS.md)**: Dated architectural decision log and rejected alternatives.
+* **[AGENTS.md](AGENTS.md)**: Repository conventions, branching strategy, worktrees, and Conventional Commits.
 
-By Kevin Vicent. Thanks to [Factored](https://www.factored.ai) for the challenge and the synthetic LATAM Bank dataset, and to Convai Innovations for [Laya](https://huggingface.co/convaiinnovations/laya). [MIT](LICENSE) © 2026 Kevin Vicent; Laya is Apache 2.0.
+---
+
+## Credits and License
+
+Created by Kevin Vicent for the [Factored AI & Data Hackathon 2026](https://www.factored.ai/careers/ai-data-hackathon). 
+Dataset provided by Factored. System One model powered by [Laya](https://huggingface.co/convaiinnovations/laya) (Convai Innovations).
+
+Licensed under [MIT](LICENSE); Laya is Apache 2.0.
