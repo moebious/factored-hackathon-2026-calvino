@@ -14,6 +14,8 @@ import type { Lang } from "../i18n";
 import { useOperatorQueue } from "../hooks/useHubConversation";
 import { OperatorQueueTable } from "../components/case-study/OperatorQueueTable";
 import { OperatorCaseDossier } from "../components/case-study/OperatorCaseDossier";
+import { ActionApprovalBar } from "../components/case-study/ActionApprovalBar";
+import { AttributableReplyEditor } from "../components/case-study/AttributableReplyEditor";
 
 export default function OperatorConsolePage() {
   const [lang, setLang] = useState<Lang>("es");
@@ -131,11 +133,32 @@ export default function OperatorConsolePage() {
 
           <section className="dossier-column" aria-label="Detalle del caso">
             {activeCase ? (
-              <OperatorCaseDossier item={activeCase} strings={s} />
+              <OperatorCaseDossier item={activeCase} strings={s}>
+                <ActionApprovalBar
+                  item={activeCase}
+                  strings={s}
+                  onApprove={async () => {
+                    await resumeCase(activeCase.awaiting_ref || activeCase.case_ref, true);
+                  }}
+                  onDeny={async () => {
+                    await resumeCase(activeCase.awaiting_ref || activeCase.case_ref, false);
+                  }}
+                  loading={loading}
+                />
+                <AttributableReplyEditor
+                  item={activeCase}
+                  strings={s}
+                  onSendReply={async (replyText) => {
+                    await resumeCase(activeCase.awaiting_ref || activeCase.case_ref, replyText);
+                  }}
+                  loading={loading}
+                />
+              </OperatorCaseDossier>
             ) : (
               <div className="no-case-selected">{s.selectCasePrompt}</div>
             )}
           </section>
+
         </div>
       </main>
     </div>
