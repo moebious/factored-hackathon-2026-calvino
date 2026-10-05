@@ -173,6 +173,15 @@ export const STRINGS = {
     auditTimelineImmutableNotice: "Evidencia bancaria inmutable: las disputas activan una nueva lectura verificada, nunca una sobreescritura.",
     noCasesFound: "No hay expedientes pendientes en este momento",
     selectCasePrompt: "Seleccione un expediente de la cola para revisar la evidencia",
+    approvalBarTitle: "Control de Ejecución Regulada",
+    approvalBarActionPrefix: "Acción:",
+    approvalBarManualReview: "Revisión manual requerida",
+    gateAskBadge: "Zona Gris (Gate ASK)",
+    approvalBlockedTitle: "Botones de aprobación deshabilitados por diseño",
+    approvalBlockedBody: "La política de seguridad bancaria vetó esta acción",
+    approvalBlockedNoOverride:
+      "Un operador humano no tiene autoridad para anular un bloqueo del Gate (Decisión 37).",
+    approvalResolved: "Acción ejecutada y asentada en el registro de auditoría.",
   },
   pt: {
     title: "Calvino",
@@ -341,6 +350,15 @@ export const STRINGS = {
     auditTimelineImmutableNotice: "Evidência bancária imutável: contestações acionam nova leitura verificada, nunca sobrescrita.",
     noCasesFound: "Não há casos pendentes no momento",
     selectCasePrompt: "Selecione um caso da fila para revisar a evidência",
+    approvalBarTitle: "Controle de Execução Regulada",
+    approvalBarActionPrefix: "Ação:",
+    approvalBarManualReview: "Revisão manual necessária",
+    gateAskBadge: "Zona Cinza (Gate ASK)",
+    approvalBlockedTitle: "Botões de aprovação desabilitados por design",
+    approvalBlockedBody: "A política de segurança bancária vetou esta ação",
+    approvalBlockedNoOverride:
+      "Um operador humano não tem autoridade para anular um bloqueio do Gate (Decisão 37).",
+    approvalResolved: "Ação executada e registrada no log de auditoria.",
   },
 } as const;
 
