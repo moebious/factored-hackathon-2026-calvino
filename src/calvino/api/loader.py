@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from calvino.classifiers import LayaAnswer, LayaClient
+from calvino.classifiers import CheckpointRef, LayaAnswer, LayaClient
 
 
 class SystemOneLoader(Protocol):
@@ -40,8 +40,10 @@ class LayaLoader:
     need a model download.
     """
 
-    def __init__(self, model: str = "multilingual") -> None:
-        self._client = LayaClient(model)
+    def __init__(
+        self, model: str = "multilingual", checkpoint: CheckpointRef | None = None
+    ) -> None:
+        self._client = LayaClient(model, checkpoint=checkpoint)
         self._loaded = False
 
     @property

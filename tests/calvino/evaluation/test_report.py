@@ -372,3 +372,20 @@ def test_results_json_carries_tokens_and_the_answering_components() -> None:
     assert payload["header"]["agent_prompt_version"] == "v1"
     assert payload["cases"][0]["llm_prompt_tokens"] == 1000
     assert payload["metrics"]["cost"]["completion_tokens"] == 200
+
+
+def test_header_without_a_checkpoint_says_it_was_not_pinned() -> None:
+    rendered = render_report(make_report(()))
+    assert "| Laya checkpoint | not pinned (Hub default revision, weights unverified) |" in rendered
+
+
+def test_header_names_the_checkpoint_revision_and_digest() -> None:
+    pinned = header(
+        laya_checkpoint="base",
+        laya_checkpoint_revision="7" * 40,
+        laya_checkpoint_sha256="9" * 64,
+    )
+    rendered = render_report(replace(make_report(()), header=pinned))
+    assert (
+        f"| Laya checkpoint | base @ {'7' * 40} (model.safetensors sha256 {'9' * 64}) |" in rendered
+    )

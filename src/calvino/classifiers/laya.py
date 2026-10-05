@@ -24,7 +24,11 @@ Verified against the laya 0.3.24 wheel:
 
 from __future__ import annotations
 
+from importlib import metadata
+
 from pydantic import BaseModel, Field, model_validator
+
+from calvino.classifiers.checkpoints import CheckpointRef, router_kwargs
 
 # Question ids used across the hub, policy engine and evaluation (DESIGN 6.1).
 QUESTION_WORKFLOW_AREA = "workflow_area"
@@ -54,6 +58,9 @@ class LayaAnswer(BaseModel):
     chosen_option: str
     probabilities: dict[str, float]
     confidence: float = Field(ge=0.0, le=1.0)
+    # Which pinned checkpoint answered (``name@revision``); None when the client was
+    # built without one, i.e. the unpinned default of before TSD-020.
+    checkpoint_id: str | None = None
 
     @model_validator(mode="after")
     def _probabilities_sum_to_one(self) -> LayaAnswer:
@@ -188,8 +195,8 @@ def workflow_questions() -> dict[str, dict]:
     }
 
 
-def _load_router():
-    """Import and construct ``laya.Router``.
+def _load_router(**router_arguments):
+    """Import and construct ``laya.Router``, with the pinning arguments when given.
 
     A separate function so tests can replace it without laya being installed.
     """
@@ -200,10 +207,18 @@ def _load_router():
             "laya is not installed; System 1 needs it at runtime. Install it with "
             "`uv pip install laya` (unit tests run without it)."
         ) from exc
-    return Router()
+    return Router(**router_arguments)
 
 
-def parse_answers(payload: dict) -> list[LayaAnswer]:
+def _installed_laya_version() -> str | None:
+    """The installed laya's version; ``None`` when it is not installed."""
+    try:
+        return metadata.version("laya")
+    except metadata.PackageNotFoundError:
+        return None
+
+
+def parse_answers(payload: dict, checkpoint_id: str | None = None) -> list[LayaAnswer]:
     """Turn a laya ``predict`` payload into validated ``LayaAnswer`` records.
 
     Only choice answers are supported: every Calvino question is a choice
@@ -221,6 +236,7 @@ def parse_answers(payload: dict) -> list[LayaAnswer]:
                 chosen_option=answer["choice"],
                 probabilities=dict(answer["probabilities"]),
                 confidence=answer["answer_confidence"],
+                checkpoint_id=checkpoint_id,
             )
         )
     return answers
@@ -233,20 +249,42 @@ class LayaClient:
     first customer message does not pay the load cost, and missing laya fails
     there rather than mid-request. ``classify`` is a blocking CPU call; async
     callers (the LangGraph hub) run it in a worker thread.
+
+    With a ``checkpoint`` (TSD-020) the Router is built with that checkpoint's
+    commit and weights digest, laya verifies the digest before loading, the
+    installed laya version must equal the one the checkpoint is pinned to, and
+    every answer carries the checkpoint id. Without one nothing changes: the
+    Hub's default revision loads, unverified.
     """
 
-    def __init__(self, model: str = "multilingual"):
-        self.model = model
+    def __init__(self, model: str = "multilingual", checkpoint: CheckpointRef | None = None):
+        self.checkpoint = checkpoint
+        self.model = checkpoint.slot if checkpoint is not None else model
         self._router = None
         self._preloaded = False
 
     def preload(self) -> None:
         """Load the pinned model once, at startup. Fails fast when laya is missing."""
         if self._router is None:
-            self._router = _load_router()
+            self._router = self._build_router()
         if not self._preloaded:
             self._router.preload([self.model])
             self._preloaded = True
+
+    def _build_router(self):
+        if self.checkpoint is None:
+            return _load_router()
+        # Checked before the Router is built: laya 0.3.26 drifted into a keyed run
+        # unnoticed, and a different version means different scores than the ones the
+        # checkpoint was pinned and evaluated with.
+        installed = _installed_laya_version()
+        expected = self.checkpoint.laya_version
+        if installed is not None and installed != expected:
+            raise RuntimeError(
+                f"checkpoint {self.checkpoint.checkpoint_id} is pinned to laya {expected} "
+                f"but laya {installed} is installed; install the pinned version"
+            )
+        return _load_router(**router_kwargs(self.checkpoint))
 
     def classify(self, state: str, questions: dict[str, dict]) -> list[LayaAnswer]:
         """Answer typed questions about one customer message.
@@ -262,4 +300,5 @@ class LayaClient:
         if not self._preloaded:
             self.preload()
         payload = self._router.predict(state, questions, model=self.model)
-        return parse_answers(payload)
+        checkpoint_id = self.checkpoint.checkpoint_id if self.checkpoint else None
+        return parse_answers(payload, checkpoint_id=checkpoint_id)

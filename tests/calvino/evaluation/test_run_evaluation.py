@@ -283,3 +283,106 @@ def test_one_family_for_both_roles_is_refused() -> None:
     env = {**LLM_ENV, "CALVINO_JUDGE_MODEL": "Qwen/Qwen-judge"}
     with pytest.raises(Exception, match="same family"):
         re_mod.live_llm(env)
+
+
+# --- --laya-checkpoint (TSD-020) ----------------------------------------------------------------
+
+CANDIDATE_COMMIT = "a" * 40
+CANDIDATE_DIGEST = "b" * 64
+
+
+def write_registry(path: Path) -> Path:
+    """A registry with the base and a fine-tuned candidate (synthetic pins)."""
+    base = {
+        "name": "base",
+        "repo": "convaiinnovations/laya",
+        "subfolder": "multilingual",
+        "revision": "7" * 40,
+        "sha256": "9" * 64,
+        "laya_version": "0.3.24",
+    }
+    candidate = {
+        "name": "candidate",
+        "repo": "example/calvino-laya-ft",
+        "revision": CANDIDATE_COMMIT,
+        "sha256": CANDIDATE_DIGEST,
+        "laya_version": "0.3.24",
+    }
+    path.write_text(
+        json.dumps({"default": "base", "checkpoints": {"base": base, "candidate": candidate}}),
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_flag_selects_the_entry_and_the_header_names_its_pins(tmp_path: Path) -> None:
+    registry = write_registry(tmp_path / "classifiers.yaml")
+    assert (
+        run_cli(
+            tmp_path,
+            "--repeats",
+            "1",
+            "--classifiers",
+            str(registry),
+            "--laya-checkpoint",
+            "candidate",
+        )
+        == 0
+    )
+    md, js = outputs(tmp_path / "out")
+    assert (
+        f"| Laya checkpoint | candidate @ {CANDIDATE_COMMIT} "
+        f"(model.safetensors sha256 {CANDIDATE_DIGEST}) |"
+    ) in md.read_text(encoding="utf-8")
+    header = json.loads(js.read_text(encoding="utf-8"))["header"]
+    assert header["laya_checkpoint"] == "candidate"
+    assert header["laya_checkpoint_revision"] == CANDIDATE_COMMIT
+    assert header["laya_checkpoint_sha256"] == CANDIDATE_DIGEST
+
+
+def test_without_the_flag_the_registry_default_runs(tmp_path: Path) -> None:
+    registry = write_registry(tmp_path / "classifiers.yaml")
+    assert run_cli(tmp_path, "--repeats", "1", "--classifiers", str(registry)) == 0
+    _, js = outputs(tmp_path / "out")
+    header = json.loads(js.read_text(encoding="utf-8"))["header"]
+    assert header["laya_checkpoint"] == "base"
+    assert header["laya_checkpoint_revision"] == "7" * 40
+
+
+def test_the_committed_registry_default_is_what_a_plain_run_records(tmp_path: Path) -> None:
+    assert run_cli(tmp_path, "--repeats", "1") == 0
+    _, js = outputs(tmp_path / "out")
+    assert json.loads(js.read_text(encoding="utf-8"))["header"]["laya_checkpoint"] == "base"
+
+
+def test_an_unknown_checkpoint_is_rejected_and_lists_the_known_ones(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    registry = write_registry(tmp_path / "classifiers.yaml")
+    with pytest.raises(SystemExit):
+        run_cli(tmp_path, "--classifiers", str(registry), "--laya-checkpoint", "missing")
+    assert "known: ['base', 'candidate']" in capsys.readouterr().err
+
+
+def test_a_header_without_a_checkpoint_says_nothing_was_pinned() -> None:
+    header = re_mod.build_header("tier0", 1, {})
+    assert header.laya_checkpoint is None
+
+
+def test_the_selected_checkpoint_reaches_the_loader(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = {}
+
+    class FakeLoader:
+        def __init__(self, model: str = "multilingual", checkpoint: object = None) -> None:
+            seen["checkpoint"] = checkpoint
+
+        def preload(self) -> None:
+            seen["preloaded"] = True
+
+    monkeypatch.setattr(re_mod, "LayaLoader", FakeLoader)
+    registry = re_mod.load_registry()
+    ref = re_mod.select_checkpoint(registry, None)
+
+    re_mod.default_hub_factory({}, None, ref)
+
+    assert seen == {"checkpoint": ref, "preloaded": True}
