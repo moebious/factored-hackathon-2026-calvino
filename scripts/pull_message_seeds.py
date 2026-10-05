@@ -206,7 +206,12 @@ def _write_jsonl(path: Path, rows: list[object]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         for row in rows:
-            handle.write(json.dumps(row.__dict__ if hasattr(row, "__dict__") else row) + "\n")
+            if hasattr(row, "model_dump"):
+                handle.write(json.dumps(row.model_dump(mode="json")) + "\n")
+            elif hasattr(row, "__dict__"):
+                handle.write(json.dumps(row.__dict__) + "\n")
+            else:
+                handle.write(json.dumps(row) + "\n")
     return len(rows)
 
 
