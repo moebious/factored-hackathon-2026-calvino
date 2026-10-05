@@ -75,3 +75,40 @@ don't duplicate.
 
 Constraint: the future FE-1 proposal file may NOT be named
 intent-driven-card.tsx (taken by the composer since PR #71).
+
+## Non-negotiable invariants (all phases)
+
+1. Fixed FR-7 catalog plus a named fallback card; an unknown key never crashes.
+2. The glass box reads only `HubReply.trace`; no private model reasoning ever renders.
+3. No free text on screen: i18n chrome or verified payload fields only.
+4. Confirm / deny resume the exact parked action (`awaiting_ref`); a denial escalates.
+5. ES / PT toggle translates chrome only; hub replies pass through untouched.
+6. The session token never reaches the frontend.
+7. Thresholds live only in `policy/`; the UI reads them from `summary.threshold`.
+8. Policy-agnostic presentation: `vocabulary.ts` registry with raw-key fallback,
+   open unions in `types.ts`, new rule/route ids render without type edits.
+
+## Approved decisions D1–D5
+
+- D1c: port the real Chain-of-Thought source to React 18 + plain CSS; local
+  adapters for the rest; full React 19 + Tailwind migration deferred post-hackathon.
+- D2: drop local attachments (a shown-but-unprocessed file is dishonest UI).
+- D3: choreographed Nivel A first; real SSE Nivel B only on a validated spike.
+- D4: restack the premium branch into compliant commits (done, #71).
+- D5: port Shapeshift's `decide()` + intent registry with no online Jev; Laya
+  becomes the source later via the composer endpoint (GO-conditional, see gates).
+
+## Q1 / Q2 gates (pre-committed, mechanical)
+
+- Q1 Space latency: p95 of the composer question set on the Space. GO if
+  <= 800 ms; fallback to mode C (existing scores) if > 1500 ms; grey zone
+  800–1500 ms ships with 500 ms debounce, aggressive cache and re-measurement.
+- Q2 Portuguese probe: GO bilingual if PT confidences are healthy and comparable
+  to ES; else Laya morph ES-only with keyword fallback in PT (same graceful
+  pattern as SpeechInput).
+- If Q1 fails, Fase 3 contracts to F3.2 + F3.3 + F3.5 + F3.6.
+
+## Numbering rule (lesson from TSD-018/019/020)
+
+Spec numbers are claimed by merge order: before opening a spec PR, re-check
+`docs/specs/README.md` on current `main` and renumber if your number was taken.
