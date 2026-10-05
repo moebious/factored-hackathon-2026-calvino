@@ -154,6 +154,28 @@ def test_import_accepts_utf8_bom_csv(tmp_path):
     assert importer.prepare_import(worksheet, gold)[2] > 0
 
 
+def test_import_accepts_case_insensitive_boolean_cells(tmp_path):
+    gold, worksheet, _ = _files(tmp_path)
+    rows = list(csv.DictReader(worksheet.open(encoding="utf-8", newline="")))
+    rows[0].update(
+        owner="TRUE",
+        fraud_flag="FALSE",
+        oracle_ambiguous="False",
+        oracle_in_scope="TrUe",
+    )
+    with worksheet.open("w", encoding="utf-8", newline="") as destination:
+        writer = csv.DictWriter(destination, fieldnames=importer.CSV_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+    _, merged, _, _ = importer.prepare_import(worksheet, gold)
+    facts = json.loads(merged)["oracle_facts"]
+    assert facts["owner"] is True
+    assert facts["fraud_flag"] is False
+    assert facts["ambiguous"] is False
+    assert facts["in_scope"] is True
+
+
 def test_import_identity_uses_nfc_and_trimming(tmp_path):
     gold, worksheet, original = _files(tmp_path)
     rows = list(csv.DictReader(worksheet.open(encoding="utf-8", newline="")))

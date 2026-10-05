@@ -68,9 +68,10 @@ def _csv_value(column: str, raw: str) -> Any:
     """Parse a non-empty cell into the strict schema's Python value."""
     value = raw.strip()
     if column in BOOL_FIELDS:
-        if value not in {"true", "false"}:
+        normalized = value.casefold()
+        if normalized not in {"true", "false"}:
             raise ValueError(f"{column} must be 'true' or 'false', got {raw!r}")
-        return value == "true"
+        return normalized == "true"
     if column == "record_status" and value.lower() == "null":
         return None
     return value
