@@ -283,3 +283,14 @@ def test_the_licence_notice_credits_the_vendor_and_the_apache_licence():
     notice = (NOTEBOOK.parent / "NOTICE.md").read_text(encoding="utf-8")
     for expected in ("NandhaKishorM/laya", "Apache License, Version 2.0", "6ea584941d", "MIT"):
         assert expected in notice
+
+
+def test_a_verbatim_apache_licence_ships_beside_the_adapted_notebook():
+    import hashlib
+
+    licence = NOTEBOOK.parent / "LICENSE-APACHE-2.0.txt"
+    text = licence.read_text(encoding="utf-8")
+    assert "Apache License" in text and "Version 2.0, January 2004" in text
+    assert "END OF TERMS AND CONDITIONS" in text
+    notice = (NOTEBOOK.parent / "NOTICE.md").read_text(encoding="utf-8")
+    assert hashlib.sha256(licence.read_bytes()).hexdigest() in notice  # the copy is the one named

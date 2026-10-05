@@ -10,4 +10,8 @@ seeding, the hold-out, deleted benchmark cells, the publish step and others). Th
 the loss are the authors'; the changes are ours.
 
 The adapted notebook stays under the Apache License 2.0. The rest of this repository is MIT
-(`LICENSE`). A verbatim copy of the upstream licence text is not vendored here yet.
+(`LICENSE`).
+
+`LICENSE-APACHE-2.0.txt` is a verbatim copy of the upstream `LICENSE` at the same upstream commit
+(10,173 bytes, SHA-256 `a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9`), kept so
+that recipients of the adapted notebook receive the licence as Apache 2.0 section 4 asks.
