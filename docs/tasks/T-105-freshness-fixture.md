@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | Wave | 1 |
+| Status | doing — implementation in progress; not merged |
 | Branch | `feat/freshness-fixture` (`data/` is not an allowed branch type in the push hook; see [TSD-021](../specs/TSD-021-freshness-fixture.md)) |
 | Depends on | T-102; T-103 and T-106 interfaces only |
 | Blocked by | — |
@@ -20,4 +21,6 @@
 
 **Done when.** tests show exactly which labels and candidate evidence change after a correction, no old artifact is silently reused, the frozen evaluation set is not retrained on, and the handling rule is described in DESIGN.md 8.2. This is an offline fixture, not a claim of continuous production ingestion.
 
-**First step:** review and approve [TSD-021](../specs/TSD-021-freshness-fixture.md) before implementing. T-103 and T-106 are interface-only dependencies; T-407 and T-408 consume the resulting lineage/freshness evidence without having their APIs designed here.
+**Implementation:** `calvino.data.freshness` exposes freshness checks, update planning/application, and deterministic reports; `freshness_models` defines immutable lineage/revision records and parsing; `freshness_snapshot` builds synthetic partition snapshots. T-103 and T-106 are interface-only dependencies; T-407 and T-408 consume the resulting lineage/freshness evidence without having their APIs designed here.
+
+**First step:** TSD-021 is approved. T-105 remains in progress until implementation is validated and merged.

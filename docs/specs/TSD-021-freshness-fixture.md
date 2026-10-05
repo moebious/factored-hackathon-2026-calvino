@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed — maintainer confirms the defaults at spec review |
+| Status | approved — implementation in progress on `feat/freshness-fixture` |
 | Branch | `feat/freshness-fixture` (`data/` is not an allowed branch type in the push hook) |
 | Task | [T-105](../tasks/T-105-freshness-fixture.md) |
 | Depends on | T-102 / TSD-007; T-103 / TSD-015 and T-106 / TSD-019 interfaces only |
@@ -93,14 +93,18 @@ T-408 are consumers, not dependencies or interfaces designed by this spec.
 
 - `tests/fixtures/freshness/`: labelled synthetic source revisions, a frozen
   membership manifest, and fixture-local derived label/evidence expectations.
-- `src/calvino/data/freshness.py`: the single helper for artifact lineage,
-  freshness checks, invalidation, and the deterministic update report.
+- `src/calvino/data/freshness.py`: the public API for artifact lineage,
+  freshness checks, update planning/application, and deterministic reports.
+- `src/calvino/data/freshness_models.py`: immutable lineage/revision records,
+  validation, canonical hashing, and JSONL parsing.
+- `src/calvino/data/freshness_snapshot.py`: source-kind/process-date
+  partitioning and fixture snapshot construction.
 - Offline tests under `tests/calvino/data/` proving exact before/after changes,
   stale-artifact rejection, and frozen-set isolation.
 - An update to DESIGN.md 8.2 documenting the agreed window, quarantine, and
   frozen-set handling rule in the implementation change.
 
-## Proposed defaults (maintainer confirms at spec review)
+## Approved defaults
 
 - **P1 — late-partition window: 30 calendar days, inclusive [hypothesis].**
   This is an unmeasured fixture default; DATA.md documents late partitions but
@@ -163,9 +167,10 @@ T-408 are consumers, not dependencies or interfaces designed by this spec.
   creating or evaluating that version is outside T-105. The latest-observed
   snapshot is not current while this drift is unresolved; the previous
   accepted snapshot remains selectable as historical only. Frozen artifacts
-  are checked against the original partition hashes in the frozen-membership
-  manifest, never against changed latest-source hashes; the overall report
-  still marks those artifacts historical and the dataset not current. When a
+  are checked against the initial accepted snapshot's partition hashes and
+  contract versions, never against changed latest-source hashes or the latest
+  policy contract. A stale frozen artifact is retained unchanged, listed as
+  blocked, and makes the overall dataset not current. When a
   frozen-drift record was previously accepted in a non-frozen partition, its
   removal changes that non-frozen partition's accepted hash and invalidates
   every descendant; it never changes the frozen partition hash. A new
@@ -225,15 +230,16 @@ names, not storage paths or live dataset locations.
   `quarantined_late`, `quarantined_invalid_correction`, `superseded`, or
   `frozen_drift`) and a sorted tuple of zero or more `reasons` (for example
   `late_window`, `contract_invalid`, `frozen_set_entered`, or
-  `lower_revision`). A day-31 revision entering frozen territory has
+  `lower_revision`), plus the observed `source_file_id` and
+  `source_file_sha256`. A day-31 revision entering frozen territory has
   disposition `frozen_drift` and both `late_window` and
   `frozen_set_entered` reasons.
 - `FreshnessReport`: deterministic collections of revision statuses,
   pending-correction ids, rebuilt/invalidated artifacts, changed/unchanged
   seed facts, proxy labels, baseline cells, changed/unchanged evidence,
   blocked frozen-artifact ids, and frozen-set drift ids.
-  `is_current_to_latest_observed` is false while any quarantine or frozen
-  drift is unresolved. A later accepted snapshot or manifest waiver may clear
+  `is_current_to_latest_observed` is false while any quarantine, frozen drift,
+  or stale frozen artifact is unresolved. A later accepted snapshot or manifest waiver may clear
   the flag, but defining that resolution flow is outside T-105. It does not
   estimate hypothetical label/evidence changes for an unauthorized frozen-set
   version.
@@ -264,10 +270,12 @@ names, not storage paths or live dataset locations.
   frozen_members) -> UpdatePlan`: deterministically identifies accepted,
   quarantined, superseded, pending-correction, and frozen-drift ids plus the
   affected dependency closure. It does not mutate inputs.
-- `apply_revision_update(plan, source_rows, lineage_by_id, output_dir) ->
-  FreshnessReport`: rebuilds affected non-frozen fixture artifacts in the
-  caller-provided temporary output directory and returns the exact before/after
-  diff. It also drops/invalidate prior non-frozen outputs for a source record
+- `apply_revision_update(plan, initial_state, output_dir) -> FreshnessReport`:
+  rebuilds affected non-frozen fixture artifacts in the caller-provided
+  temporary output directory and returns the exact before/after diff. The
+  initial accepted state supplies the immutable frozen artifacts for comparison
+  and reuse; a changed policy contract marks affected frozen artifacts blocked
+  rather than rebuilding them. It also drops/invalidate prior non-frozen outputs for a source record
   newly classified into frozen territory, without changing frozen outputs.
 
 These functions are fixture support, not a general production ingestion API.
@@ -439,30 +447,27 @@ The fixture matrix above is normative, not illustrative:
 
 ## Commit plan
 
-**Spec-only review commit (before implementation):**
+**Spec-only review commit (completed):**
 
 1. **`docs(data): specify T-105 freshness fixture`** — add this TSD-021,
    index it, link it from the T-105 card, and record the proposed scope in
-   CHANGELOG.md. No code or fixture behavior is implemented in this commit.
-   Stop for maintainer spec approval before the following commits.
+   CHANGELOG.md. No code or fixture behavior was implemented in that commit.
+   The maintainer approved the spec before implementation began.
 
-**Implementation commits (only after spec approval):**
+**Implementation commits (completed locally; not yet merged):**
 
-1. **`test(data): add synthetic freshness fixture`** — add the labelled
-   source revisions, frozen membership manifest, and explicit expected
-   before/after rows under `tests/fixtures/freshness/`.
-2. **`feat(data): add lineage and stale-artifact checks`** — implement the
-   shared `freshness.py` records and helper, with focused tests for hashes,
-   contract versions, dependency invalidation, deterministic reports, and
-   stale reuse errors.
-3. **`feat(data): rebuild corrected non-frozen outputs`** — implement the
-   first-seen 30-day window, correction validation and revision ordering,
-   T-103 reassignment, exact artifact/label/evidence diffs, pending quarantine,
-   and frozen-set drift handling with integration tests.
-4. **`docs(data): document freshness handling`** — describe the agreed
-   handling rule in DESIGN.md 8.2 and add the implementation entry to
-   CHANGELOG.md. Run the full required lint, format, Python test, and git-rule
-   checks before reporting.
+1. **`feat(data): add freshness lineage models and fixture`** — add strict
+   immutable revision/lineage types and the labelled synthetic fixture.
+2. **`feat(data): build freshness fixture snapshots`** — materialize source-
+   kind/process-date partitions and deterministic fixture-derived outputs.
+3. **`feat(data): enforce freshness and revision handling`** — implement
+   stale-artifact checks, update planning/application, revision ordering,
+   quarantine, split reassignment, and frozen-set protection.
+4. **`test(data): cover freshness update safety`** — verify exact update
+   diffs, rejected revision provenance, and frozen artifact immutability.
+5. **`docs(data): document freshness handling`** — describe the fixture-only
+   rule in DESIGN.md 8.2 and update the task, handoff, and changelog. The full
+   lint, format, Python test, and git-rule checks pass.
 
 ## Acceptance criteria
 

@@ -60,7 +60,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-102](../specs/TSD-007-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | done | maintainer |
 | [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | doing | maintainer |
 | [T-104](T-104-human-baseline.md) | Reproducible full-data, category-level human baseline (not case-matched) | 1 | T-101, TSD-014, TSD-018 | — | standard | yes | done | maintainer |
-| [T-105](T-105-freshness-fixture.md) | Corrected-record lineage, label and promotion-evidence integrity fixture | 1 | T-102 | — | standard | yes | todo | maintainer |
+| [T-105](T-105-freshness-fixture.md) | Corrected-record lineage, label and promotion-evidence integrity fixture | 1 | T-102 | — | standard | yes | doing | maintainer |
 | [T-106](T-106-message-set.md) | Disjoint training/calibration/test messages; reuse the frozen oracle contract | 1 | T-103 | LLM provider keys | standard + maintainer review | no | todo | maintainer |
 | [T-201](T-201-classifier-evaluation.md) | Base/calibrated/fine-tuned Laya versus simpler baselines; threshold frontier | 2 | T-005, T-106, T-202 for final comparison | — | judgment checkpoint | no | todo | maintainer |
 | [T-202](T-202-laya-fine-tuning.md) | Reproducible open-weight Laya specialisation | 2 (thesis) | T-106 | GPU (maintainer runs the notebook) | judgment checkpoint | yes | todo | maintainer |
