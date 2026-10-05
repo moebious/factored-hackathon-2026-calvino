@@ -1,4 +1,4 @@
-"""Measure how policy versions route a labelled set of messages on live Laya (TSD-021).
+"""Measure how policy versions route a labelled set of messages on live Laya (TSD-026).
 
 ``uv run python scripts/measure_routing.py --labels <rows.jsonl> [--policies v2 v3]``
 

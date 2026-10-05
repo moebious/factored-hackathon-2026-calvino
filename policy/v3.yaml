@@ -1,4 +1,4 @@
-# Calvino policy v3 (TSD-021): v2 with the route rebuilt on the signals that measurably separate
+# Calvino policy v3 (TSD-026): v2 with the route rebuilt on the signals that measurably separate
 # the classes. v1 and v2 stay on disk unchanged; decisions logged under them replay under them.
 #
 # What the exploratory measurement showed [measured, 110 team-written rows, live laya 0.3.26]:
@@ -16,7 +16,7 @@
 #   confidence_source: workflow_area   confidence is the area answer's, not the minimum of all five
 # The new thresholds are round values chosen before the confirmation run, not fitted numbers.
 # Status: a candidate. Adopt only when the confirmation on unseen rows and the evaluation report
-# pass the rule in docs/specs/TSD-021; the default policy stays v2 until then.
+# pass the rule in docs/specs/TSD-026; the default policy stays v2 until then.
 version: v3
 
 assumptions: >

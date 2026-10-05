@@ -1,4 +1,4 @@
-"""Tests for scripts/measure_routing.py (TSD-021): routing a labelled set under policy versions.
+"""Tests for scripts/measure_routing.py (TSD-026): routing a labelled set under policy versions.
 
 A scripted classifier stands in for live laya, so these run offline. The script routes through the
 hub's own ``scores_from_answers`` and ``decide_route``, which is what makes the numbers it reports
