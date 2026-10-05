@@ -144,3 +144,29 @@ def test_check_access_fails_closed_without_credentials(
     monkeypatch.delenv("CALVINO_ENV_FILE", raising=False)
     assert main(["--check-access"]) == 1
     assert "error=" in capsys.readouterr().err
+
+
+def test_write_jsonl_serializes_nested_pydantic_models(tmp_path: Path) -> None:
+    from calvino.data.seed_registry import SeedRow
+
+    write = _script()["_write_jsonl"]
+    row = SeedRow(
+        seed_key="k-1",
+        split="train",
+        prompt_id="train-v1",
+        kind="problem_transaction",
+        customer_hash="h" * 16,
+        country_variant="MX",
+        record_facts={"kind": "problem_transaction", "status": "Pending", "amount": 1200.5},
+        event_date="2024-03-01",
+        policy_version="v2",
+    )
+    out = tmp_path / "seeds.train.jsonl"
+    assert write(out, [row]) == 1
+    import json
+
+    parsed = json.loads(out.read_text(encoding="utf-8").strip())
+    facts = parsed["record_facts"]
+    assert facts["kind"] == "problem_transaction"
+    assert facts["status"] == "Pending"
+    assert facts["amount"] == 1200.5
