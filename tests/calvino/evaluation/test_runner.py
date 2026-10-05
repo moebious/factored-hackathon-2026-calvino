@@ -788,3 +788,107 @@ def test_repeats_must_be_positive():
     factory, _, _ = make_factory()
     with pytest.raises(ValueError, match="at least 1"):
         EvaluationRunner(factory, repeats=0)
+
+
+# -- the LLM agent in the runner (TSD-016) --------------------------------------------------
+
+
+class _UsageClient:
+    """A ``ChatClient`` double that reports fixed token usage and a fixed reply."""
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+        self.calls = 0
+
+    def complete(self, request):
+        from calvino.llm import ChatResponse
+
+        self.calls += 1
+        return ChatResponse(
+            text=self.text,
+            model="scripted",
+            prompt_tokens=1000,
+            completion_tokens=200,
+            finish_reason="stop",
+        )
+
+
+def make_llm_factory(client: _UsageClient):
+    """The demo assembly with the LlmAgent answering through a metered client."""
+    from calvino.evaluation.runner import MeteredChatClient
+    from calvino.hub import LlmAgent
+
+    def factory(data_dir: Path, timer: ModelTimer) -> HubService:
+        settings = ApiSettings(data_dir=data_dir, demo_passcode="eval-passcode")
+        return build_demo_hub(
+            TimedLoader(KeyedLoader(), timer),
+            settings,
+            load_policy(),
+            DecisionLog(settings.decisions_log),
+            confirmations=FakeConfirmationVerifier(),
+            agent=LlmAgent(MeteredChatClient(client, timer, "agent")),
+        )
+
+    return factory
+
+
+E1 = "¿Cuál es el estado de la transferencia E-US-001?"
+E_US_001_REPLY = "Su transferencia de 120.00 USD «Tuition» del 2026-06-15 está rechazada."
+
+
+def explain_case():
+    return make_case(
+        "T-LLM",
+        "dana",
+        E1,
+        intent="explain",
+        status="Declined",
+        seed_record="E-US-001",
+    )
+
+
+def test_llm_tokens_and_cost_are_metered_per_case():
+    client = _UsageClient(E_US_001_REPLY)
+    runner = EvaluationRunner(make_llm_factory(client), repeats=1, prices={"agent": (1.0, 2.0)})
+    (result,) = runner.run([explain_case()])
+
+    assert result.error is None and result.outcome is ExpectedOutcome.EXPLAIN
+    assert client.calls >= 1
+    assert result.llm_prompt_tokens > 0
+    assert result.llm_completion_tokens > 0
+    expected = (result.llm_prompt_tokens * 1.0 + result.llm_completion_tokens * 2.0) / 1_000_000
+    assert result.cost_usd == pytest.approx(expected) and result.cost_usd > 0
+    assert runner.unpriced_roles == ()
+
+
+def test_an_unpriced_role_reports_tokens_not_a_zero_cost():
+    runner = EvaluationRunner(make_llm_factory(_UsageClient(E_US_001_REPLY)), repeats=1)
+    (result,) = runner.run([explain_case()])
+
+    assert result.llm_prompt_tokens > 0
+    assert result.cost_usd == 0.0
+    assert runner.unpriced_roles == ("agent",)
+
+
+def test_the_template_agent_run_uses_no_tokens():
+    factory, _, _ = make_factory()
+    runner = EvaluationRunner(factory, repeats=1, prices={"agent": (1.0, 2.0)})
+    (result,) = runner.run([explain_case()])
+
+    assert result.llm_prompt_tokens == result.llm_completion_tokens == 0
+    assert result.cost_usd == 0.0 and runner.unpriced_roles == ()
+
+
+def test_a_provider_failure_is_a_scored_escalation_not_a_template_reply():
+    class Down:
+        def complete(self, request):
+            from calvino.llm import LlmUnavailable
+
+            raise LlmUnavailable("provider down")
+
+    runner = EvaluationRunner(make_llm_factory(Down()), repeats=1)
+    (result,) = runner.run([explain_case()])
+
+    assert result.error is None
+    assert result.outcome is not ExpectedOutcome.EXPLAIN
+    assert "AGENT-ERROR" in str(result.decision_records)

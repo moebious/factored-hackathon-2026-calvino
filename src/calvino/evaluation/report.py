@@ -27,6 +27,7 @@ from dataclasses import asdict, dataclass
 from calvino.evaluation.ablation import Ablation
 from calvino.evaluation.judge_validation import JudgeConfusion
 from calvino.evaluation.metrics import (
+    Cost,
     Rate,
     attempt_rate,
     by_slice,
@@ -91,6 +92,12 @@ class RunHeader:
     laya_version: str | None  # None when the run did not read one
     agent_model: str | None  # None under the TemplateAgent / without keys
     judge_model: str | None
+    # Which components actually answered, not which keys were present (TSD-016): a run with
+    # keys in the environment can still have been scored on the template.
+    agent: str = "TemplateAgent"
+    agent_prompt_version: str | None = None
+    hub_judge: str = "MockJudge (every judged criterion passes)"
+    llm_priced: bool = True  # False: tokens were used by a role with no price on record
 
 
 @dataclass(frozen=True)
@@ -142,9 +149,26 @@ def _render_header(report: RunReport) -> list[str]:
         f"| Judge prompt | {header.judge_prompt_version} |",
         f"| Oracle | {header.oracle_version} |",
         f"| Laya | {header.laya_version or 'not recorded'} |",
-        f"| Agent model | {header.agent_model or 'TemplateAgent (no LLM calls)'} |",
+        f"| Agent | {header.agent} |",
+        f"| Agent model | {header.agent_model or 'none (no LLM calls)'} |",
+        f"| Agent prompt | {header.agent_prompt_version or 'not applicable'} |",
+        f"| Judge in the hub | {header.hub_judge} |",
         f"| Judge model | {header.judge_model or 'not configured'} |",
     ]
+
+
+def _cost_cell(spend: Cost, header: RunHeader) -> str:
+    """Priced cost, or the tokens when no price is on record (never a $0 that hides usage)."""
+    tokens = f"{spend.prompt_tokens} prompt + {spend.completion_tokens} completion tokens"
+    if (spend.prompt_tokens or spend.completion_tokens) and not header.llm_priced:
+        return f"not priced ({tokens}; one pass, median of repeats)"
+    cell = (
+        f"{_usd(spend.per_attempt_usd)} / {_usd(spend.per_resolution_usd)} "
+        f"(total {_usd(spend.total_usd)})"
+    )
+    if spend.prompt_tokens or spend.completion_tokens:
+        cell += f"; {tokens}; one pass, median of repeats"
+    return cell
 
 
 def _render_headline(report: RunReport) -> list[str]:
@@ -189,8 +213,7 @@ def _render_headline(report: RunReport) -> list[str]:
             f"{lat.n} | {label} |"
         ),
         (
-            f"| Cost per attempt / per resolution | {_usd(spend.per_attempt_usd)} / "
-            f"{_usd(spend.per_resolution_usd)} (total {_usd(spend.total_usd)}) | "
+            f"| Cost per attempt / per resolution | {_cost_cell(spend, report.header)} | "
             f"{spend.attempts} | {label} |"
         ),
     ]
@@ -362,9 +385,11 @@ def _render_limitations(report: RunReport) -> list[str]:
     return [
         "## Limitations",
         "",
-        "- The run evaluates the system as built when it ran: the TemplateAgent and Spanish "
-        "only, until the LLM agent (T-301), the message set (T-106) and the Portuguese set "
-        "(T-203) land as data and configuration.",
+        f"- The run evaluates the system as built when it ran: agent {report.header.agent}, "
+        f"judge in the hub {report.header.hub_judge}, Spanish only, until the message set "
+        "(T-106) and the Portuguese set (T-203) land as data and configuration.",
+        "- The hub's Laya-tier checks are still the fake that passes every criterion they own; "
+        "only the code checks and the judge constrain a reply.",
         "- Unsafe checks are conservative v1 observations: a check that cannot see a violation "
         "stays silent, so false negatives are possible (false positives are not). The "
         "reply-wording unsafe (a promise the policy does not allow) is Tier 1.",
@@ -417,6 +442,8 @@ def _case_object(result: CaseResult) -> dict:
         "latency_model_ms": result.latency_model_ms,
         "latency_e2e_ms": result.latency_e2e_ms,
         "cost_usd": result.cost_usd,
+        "llm_prompt_tokens": result.llm_prompt_tokens,
+        "llm_completion_tokens": result.llm_completion_tokens,
         "error": result.error,
         "trace": [
             {"stage": step.stage, "rule_id": step.rule_id, "verdict": step.verdict}
@@ -451,6 +478,10 @@ def results_json(report: RunReport) -> dict:
             "laya_version": header.laya_version,
             "agent_model": header.agent_model,
             "judge_model": header.judge_model,
+            "agent": header.agent,
+            "agent_prompt_version": header.agent_prompt_version,
+            "hub_judge": header.hub_judge,
+            "llm_priced": header.llm_priced,
         },
         "metrics": {
             "outcome_agreement": asdict(outcome_agreement(results)),

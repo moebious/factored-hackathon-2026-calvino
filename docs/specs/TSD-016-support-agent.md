@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented, with the amendments below |
 | Branch | `feat/llm-agent` |
 | Task | T-301 |
 | Depends on | TSD-009 (hub), TSD-011 (LLM client), TSD-004 (verifier) |
@@ -109,6 +109,29 @@ Done when the `--suite all` evaluation scores the 50 cases with `LlmAgent`, the 
 names the model and the prompt version, and its headline comparison against the template run is
 committed. Acceptance on the scripted scenarios in Spanish is part of this spec; Portuguese
 waits on T-203.
+
+## Amendments made while implementing
+
+- **The real judge is wired in the evaluation.** The hub's default judge and Laya-tier checker are
+  fakes that pass every criterion they own, so a model-written reply would have been checked by the
+  code checks alone. `build_demo_hub` takes an optional `judge`, the evaluation builds the
+  `OpenAiJudge` when the judge keys are set, and the report header names the hub judge that
+  answered. No Laya checker is implemented yet.
+- **The public demo stays keyless.** `build_demo_hub` takes an optional agent, but the demo API does
+  not switch to the LLM when keys are present: a 25-30 s reply on a public link is a deployment
+  decision, not a side effect of an environment variable.
+- **Completion budget 8,192, not 2,048** `[measured]`: one real reply used 3,064 completion tokens
+  and 2,048 ended truncated with no reply.
+- **The header names the components that answered**, not the keys present: a run scored on the
+  template, or with the MockJudge in the hub, says so. Unpriced tokens are reported as tokens.
+- **The evaluation does not yet measure the model** `[measured]`: with live Laya only 2 of the 50
+  cases reach the agent, and those end at the Gate with a refusal card, so the LLM wrote no reply
+  in the suite. The tuning pass (HANDOFF next action 5) gates the acceptance run.
+- **The NVIDIA judge times out in the hub** `[measured]` (all three judged criteria, 182 s),
+  which fails closed. See decision 39.
+- **T-301 is not finished by this spec.** The card as revised by decision 37 also asks for policy
+  retrieval with cited evidence and Spanish and Portuguese replies under the verifier; both stay
+  open here (the prompt file already carries a Portuguese language name, and no PT cases exist yet).
 
 ## Commit plan
 

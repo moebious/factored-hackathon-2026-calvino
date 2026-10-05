@@ -235,3 +235,51 @@ def test_render_facts_serves_only_the_personas_records() -> None:
 def test_git_sha_falls_back_outside_a_clone(tmp_path: Path) -> None:
     assert re_mod.git_sha(tmp_path) == "unknown"
     assert re_mod.git_sha(REPO_ROOT) != "unknown"
+
+
+# -- which agent answered (TSD-016) ---------------------------------------------------------
+
+LLM_ENV = {
+    "CALVINO_LLM_API_KEY": "test-agent-token",
+    "CALVINO_LLM_MODEL": "Qwen/Qwen-test",
+    "CALVINO_JUDGE_API_KEY": "test-judge-token",
+    "CALVINO_JUDGE_MODEL": "deepseek/deepseek-test",
+    "CALVINO_JUDGE_BASE_URL": "https://judge.example.test/v1",
+}
+
+
+def test_without_keys_the_run_is_scored_on_the_template() -> None:
+    assert re_mod.live_llm({}) is None
+    header = re_mod.build_header("tier0", 1, {})
+    assert header.agent == "TemplateAgent" and header.agent_model is None
+    assert header.hub_judge.startswith("MockJudge")
+
+
+def test_keys_in_the_environment_alone_do_not_claim_an_llm_run() -> None:
+    # A caller that does not build the LLM (a test factory, tier0 without it) must not get a
+    # header naming a model that never answered.
+    header = re_mod.build_header("all", 1, LLM_ENV, llm=None)
+    assert header.agent == "TemplateAgent" and header.agent_model is None
+
+
+def test_live_llm_needs_the_agent_pair_and_reports_the_judge_it_has() -> None:
+    assert re_mod.live_llm({"CALVINO_LLM_API_KEY": "t"}) is None  # no model id
+    agent_only = re_mod.live_llm(
+        {"CALVINO_LLM_API_KEY": "test-token", "CALVINO_LLM_MODEL": "Qwen/Qwen-test"}
+    )
+    assert agent_only is not None and agent_only.judge_client is None
+    header = re_mod.build_header("all", 1, LLM_ENV, llm=agent_only)
+    assert header.hub_judge.startswith("MockJudge")  # an agent without a judge is not "judged"
+
+    both = re_mod.live_llm(LLM_ENV)
+    assert both is not None and both.judge_client is not None and both.prompt_version == "v1"
+    header = re_mod.build_header("all", 1, LLM_ENV, llm=both, llm_priced=False)
+    assert header.agent == "LlmAgent" and header.agent_model == "Qwen/Qwen-test"
+    assert header.agent_prompt_version == "v1" and header.llm_priced is False
+    assert header.hub_judge == "OpenAiJudge (deepseek/deepseek-test)"
+
+
+def test_one_family_for_both_roles_is_refused() -> None:
+    env = {**LLM_ENV, "CALVINO_JUDGE_MODEL": "Qwen/Qwen-judge"}
+    with pytest.raises(Exception, match="same family"):
+        re_mod.live_llm(env)

@@ -38,6 +38,7 @@ from calvino.hub.graph import (
     HubDependencies,
     build_hub_graph,
 )
+from calvino.hub.llm_agent import LlmAgent
 from calvino.hub.playbook import (
     DEFAULT_PLAYBOOK_PATH,
     PLAYBOOK_ACTIONS,
@@ -46,6 +47,7 @@ from calvino.hub.playbook import (
     StatusGuidance,
     load_playbook,
 )
+from calvino.hub.prompts import DEFAULT_PROMPTS_PATH, PROMPT_STAGES, PromptSet, load_prompts
 from calvino.hub.service import HubReply, HubService, TraceStep
 from calvino.hub.sessions import DEFAULT_SESSION_TTL, DEMO_PERSONAS, TrustedSessionIssuer
 from calvino.hub.state import HubStage, HubState
@@ -53,10 +55,12 @@ from calvino.hub.template_agent import TemplateAgent
 
 __all__ = [
     "DEFAULT_PLAYBOOK_PATH",
+    "DEFAULT_PROMPTS_PATH",
     "DEFAULT_SESSION_TTL",
     "DEMO_PERSONAS",
     "MAX_TOOL_ROUNDS",
     "PLAYBOOK_ACTIONS",
+    "PROMPT_STAGES",
     "STAGE_TOOLS",
     "WORKFLOW_STATUSES",
     "AgentDraft",
@@ -68,7 +72,9 @@ __all__ = [
     "HubService",
     "HubStage",
     "HubState",
+    "LlmAgent",
     "Playbook",
+    "PromptSet",
     "ScriptedAgent",
     "StatusGuidance",
     "SupportAgent",
@@ -78,4 +84,5 @@ __all__ = [
     "TrustedSessionIssuer",
     "build_hub_graph",
     "load_playbook",
+    "load_prompts",
 ]
