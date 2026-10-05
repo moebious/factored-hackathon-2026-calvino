@@ -176,22 +176,47 @@ def test_defaults_dispute_needs_person():
         assert facts.in_scope is True
 
 
-def test_defaults_manipulation_is_injection():
-    """A manipulation brief defaults to an injection needing a person."""
+def test_defaults_manipulation_is_injection_not_needs_person():
+    """Injection is labelled separately; the oracle still queues a human."""
     labels, facts = ms.derive_defaults(
         brief_intent="manipulation", adversarial_kind=None, seed_kind="problem_transaction"
     )
     assert labels.injection is True
-    assert labels.needs_person is True
+    assert labels.needs_person is False
     assert facts.intent == "manipulation"
+    assert ms.expected_outcome(make_seed(), labels, facts) == "human_queue"
+
+
+def test_defaults_explicit_human_request_needs_person():
+    labels, facts = ms.derive_defaults(
+        brief_intent="human", adversarial_kind=None, seed_kind="problem_transaction"
+    )
+    assert labels.needs_person is True
+    assert facts.intent == "human"
+    assert ms.expected_outcome(make_seed(), labels, facts) == "human_queue"
+
+
+def test_injection_carrier_does_not_default_to_needs_person():
+    """An adversarial-kind label alone does not assert an explicit handoff."""
+    labels, _ = ms.derive_defaults(
+        brief_intent="explain", adversarial_kind="injection", seed_kind="problem_transaction"
+    )
+    assert labels.injection is True
+    assert labels.needs_person is False
 
 
 def test_defaults_empty_garbled_unclear():
-    """Intent none and wrong/missing-data or multilingual probes are unclear."""
-    labels, _ = ms.derive_defaults(
+    """Empty/garbled is ambiguous in-scope and the oracle clarifies."""
+    labels, facts = ms.derive_defaults(
         brief_intent="none", adversarial_kind=None, seed_kind="no_record"
     )
     assert labels.clear_enough is False
+    assert labels.workflow_area is None
+    assert facts.intent == "none"
+    assert facts.ambiguous is True
+    assert facts.in_scope is True
+    assert ms.expected_outcome(make_seed(kind="no_record"), labels, facts) == "clarify"
+
     for kind in ("wrong_data", "missing_data", "multilingual"):
         probing_labels, probing_facts = ms.derive_defaults(
             brief_intent="explain", adversarial_kind=kind, seed_kind="problem_transaction"
@@ -200,12 +225,16 @@ def test_defaults_empty_garbled_unclear():
         assert probing_facts.ambiguous is True
 
 
-def test_defaults_no_record_out_of_scope_unless_stuck():
-    """No-record seeds default out of scope unless the brief pins a stuck intent."""
+def test_no_record_seed_does_not_override_brief_scope():
+    """The brief distinguishes ambiguous in-scope from explicit out-of-scope."""
     _, facts = ms.derive_defaults(
         brief_intent="out_of_scope", adversarial_kind=None, seed_kind="no_record"
     )
     assert facts.in_scope is False
+    _, ambiguous_facts = ms.derive_defaults(
+        brief_intent="none", adversarial_kind=None, seed_kind="no_record"
+    )
+    assert ambiguous_facts.in_scope is True
     _, stuck_facts = ms.derive_defaults(
         brief_intent="cancel", adversarial_kind=None, seed_kind="no_record"
     )

@@ -7,9 +7,11 @@ import re
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from calvino.data.labels import (
     BinaryLabel,
+    GoldOracleFacts,
     GoldRecord,
     StuckIntent,
     WorkflowArea,
@@ -106,6 +108,128 @@ def test_filled_record_counts_as_labelled():
     assert record.is_labelled()
 
 
+def test_existing_gold_sheet_rows_remain_valid_without_outcome_fields():
+    """The additive report schema must preserve all current rows."""
+    rows = [
+        json.loads(line)
+        for line in GOLD_SHEET.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert len(rows) == 50
+    records = [validate_gold_record(row) for row in rows]
+    assert all(record.oracle_facts is None for record in records)
+    assert all(record.human_outcome is None for record in records)
+    assert all(not record.has_complete_outcome_annotation() for record in records)
+
+
+def test_gold_outcome_fields_are_optional_but_require_complete_metadata_for_scoring():
+    row = {
+        "gold_id": "gold-test",
+        "rubric_version": "v1",
+        "message": "synthetic test-only message",
+        "language_variant": "es-MX",
+        "seed_ref": "hand-written",
+        "labels": {},
+        "oracle_facts": {
+            "intent": "none",
+            "ambiguous": True,
+            "status": None,
+            "owner": True,
+            "amount_band": "under_gate",
+            "fraud_flag": False,
+            "in_scope": True,
+        },
+        "human_outcome": "clarify",
+        "outcome_annotator": "maintainer",
+        "outcome_labelled_at": "2026-10-04",
+    }
+    record = validate_gold_record(row)
+    assert record.has_complete_outcome_annotation()
+    assert record.oracle_facts is not None
+    assert record.oracle_facts.status is None
+
+    for field in ("outcome_annotator", "outcome_labelled_at"):
+        partial = dict(row)
+        partial[field] = ""
+        assert field in validate_gold_record(partial).outcome_annotation_missing()
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("intent", "refund"),
+        ("amount_band", "near_gate"),
+        ("status", "Succeeded"),
+        ("human_outcome", "error"),
+    ],
+)
+def test_gold_outcome_schema_rejects_unknown_or_error_values(field, value):
+    row = {
+        "gold_id": "gold-test",
+        "rubric_version": "v1",
+        "message": "synthetic test-only message",
+        "language_variant": "es-MX",
+        "seed_ref": "hand-written",
+        "oracle_facts": {
+            "intent": "none",
+            "ambiguous": True,
+            "status": None,
+            "owner": True,
+            "amount_band": "under_gate",
+            "fraud_flag": False,
+            "in_scope": True,
+        },
+        "human_outcome": "clarify",
+        "outcome_annotator": "maintainer",
+        "outcome_labelled_at": "2026-10-04",
+    }
+    if field in {"intent", "amount_band", "status"}:
+        row["oracle_facts"][field] = value
+    else:
+        row[field] = value
+    with pytest.raises(ValidationError):
+        validate_gold_record(row)
+
+
+def test_gold_outcome_schema_accepts_approved_clean_transaction():
+    from calvino.evaluation.oracle import OracleFacts, oracle_outcome
+
+    facts = GoldOracleFacts(
+        intent="cancel",
+        ambiguous=False,
+        status="Approved",
+        owner=True,
+        amount_band="under_gate",
+        fraud_flag=False,
+        in_scope=True,
+    )
+    assert facts.status == "Approved"
+    assert oracle_outcome(OracleFacts(**facts.model_dump())).value == "act_block"
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["10/05/2026", "2026-2-5", "2026-10-05T00:00:00", "2026-02-30"],
+)
+def test_gold_outcome_date_rejects_non_iso_or_invalid_dates(value):
+    with pytest.raises(ValidationError, match="ISO date"):
+        GoldRecord(
+            gold_id="gold-date-test",
+            rubric_version="v1",
+            message="synthetic test-only message",
+            language_variant="es-MX",
+            seed_ref="hand-written",
+            outcome_labelled_at=value,
+        )
+
+
+def test_gold_oracle_facts_allow_drafts_but_reject_null_required_fields():
+    draft = GoldOracleFacts(intent="none", status=None)
+    assert draft.model_fields_set == {"intent", "status"}
+    with pytest.raises(ValidationError, match="only status may be null"):
+        GoldOracleFacts(intent=None)
+
+
 def test_fraud_record_without_intent_counts_as_labelled():
     record = GoldRecord(
         gold_id="gold-002",
@@ -122,6 +246,42 @@ def test_fraud_record_without_intent_counts_as_labelled():
         },
     )
     assert record.is_labelled()
+
+
+def test_unclassifiable_record_without_area_counts_as_labelled_when_unclear():
+    record = GoldRecord(
+        gold_id="gold-039",
+        rubric_version="v1",
+        message="...",
+        language_variant="es-MX",
+        seed_ref="hand-written",
+        labels={
+            "workflow_area": None,
+            "stuck_intent": None,
+            "clear_enough": "no",
+            "needs_person": "no",
+            "injection": "no",
+        },
+    )
+    assert record.is_labelled()
+
+
+def test_missing_area_does_not_count_as_labelled_when_message_is_clear():
+    record = GoldRecord(
+        gold_id="gold-clear-without-area",
+        rubric_version="v1",
+        message="synthetic clear message",
+        language_variant="es-MX",
+        seed_ref="hand-written",
+        labels={
+            "workflow_area": None,
+            "stuck_intent": None,
+            "clear_enough": "yes",
+            "needs_person": "no",
+            "injection": "no",
+        },
+    )
+    assert not record.is_labelled()
 
 
 def test_stuck_record_without_intent_counts_as_unlabelled():
