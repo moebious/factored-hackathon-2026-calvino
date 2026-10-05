@@ -23,9 +23,8 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-018](TSD-018-human-baseline.md): full-data human baseline (T-104)
 - [TSD-019](TSD-019-message-set.md): team-generated customer message set (T-106, proposed)
 - [TSD-020](TSD-020-laya-fine-tuning.md): Laya fine-tuning (T-202, proposed)
-- [TSD-021](TSD-021-premium-experience.md): Premium customer experience (T-207, proposed)
 
-Later tasks write their spec from their task card as the first step, numbered from TSD-021, and wait for the maintainer's approval before any code.
+Later tasks write their spec from their task card as the first step, numbered from TSD-022 (TSD-021 belongs to the pending premium spec), and wait for the maintainer's approval before any code.
 Spec numbers are claimed by merge order: before opening a spec PR, re-check this list on current `main` and renumber if your number was taken.
 
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.
