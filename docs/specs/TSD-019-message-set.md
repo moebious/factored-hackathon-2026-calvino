@@ -268,15 +268,70 @@ oracle's order (ownership, human/manipulation, fraud, scope, ambiguity,
 reads, writes); the implementation's unit tests cover every mapping
 branch, and the evaluation's oracle tests already pin the table itself.
 
-Oracle-vs-gold agreement is computed over all gold rows, never inferred
-from synthetic generation and never restricted to the reviewed subset:
-per-question exact agreement plus Cohen's kappa on needs-a-person and on
-oracle outcome vs gold outcome, with n stated and each row's reviewed
-status noted; results are reported overall and split by
-reviewed/unreviewed, so a reviewer-selected subset never stands in for
-the sheet (TSD-015; the sheet holds 50 rows, 18 labelled at the time of
-writing, so early reports name their n). Disagreements are read and
-logged as rubric gap, mapping bug or label slip.
+Gold agreement has two distinct comparisons:
+
+- **Frozen model prediction vs reviewed gold labels.** Compare each
+  available prediction with the matching maintainer-reviewed field in
+  `gold-050`; report per-question exact agreement and Cohen's kappa where
+  defined. This comparison requires predictions from a named, frozen model
+  and configuration. It belongs to T-201/T-303, not the T-103 report, and
+  is not computed until those predictions exist. Unreviewed labels are not
+  counted as gold.
+- **T-103 oracle outcome vs independent human outcome.** For each
+  `gold-050` row, the maintainer records an independent human outcome
+  judgement from the message and workflow rubric, without deriving it from
+  `oracle_facts` or consulting the oracle result. The oracle side is derived
+  with the unchanged TSD-013 `oracle_outcome` from separately reviewed
+  `OracleFacts`. Missing facts are never inferred from message text,
+  labels, seed references or model predictions.
+
+The first-50 gold record therefore adds `oracle_facts` and `human_outcome`
+fields. `oracle_facts` uses the complete TSD-013 schema (`intent`,
+`ambiguous`, `status`, `owner`, `amount_band`, `fraud_flag`, `in_scope`);
+`human_outcome` uses `ExpectedOutcome`. A row is scored for this comparison
+only when both are explicitly reviewed and valid. Incomplete rows are
+reported as unscored with a named reason, never counted as disagreements.
+The gold sheet's existing `labels` remain the independent target for model
+prediction comparisons; they are not a substitute for `human_outcome`.
+
+Illustrative shape only, not an annotation for an existing gold row:
+
+```json
+{
+  "gold_id": "example-not-a-real-row",
+  "oracle_facts": {
+    "intent": "explain",
+    "ambiguous": false,
+    "status": "Pending",
+    "owner": true,
+    "amount_band": "under_gate",
+    "fraud_flag": false,
+    "in_scope": true
+  },
+  "human_outcome": "clarify",
+  "outcome_annotator": "maintainer",
+  "outcome_labelled_at": "YYYY-MM-DD"
+}
+```
+
+`oracle_facts` and `human_outcome` are both direct maintainer annotations.
+They must not be copied from each other or auto-filled from the message-set
+brief→labels defaults. `null` is allowed only for nullable `OracleFacts`
+fields such as `status`; missing required fields block scoring rather than
+triggering inference. Record-level outcome provenance is explicit in
+`outcome_annotator` and `outcome_labelled_at`; ordinary `annotator` and
+`labelled_at` continue to describe the classifier labels.
+
+The T-103 report (`reports/eval/T-103-gold-agreement.md`) states oracle
+outcome agreement as numerator/denominator, exact agreement, complete
+reviewed n, evidence label, and the outcome confusion matrix. It reports
+Cohen's kappa only when defined; kappa is descriptive agreement with the
+oracle, not inter-annotator agreement. Any undefined metric names why.
+Every oracle/human outcome disagreement is listed by `gold_id`, reviewed
+by the maintainer, and classified as rubric gap, oracle mapping bug or
+label slip; the resolution is recorded in
+`reports/eval/T-103-gold-disagreements.md`. The report and log contain
+synthetic gold ids and reviewed labels only, no dataset records.
 
 ## Generation protocol
 
@@ -541,7 +596,12 @@ counts and scores; loader deriving (never storing) the expected outcome.
   near-duplicate and no-records-committed scans green; policy-version
   guard green; stratum audit states every cell under 30 as flagged with
   reviewed/unreviewed counts separate.
-- Oracle-vs-gold agreement reported on all gold rows with reviewed status
-  noted, agreement split by reviewed/unreviewed, and n stated.
+- The T-103 report separates model-prediction-vs-label agreement from
+  oracle-vs-independent-human-outcome agreement; every metric states its
+  numerator, denominator, reviewed n, evidence label and unscored reasons.
+  Oracle outcomes use only explicitly reviewed `OracleFacts`; disagreements
+  have a maintainer-reviewed classification and resolution in the committed
+  log. Undefined metrics, including kappa where applicable, are reported
+  as not defined with the reason, never omitted silently.
 - Portuguese absent by design (T-203 owns it); English only as bounded
   test probes; no BRL, no Brazilian personas.
