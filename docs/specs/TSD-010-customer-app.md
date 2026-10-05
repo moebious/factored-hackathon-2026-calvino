@@ -16,7 +16,7 @@ The demo link's main screen (decision 10): cards chosen from a fixed catalog and
 Three pieces, in one spec because each is small and none ships alone:
 
 1. **Hub additions** so every FR-7 card exists and the glass box has data: `payment_status`, `action_result` and `case_status` cards emitted from verified tool results, the `action_confirmation` card mapped from the parked `approve_action` interrupt, and a per-turn decision trace on `HubReply`.
-2. **Hub HTTP endpoints** in `calvino.api`, behind the existing passcode and rate limit.
+2. **Hub HTTP endpoints** in `calvino.api`, on open endpoints behind the rate limit (decision 38 removed the passcode).
 3. **The Next.js customer app**, replacing the minimal TSD-003 demo frontend.
 
 The language work stays deterministic until T-301 lands the LLM agent: a `TemplateAgent` drafts grounded templated replies from the playbook and the verified tool results. Decision 10 asks for exactly this: no free-form text on screen while the thesis is being judged.
@@ -47,9 +47,9 @@ The language work stays deterministic until T-301 lands the LLM agent: a `Templa
 - `POST /api/hub/message` `{persona, text}` → `HubReply` JSON (reply, card, route, case_ref, escalated, awaiting, awaiting_ref, trace).
 - `POST /api/hub/resume` `{ref, decision}` → `HubReply` JSON; `decision` is the customer's approval (true) or denial (false) for `approve_action`, the operator's decision string for `operator_queue`.
 - `GET /api/hub/personas` → the demo persona names.
-- Same passcode header and per-client rate limit as `/api/demo/decide`; disabled without a configured passcode (fail closed). The hub service is wired at startup: policy v1, `BankTools` on the dataset adapter over the bundled synthetic fixture, `TrustedSessionIssuer(DEMO_PERSONAS)`, `TemplateAgent`, the decision log and the confirmation issuer from `calvino.tools`, and a fraud context over the fixture's flags.
+- Open endpoints with the per-client rate limit; hub writes stay fail-closed behind `CALVINO_CONFIRMATION_KEY`. The hub service is wired at startup: policy v1, `BankTools` on the dataset adapter over the bundled synthetic fixture, `TrustedSessionIssuer(DEMO_PERSONAS)`, `TemplateAgent`, the decision log and the confirmation issuer from `calvino.tools`, and a fraud context over the fixture's flags.
 
-**Frontend (`frontend/`):** one screen: persona selector, conversation (customer messages and Calvino replies), the card under each reply, an input box, scenario buttons, the ES / PT toggle for the UI chrome, and the glass-box panel for the selected turn (trace steps with stage, rule, verdict and the classifier's scores; tool results; verifier verdicts). One component per catalog key, rendered only from the payload; an unknown key renders a named fallback card, never a crash. Scenario buttons set the persona and send the scripted message for UC-1 to UC-5, UC-7 and UC-8.
+**Frontend (`frontend/`):** one screen: persona selector, conversation (customer messages and Calvino replies), the card under each reply, the intent-driven card composer, scenario buttons, the ES / PT toggle for the UI chrome, and the evidence rail for the selected turn. The composer is one input that changes shape with intent (checklist, event, timer, split, color, note); it takes typed text, voice dictation through `SpeechInput` (the transcription lands in the input as editable text, audio never leaves the browser), spoken replies through `AudioPlayer`, and file attachments as local-only previews labeled local until the backend exposes an attachment-aware contract. The rail renders the turn's trace as `ChainOfThought` steps plus the glass-box detail (stage, rule, verdict, classifier scores, tool results, verifier verdicts). One component per catalog key, rendered only from the payload; an unknown key renders a named fallback card, never a crash. A warm-up screen polls `/ready` before the app shows. Scenario buttons set the persona and send the scripted message for UC-1 to UC-5, UC-7 and UC-8.
 
 ## Behaviour
 
@@ -62,9 +62,13 @@ The language work stays deterministic until T-301 lands the LLM agent: a `Templa
 
 The stuck-payments workflow (decision 17) is complete in the hub; this task only surfaces it. Decision 10's rejected alternative — LLM-generated UI — stays rejected: the catalog is code, the choice is Laya's through the policy, and the scenario buttons exist so judges see every use case within seconds.
 
+## Revision: premium shell (F1.6, PR #71)
+
+The screen keeps this spec's contract: same endpoints, same `HubReply` shape, same fixed catalog, same trace. Presentation only: the input box is the intent-driven card composer (the external project's name appears nowhere in code or docs), the glass-box panel lives in an evidence rail with `ChainOfThought` steps mapped 1:1 from `trace`, and the endpoints are open per decision 38. Dictation, speech and attachments are frontend-only; the backend still receives `{persona, text}`.
+
 ## Tests and acceptance
 
 - Hub: trace collection across `handle_message` and `resume` (service tests); `payment_status`, `action_result` and `case_status` emitted from scripted tool results (graph tests); `TemplateAgent` drafts only from the payload and the playbook (unit tests, no model calls).
-- API: pytest with the existing fakes — passcode required, rate limit applies, message happy path returns card and trace, resume completes a parked approval, personas endpoint, unknown persona and ref fail closed.
+- API: pytest with the existing fakes — open endpoints, rate limit applies, message happy path returns card and trace, resume completes a parked approval, personas endpoint, unknown persona and ref fail closed.
 - Frontend: `npm run lint` and `npm run build` pass; a catalog component exists for every key.
 - Done when: UC-1 to UC-5, UC-7 and UC-8 can each be shown from a scenario button against the local API (`uv run python -m calvino.api` + `npm run dev`), the glass box shows the turn's scores, rules and verdicts, and the full pytest suite and frontend checks pass.
