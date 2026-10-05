@@ -88,6 +88,11 @@ def test_shipped_thresholds_are_pinned(policy):
         "injection_at": 0.50,
         "min_clear_enough": 0.30,  # lowered from v1's 0.50 on measured laya scores (decision 30)
         "min_confidence": 0.60,
+        # The v3 switches default to the v1/v2 behaviour, so a released file replays unchanged.
+        "use_needs_human": True,
+        "talk_to_person_at": None,
+        "min_stuck_payment": None,
+        "confidence_source": "min_all",
     }
     assert policy.gate.allow_amount_limit == {
         "MXN": 8500,

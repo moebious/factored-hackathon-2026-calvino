@@ -33,8 +33,17 @@ class RoutePolicy(_Frozen):
     out_of_scope_at: Probability
     dispute_or_fraud_at: Probability
     injection_at: Probability
-    min_clear_enough: Probability
+    # None switches the clear_enough gate off (policy v3): with live laya a routine, concrete
+    # message scores P(clear) 0.04-0.2 because it names no payment reference, so the gate blocks
+    # the requests the agent exists to answer (TSD-021).
+    min_clear_enough: Probability | None
     min_confidence: Probability
+    # Everything below is new in v3 and defaults to the v1/v2 behaviour, so released policy files
+    # keep replaying unchanged. See TSD-021 for the measurement behind each.
+    use_needs_human: bool = True  # False: the needs_human score is neither required nor read
+    talk_to_person_at: Probability | None = None  # intent "talk to a person" at or above: human
+    min_stuck_payment: Probability | None = None  # workflow area "stuck payment" below: clarify
+    confidence_source: Literal["min_all", "workflow_area"] = "min_all"
 
     @model_validator(mode="after")
     def _band_is_ordered(self) -> RoutePolicy:

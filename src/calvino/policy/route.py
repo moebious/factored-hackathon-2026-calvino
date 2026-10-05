@@ -10,9 +10,28 @@ from dataclasses import dataclass
 from time import perf_counter
 
 from calvino.policy._common import as_mapping, make_record, parse, triggered_hard_rules
-from calvino.policy.config import Policy
+from calvino.policy.config import Policy, RoutePolicy
 from calvino.policy.inputs import ROUTE_SCORES, Facts, Scores
 from calvino.records import DecisionRecord, HumanAction, Route, Stage
+
+
+def required_route_scores(rules: RoutePolicy) -> tuple[str, ...]:
+    """The scores this policy reads: a missing one fails closed to a person (FC-SCORES).
+
+    v1 and v2 read the original six. A policy that switches a gate off no longer requires its
+    score, and one that adds a gate requires the score it reads.
+    """
+    required = [
+        name
+        for name in ROUTE_SCORES
+        if not (name == "needs_human" and not rules.use_needs_human)
+        and not (name == "clear_enough" and rules.min_clear_enough is None)
+    ]
+    if rules.talk_to_person_at is not None:
+        required.append("talk_to_person")
+    if rules.min_stuck_payment is not None:
+        required.append("workflow_stuck_payment")
+    return tuple(required)
 
 
 @dataclass(frozen=True)
@@ -69,24 +88,34 @@ def decide_route(
         return done(Route.HUMAN, fired[0], Stage.HARD_RULES)
 
     parsed, score_errors = parse(Scores, raw_scores)
-    if parsed is None or any(getattr(parsed, name) is None for name in ROUTE_SCORES):
+    rules = policy.route
+    if parsed is None or any(
+        getattr(parsed, name) is None for name in required_route_scores(rules)
+    ):
         return done(Route.HUMAN, "FC-SCORES", Stage.CLASSIFIER, errors=score_errors)
 
-    rules = policy.route
-    needs_human = parsed.needs_human
-    assert needs_human is not None  # checked above; keeps the type checker honest
     if parsed.workflow_dispute_or_fraud >= rules.dispute_or_fraud_at:  # type: ignore[operator]
         return done(Route.HUMAN, "RT-DISPUTE-FRAUD", Stage.CLASSIFIER, rules.dispute_or_fraud_at)
     if parsed.workflow_out_of_scope >= rules.out_of_scope_at:  # type: ignore[operator]
         return done(Route.OUT_OF_SCOPE, "RT-OUT-OF-SCOPE", Stage.CLASSIFIER, rules.out_of_scope_at)
     if parsed.injection >= rules.injection_at:  # type: ignore[operator]
         return done(Route.HUMAN, "RT-INJECTION", Stage.CLASSIFIER, rules.injection_at)
-    if needs_human >= rules.escalate_at:
+    if rules.talk_to_person_at is not None and parsed.talk_to_person >= rules.talk_to_person_at:  # type: ignore[operator]
+        return done(Route.HUMAN, "RT-TALK-TO-PERSON", Stage.CLASSIFIER, rules.talk_to_person_at)
+    needs_human = parsed.needs_human if rules.use_needs_human else None
+    if needs_human is not None and needs_human >= rules.escalate_at:
         return done(Route.HUMAN, "RT-ESCALATE", Stage.CLASSIFIER, rules.escalate_at)
+    if (
+        rules.min_stuck_payment is not None
+        and parsed.workflow_stuck_payment < rules.min_stuck_payment
+    ):  # type: ignore[operator]
+        return done(
+            Route.CLARIFY, "RT-CLARIFY-NOT-STUCK", Stage.CLASSIFIER, rules.min_stuck_payment
+        )
     if parsed.confidence < rules.min_confidence:  # type: ignore[operator]
         return done(Route.CLARIFY, "RT-CLARIFY-CONFIDENCE", Stage.CLASSIFIER, rules.min_confidence)
-    if parsed.clear_enough < rules.min_clear_enough:  # type: ignore[operator]
+    if rules.min_clear_enough is not None and parsed.clear_enough < rules.min_clear_enough:  # type: ignore[operator]
         return done(Route.CLARIFY, "RT-CLARIFY-UNCLEAR", Stage.CLASSIFIER, rules.min_clear_enough)
-    if needs_human >= rules.act_below:
+    if needs_human is not None and needs_human >= rules.act_below:
         return done(Route.CLARIFY, "RT-CLARIFY-BAND", Stage.CLASSIFIER, rules.act_below)
     return done(Route.AGENTS, "RT-ACT", Stage.CLASSIFIER, rules.act_below)

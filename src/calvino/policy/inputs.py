@@ -37,6 +37,8 @@ class Scores(_Strict):
     confidence: Probability | None = None
     workflow_out_of_scope: Probability | None = None
     workflow_dispute_or_fraud: Probability | None = None
+    workflow_stuck_payment: Probability | None = None
+    talk_to_person: Probability | None = None
     injection: Probability | None = None
 
 
