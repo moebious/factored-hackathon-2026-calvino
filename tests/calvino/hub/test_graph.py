@@ -17,6 +17,7 @@ the FR-7 cards, filled only from verified tool results.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 import pytest
@@ -879,3 +880,15 @@ def test_the_hub_hands_the_verifier_a_redacted_question(happy_deps, monkeypatch)
     assert seen["question"], "the verifier got no question, so question-fully-answered cannot pass"
     assert "pendiente" in seen["question"], "the substance of the question survives redaction"
     assert "5000" not in seen["question"], "the amount travels as evidence, not as prose"
+
+
+def test_a_hub_without_a_judge_fails_closed_instead_of_approving(deps_factory, fake_loader_factory):
+    """No silent stand-in judge: the unverified criteria escalate the reply to a person."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(ENTRY_CALL,)), AgentDraft(text=GOOD_REPLY)])
+    deps = deps_factory(fake_loader_factory(route_probabilities()), agent)
+    deps = replace(deps, judge=None)
+    final, _ = invoke(deps, "ana", "¿Qué pasó con mi transferencia?")
+    assert final["escalated"] is True
+    failed = {entry["criterion_id"]: entry["reason"] for entry in final["case_file"]}
+    assert "question-fully-answered" in failed
+    assert "unverified" in failed["question-fully-answered"]

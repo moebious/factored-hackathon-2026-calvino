@@ -11,9 +11,9 @@ from calvino.records import Stage, session_ref_for
 from calvino.tools.contracts import TransactionStatus
 from calvino.verifier.cascade import VerificationOutcome, Verifier
 from calvino.verifier.evidence import Evidence
-from calvino.verifier.judge import JUDGE_PROMPT_VERSION, MockJudge
+from calvino.verifier.judge import JUDGE_PROMPT_VERSION, MockJudge, NotRunJudge
 from calvino.verifier.laya_checks import FakeLayaChecker
-from calvino.verifier.rubric import CheckerKind, Criterion, load_rubric
+from calvino.verifier.rubric import V1_RUBRIC_PATH, CheckerKind, Criterion, load_rubric
 from calvino.verifier.verdicts import CriterionVerdict
 
 CLEAN_REPLY = "Su pago de 1,500.00 MXN sigue pendiente."
@@ -27,8 +27,14 @@ EVIDENCE = Evidence(
 )
 
 
-def _criteria_for(kind: CheckerKind) -> list[Criterion]:
-    return load_rubric().criteria_for(kind)
+# Rubric v1 still has two Laya-tier criteria, so the tier mechanics (call recording, errors,
+# scripted failures) are tested against it. The shipped default is v2, which assigns no
+# criterion to a tier without an implementation.
+V1 = load_rubric(V1_RUBRIC_PATH)
+
+
+def _criteria_for(kind: CheckerKind, rubric=None) -> list[Criterion]:
+    return (rubric or load_rubric()).criteria_for(kind)
 
 
 class FlakyJudge:
@@ -83,10 +89,10 @@ def test_clean_output_passes_every_tier():
 def test_code_criteria_never_reach_laya_or_the_judge_and_the_judge_runs_once():
     laya = FakeLayaChecker()
     judge = MockJudge()
-    Verifier(laya_checker=laya, judge=judge).verify(CLEAN_REPLY, EVIDENCE)
-    assert judge.calls == [[c.id for c in _criteria_for(CheckerKind.JUDGE)]]
-    assert laya.calls == [[c.id for c in _criteria_for(CheckerKind.LAYA)]]
-    code_ids = {c.id for c in _criteria_for(CheckerKind.CODE)}
+    Verifier(rubric=V1, laya_checker=laya, judge=judge).verify(CLEAN_REPLY, EVIDENCE)
+    assert judge.calls == [[c.id for c in _criteria_for(CheckerKind.JUDGE, V1)]]
+    assert laya.calls == [[c.id for c in _criteria_for(CheckerKind.LAYA, V1)]]
+    code_ids = {c.id for c in _criteria_for(CheckerKind.CODE, V1)}
     assert not code_ids & set(judge.calls[0])
     assert not code_ids & set(laya.calls[0])
 
@@ -101,7 +107,7 @@ def test_a_failed_code_check_fails_the_whole_output():
 
 def test_a_scripted_laya_failure_fails_the_output():
     laya = FakeLayaChecker(verdicts={"no-money-movement-promise": (False, "promises a refund")})
-    result = Verifier(laya_checker=laya).verify(CLEAN_REPLY, EVIDENCE)
+    result = Verifier(rubric=V1, laya_checker=laya).verify(CLEAN_REPLY, EVIDENCE)
     assert not result.passed
     assert any(
         v.criterion_id == "no-money-movement-promise" and v.checker is CheckerKind.LAYA
@@ -133,7 +139,7 @@ def test_a_laya_error_counts_as_a_failure_of_its_criteria():
         def check(self, output, evidence, criteria):
             raise RuntimeError("laya unavailable")
 
-    result = Verifier(laya_checker=BrokenLaya()).verify(CLEAN_REPLY, EVIDENCE)
+    result = Verifier(rubric=V1, laya_checker=BrokenLaya()).verify(CLEAN_REPLY, EVIDENCE)
     assert not result.passed
     assert any("laya check failed: RuntimeError" in v.reason for v in result.failed_verdicts())
 
@@ -191,7 +197,7 @@ def test_a_regenerate_error_escalates_with_the_first_result():
 
 def test_a_passing_run_logs_one_record_with_the_versions(tmp_path):
     log = DecisionLog(tmp_path / "decisions.jsonl")
-    verifier = Verifier(log=log, session_ref=session_ref_for("demo-token"))
+    verifier = Verifier(judge=MockJudge(), log=log, session_ref=session_ref_for("demo-token"))
     outcome = verifier.run(CLEAN_REPLY, EVIDENCE)
     assert not outcome.escalated
     records = list(read_records(log.path))
@@ -199,8 +205,8 @@ def test_a_passing_run_logs_one_record_with_the_versions(tmp_path):
     record = records[0]
     assert record.stage is Stage.VERIFIER
     assert record.verdict == "pass"
-    assert record.policy_version == "customer-answer@1"
-    assert record.versions.rubric == "customer-answer@1"
+    assert record.policy_version == "customer-answer@2"
+    assert record.versions.rubric == "customer-answer@2"
     assert record.versions.prompt == str(JUDGE_PROMPT_VERSION)
     assert record.rule_id is None
 
@@ -246,3 +252,36 @@ def test_outcome_is_a_frozen_model():
     )
     with pytest.raises(ValidationError):
         outcome.escalated = True
+
+
+def test_an_unconfigured_judge_fails_its_criteria_closed():
+    # No silent default: with no judge the judged criteria are unverified, never passed.
+    result = Verifier().verify(CLEAN_REPLY, EVIDENCE)
+    assert not result.passed
+    judge_ids = {c.id for c in _criteria_for(CheckerKind.JUDGE)}
+    failed = {v.criterion_id: v for v in result.failed_verdicts()}
+    assert judge_ids == set(failed)
+    assert all("unverified: no judge checker is configured" in v.reason for v in failed.values())
+    assert all(v.checker is CheckerKind.JUDGE for v in failed.values())
+
+
+def test_an_unconfigured_laya_tier_fails_its_criteria_closed():
+    result = Verifier(rubric=V1, judge=MockJudge()).verify(CLEAN_REPLY, EVIDENCE)
+    assert not result.passed
+    laya_ids = {c.id for c in _criteria_for(CheckerKind.LAYA, V1)}
+    failed = {v.criterion_id: v for v in result.failed_verdicts()}
+    assert laya_ids == set(failed)
+    assert all("unverified: no laya checker is configured" in v.reason for v in failed.values())
+
+
+def test_the_shipped_rubric_needs_only_the_judge_beyond_code():
+    # Rubric v2 has no Laya-tier criteria, so a judge alone fully verifies a clean reply.
+    assert Verifier(judge=MockJudge()).verify(CLEAN_REPLY, EVIDENCE).passed
+
+
+def test_the_not_run_judge_passes_by_name_not_in_silence():
+    judge = NotRunJudge()
+    verdicts = judge.judge_batch(CLEAN_REPLY, EVIDENCE, _criteria_for(CheckerKind.JUDGE))
+    assert verdicts and all(v.passed for v in verdicts)
+    assert all(v.reason == "not run: keyless demo, template reply" for v in verdicts)
+    assert Verifier(judge=judge).verify(CLEAN_REPLY, EVIDENCE).passed

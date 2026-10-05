@@ -1,0 +1,63 @@
+# The customer-answer rubric, version 2 (TSD-004 amendment): what every reply the customer
+# sees is checked against (DESIGN.md 4.4, decisions 14, 17 and 40).
+#
+# Versioned like the policy: a released version is never edited; a change is a
+# new file, so logged verdicts replay under the rubric version they were made
+# with (v1 stays in customer-answer.yaml). What changed from v1: the real Laya
+# checker was never built, so both Laya-tier criteria always passed in the hub.
+# The money-movement promise is now decided by code (a conservative phrase list,
+# in code_checks.py) and the grounding criterion moves to the judge, where DESIGN's
+# own table already sends it as the fallback. No criterion is assigned to a tier
+# that has no implementation.
+
+id: customer-answer
+version: 2
+output_type: customer_answer
+
+criteria:
+  # Deterministic checks: decided from the tool results alone, never by a model.
+  - id: amounts-dates-merchants-match
+    text: Every amount, date and merchant stated matches a tool result
+    checker: code
+    severity: blocking
+  - id: stated-status-matches-record
+    text: The stated payment status matches the bank's record from a tool result
+    checker: code
+    severity: blocking
+  - id: claimed-actions-read-back
+    text: Every action claimed as done was verified by reading it back
+    checker: code
+    severity: blocking
+  - id: no-other-customer-data
+    text: No data belonging to another customer appears in the reply
+    checker: code
+    severity: blocking
+  - id: reply-in-customer-language
+    text: The reply is in the customer's language
+    checker: code
+    severity: blocking
+  - id: no-money-movement-promise
+    text: The reply promises no refund, credit or money movement
+    checker: code
+    severity: blocking
+
+  # LLM judge: all remaining criteria are labelled in one batched call.
+  - id: factual-claims-grounded
+    text: Every factual claim is supported by tool results or policy documents
+    checker: judge
+    severity: blocking
+  # next-step-valid-and-clear becomes a code check reading
+  # playbooks/stuck-payments.yaml when the playbook lands (decision 24);
+  # until then the judge decides it.
+  - id: question-fully-answered
+    text: The customer's question is fully answered, or the gap is stated
+    checker: judge
+    severity: blocking
+  - id: no-invented-policy
+    text: No invented policy, eligibility rule or promise
+    checker: judge
+    severity: blocking
+  - id: next-step-valid-and-clear
+    text: The next step is valid for the payment status and any required confirmation is stated clearly
+    checker: judge
+    severity: blocking

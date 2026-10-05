@@ -22,6 +22,7 @@ from calvino.hub import DEMO_PERSONAS, HubDependencies, SupportAgent, TrustedSes
 from calvino.hub.graph import FraudContext
 from calvino.policy import Policy, load_policy
 from calvino.tools import BankTools, DatasetAdapter, FakeConfirmationVerifier
+from calvino.verifier import MockJudge
 
 FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "bank" / "synthetic_bank.json"
 NOW = datetime(2026, 7, 1, 12, 0, tzinfo=UTC)
@@ -103,6 +104,7 @@ def deps_factory(tmp_path, policy):
             tools=tools,
             issuer=TrustedSessionIssuer(PERSONAS),
             agent=agent,
+            judge=MockJudge(),
             log=DecisionLog(tmp_path / "decisions.jsonl"),
             fraud_context=fraud_context,
             confirmations=confirmations if with_confirmations else None,

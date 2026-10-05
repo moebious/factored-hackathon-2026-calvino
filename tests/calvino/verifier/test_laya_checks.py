@@ -2,13 +2,15 @@
 
 from calvino.verifier.evidence import Evidence
 from calvino.verifier.laya_checks import FakeLayaChecker
-from calvino.verifier.rubric import CheckerKind, load_rubric
+from calvino.verifier.rubric import V1_RUBRIC_PATH, CheckerKind, load_rubric
 
 EVIDENCE = Evidence(customer_language="es")
 
 
 def _laya_criteria():
-    return load_rubric().criteria_for(CheckerKind.LAYA)
+    # Rubric v1 is the one with Laya-tier criteria; the shipped v2 assigns none to the tier
+    # because no real Laya checker exists (decision 40).
+    return load_rubric(V1_RUBRIC_PATH).criteria_for(CheckerKind.LAYA)
 
 
 def test_fake_returns_scripted_verdicts_and_records_calls():

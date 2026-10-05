@@ -68,6 +68,7 @@ from calvino.evaluation.runner import (
     ModelTimer,
     TimedLoader,
     TokenPrices,
+    foreign_markers_by_persona,
 )
 from calvino.hub import LlmAgent, load_playbook, load_prompts
 from calvino.hub.service import HubService
@@ -265,7 +266,7 @@ def build_header(
         hub_judge=(
             f"OpenAiJudge ({env.get('CALVINO_JUDGE_MODEL')})"
             if llm is not None and llm.judge_client is not None
-            else "MockJudge (every judged criterion passes)"
+            else "none: judged criteria are not run"
         ),
         llm_priced=llm_priced,
     )
@@ -337,15 +338,20 @@ def main(
     cases = load_suite(args.cases_dir, args.scenarios_dir)
     llm = live_llm(values) if hub_factory is None else None
     factory = hub_factory if hub_factory is not None else default_hub_factory(values, llm)
-    runner = EvaluationRunner(factory, repeats=args.repeats, prices=token_prices())
+    fixture_path = settings_from_env(values).bank_fixture
+    fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
+    runner = EvaluationRunner(
+        factory,
+        repeats=args.repeats,
+        prices=token_prices(),
+        foreign_markers=foreign_markers_by_persona(fixture),
+    )
     agent_name = "LlmAgent" if llm is not None else "TemplateAgent"
     print(
         f"running {len(cases)} cases x {args.repeats} repeats (suite {args.suite}, {agent_name})..."
     )
     results = runner.run(cases)
 
-    fixture_path = settings_from_env(values).bank_fixture
-    fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
     judge, ablation = gated_results(args.suite, cases, fixture, values)
     report = RunReport(
         header=build_header(

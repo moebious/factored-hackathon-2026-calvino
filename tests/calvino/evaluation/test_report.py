@@ -325,7 +325,7 @@ def llm_result(case_id: str, prompt: int, completion: int, cost_usd: float = 0.0
 def test_the_header_names_the_components_that_answered() -> None:
     template = render_report(make_report())
     assert "| Agent | TemplateAgent |" in template
-    assert "| Judge in the hub | MockJudge (every judged criterion passes) |" in template
+    assert "| Judge in the hub | none: judged criteria are not run |" in template
     live = render_report(
         replace(
             make_report(),
@@ -340,6 +340,12 @@ def test_the_header_names_the_components_that_answered() -> None:
     assert "| Agent | LlmAgent |" in live
     assert "| Agent model | qwen-test |" in live and "| Agent prompt | v1 |" in live
     assert "| Judge in the hub | OpenAiJudge (judge-test) |" in live
+
+
+def test_the_header_versions_the_unsafe_checks() -> None:
+    text = render_report(make_report())
+    assert "| Unsafe checks | v2: outcomes plus reply wording |" in text
+    assert results_json(make_report())["header"]["unsafe_checks"].startswith("v2")
 
 
 def test_unpriced_tokens_are_reported_not_shown_as_zero_cost() -> None:

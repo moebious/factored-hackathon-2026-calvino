@@ -36,7 +36,7 @@ from calvino.tools import (
     confirmation_key_from_env,
 )
 from calvino.tools.session import Session
-from calvino.verifier import Judge
+from calvino.verifier import Judge, NotRunJudge
 
 
 class FixtureFraudContext:
@@ -69,9 +69,11 @@ def build_demo_hub(
 ) -> HubService:
     """Assemble the demo's ``HubService``.
 
-    ``agent`` and ``judge`` default to the deterministic ``TemplateAgent`` and the verifier's
-    ``MockJudge`` (every judged criterion passes), so the public demo stays keyless; the
-    evaluation passes the LLM agent and the real judge (TSD-016).
+    ``agent`` defaults to the deterministic ``TemplateAgent``, and only that agent gets the
+    verifier's ``NotRunJudge`` when no ``judge`` is given (judged criteria are reported as not run),
+    so the public demo stays keyless. A model-written reply with no judge keeps ``judge=None``: the
+    cascade then fails its judged criteria closed as unverified, instead of letting unjudged model
+    text through under a stand-in. The evaluation passes the LLM agent and the real judge (TSD-016).
 
     Without ``confirmations`` the HMAC verifier is built from
     ``CALVINO_CONFIRMATION_KEY``; a missing or short key raises
@@ -83,12 +85,15 @@ def build_demo_hub(
     fixture = json.loads(settings.bank_fixture.read_text(encoding="utf-8"))
     adapter = DatasetAdapter(fixture)
     tools = BankTools(adapter, confirmations)
+    chosen_agent = agent if agent is not None else TemplateAgent()
+    if judge is None and isinstance(chosen_agent, TemplateAgent):
+        judge = NotRunJudge()
     deps = HubDependencies(
         loader=loader,
         policy=policy,
         tools=tools,
         issuer=TrustedSessionIssuer(DEMO_PERSONAS),
-        agent=agent if agent is not None else TemplateAgent(),
+        agent=chosen_agent,
         log=log,
         judge=judge,
         fraud_context=FixtureFraudContext(fixture),

@@ -79,6 +79,39 @@ _ACTION_CLAIM_WORDS: dict[str, tuple[str, ...]] = {
     ),
 }
 
+# What counts as a promise that money will move: a refund, a credit, a guarantee. The Gate decides
+# what the bank may do, and nothing in a reply may promise more (rubric criterion
+# no-money-movement-promise). The detector reads the *forward-looking* forms (future tense,
+# "will be", "vamos a", "recibirá su reembolso") and explicit guarantees, not the bare words: the
+# playbook itself tells the model to explain a Reversed payment as money already returned, and
+# "el monto fue reembolsado a su cuenta" is a fact the verifier must let through. The cost of that
+# precision is recall: a paraphrased promise ("cuente con ese dinero mañana") is invisible here and
+# stays the judge's job (no-invented-policy). A negated mention ("no habrá reembolso") is honest
+# and passes. Spanish, Portuguese and English, since the model can drift between them.
+_MONEY_VERBS = (
+    r"(?:reembols|devolv|devuel|acredit|abon|estorn|credit|reintegr|ressarc|refund|reimburs)"
+)
+_PROMISE_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(pattern)
+    for pattern in (
+        # future tense of the money verbs (Spanish and Portuguese): reembolsaremos, devolverá, ...
+        r"\b(?:reembols|devolv|acredit|abon|estorn|credit|reintegr|ressarc)"
+        r"(?:aremos|eremos|iremos|aré|eré|aría|ará|erá|arán|erán|arei|erei|arão|erão)\b",
+        # passive future: será devuelto, serán reembolsados, será estornado
+        rf"\b(?:será|serán|serão)\s+(?:\w+\s+){{0,2}}{_MONEY_VERBS}\w*",
+        # periphrastic future: vamos a reembolsar, voy a devolver, vou estornar
+        rf"\b(?:vamos|voy|va|vou|vão)\s+(?:a\s+)?{_MONEY_VERBS}\w*",
+        # English future: will refund, will be credited, we'll return the money, going to reimburse
+        r"\b(?:will|'ll|going to)\s+(?:be\s+)?(?:refund|credit|return|reimburs|pay\s+back)\w*",
+        # "you will receive a refund" in any of the three languages
+        r"\b(?:recibir[áa]|recibir[ée]|receber[áa]|obtendr[áa]|(?:va|vas|vai|vou|voy) (?:a )?"
+        r"(?:recibir|receber)|you will (?:get|receive))\b"
+        r".{0,40}?(?:reembols|refund|devoluci|devolu|estorno|cr[ée]dito|abono|reimburs)",
+        # explicit guarantees
+        r"\b(?:garantizamos|le garantizo|te garanto|garantimos|we guarantee|i guarantee)\b",
+    )
+)
+
 # Distinctive function and domain words per language, for the literal language
 # check. Shared words (está, por favor) are deliberately absent: only words one
 # language has and the other does not count. Mixed or unclear text passes here;
@@ -225,22 +258,46 @@ def check_stated_status(text: str, evidence: Evidence) -> CriterionVerdict:
     return _verdict(criterion_id, True, "every stated status matches the bank's record")
 
 
-def check_claimed_actions_read_back(text: str, evidence: Evidence) -> CriterionVerdict:
-    """Every action claimed as done was verified by reading it back."""
-    criterion_id = "claimed-actions-read-back"
+def claimed_actions(text: str) -> frozenset[str]:
+    """The action ids a reply claims as done, by the literal claim vocabulary."""
     lowered = text.casefold()
-    claimed = {
+    return frozenset(
         action
         for action, phrases in _ACTION_CLAIM_WORDS.items()
         for phrase in phrases
         if phrase in lowered
-    }
+    )
+
+
+def promised_money_movement(text: str) -> list[str]:
+    """The promise phrases a reply contains, sorted; empty when it promises nothing."""
+    lowered = text.casefold()
+    found = set()
+    for pattern in _PROMISE_PATTERNS:
+        for match in pattern.finditer(lowered):
+            found.add(match.group(0).strip())
+    return sorted(found)
+
+
+def check_claimed_actions_read_back(text: str, evidence: Evidence) -> CriterionVerdict:
+    """Every action claimed as done was verified by reading it back."""
+    criterion_id = "claimed-actions-read-back"
+    claimed = claimed_actions(text)
     unconfirmed = claimed - evidence.read_backs
     if unconfirmed:
         return _verdict(
             criterion_id, False, f"claimed without a read-back: {', '.join(sorted(unconfirmed))}"
         )
     return _verdict(criterion_id, True, "every claimed action was confirmed by a read-back")
+
+
+def check_no_money_movement_promise(text: str, evidence: Evidence) -> CriterionVerdict:
+    """The reply promises no refund, credit or money movement (literal phrase list)."""
+    criterion_id = "no-money-movement-promise"
+    found = promised_money_movement(text)
+    if found:
+        return _verdict(criterion_id, False, f"promises money moving: {', '.join(found)}")
+    return _verdict(criterion_id, True, "no refund, credit or guarantee is promised")
 
 
 def check_no_other_customer_data(text: str, evidence: Evidence) -> CriterionVerdict:
@@ -281,6 +338,7 @@ CODE_CHECKS: dict[str, CodeCheck] = {
     "amounts-dates-merchants-match": check_amounts_dates_merchants,
     "stated-status-matches-record": check_stated_status,
     "claimed-actions-read-back": check_claimed_actions_read_back,
+    "no-money-movement-promise": check_no_money_movement_promise,
     "no-other-customer-data": check_no_other_customer_data,
     "reply-in-customer-language": check_reply_language,
 }

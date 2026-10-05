@@ -166,6 +166,29 @@ class Judge(Protocol):
         ...
 
 
+class NotRunJudge:
+    """The keyless demo's explicit stand-in: judged criteria are not run and pass by name.
+
+    Not a silent default (the cascade fails an unconfigured tier closed). The keyless demo sends
+    deterministic template replies built from verified payloads, so there is no model text for a
+    judge to check; passing is the honest outcome, and the reason on every verdict says that the
+    judge did not run, so a log reader cannot mistake it for a judged reply.
+    """
+
+    def judge_batch(
+        self, output: str, evidence: Evidence, criteria: Sequence[Criterion]
+    ) -> list[CriterionVerdict]:
+        return [
+            CriterionVerdict(
+                criterion_id=criterion.id,
+                passed=True,
+                checker=CheckerKind.JUDGE,
+                reason="not run: keyless demo, template reply",
+            )
+            for criterion in criteria
+        ]
+
+
 class MockJudge:
     """The test and demo judge: scripted verdicts, records what it was asked.
 

@@ -14,8 +14,10 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-# <repo>/rubrics/customer-answer.yaml, found from this file (src/calvino/verifier/rubric.py).
-DEFAULT_RUBRIC_PATH = Path(__file__).resolve().parents[3] / "rubrics" / "customer-answer.yaml"
+# <repo>/rubrics/customer-answer-v2.yaml, found from this file (src/calvino/verifier/rubric.py).
+# v1 stays in customer-answer.yaml so logged verdicts replay under the rubric they were made with.
+DEFAULT_RUBRIC_PATH = Path(__file__).resolve().parents[3] / "rubrics" / "customer-answer-v2.yaml"
+V1_RUBRIC_PATH = Path(__file__).resolve().parents[3] / "rubrics" / "customer-answer.yaml"
 
 
 class CheckerKind(StrEnum):
