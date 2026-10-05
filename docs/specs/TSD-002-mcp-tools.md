@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | Status | implemented |
+| Amendment | [TSD-024](TSD-024-cleaned-table-adapter.md) (T-206; approved, implemented locally) |
 | Branch | `feat/mcp-tools` |
 | Depends on | TSD-000 |
 | Required by | the Calvino hub and agents (Wave 2–3) |
@@ -15,11 +16,11 @@ The MCP server that is Calvino's only path to bank data and actions. Access chec
 
 ## Interfaces and data models
 
-**Tool contracts** as JSON Schema in `contracts/tools/`, using ISO 20022-aligned shapes ("aligned", not "compliant"). Each field documents its ISO 20022 element.
+**Tool contracts** as JSON Schema in `contracts/tools/`, using ISO 20022-aligned shapes ("aligned", not "compliant"). Each field documents its ISO 20022 element. T-206 makes output fields nullable only where the documented cleaned tables have no source fact; see the TSD-024 mapping and fail-closed write rules.
 
 | Shape | Modelled on | Key fields |
 |---|---|---|
-| Account entry | camt.053 / camt.054 entry | amount and currency (ISO 4217), credit/debit indicator, booking date, value date, bank transaction code, remittance information, entry reference, status |
+| Account entry | camt.053 / camt.054 entry | amount and currency (ISO 4217), credit/debit indicator, booking date, value date, bank transaction code, remittance information, entry reference, status; T-206 may return null for source-absent optional fields and labels product projections honestly |
 | Payment status | pacs.002 | original reference, status, reason |
 | Investigation | camt.027 / camt.029 | case id, related entry, reason, status, resolution |
 | Cancellation request | camt.056, answered as camt.029 | original reference, reason, requested by, outcome (accepted, rejected), rejection reason |
