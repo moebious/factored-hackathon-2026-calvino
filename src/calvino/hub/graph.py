@@ -43,6 +43,7 @@ from calvino.api.loader import SystemOneLoader
 from calvino.classifiers import workflow_questions
 from calvino.decision_log import DecisionLog
 from calvino.hub.agent import AgentRequest, SupportAgent
+from calvino.hub.empty_input import has_content
 from calvino.hub.human_request import detects_human_request
 from calvino.hub.playbook import Playbook, StatusGuidance, load_playbook
 from calvino.hub.sessions import TrustedSessionIssuer
@@ -424,6 +425,20 @@ def build_hub_graph(
 
     def classify(state: HubState, config: RunnableConfig) -> dict[str, Any]:
         """Laya answers -> calibrated scores -> ``decide_route``; the record is logged."""
+        if not has_content(state.get("message", "")):
+            # HR-EMPTY-INPUT (DESIGN 6.1): nothing to classify, so ask before Laya guesses.
+            log_decision(
+                state,
+                stage=Stage.HARD_RULES,
+                rule_id="HR-EMPTY-INPUT",
+                verdict=Route.CLARIFY.value,
+                inputs_summary={"reason": "message has no letter or digit"},
+            )
+            return {
+                "route": Route.CLARIFY,
+                "rule_id": "HR-EMPTY-INPUT",
+                "stage": HubStage.CLARIFY,
+            }
         try:
             answers = {
                 answer.question_id: answer
