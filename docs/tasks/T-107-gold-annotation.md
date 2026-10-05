@@ -8,7 +8,7 @@
 | Blocked by | — |
 | Model | maintainer review (judgment checkpoint) |
 | Can run in parallel | no |
-| Specification | [TSD-027](../specs/TSD-027-gold-label-annotation.md) |
+| Specification | [TSD-031](../specs/TSD-031-gold-label-annotation.md) |
 | References | TSD-015; TSD-019; TSD-013; decision 16 |
 
 **Goal.** Complete the first 50 maintainer-reviewed gold cases and publish
