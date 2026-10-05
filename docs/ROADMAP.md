@@ -77,6 +77,7 @@ The hub and customer app (K, L) are already merged. Training depends on H; the p
 | **K. Calvino hub** | `feat/hub` | LangGraph hub wiring A, B, D and E through the five stages of decision 17: explain, clarify, act under the Gate, investigate (human interrupt, case file), follow up (resume) |
 | **L. Customer app** | `feat/customer-app` | the 8-card catalog in PRD FR-7, problem-payment picker, glass box, scenario buttons, ES / PT toggle |
 | **M. Cleaned-table adapter** | `feat/workflow-tools` | T-206 backs the existing tools with the full cleaned tables and source mappings; no fabricated call-to-transaction relationship |
+| **U. Premium customer experience** (UI program; lettered out of sequence, added after the fact) | `feat/premium-shell`, then per-phase branches | T-207 turns the merged customer app into a visual investigation (CaseStudy dossier, adaptive input, dynamic cards, faithful Chain of Thought, Nivel A, zero backend change); T-208 adds the conditional composer endpoint, Q1/Q2 probes and the v3 runbook. Ranked below the critical path and the submission blockers within the 4–5 stream limit (principle 4): it is presentation, not thesis evidence — it never outranks I (T-202/T-201 on T-106 generation), T-304's live link or T-501's results |
 
 ## Wave 3: end-to-end product and thesis proof
 

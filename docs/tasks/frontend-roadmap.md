@@ -21,12 +21,12 @@ green · spec merged.
 | F1.2 | Passcode-free scripts (check_deployment + tests) | F1.1 | pytest deploy | done (#68) |
 | F1.3 | Passcode-free frontend | F1.1 | lint/build | done (#68) |
 | F1.4 | Open-demo docs (DECISIONS, NFR-8, README, AGENTS, DEPLOY…) | F1.1–F1.3 | review | done (#68) |
+| F1.5 | Live deploy + smoke (maintainer) — EARLY INDEPENDENT TRACK | — (deploy outranks F1.7–F1.10) | green smoke | todo (T-304) |
 | F1.6 | Restack 8604f55 into compliant commits (premium shell) | F1.1 | hooks + CI | done (#71) |
 | F1.7 | Hygiene: drop ai dep + attachments, i18n FR-13 | F1.6 | lint/build | todo |
 | F1.8 | Conversation reducer (friction 6) | F1.6 | build + scenarios | todo |
 | F1.9 | vocabulary.ts with raw fallback (friction 3) | F1.6 | build | todo |
 | F1.10 | TSD-021 premium spec, proposed | write now | review | todo (awaiting approval) |
-| F1.5 | Live deploy + smoke (maintainer) — AT THE END | end of Fase 1 | green smoke | todo (T-304) |
 
 ## Fase 2 — premium experience, zero backend
 
@@ -48,8 +48,8 @@ fails: F3.2+F3.3+F3.5+F3.6.
 
 | ID | Task | Depends on | Verify | Status |
 |---|---|---|---|---|
-| F3.0a | Q1 Space latency (GO if p95 ≤800 ms) | — (measurable now) | measurement | todo |
-| F3.0b | Q2 PT probe (GO if comparable to ES) | — (measurable now) | measurement | todo |
+| F3.0a | Q1 Space latency (GO if p95 ≤800 ms) | T-304 (needs the live Space) | measurement | todo (blocked until the Space is live) |
+| F3.0b | Q2 PT probe (GO if comparable to ES) | — (local Laya install; no live Space needed) | measurement | todo |
 | F3.1 | POST /api/composer/intent + dedicated pool | Q1/Q2 GO + F2.2 | offline pytest | todo |
 | F3.2 | Expose turn intent (same wave) | Fase 2 output | pytest + build | todo |
 | F3.3 | policy_version in TraceStep (same wave) | F3.1/F3.2 | pytest + build | todo |
