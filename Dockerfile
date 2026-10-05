@@ -31,12 +31,30 @@ WORKDIR /app
 # every classify call on torch 2.2.2 [measured on the first live local
 # run]. Bumping laya is a deliberate change that re-runs the calibration
 # and the deployment smoke check, not a floating range.
-RUN pip install --no-cache-dir "fastapi>=0.115" "uvicorn>=0.30" "laya==0.3.24"
+RUN pip install --no-cache-dir \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    "anyio>=4.15.1" \
+    "boto3>=1.43.108" \
+    "duckdb>=1.5.6" \
+    "fastapi>=0.115" \
+    "httpx>=0.28,<1" \
+    "langgraph>=1.2.12" \
+    "langgraph-checkpoint-sqlite>=3.1.1" \
+    "laya==0.3.24" \
+    "mcp>=2.2.0" \
+    "numpy>=1.26,<2" \
+    "pydantic>=2.7,<3" \
+    "python-dotenv>=1.2.4" \
+    "pyyaml>=6.0.3" \
+    "uvicorn>=0.30"
 
 # Bake the multilingual checkpoint into the image at build time; the preload
 # at startup then only loads weights that are already on disk.
 COPY src ./src
 COPY policy ./policy
+COPY playbooks ./playbooks
+COPY prompts ./prompts
+COPY rubrics ./rubrics
 # The synthetic bank fixture the hub's tools serve (TSD-010); the API's
 # default path resolves it relative to the package, as in development.
 COPY tests/fixtures/bank/synthetic_bank.json ./tests/fixtures/bank/synthetic_bank.json

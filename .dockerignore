@@ -1,4 +1,5 @@
-# Keep the Docker build context small: the image only needs src/ and policy/.
+# Keep the Docker build context small: the image only needs src/, policy/,
+# playbooks/, prompts/, rubrics/ and the one synthetic fixture below.
 .git
 .bare
 .gitignore
@@ -13,7 +14,12 @@ frontend
 contracts
 reports
 scripts
-tests
+tests/*
+!tests/fixtures/
+tests/fixtures/*
+!tests/fixtures/bank/
+tests/fixtures/bank/*
+!tests/fixtures/bank/synthetic_bank.json
 *.log
 *.md
 !README.md
