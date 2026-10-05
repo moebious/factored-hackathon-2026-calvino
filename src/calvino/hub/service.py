@@ -18,8 +18,9 @@ from __future__ import annotations
 
 import os
 import sqlite3
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -27,7 +28,72 @@ from langgraph.types import Command
 from pydantic import BaseModel, ConfigDict, Field
 
 from calvino.hub.graph import HubDependencies, build_hub_graph
-from calvino.records import Route
+from calvino.records import DecisionRecord, Route, Stage, session_ref_for
+
+
+class OperatorQueueItem(BaseModel):
+    """One case in the operator queue (TSD-023)."""
+
+    model_config = ConfigDict(frozen=True)
+
+    case_ref: str
+    persona: str
+    status: Literal["pending_approval", "in_investigation", "refused", "resolved"]
+    reason_rule_id: str
+    created_at: str
+    customer_message: str
+    entry_reference: str | None = None
+    amount: str | None = None
+    currency: str | None = None
+    target_action: Literal["cancel_payment", "retry_payment", "open_investigation"] | None = None
+    awaiting_ref: str | None = None
+    gate_verdict: str | None = None
+
+
+DEFAULT_FALLBACK_CASES: tuple[OperatorQueueItem, ...] = (
+    OperatorQueueItem(
+        case_ref="CASE-ANA-001",
+        persona="ana",
+        status="in_investigation",
+        reason_rule_id="RT-NEEDS-PERSON",
+        created_at="2026-10-05T06:00:00Z",
+        customer_message="Necesito hablar con un humano urgente, mi transferencia no llega.",
+        entry_reference="TX-78219",
+        amount="12500.00",
+        currency="MXN",
+        target_action="open_investigation",
+        awaiting_ref="CASE-ANA-001",
+        gate_verdict=None,
+    ),
+    OperatorQueueItem(
+        case_ref="CASE-LUCIA-002",
+        persona="lucia",
+        status="pending_approval",
+        reason_rule_id="GATE-AMOUNT-LIMIT",
+        created_at="2026-10-05T06:15:00Z",
+        customer_message="Por favor reintenten mi pago de alquiler que falló ayer.",
+        entry_reference="TX-99412",
+        amount="45000.00",
+        currency="MXN",
+        target_action="retry_payment",
+        awaiting_ref="persona-lucia",
+        gate_verdict="ask",
+    ),
+    OperatorQueueItem(
+        case_ref="CASE-CARLOS-003",
+        persona="carlos",
+        status="refused",
+        reason_rule_id="TOOL-NOT-OWNER",
+        created_at="2026-10-05T06:20:00Z",
+        customer_message="Quiero cancelar una transferencia que no es de mi cuenta.",
+        entry_reference="TX-55120",
+        amount="8500.00",
+        currency="MXN",
+        target_action="cancel_payment",
+        awaiting_ref="CASE-CARLOS-003",
+        gate_verdict="block",
+    ),
+)
 
 
 class TraceStep(BaseModel):
@@ -94,6 +160,14 @@ class HubService:
         # Ref -> thread and token: keyed by the thread ref, plus the case ref
         # a queued interrupt hands the operator.
         self._threads: dict[str, dict[str, str]] = {}
+        self._cases: dict[str, OperatorQueueItem] = {}
+        self._cases_by_ref: dict[str, OperatorQueueItem] = {}
+
+    def list_cases(self) -> list[OperatorQueueItem]:
+        """List all cases in the queue, returning seeded fallback cases when empty (TSD-023)."""
+        if not self._cases:
+            return list(DEFAULT_FALLBACK_CASES)
+        return list(self._cases.values())
 
     def handle_message(self, persona: str, text: str) -> HubReply:
         """Run one customer turn on the persona's thread."""
@@ -107,16 +181,87 @@ class HubService:
         )
         return self._reply_of(state, thread_id, self._turn_trace(seen))
 
-    def resume(self, ref: str, operator_decision: Any) -> HubReply:
+    def resume(
+        self,
+        ref: str,
+        operator_decision: Any,
+        actor_id: str = "operator:demo-agent-01",
+        justification: str | None = None,
+    ) -> HubReply:
         """Continue a parked turn with the operator's decision.
 
         ``ref`` is what the interrupt handed the operator: the case ref for
         the operator queue, the thread ref for an action approval. An unknown
         ref raises instead of guessing a thread (fail closed).
+
+        Core safety invariant (decision 37): A human operator cannot override a
+        Gate block. If gate_verdict is 'block', an approval decision raises ValueError.
         """
+        case = self._cases_by_ref.get(ref) or self._cases.get(ref)
+        if case is None:
+            for fb in DEFAULT_FALLBACK_CASES:
+                if fb.awaiting_ref == ref or fb.case_ref == ref:
+                    case = fb
+                    break
+
+        if case is not None and case.gate_verdict == "block" and operator_decision is True:
+            raise ValueError(f"cannot approve action with Gate block: rule {case.reason_rule_id}")
+
         thread = self._threads.get(ref)
         if thread is None:
+            if case is not None:
+                new_status = "refused" if operator_decision is False else "resolved"
+                updated_case = OperatorQueueItem(
+                    case_ref=case.case_ref,
+                    persona=case.persona,
+                    status=new_status,
+                    reason_rule_id=case.reason_rule_id,
+                    created_at=case.created_at,
+                    customer_message=case.customer_message,
+                    entry_reference=case.entry_reference,
+                    amount=case.amount,
+                    currency=case.currency,
+                    target_action=case.target_action,
+                    awaiting_ref=case.awaiting_ref,
+                    gate_verdict=case.gate_verdict,
+                )
+                self._cases[case.case_ref] = updated_case
+                if case.awaiting_ref:
+                    self._cases_by_ref[case.awaiting_ref] = updated_case
+
+                self._deps.log.append(
+                    DecisionRecord(
+                        stage=Stage.HUMAN,
+                        session_ref=session_ref_for(f"seed-session-{ref}"),
+                        inputs_summary={
+                            "actor_id": actor_id,
+                            "case_ref": case.case_ref,
+                            "decision": str(operator_decision),
+                            "justification": justification or "Operator resolved case in console",
+                        },
+                        verdict="approved"
+                        if operator_decision is True
+                        else ("denied" if operator_decision is False else "resolved"),
+                        policy_version="v1",
+                        latency_ms=0.0,
+                    )
+                )
+                reply_text = (
+                    f"Action approved by operator: {case.target_action}"
+                    if operator_decision is True
+                    else (
+                        f"Action denied by operator: {case.target_action}"
+                        if operator_decision is False
+                        else str(operator_decision)
+                    )
+                )
+                return HubReply(
+                    reply=reply_text,
+                    case_ref=case.case_ref,
+                    route=Route.HUMAN.value,
+                )
             raise KeyError(f"no parked turn for ref {ref!r}")
+
         seen = self._logged_count()
         state = self._graph.invoke(
             Command(resume=operator_decision),
@@ -126,6 +271,43 @@ class HubService:
                     "session_token": thread["token"],
                 }
             },
+        )
+        if case is not None:
+            new_status = "refused" if operator_decision is False else "resolved"
+            updated_case = OperatorQueueItem(
+                case_ref=case.case_ref,
+                persona=case.persona,
+                status=new_status,
+                reason_rule_id=case.reason_rule_id,
+                created_at=case.created_at,
+                customer_message=case.customer_message,
+                entry_reference=case.entry_reference,
+                amount=case.amount,
+                currency=case.currency,
+                target_action=case.target_action,
+                awaiting_ref=case.awaiting_ref,
+                gate_verdict=case.gate_verdict,
+            )
+            self._cases[case.case_ref] = updated_case
+            if case.awaiting_ref:
+                self._cases_by_ref[case.awaiting_ref] = updated_case
+
+        self._deps.log.append(
+            DecisionRecord(
+                stage=Stage.HUMAN,
+                session_ref=session_ref_for(thread["token"]),
+                inputs_summary={
+                    "actor_id": actor_id,
+                    "case_ref": case.case_ref if case else ref,
+                    "decision": str(operator_decision),
+                    "justification": justification or "Operator resolved turn",
+                },
+                verdict="approved"
+                if operator_decision is True
+                else ("denied" if operator_decision is False else "resolved"),
+                policy_version="v1",
+                latency_ms=0.0,
+            )
         )
         return self._reply_of(state, thread["thread_id"], self._turn_trace(seen))
 
@@ -161,13 +343,13 @@ class HubService:
         """Turn the graph's final (or paused) state into the app's reply."""
         route = state.get("route")
         interrupts = state.get("__interrupt__") or ()
+        card = state.get("card")
+        case_ref = state.get("case_ref")
         if interrupts:
             payload = interrupts[0].value
-            case_ref = state.get("case_ref")
             awaiting_ref = str(case_ref or thread_id)
             # The operator resumes with the ref the interrupt handed them.
             self._threads[awaiting_ref] = self._threads[thread_id]
-            card = state.get("card")
             if payload.get("type") == "approve_action":
                 # FR-7: the confirmation card, mapped from the parked payload
                 # (the Gate read the amount and currency from the bank).
@@ -180,6 +362,52 @@ class HubService:
                         "currency": payload.get("currency"),
                     },
                 }
+                action_name = payload.get("action")
+                target_act: (
+                    Literal["cancel_payment", "retry_payment", "open_investigation"] | None
+                ) = (
+                    action_name
+                    if action_name in ("cancel_payment", "retry_payment", "open_investigation")
+                    else None
+                )
+                queue_item = OperatorQueueItem(
+                    case_ref=case_ref or f"CASE-{state.get('persona', 'USER').upper()}-ACT",
+                    persona=str(state.get("persona") or "unknown"),
+                    status="pending_approval",
+                    reason_rule_id=str(payload.get("rule_id") or "GATE-AMOUNT-LIMIT"),
+                    created_at=datetime.now(UTC).isoformat(),
+                    customer_message=str(state.get("message") or ""),
+                    entry_reference=payload.get("entry_reference"),
+                    amount=str(payload.get("amount"))
+                    if payload.get("amount") is not None
+                    else None,
+                    currency=payload.get("currency"),
+                    target_action=target_act,
+                    awaiting_ref=awaiting_ref,
+                    gate_verdict="ask",
+                )
+                self._cases[queue_item.case_ref] = queue_item
+                self._cases_by_ref[awaiting_ref] = queue_item
+            elif payload.get("type") == "operator_queue":
+                queue_item = OperatorQueueItem(
+                    case_ref=case_ref or f"CASE-{state.get('persona', 'USER').upper()}-ESC",
+                    persona=str(state.get("persona") or "unknown"),
+                    status="in_investigation",
+                    reason_rule_id=str(state.get("escalate_reason") or "RT-NEEDS-PERSON"),
+                    created_at=datetime.now(UTC).isoformat(),
+                    customer_message=str(state.get("message") or ""),
+                    entry_reference=state.get("entry_reference"),
+                    amount=str(state.get("action_amount"))
+                    if state.get("action_amount") is not None
+                    else None,
+                    currency=state.get("action_currency"),
+                    target_action="open_investigation",
+                    awaiting_ref=awaiting_ref,
+                    gate_verdict=None,
+                )
+                self._cases[queue_item.case_ref] = queue_item
+                self._cases_by_ref[awaiting_ref] = queue_item
+
             return HubReply(
                 reply="",
                 card=card,
@@ -190,6 +418,41 @@ class HubService:
                 awaiting_ref=awaiting_ref,
                 trace=trace,
             )
+
+        if state.get("gate_verdict") == "block" or (card and card.get("key") == "refusal"):
+            refusal_rule = str(
+                state.get("rule_id")
+                or (card.get("payload", {}).get("rule") if card else "")
+                or "GATE-BLOCK"
+            )
+            blocked_ref = case_ref or f"CASE-{state.get('persona', 'USER').upper()}-BLOCK"
+            action_name = state.get("action")
+            target_act_blocked: (
+                Literal["cancel_payment", "retry_payment", "open_investigation"] | None
+            ) = (
+                action_name
+                if action_name in ("cancel_payment", "retry_payment", "open_investigation")
+                else None
+            )
+            blocked_item = OperatorQueueItem(
+                case_ref=blocked_ref,
+                persona=str(state.get("persona") or "unknown"),
+                status="refused",
+                reason_rule_id=refusal_rule,
+                created_at=datetime.now(UTC).isoformat(),
+                customer_message=str(state.get("message") or ""),
+                entry_reference=state.get("entry_reference"),
+                amount=str(state.get("action_amount"))
+                if state.get("action_amount") is not None
+                else None,
+                currency=state.get("action_currency"),
+                target_action=target_act_blocked,
+                awaiting_ref=blocked_ref,
+                gate_verdict="block",
+            )
+            self._cases[blocked_item.case_ref] = blocked_item
+            self._cases_by_ref[blocked_ref] = blocked_item
+
         return HubReply(
             reply=str(state.get("reply") or ""),
             card=state.get("card"),
