@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed — maintainer confirms at spec review |
+| Status | accepted — the maintainer accepted P1–P6 as written on 2026-10-05; the code is merged keyless (#74) |
 | Branch | `feat/message-set` (the T-106 card says `data/message-set`; that type is rejected by the push hook, so `feat/` stands) |
 | History | first drafted as `TSD-018-message-set.md` (never merged); renumbered to TSD-019 after TSD-018 was taken by the human-baseline spec |
 | Depends on | T-103 / TSD-015 (labels, splits, L1–L5, rubric v1, gold sheet); TSD-013 (the oracle consumer) |
@@ -38,6 +38,14 @@ figures. Boundary with T-203: Portuguese is explicitly out of this spec
 Every item below resolves one open choice. Each is marked **proposed —
 maintainer confirms at spec review**, and the implementation PR changes
 nothing marked this way without a new entry here.
+
+**Acceptance (2026-10-05).** The maintainer accepted P1–P6 as written, so
+the "proposed" markers below record the original wording and the defaults
+now stand. The optional second-label pass in P4 (a different-family model
+over every row, the maintainer adjudicating disagreements only) is
+recommended and planned. Open items that this acceptance does not close,
+both the maintainer's: dataset access for the seed-drawing step (P2) and a
+backup location for the secret salt (P3).
 
 - **P1 — sizes and composition (proposed — maintainer confirms at spec
   review).** Train 600, calibration 240, test 300 (total 1,140), composed
