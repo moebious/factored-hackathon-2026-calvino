@@ -1,0 +1,15 @@
+transaction_id,customer_id,product_id,transaction_date,transaction_type,transaction_status,amount,currency,amount_usd,response_code,transaction_country,is_fraud,channel
+E-MX-001,C-MX-001,P-MX-001,2026-06-01,Payment,Approved,200,MXN,11.76,,México,false,App
+E-MX-002,C-MX-001,P-MX-001,2026-06-10,Transfer,Pending,5000,MXN,294.12,00,Mexico,false,App
+E-MX-003,C-MX-001,P-MX-001,2026-06-12,Transfer,Declined,3000,MXN,176.47,51,MX,false,Web Chat
+E-MX-004,C-MX-001,P-MX-001,2026-06-05,Transfer,Approved,800,MXN,47.06,00,MX,false,App
+E-MX-006,C-MX-001,P-MX-001,2026-06-13,Purchase,Pending,99.99,MXN,5.88,00,MX,false,App
+E-MX-007,C-MX-001,P-MX-001,2026-06-08,Payment,Reversed,450,MXN,26.47,00,MX,false,App
+E-MX-008,C-MX-001,P-MX-001,2026-06-16,Transfer,Pending,12000,MXN,705.88,00,MX,false,App
+E-CO-001,C-CO-001,P-CO-001,2026-06-03,Transfer,Pending,250000,COP,62.50,00,CO,false,App
+E-CO-002,C-CO-001,,2026-06-14,Transfer,Pending,,,,,,,
+E-CO-003,C-CO-001,P-CO-001,2026-06-18,Transfer,Pending,100000,COP,25.00,00,CO,false,App
+E-CO-004,C-CO-001,P-CO-001,2026-06-20,Transfer,Pending,120000,COP,30.00,00,CO,,App
+E-AR-001,C-AR-001,P-AR-001,2026-06-09,Transfer,Pending,50000,ARS,33.33,00,AR,true,App
+E-AR-002,C-AR-001,P-AR-001,2026-06-11,Transfer,Declined,75000,ARS,50.00,59,AR,true,App
+E-AR-003,C-AR-001,P-AR-001,2026-06-15,Payment,Approved,120,USD,120.00,00,AR,false,App

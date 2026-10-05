@@ -58,12 +58,12 @@ def create_server(
 
     @server.tool()
     def get_customer_summary(ctx: Context) -> CustomerSummary:
-        """The signed-in customer: name, country, segment and number of accounts."""
+        """Signed-in customer details; some source fields may be unavailable."""
         return run(ctx, lambda s: tools.get_customer_summary(s))
 
     @server.tool()
     def list_accounts(ctx: Context) -> list[Account]:
-        """The signed-in customer's accounts."""
+        """The signed-in customer's accounts or linked-product projections."""
         return run(ctx, lambda s: tools.list_accounts(s))
 
     @server.tool()

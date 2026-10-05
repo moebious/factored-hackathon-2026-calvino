@@ -3,8 +3,9 @@
 | | |
 |---|---|
 | Wave | 2 |
+| Status | doing — implementation complete locally; awaiting separate push approval |
 | Branch | `feat/workflow-tools` |
-| Depends on | T-002, T-101 |
+| Depends on | T-002, T-101, T-102 |
 | Blocked by | — |
 | Model | standard model |
 | Can run in parallel | yes |
@@ -18,8 +19,8 @@
 
 **Constraints.** follow the handling rules in DATA.md: payment status from `transaction_status` only (a null `response_code` is not a failure); `Mexico` mapped to MX like `México`; amounts keep their ISO 4217 currency and are converted to USD only for cross-currency figures; demo personas in MX, CO or AR with MXN, COP, ARS or USD, never BRL
 
-**Open parameters.** the action limits (policy assumptions, set in the policy module)
+**Open parameters.** —; use the existing policy assumptions unchanged
 
 **Done when.** the existing conformance and security suites pass on the cleaned-table adapter, payments are selected by their actual owner/status without invented cross-table attribution, and outputs retain their source and currency. The full-table implementation is not a claim of access to a live banking core.
 
-**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
+**Implementation boundary.** [TSD-024](../specs/TSD-024-cleaned-table-adapter.md) is approved. The implementation and tests use only labelled synthetic fixtures; the operator-provided cleaned layer remains unaccessed and any full-data smoke test is a separate operator-controlled step.

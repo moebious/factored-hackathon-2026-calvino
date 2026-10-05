@@ -88,3 +88,81 @@ def test_an_investigation_can_be_opened_even_on_a_fraud_flagged_entry(dataset_en
         dataset_env.token("C-AR-001", "open_investigation", "E-AR-001"),
     )
     assert case.status == "Open" and case.related_entry_reference == "E-AR-001"
+
+
+@pytest.mark.parametrize(
+    ("tool", "entry_reference"),
+    [
+        ("request_cancellation", "E-MX-002"),
+        ("retry_payment", "E-MX-003"),
+        ("open_investigation", "E-MX-001"),
+    ],
+)
+@pytest.mark.parametrize("missing_field", ["amount", "currency"])
+def test_missing_confirmation_facts_refuse_before_consuming_token_or_writing(
+    dataset_env: Env, tool: str, entry_reference: str, missing_field: str
+) -> None:
+    session = dataset_env.session("C-MX-001")
+    original = dataset_env.adapter._records[entry_reference]
+    token = dataset_env.token("C-MX-001", tool, entry_reference)
+    dataset_env.adapter._records[entry_reference] = original.model_copy(
+        update={
+            "entry": original.entry.model_copy(update={missing_field: None}),
+        }
+    )
+
+    with pytest.raises(ToolRefusal) as caught:
+        if tool == "request_cancellation":
+            dataset_env.tools.request_cancellation(session, entry_reference, "missing-fact", token)
+        elif tool == "retry_payment":
+            dataset_env.tools.retry_payment(session, entry_reference, "missing-fact", token)
+        else:
+            dataset_env.tools.open_investigation(
+                session, entry_reference, "Customer asks for help", "missing-fact", token
+            )
+
+    assert caught.value.rule is Rule.SOURCE_INCOMPLETE
+    assert dataset_env.adapter.action_log == []
+    dataset_env.verifier.verify_and_consume(
+        token,
+        customer_id="C-MX-001",
+        action=tool,
+        target_reference=entry_reference,
+        amount=original.entry.amount,
+        currency=original.entry.currency,
+    )
+
+
+@pytest.mark.parametrize(
+    ("tool", "entry_reference"),
+    [
+        ("request_cancellation", "E-MX-002"),
+        ("retry_payment", "E-MX-003"),
+    ],
+)
+def test_unknown_fraud_status_refuses_before_consuming_token(
+    dataset_env: Env, tool: str, entry_reference: str
+) -> None:
+    session = dataset_env.session("C-MX-001")
+    original = dataset_env.adapter._records[entry_reference]
+    token = dataset_env.token("C-MX-001", tool, entry_reference)
+    dataset_env.adapter._records[entry_reference] = original.model_copy(
+        update={"fraud_flagged": None}
+    )
+
+    with pytest.raises(ToolRefusal) as caught:
+        if tool == "request_cancellation":
+            dataset_env.tools.request_cancellation(session, entry_reference, "unknown-fraud", token)
+        else:
+            dataset_env.tools.retry_payment(session, entry_reference, "unknown-fraud", token)
+
+    assert caught.value.rule is Rule.SOURCE_INCOMPLETE
+    assert dataset_env.adapter.action_log == []
+    dataset_env.verifier.verify_and_consume(
+        token,
+        customer_id="C-MX-001",
+        action=tool,
+        target_reference=entry_reference,
+        amount=original.entry.amount,
+        currency=original.entry.currency,
+    )

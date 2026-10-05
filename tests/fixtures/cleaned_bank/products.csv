@@ -1,0 +1,4 @@
+product_id,customer_id,product_type,currency
+P-MX-001,C-MX-001,checking,MXN
+P-CO-001,C-CO-001,savings,COP
+P-AR-001,C-AR-001,checking,ARS

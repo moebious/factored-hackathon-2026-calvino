@@ -172,6 +172,11 @@ class BankTools:
                         "this idempotency key was already used for a different request",
                     )
                 return result
+            if record.entry.amount is None or record.entry.currency is None:
+                raise ToolRefusal(
+                    Rule.SOURCE_INCOMPLETE,
+                    "the source lacks the amount or currency required to confirm this action",
+                )
             check_eligible(s, record)
             self._verifier.verify_and_consume(
                 confirmation_token,
@@ -187,9 +192,19 @@ class BankTools:
 
 
 def _require_eligible(record: EntryRecord, required: TransactionStatus, verb: str) -> None:
+    if record.fraud_flagged is None:
+        raise ToolRefusal(
+            Rule.SOURCE_INCOMPLETE,
+            "the source lacks the fraud status required to authorize this action",
+        )
     if record.fraud_flagged:
         raise ToolRefusal(
             Rule.FRAUD_FLAGGED, f"this transaction cannot be {verb}; a person must review it"
+        )
+    if record.transaction_type is None:
+        raise ToolRefusal(
+            Rule.SOURCE_INCOMPLETE,
+            "the source lacks the transaction type required to authorize this action",
         )
     status = record.entry.status
     if record.transaction_type not in _ACTIONABLE_TYPES or status != required:

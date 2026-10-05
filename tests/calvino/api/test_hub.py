@@ -12,6 +12,8 @@ limit.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -21,7 +23,9 @@ from calvino.api.hub import build_demo_hub
 from calvino.classifiers import LayaAnswer
 from calvino.decision_log import DecisionLog
 from calvino.policy import load_policy
-from calvino.tools import FakeConfirmationVerifier
+from calvino.tools import CleanedTableAdapter, FakeConfirmationVerifier
+
+CLEANED_FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "cleaned_bank"
 
 DANA_EXPLAIN = "Su transferencia de 120.00 USD «Tuition» del 2026-06-15 está rechazada."
 
@@ -114,6 +118,33 @@ def test_personas_is_open(make_hub_client):
         response = client.get("/api/hub/personas")
     assert response.status_code == 200
     assert response.json() == {"personas": ["ana", "camilo", "lucia", "dana"]}
+
+
+def test_demo_hub_accepts_an_explicit_adapter_and_fraud_context(tmp_path, monkeypatch):
+    """The alternate data source is injected; no configured dataset path is auto-read."""
+    monkeypatch.delenv("CALVINO_DATA_DIR", raising=False)
+    settings = ApiSettings(data_dir=tmp_path, bank_fixture=tmp_path / "not-opened.json")
+    adapter = CleanedTableAdapter(CLEANED_FIXTURE, lineage_path=tmp_path / "cleaned-lineage.json")
+
+    class NoFlaggedCustomers:
+        def is_flagged(self, session):
+            return False
+
+    try:
+        hub = build_demo_hub(
+            ScriptedLoader(route_probabilities()),
+            settings,
+            load_policy(),
+            DecisionLog(settings.decisions_log),
+            confirmations=FakeConfirmationVerifier(),
+            bank_adapter=adapter,
+            fraud_context=NoFlaggedCustomers(),
+        )
+
+        assert hub._deps.tools._adapter is adapter
+        assert hub._deps.fraud_context is not None
+    finally:
+        adapter.close()
 
 
 def test_message_explain_returns_reply_card_and_trace(make_hub_client):

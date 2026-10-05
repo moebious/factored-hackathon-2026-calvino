@@ -1,40 +1,69 @@
 {
   "additionalProperties": false,
-  "description": "A cash account (camt.052 ``Acct``).",
+  "description": "An account or linked-product projection (camt.052 ``Acct`` shape).",
   "properties": {
     "account_id": {
-      "description": "Acct/Id",
+      "description": "Acct/Id; source product id in the cleaned-table adapter",
       "title": "Account Id",
       "type": "string"
     },
     "account_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
       "description": "Acct/Tp",
-      "title": "Account Type",
-      "type": "string"
+      "title": "Account Type"
     },
     "balance": {
+      "anyOf": [
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
       "description": "Bal/Amt",
-      "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
-      "title": "Balance",
-      "type": "string"
+      "title": "Balance"
     },
     "currency": {
+      "anyOf": [
+        {
+          "description": "ISO 4217 currency code",
+          "pattern": "^[A-Z]{3}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
       "description": "Acct/Ccy",
-      "pattern": "^[A-Z]{3}$",
-      "title": "Currency",
-      "type": "string"
+      "title": "Currency"
     },
     "status": {
-      "title": "Status",
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Status"
     }
   },
   "required": [
-    "account_id",
-    "account_type",
-    "currency",
-    "status",
-    "balance"
+    "account_id"
   ],
   "title": "Account",
   "type": "object"

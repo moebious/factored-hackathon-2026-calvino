@@ -67,33 +67,42 @@ class CustomerSummary(_Contract):
     """The signed-in customer, as seen by the agent (no ISO message; a business-partner extract)."""
 
     customer_id: str
-    display_name: str
+    display_name: str | None = None
     country: CountryCode
-    segment: str
-    account_count: int = Field(ge=0)
+    segment: str | None = None
+    account_count: int | None = Field(default=None, ge=0)
 
 
 class Account(_Contract):
-    """A cash account (camt.052 ``Acct``)."""
+    """An account or linked-product projection (camt.052 ``Acct`` shape)."""
 
-    account_id: str = Field(description="Acct/Id")
-    account_type: str = Field(description="Acct/Tp")
-    currency: CurrencyCode = Field(description="Acct/Ccy")
-    status: str
-    balance: Decimal = Field(max_digits=18, decimal_places=2, description="Bal/Amt")
+    account_id: str = Field(description="Acct/Id; source product id in the cleaned-table adapter")
+    account_type: str | None = Field(default=None, description="Acct/Tp")
+    currency: CurrencyCode | None = Field(default=None, description="Acct/Ccy")
+    status: str | None = None
+    balance: Decimal | None = Field(
+        default=None, max_digits=18, decimal_places=2, description="Bal/Amt"
+    )
 
 
 class AccountEntry(_Contract):
-    """An account entry (camt.053 ``Ntry`` / camt.054 notification)."""
+    """An account entry, with nullable fields when a source has no matching element."""
 
     entry_reference: str = Field(description="Ntry/NtryRef")
-    amount: Amount = Field(description="Ntry/Amt")
-    currency: CurrencyCode = Field(description="Ntry/Amt@Ccy")
-    credit_debit: CreditDebit = Field(description="Ntry/CdtDbtInd")
+    amount: Amount | None = Field(default=None, description="Ntry/Amt")
+    currency: CurrencyCode | None = Field(default=None, description="Ntry/Amt@Ccy")
+    credit_debit: CreditDebit | None = Field(default=None, description="Ntry/CdtDbtInd")
     status: TransactionStatus = Field(description="Ntry/Sts")
-    booking_date: date = Field(description="Ntry/BookgDt")
-    value_date: date = Field(description="Ntry/ValDt")
-    bank_transaction_code: str = Field(description="Ntry/BkTxCd (domain-family-subfamily)")
+    booking_date: date | None = Field(
+        default=None,
+        description=(
+            "Ntry/BookgDt; projects the source transaction date, not a distinct bank booking date"
+        ),
+    )
+    value_date: date | None = Field(default=None, description="Ntry/ValDt")
+    bank_transaction_code: str | None = Field(
+        default=None, description="Ntry/BkTxCd (domain-family-subfamily)"
+    )
     remittance_information: str | None = Field(
         default=None, description="Ntry/NtryDtls/TxDtls/RmtInf/Ustrd"
     )
@@ -153,9 +162,9 @@ class EntryRecord(BaseModel):
 
     entry: AccountEntry
     customer_id: str
-    account_id: str
-    transaction_type: str
-    fraud_flagged: bool = False
+    account_id: str | None = None
+    transaction_type: str | None = None
+    fraud_flagged: bool | None = None
     status_reason: str | None = None
     # Kept only to document that it exists and is ignored: status never derives from it.
     response_code: str | None = None

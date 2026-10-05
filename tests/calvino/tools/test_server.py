@@ -102,4 +102,4 @@ def test_a_list_tool_returns_the_customers_entries(dataset_env: Env) -> None:
     result = call(dataset_env, dataset_env.session("C-CO-001"), "list_problem_transactions")
     assert not result.is_error
     refs = {e["entry_reference"] for e in result.structured_content["result"]}
-    assert refs == {"E-CO-001", "E-CO-002"}
+    assert refs == {"E-CO-001", "E-CO-002", "E-CO-003"}
