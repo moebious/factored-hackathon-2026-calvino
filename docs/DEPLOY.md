@@ -25,7 +25,7 @@ curl -X POST http://127.0.0.1:7860/api/demo/decide \
   -d '{"text": "Mi transferencia sigue pendiente desde ayer."}'
 curl -X POST http://127.0.0.1:7860/api/hub/message \
   -H 'content-type: application/json' \
-  -d '{"persona": "ana", "text": "¿Por qué sigue pendiente E-MX-002?"}'
+  -d '{"persona": "ana", "text": "Mi pago E-MX-002 sigue pendiente, ¿qué pasa?"}'
 ```
 
 With Docker (matches the Space image; the first build downloads torch and the
