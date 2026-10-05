@@ -55,3 +55,18 @@ export type CaseStudy = {
   trace: TraceStep[];             // Full audited harness decision steps
   finalResponse: string | null;   // Grounded, verified reply from Calvino
 };
+
+export type OperatorQueueItem = {
+  case_ref: string;
+  persona: string;
+  status: "pending_approval" | "in_investigation" | "refused" | "resolved";
+  reason_rule_id: string;
+  created_at: string;
+  customer_message: string;
+  entry_reference: string | null;
+  amount: string | null;
+  currency: string | null;
+  target_action: "cancel_payment" | "retry_payment" | "open_investigation" | null;
+  awaiting_ref: string | null;
+  gate_verdict: string | null;
+};

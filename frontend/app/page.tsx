@@ -9,6 +9,7 @@ import {
   RotateCcw,
   ShieldCheck,
   Sparkles,
+  User,
 } from "lucide-react";
 import { Attachments, AudioPlayer } from "./ai-elements";
 import { CardView } from "./cards";
@@ -90,6 +91,14 @@ export default function Home() {
           </span>
           Calvino
         </a>
+        <nav className="view-switcher" aria-label="Navegación de producto">
+          <a href="/" className="view-tab active">
+            <User size={13} /> {s.customerApp}
+          </a>
+          <a href="/console" className="view-tab">
+            <ShieldCheck size={13} /> {s.operatorWorkspace}
+          </a>
+        </nav>
         <div className="topbar-status">
           <span className="live-dot" /> {s.systemProtected} <ShieldCheck size={15} />
         </div>
