@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   CalendarDays,
@@ -18,7 +18,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import type { AttachmentItem } from "../../types";
-import { detectIntent } from "./intent-engine";
+import { decide, detectIntent, type CalmState } from "./intent-engine";
 import { SplitMorph } from "./morphs/SplitMorph";
 import { ChecklistMorph } from "./morphs/ChecklistMorph";
 import { StatusTrackMorph } from "./morphs/StatusTrackMorph";
@@ -47,7 +47,14 @@ export function IntentDrivenCard({
 }: IntentDrivenCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const s = strings(lang);
-  const intent = useMemo(() => detectIntent(text, lang), [text, lang]);
+  const observed = useMemo(() => detectIntent(text, lang), [text, lang]);
+  // Commit per-keystroke observations through the calm-UI hysteresis so the
+  // morph preview only switches after a repeated intent (decision 45).
+  const [calm, setCalm] = useState<CalmState | null>(null);
+  useEffect(() => {
+    setCalm((prev) => decide(prev, observed));
+  }, [observed]);
+  const intent = calm?.committed ?? observed;
 
   const { isListening, isSupported, toggleListening } = useSpeechRecognition({
     lang: lang === "pt" ? "pt-BR" : "es-ES",
