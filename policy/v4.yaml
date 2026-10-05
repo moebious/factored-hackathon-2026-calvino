@@ -1,0 +1,56 @@
+# Calvino policy v4 (TSD-030): v3 with route confidence calibrated to the 5-class workflow_area distribution
+# v1, v2, and v3 stay on disk unchanged; decisions logged under them replay under them.
+#
+# What the diagnostic showed (T-209, Decision 46):
+# In policy v3, confidence_source was set to workflow_area, but min_confidence remained 0.60.
+# In a 5-class distribution, random guessing is 0.20; a probability >= 0.50 is a decisive majority.
+# Messages with P(stuck payment) in [0.50, 0.60) passed min_stuck_payment: 0.50 (RT-CLARIFY-NOT-STUCK)
+# but were contradicted and blocked by RT-CLARIFY-CONFIDENCE (confidence < 0.60), causing false
+# clarifies on routine queries (e.g. ORC-007, ORC-008, ORC-016).
+# Policy v4 aligns the route's min_confidence to 0.50, matching the 5-class majority floor.
+# Gate write protections (min_confidence: 0.60, min_clear_enough: 0.70) are completely unchanged.
+# Status: default policy since 2026-10-05 (decision 46); v1, v2, and v3 stay for replay.
+version: v4
+
+assumptions: >
+  Route confidence threshold is aligned to 0.50 for the 5-class workflow-area answer, eliminating
+  the contradiction with min_stuck_payment: 0.50 and letting decisive stuck-payment requests
+  reach the agent. The Gate's own thresholds (0.60 confidence, 0.70 clarity, amounts) are
+  unchanged and continue to strictly guard all consequential writes.
+
+route:
+  # Probabilities come from calibrated Laya answers; ties go to the safer side.
+  escalate_at: 0.70           # unused while use_needs_human is false (kept so the file validates)
+  act_below: 0.30             # unused while use_needs_human is false
+  out_of_scope_at: 0.60       # workflow area "out of scope" at or above
+  dispute_or_fraud_at: 0.50   # workflow area "dispute or fraud" at or above: a person handles it
+  injection_at: 0.50          # injection or manipulation at or above: a person handles it
+  min_clear_enough: null      # off: the clear_enough question blocked routine requests [measured]
+  min_confidence: 0.50        # aligned to 0.50: top choice in 5-class distribution >= 0.50 is decisive
+  use_needs_human: false
+  talk_to_person_at: 0.50     # intent "talk to a person" at or above: a person handles it
+  min_stuck_payment: 0.50     # workflow area "stuck payment" below: ask a clarifying question
+  confidence_source: workflow_area
+
+hard_rules:
+  auth_failure_limit: 3       # HR-AUTH fires at this many failed authentications or more
+  amount_limit:               # HR-AMOUNT fires above these amounts [policy assumption]
+    MXN: 85000
+    COP: 20000000
+    ARS: 1750000
+    USD: 5000
+
+gate:
+  allow_amount_limit:         # above these amounts an action needs a person's approval [policy assumption]
+    MXN: 8500
+    COP: 2000000
+    ARS: 175000
+    USD: 500
+  min_clear_enough: 0.70      # below: ask a person instead of acting on a guess
+  min_confidence: 0.60        # below: ask a person
+  injection_at: 0.50          # at or above: block
+  on_missing_scores: ask      # "ask" (escalate to a person) or "block" when Laya scores are absent
+  eligible_statuses:          # transaction statuses each action may be applied to
+    request_cancellation: [pending]
+    retry_payment: [declined]
+    open_investigation: [pending, declined, reversed]
