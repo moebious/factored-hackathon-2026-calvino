@@ -76,6 +76,7 @@ def test_existing_fifty_rows_load_and_are_reported_unscored():
     assert all(not row.record.has_complete_outcome_annotation() for row in rows if row.record)
     body = report.render_report(rows, run_date="2026-10-04", git_sha="test")
     assert body.startswith("# T-107 gold/oracle consistency report")
+    assert "- Classifier labels complete: 18/50" in body
     assert "scored 0/50" in body
     assert "gold-001" in body
     assert "oracle_facts, human_outcome, outcome_annotator, outcome_labelled_at" in body

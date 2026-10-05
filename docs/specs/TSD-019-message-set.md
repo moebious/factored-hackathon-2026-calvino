@@ -373,17 +373,17 @@ triggering inference. Supplying either outcome field for scoring also
 requires `outcome_annotator` and `outcome_labelled_at`; ordinary
 `annotator` and `labelled_at` continue to describe the classifier labels.
 
-The T-107 report (`reports/eval/T-103-gold-agreement.md`) states oracle
-outcome agreement as numerator/denominator, exact agreement, `scored n/50`,
-single-annotator status, descriptive scope, and the outcome confusion
-matrix. It reports Cohen's kappa only when defined; kappa is descriptive
-consistency with the oracle, not inter-annotator agreement or independent
-validation. Any undefined metric names why. Every oracle/human outcome
-disagreement is listed by `gold_id`, reviewed by the maintainer, and
-classified as rubric gap, oracle mapping bug or label slip; the resolution
-is recorded in `reports/eval/T-103-gold-disagreements.md`. The report and
-log contain synthetic gold ids and reviewed labels only, no dataset
-records.
+The T-107 report (`reports/eval/T-103-gold-agreement.md`) states classifier
+label completeness and oracle outcome agreement as numerator/denominator,
+exact agreement, `scored n/50`, single-annotator status, descriptive scope,
+and the outcome confusion matrix. It reports Cohen's kappa only when
+defined; kappa is descriptive consistency with the oracle, not
+inter-annotator agreement or independent validation. Any undefined metric
+names why. Every oracle/human outcome disagreement is listed by `gold_id`,
+reviewed by the maintainer, and classified as rubric gap, oracle mapping
+bug or label slip; the resolution is recorded in
+`reports/eval/T-103-gold-disagreements.md`. The report and log contain
+synthetic gold ids and reviewed labels only, no dataset records.
 
 T-103 implements the additive `GoldRecord` schema and blank annotation
 sheet under TSD-015. T-107 owns the maintainer's annotations and runs the

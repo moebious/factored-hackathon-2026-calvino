@@ -235,6 +235,7 @@ def render_report(
     annotator = next(iter(annotators), "no complete annotations")
     complete_ids = {outcome.gold_id for outcome in scored}
     unscored = [row for row in rows if row.gold_id not in complete_ids]
+    labelled_count = sum(row.record is not None and row.record.is_labelled() for row in rows)
 
     lines = [
         "# T-107 gold/oracle consistency report",
@@ -244,6 +245,7 @@ def render_report(
         "- Evidence: measured, single-annotator consistency with the TSD-013 "
         "oracle under nominal facts",
         f"- Outcome annotator: {annotator}",
+        f"- Classifier labels complete: {labelled_count}/{len(rows)}",
         f"- Gold sheet: {len(rows)} rows; scored {denominator}/{len(rows)}",
         "",
         "This is not an independent benchmark or a real-world oracle error bound. "
