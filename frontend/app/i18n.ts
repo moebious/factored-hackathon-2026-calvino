@@ -74,6 +74,9 @@ export const STRINGS = {
       "Una experiencia que evoluciona cada solicitud en un caso de estudio trazable con evidencia bancaria verificada.",
     tryRoute: "Prueba una ruta",
     guidedDemo: "Demo guiada de políticas",
+    caseCatalog: "Catálogo de casos",
+    caseCatalogSubtitle: "Qué demuestra cada botón",
+    caseSendsAs: "Envía",
     conversation: "Conversación",
     emptyStageTitle: "Tu investigación empieza aquí.",
     emptyStageSubtitle:
@@ -280,6 +283,9 @@ export const STRINGS = {
       "Uma experiência que evolui cada solicitação para um caso de estudo rastreável com evidências bancárias verificadas.",
     tryRoute: "Experimente uma rota",
     guidedDemo: "Demonstração guiada de políticas",
+    caseCatalog: "Catálogo de casos",
+    caseCatalogSubtitle: "O que cada botão demonstra",
+    caseSendsAs: "Envia",
     conversation: "Conversa",
     emptyStageTitle: "Sua investigação começa aqui.",
     emptyStageSubtitle:

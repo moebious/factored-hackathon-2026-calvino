@@ -346,6 +346,30 @@ export default function Home() {
               selected !== null && void resume(selected, ref, decision)
             }
           />
+
+          {/* Guided-route catalog: what each case study button demonstrates. */}
+          <section className="case-catalog" aria-label={s.caseCatalog}>
+            <div className="section-label">
+              <span>{s.caseCatalog}</span>
+              <small>{s.caseCatalogSubtitle}</small>
+            </div>
+            <ol>
+              {SCENARIOS.map((scenario) => {
+                const label = scenarioLabel(lang, scenario);
+                const code = label.split(" · ")[0];
+                const what = label.split(" · ").slice(1).join(" · ");
+                return (
+                  <li key={scenario.id}>
+                    <strong>{code}</strong>
+                    <span>{what}</span>
+                    <small>
+                      {s.caseSendsAs} {scenario.persona} · “{scenario.message}”
+                    </small>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
         </aside>
 
         {!traceOpen && (
