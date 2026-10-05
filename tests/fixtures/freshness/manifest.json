@@ -1,0 +1,15 @@
+{
+  "fixture": "T-105 synthetic freshness/update correctness",
+  "synthetic": true,
+  "schema_version": "v1",
+  "contract_version": "freshness-source-v1",
+  "producer_commit": "fixture-commit-v1",
+  "policy_version": "v2",
+  "initial_revisions": "initial.jsonl",
+  "updates": "updates.jsonl",
+  "frozen_members": [
+    "frozen-move-out",
+    "frozen-suite-sentinel"
+  ],
+  "frozen_suite_sentinel_id": "frozen-suite-sentinel"
+}

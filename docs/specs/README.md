@@ -23,7 +23,8 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-018](TSD-018-human-baseline.md): full-data human baseline (T-104)
 - [TSD-019](TSD-019-message-set.md): team-generated customer message set (T-106, proposed)
 - [TSD-020](TSD-020-laya-fine-tuning.md): Laya fine-tuning (T-202, proposed)
+- [TSD-021](TSD-021-freshness-fixture.md): update-correctness fixture (T-105, proposed)
 
-Later tasks write their spec from their task card as the first step, numbered from TSD-021, and wait for the maintainer's approval before any code.
+Later tasks write their spec from their task card as the first step, numbered from TSD-022, and wait for the maintainer's approval before any code.
 
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.
