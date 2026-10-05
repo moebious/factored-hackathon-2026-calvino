@@ -3,12 +3,14 @@
 | | |
 |---|---|
 | Wave | 3 |
+| Status | done |
 | Branch | `feat/console-queue` |
+| Spec | [TSD-023](../specs/TSD-023-operator-console.md) |
 | Depends on | T-204 |
 | Blocked by | — |
 | Model | standard model |
 | Can run in parallel | yes |
-| References | decision 11; PRD FR-9, FR-10 |
+| References | decision 11; PRD FR-9, FR-10, FR-11; PRD UC-6, AC-4 |
 
 **Goal.** The usable System 3 workspace: cases requiring accountable human judgment, with verified evidence and every refusal named (decision 37).
 
@@ -20,4 +22,5 @@
 
 **Done when.** PRD UC-6 and AC-4 work through an operator's real queue and case workspace, attributable edits and takeover appear in the audit trace, and tests prove neither an edited reply nor a human approval bypasses ownership, eligibility or the Gate's block.
 
-**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
+**Completed:** TSD-023 approved in #89. Backend `GET /api/hub/cases` with fallback demo seeds, Gate block enforcement on `/api/hub/resume`, Next.js `/console` route with `OperatorQueueTable`, `OperatorCaseDossier`, `ActionApprovalBar`, `AttributableReplyEditor`, and bilingual ES/PT parity implemented on `feat/console-queue`.
+
