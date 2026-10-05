@@ -1,0 +1,1723 @@
+{
+  "source": "evaluation/exploratory/needs-person-dev-v0.jsonl",
+  "evidence": "exploratory, team-written rows the thresholds were chosen on",
+  "n": 110,
+  "needs_person": 46,
+  "auroc": {
+    "needs_human": 0.43410326086956524,
+    "area: dispute or fraud": 0.7204483695652174,
+    "intent: talk to a person": 0.7511888586956522,
+    "injection": 0.75390625,
+    "max(area, intent, injection)": 0.8644701086956522
+  },
+  "policies": {
+    "v2": {
+      "routine_to_agents": [
+        0,
+        64
+      ],
+      "needs_person_to_agents": [
+        1,
+        46
+      ],
+      "needs_person_to_human": [
+        37,
+        46
+      ],
+      "routine_stopped_by": {
+        "RT-CLARIFY-CONFIDENCE": 16,
+        "RT-ESCALATE": 32,
+        "RT-DISPUTE-FRAUD": 7,
+        "RT-CLARIFY-UNCLEAR": 7,
+        "RT-CLARIFY-BAND": 1,
+        "RT-INJECTION": 1
+      },
+      "needs_person_stopped_by": {
+        "RT-DISPUTE-FRAUD": 25,
+        "RT-ESCALATE": 11,
+        "RT-CLARIFY-CONFIDENCE": 7,
+        "RT-CLARIFY-BAND": 1,
+        "RT-INJECTION": 1
+      }
+    },
+    "v3": {
+      "routine_to_agents": [
+        35,
+        64
+      ],
+      "needs_person_to_agents": [
+        8,
+        46
+      ],
+      "needs_person_to_human": [
+        33,
+        46
+      ],
+      "routine_stopped_by": {
+        "RT-CLARIFY-NOT-STUCK": 19,
+        "RT-DISPUTE-FRAUD": 7,
+        "RT-CLARIFY-CONFIDENCE": 2,
+        "RT-INJECTION": 1
+      },
+      "needs_person_stopped_by": {
+        "RT-DISPUTE-FRAUD": 25,
+        "RT-CLARIFY-NOT-STUCK": 4,
+        "RT-TALK-TO-PERSON": 7,
+        "RT-INJECTION": 1,
+        "RT-CLARIFY-CONFIDENCE": 1
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "EXP-001",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-002",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-003",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-004",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ]
+      }
+    },
+    {
+      "id": "EXP-005",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-006",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-007",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-008",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-009",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-UNCLEAR"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-010",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-UNCLEAR"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-011",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-012",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-013",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-014",
+      "kind": "status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-015",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-UNCLEAR"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-016",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-017",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-018",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-019",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-020",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-021",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-022",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-023",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-024",
+      "kind": "why",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-025",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-026",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-BAND"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-027",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-028",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-029",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-030",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-UNCLEAR"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-031",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-032",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-033",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-034",
+      "kind": "cancel",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-035",
+      "kind": "retry",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-UNCLEAR"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-036",
+      "kind": "retry",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-UNCLEAR"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-037",
+      "kind": "retry",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ]
+      }
+    },
+    {
+      "id": "EXP-038",
+      "kind": "retry",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-UNCLEAR"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-039",
+      "kind": "retry",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-040",
+      "kind": "retry",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-041",
+      "kind": "retry",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-042",
+      "kind": "retry",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-043",
+      "kind": "open_case",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-044",
+      "kind": "open_case",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-045",
+      "kind": "open_case",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-046",
+      "kind": "open_case",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-047",
+      "kind": "open_case",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-048",
+      "kind": "open_case",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-049",
+      "kind": "open_case",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-050",
+      "kind": "open_case",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-051",
+      "kind": "case_status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-052",
+      "kind": "case_status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-053",
+      "kind": "case_status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-054",
+      "kind": "case_status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-055",
+      "kind": "case_status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-056",
+      "kind": "case_status",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-057",
+      "kind": "frustrated_routine",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-058",
+      "kind": "frustrated_routine",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-059",
+      "kind": "frustrated_routine",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-060",
+      "kind": "frustrated_routine",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-INJECTION"
+        ],
+        "v3": [
+          "human",
+          "RT-INJECTION"
+        ]
+      }
+    },
+    {
+      "id": "EXP-061",
+      "kind": "frustrated_routine",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-062",
+      "kind": "frustrated_routine",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-063",
+      "kind": "frustrated_routine",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-064",
+      "kind": "frustrated_routine",
+      "needs_person": false,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-065",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-066",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-067",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-068",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-069",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-070",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-071",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-072",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-073",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-074",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-075",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-076",
+      "kind": "dispute",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-077",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-078",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-079",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-080",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-081",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-082",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-083",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-084",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-085",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-086",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-087",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-088",
+      "kind": "fraud",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-089",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-090",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "human",
+          "RT-TALK-TO-PERSON"
+        ]
+      }
+    },
+    {
+      "id": "EXP-091",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "human",
+          "RT-TALK-TO-PERSON"
+        ]
+      }
+    },
+    {
+      "id": "EXP-092",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-BAND"
+        ],
+        "v3": [
+          "human",
+          "RT-TALK-TO-PERSON"
+        ]
+      }
+    },
+    {
+      "id": "EXP-093",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "human",
+          "RT-TALK-TO-PERSON"
+        ]
+      }
+    },
+    {
+      "id": "EXP-094",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-095",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-096",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "human",
+          "RT-TALK-TO-PERSON"
+        ]
+      }
+    },
+    {
+      "id": "EXP-097",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-098",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-099",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-100",
+      "kind": "ask_person",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "human",
+          "RT-TALK-TO-PERSON"
+        ]
+      }
+    },
+    {
+      "id": "EXP-101",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-102",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-INJECTION"
+        ],
+        "v3": [
+          "human",
+          "RT-INJECTION"
+        ]
+      }
+    },
+    {
+      "id": "EXP-103",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-104",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-ESCALATE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-105",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "agents",
+          "RT-ACT"
+        ],
+        "v3": [
+          "agents",
+          "RT-ACT"
+        ]
+      }
+    },
+    {
+      "id": "EXP-106",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ],
+        "v3": [
+          "human",
+          "RT-DISPUTE-FRAUD"
+        ]
+      }
+    },
+    {
+      "id": "EXP-107",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ]
+      }
+    },
+    {
+      "id": "EXP-108",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    },
+    {
+      "id": "EXP-109",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "human",
+          "RT-TALK-TO-PERSON"
+        ]
+      }
+    },
+    {
+      "id": "EXP-110",
+      "kind": "injection",
+      "needs_person": true,
+      "routes": {
+        "v2": [
+          "clarify",
+          "RT-CLARIFY-CONFIDENCE"
+        ],
+        "v3": [
+          "clarify",
+          "RT-CLARIFY-NOT-STUCK"
+        ]
+      }
+    }
+  ]
+}
