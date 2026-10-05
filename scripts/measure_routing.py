@@ -169,7 +169,7 @@ def render(result: dict, source: str, evidence: str) -> str:
 def main(argv: list[str] | None = None, *, classify: Classify | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--labels", type=Path, required=True)
-    parser.add_argument("--policies", nargs="+", default=["v2", "v3"])
+    parser.add_argument("--policies", nargs="+", default=["v2", "v3", "v4"])
     parser.add_argument("--out", type=Path, default=Path("reports/classifiers"))
     parser.add_argument("--tag", default="routing")
     parser.add_argument("--evidence", default="exploratory, team-written rows")

@@ -40,4 +40,4 @@ Each option is judged by the safety-relevant errors first (a real escalation los
 
 **Done when.** the chosen definition is written down with its reason; its policy version is committed with replay evidence; the comparison table with denominators exists; no hard rule or Gate threshold has weakened (the Gate's `min_confidence` and `min_clear_enough` still guard writes).
 
-**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), including the exact per-question table, and get the maintainer's approval before any code.
+**Specification:** implemented in [TSD-030](../specs/TSD-030-route-confidence-aggregation.md).

@@ -72,7 +72,7 @@ def around(threshold: float):
 
 
 def test_shipped_policy_loads_and_is_labelled(policy):
-    assert DEFAULT_POLICY_PATH.name == "v3.yaml"
+    assert DEFAULT_POLICY_PATH.name == "v4.yaml"
     assert policy.version == "v2"
     assert "assumption" in policy.assumptions.lower()
     assert set(policy.hard_rules.amount_limit) == {"MXN", "COP", "ARS", "USD"}
