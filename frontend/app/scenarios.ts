@@ -3,7 +3,7 @@
 // seconds. The messages are the seeded acceptance scenarios' own inputs
 // (tests/scenarios/), adapted where the deterministic TemplateAgent needs a
 // reference in the message to focus a single payment (decision 10: it never
-// picks between several payments), and tuned to laya 0.3.27's measured
+// picks between several payments), and tuned to laya 0.3.24's measured
 // scores under policy v3 (the default) so each button lands on the route its use case
 // demonstrates (decision 30).
 

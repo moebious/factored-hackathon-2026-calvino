@@ -66,7 +66,7 @@ class Scenario:
 # Mirrors frontend/app/scenarios.ts (TSD-012): the same personas and
 # messages the scenario buttons send. Keep the two files in step; the
 # coverage test in tests/deployment/ checks this table's shape. The
-# messages are tuned to laya 0.3.27's measured scores under policy v3
+# messages are tuned to laya 0.3.24's measured scores under policy v3
 # (decision 30): each one lands on the route its use case demonstrates.
 SCENARIOS: tuple[Scenario, ...] = (
     Scenario("uc-1", "ana", "Mi pago E-MX-002 sigue pendiente, ¿qué pasa?", "reply"),
