@@ -15,6 +15,16 @@ export type Card = {
   payload: Record<string, unknown>;
 };
 
+export type AttachmentItem = {
+  id: string;
+  name: string;
+  mediaType: string;
+  size: number;
+  url: string;
+  status: "ready" | "failed";
+  error?: string;
+};
+
 export type HubReply = {
   reply: string;
   card: Card | null;
@@ -32,6 +42,7 @@ export type Turn = {
   message: string;
   reply: HubReply | null;
   error: string | null;
+  attachments?: AttachmentItem[];
   // Set once the customer confirmed or denied a parked action, so the
   // buttons of an answered action_confirmation card are not offered twice.
   decided: boolean;

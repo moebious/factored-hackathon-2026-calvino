@@ -5,9 +5,9 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Calvino",
+  title: "Calvino · Tu espacio de decisión",
   description:
-    "Project Calvino: verified banking support. Calibrated fast decisions, a deterministic policy, cards from a fixed catalog, humans in the loop.",
+    "Calvino convierte tus decisiones bancarias en pasos claros, verificables y humanos.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
