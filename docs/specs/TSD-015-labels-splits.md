@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | implemented |
+| Status | implemented; amended by TSD-019 (amendment proposed 2026-10-04) |
 | Branch | `feat/labels-splits` |
 | Depends on | T-101 (workflow choice); TSD-007 (data contracts); DATA.md findings |
 | Required by | T-106 (message set); T-201 (calibration); T-303 (evaluation) |
@@ -193,6 +193,49 @@ needs-a-person and on oracle outcome vs gold outcome, each with n and a
 note that n=50 gives wide intervals. At this size the numbers are
 descriptive; no promotion gate reads them until the 150–300 set lands.
 
+### Amendment proposal (2026-10-04): gold outcome consistency report
+
+This amendment adds optional fields to the existing `GoldRecord` schema;
+it does not change or invalidate any of the current 50 rows. The reason,
+scope and implementation contract are specified in
+[TSD-019](TSD-019-message-set.md#t-103-gold-annotation-and-agreement-report).
+This is a single-annotator consistency check, not an independent gold
+benchmark or inter-annotator study.
+
+The rows currently use `seed_ref: "hand-written"` and have no actual bank
+record. The maintainer therefore assigns **nominal scenario facts**, not
+facts claimed to come from the dataset: status, owner, amount band and
+fraud flag. The annotation sheet presents the customer message and those
+raw nominal facts first. The maintainer records them before the
+message-judgement fields (`intent`, `ambiguous`, `in_scope`) and before
+seeing any oracle outcome. The maintainer then records the
+rubric-based human outcome without viewing the oracle result. The
+`oracle_facts` are evaluated by the existing TSD-013 table; the resulting
+comparison measures consistency between the maintainer's rule
+application and that hand-written table. It does **not** establish the
+table's agreement with real-world outcomes.
+
+The scope of this descriptive check is only the TSD-013 oracle table under
+the recorded nominal facts. It does not bound T-106's brief-derived
+defaults, the correctness of message-set labels, or model performance.
+The report must state the single annotator and `scored n/50` beside every
+agreement value; `n` is the number of complete, valid reviewed rows, not
+the whole sheet by implication.
+
+Annotation is phased to make the maintainer workload explicit:
+
+1. Complete the existing message labels: 18/50 are already labelled, so
+   32 rows remain.
+2. For all 50 rows, add four nominal raw facts, three
+   message-judgement facts, and one human outcome: 8 annotation fields per
+   row, 400 field entries total. The separate T-106 P4 review cap of 170
+   verdicts does not include or replace this work.
+
+The implementation supplies blank annotation/fact sheets and validation,
+not suggested or generated values. Reports show `scored n/50`, completeness
+counts and reasons for unscored rows, so a reviewer who completes easier
+rows first cannot hide the selection from readers.
+
 ## First-50 sampling plan and record format
 
 Stratified over intent and variant, with the remainder spent on the cases
@@ -208,11 +251,19 @@ One JSONL record per gold case in `tests/fixtures/gold/gold-050.jsonl`:
 ```
 gold_id, rubric_version, message, language_variant, seed_ref (table + key,
 or "hand-written"), labels {workflow_area, stuck_intent, clear_enough,
-needs_person, injection}, annotator, labelled_at, notes
+needs_person, injection}, optional oracle_facts, optional human_outcome,
+optional outcome_annotator, optional outcome_labelled_at, annotator,
+labelled_at, notes
 ```
 
 No customer records, no dataset text: the file holds only team-generated
-messages and is safe to commit.
+messages and is safe to commit. All four new fields are optional and
+default empty, so the existing 50 rows continue to validate. `oracle_facts`
+must use TSD-013's `INTENTS` and `AMOUNT_BANDS`; only `status` is nullable.
+`human_outcome` must be a TSD-013 `ExpectedOutcome` other than `ERROR`,
+which the oracle table never produces. Outcome provenance uses
+`outcome_annotator` and `outcome_labelled_at`; it is not inferred from the
+existing label annotator fields.
 
 ## File locations and check commands
 
@@ -252,6 +303,69 @@ duplicates a dataset template shape.
   counts.
 - All five leakage tests pass; T-106's spec references L1–L5 by id.
 - Rubric v1 committed; the first 50 labelled by the maintainer with
-  oracle-vs-gold agreement reported.
+  the descriptive oracle-vs-human consistency report stating scored n/50,
+  single-annotator scope and its limitation to the oracle table.
 - No dataset transcript used as model input anywhere in the path; no
   customer record committed.
+
+## Amendment proposal (2026-10-04): gold annotation and oracle consistency
+
+This dated amendment is proposed with
+[TSD-019's gold agreement amendment](TSD-019-message-set.md#t-103-gold-annotation-and-agreement-report).
+It preserves the implemented rubric and schema history above. Until the
+amendment is approved and implemented, T-103's gold report is not complete.
+
+The current 50 gold rows are all `seed_ref: "hand-written"`; they do not
+represent actual bank records. The maintainer assigns **nominal scenario
+facts** (status, owner, amount band and fraud flag), not claims about the
+dataset. To avoid circular review, the annotation sheet shows the message
+and those raw facts first. The maintainer records those four fields before
+the message-judgement fields (`intent`, `ambiguous`, `in_scope`), then
+records the rubric-based outcome without viewing the oracle output. This
+is a same-person consistency check between the maintainer's rule
+application and the hand-written TSD-013 oracle table, not an independent
+benchmark or inter-annotator study. The single annotator and `scored n/50`
+must appear beside every reported agreement value.
+
+The bound applies only to the TSD-013 oracle table evaluated on these
+nominal scenario facts. It does not establish the correctness of
+T-106's brief-derived defaults, T-106 message labels, or model predictions.
+Disagreements are reviewed by the maintainer and classified as rubric gap,
+oracle mapping bug or label slip.
+
+Work is phased and explicit: 18 of the 50 existing classifier-label rows
+are complete, leaving 32 rows. The separate oracle-consistency pass adds
+eight fields per gold row (four nominal record facts, three
+message-judgement facts, and one outcome), for 400 field entries across
+the sheet. This work is in addition to T-106's separate 170-verdict review
+cap. Reports state completeness counts and scored n/50 so an easy-first
+review order is visible.
+
+The schema change is additive. `oracle_facts`, `human_outcome`,
+`outcome_annotator` and `outcome_labelled_at` are optional and default
+empty, preserving validation of all existing rows under
+`extra="forbid"`. When present, `oracle_facts.intent` must be a TSD-013
+`INTENTS` value; `amount_band` must be an `AMOUNT_BANDS` value; only
+`status` may be null. `human_outcome` must be a TSD-013
+`ExpectedOutcome` other than `ERROR`. No agent-suggested values or
+automatic defaults are allowed for the gold annotation fields.
+
+The implementation adds:
+
+- `src/calvino/data/labels.py`: optional typed fields and a completeness
+  validator for outcome annotations.
+- `tests/calvino/data/test_labels.py` and
+  `tests/calvino/data/test_gold_agreement.py`: backward compatibility,
+  enum/nullability validation, and report denominator/completeness cases.
+- `docs/templates/T-103-gold-outcome-annotations.csv`: a blank annotation
+  sheet containing the messages and blank fact/judgement/outcome fields,
+  with columns ordered to enforce raw facts before message judgements.
+- `scripts/report_gold_agreement.py`: validates rows, writes
+  `reports/eval/T-103-gold-agreement.md` and
+  `reports/eval/T-103-gold-disagreements.md`, states scored n/50, and
+  never fills or suggests annotation values.
+
+The report is descriptive. It lists unscored rows with reasons, displays
+the oracle/human confusion matrix and agreement numerator/denominator,
+reports kappa only when mathematically defined, and labels it
+single-annotator consistency rather than independent validation.

@@ -238,13 +238,50 @@ defaults, and review may only move a field to a logged correction:
 | Field | Default on unreviewed rows |
 |---|---|
 | `labels.clear_enough` | `true`, except `brief.intent` `none` (empty/garbled) or `brief.adversarial_kind` in wrong/missing-data or multilingual-ambiguity → `false` |
-| `labels.needs_person` | `false`, except `brief.intent` dispute/fraud-report or `brief.adversarial_kind` injection → `true` |
-| `oracle_facts.ambiguous` | `false`, except wrong/missing-data or multilingual-ambiguity probes → `true` |
-| `oracle_facts.in_scope` | from the brief intent: stuck, dispute, fraud-report and case intents → `true`; out-of-scope heads and intent `none` → `false` (no-record seeds default `false` unless the brief pins a stuck intent) |
+| `labels.needs_person` | `false`, except explicit `brief.intent` `human`, dispute or fraud-report → `true`. An injection/manipulation label alone stays `false`; escalation is represented by the oracle outcome, not this intent label. |
+| `oracle_facts.ambiguous` | `true` for `brief.intent` `none` and wrong/missing-data or multilingual-ambiguity probes; otherwise `false` |
+| `oracle_facts.in_scope` | `true` for stuck, dispute, fraud-report, human and `none` (empty/garbled, which is clarified); `false` for the explicit `out_of_scope` brief. A no-record seed does not override the brief's scope. |
 
 Reports state reviewed and unreviewed counts and scores separately for
 every cell; scores over unreviewed rows are never pooled silently with
 reviewed ones.
+
+The `none` intent is not synonymous with `out_of_scope`: an empty or
+garbled message has `intent: none`, `ambiguous: true`, `in_scope: true`,
+so the oracle returns `clarify`, matching T-303 EDGE-001 and EDGE-003.
+An explicit out-of-scope request has `intent: none`, `ambiguous: false`,
+`in_scope: false`, so it returns `out_of_scope`. The workflow-area label
+may still be `out of scope` for an unclassifiable empty/garbled message;
+that label is not the oracle disposition.
+
+`needs_person` means the message explicitly requests a person (or belongs
+to a rubric-defined dispute/fraud head), not that the oracle routes the
+turn to a human. Thus an injection can have `injection: yes` and
+`needs_person: no`, while the oracle independently maps
+`intent: manipulation` to `human_queue`. The `human` intent sets
+`needs_person: yes`.
+
+These corrections update the merged T-106 defaults and their tests in the
+same implementation change as this table:
+
+- For `brief.intent == "none"`, keep `workflow_area: "out of scope"` as
+  the classifier label, but set `oracle_facts.intent: "none"`,
+  `ambiguous: true`, and `in_scope: true`. The oracle must return
+  `clarify`, matching EDGE-001/002/003 and ORC-022/023. An explicit
+  `out_of_scope` brief remains `in_scope: false` and returns
+  `out_of_scope`. A `no_record` seed does not override either brief.
+- Set default `needs_person: true` for `human`, `dispute`, and
+  `fraud_report`; do not set it merely for `manipulation` or an injection
+  carrier. The separate `injection` label remains true for injection
+  content. A human request embedded in a message still receives
+  `needs_person: true` from its `human` intent.
+- Correct committed T-106 hand-written rows whose labels violate these
+  rubric rules in `evaluation/message-set/v1/test-hand-written.jsonl`.
+  Each correction is recorded in `evaluation/message-set/v1/review-log.md`
+  with reviewer, old and new value, and reason. Update the tests in
+  `tests/calvino/data/test_message_set.py` to pin the corrected defaults
+  and run the oracle so the expected outcome is asserted, not just the
+  intermediate facts.
 
 ## Record-facts→oracle mapping (no new oracle)
 
@@ -268,6 +305,8 @@ oracle's order (ownership, human/manipulation, fraud, scope, ambiguity,
 reads, writes); the implementation's unit tests cover every mapping
 branch, and the evaluation's oracle tests already pin the table itself.
 
+## T-103 gold annotation and agreement report
+
 Gold agreement has two distinct comparisons:
 
 - **Frozen model prediction vs reviewed gold labels.** Compare each
@@ -277,20 +316,25 @@ Gold agreement has two distinct comparisons:
   and configuration. It belongs to T-201/T-303, not the T-103 report, and
   is not computed until those predictions exist. Unreviewed labels are not
   counted as gold.
-- **T-103 oracle outcome vs independent human outcome.** For each
-  `gold-050` row, the maintainer records an independent human outcome
-  judgement from the message and workflow rubric, without deriving it from
-  `oracle_facts` or consulting the oracle result. The oracle side is derived
-  with the unchanged TSD-013 `oracle_outcome` from separately reviewed
-  `OracleFacts`. Missing facts are never inferred from message text,
-  labels, seed references or model predictions.
+- **T-103 oracle outcome vs maintainer rule application.** For each
+  `gold-050` row, the maintainer first records nominal raw facts (status,
+  owner, amount band and fraud flag), then records message judgements
+  (`intent`, `ambiguous`, `in_scope`), then a rubric-based human outcome.
+  The outcome is recorded before the oracle result is displayed. The oracle
+  side is derived with the unchanged TSD-013 `oracle_outcome` from those
+  same reviewed facts. Missing facts are never inferred from message text,
+  labels, seed references or model predictions. Because the same maintainer
+  supplies the facts and applies the same rubric as the table, this
+  measures consistency with the hand-written oracle, not an independent
+  real-world outcome bound.
 
 The first-50 gold record therefore adds `oracle_facts` and `human_outcome`
 fields. `oracle_facts` uses the complete TSD-013 schema (`intent`,
 `ambiguous`, `status`, `owner`, `amount_band`, `fraud_flag`, `in_scope`);
 `human_outcome` uses `ExpectedOutcome`. A row is scored for this comparison
-only when both are explicitly reviewed and valid. Incomplete rows are
-reported as unscored with a named reason, never counted as disagreements.
+only when all facts, judgements and the outcome are explicitly recorded
+and valid. Incomplete rows are reported as unscored with a named reason,
+never counted as disagreements.
 The gold sheet's existing `labels` remain the independent target for model
 prediction comparisons; they are not a substitute for `human_outcome`.
 
@@ -314,24 +358,31 @@ Illustrative shape only, not an annotation for an existing gold row:
 }
 ```
 
-`oracle_facts` and `human_outcome` are both direct maintainer annotations.
-They must not be copied from each other or auto-filled from the message-set
+`oracle_facts` and `human_outcome` are direct maintainer annotations. They
+must not be copied from each other or auto-filled from the message-set
 brief→labels defaults. `null` is allowed only for nullable `OracleFacts`
 fields such as `status`; missing required fields block scoring rather than
-triggering inference. Record-level outcome provenance is explicit in
-`outcome_annotator` and `outcome_labelled_at`; ordinary `annotator` and
-`labelled_at` continue to describe the classifier labels.
+triggering inference. Supplying either outcome field for scoring also
+requires `outcome_annotator` and `outcome_labelled_at`; ordinary
+`annotator` and `labelled_at` continue to describe the classifier labels.
 
 The T-103 report (`reports/eval/T-103-gold-agreement.md`) states oracle
-outcome agreement as numerator/denominator, exact agreement, complete
-reviewed n, evidence label, and the outcome confusion matrix. It reports
-Cohen's kappa only when defined; kappa is descriptive agreement with the
-oracle, not inter-annotator agreement. Any undefined metric names why.
-Every oracle/human outcome disagreement is listed by `gold_id`, reviewed
-by the maintainer, and classified as rubric gap, oracle mapping bug or
-label slip; the resolution is recorded in
-`reports/eval/T-103-gold-disagreements.md`. The report and log contain
-synthetic gold ids and reviewed labels only, no dataset records.
+outcome agreement as numerator/denominator, exact agreement, `scored n/50`,
+single-annotator status, descriptive scope, and the outcome confusion
+matrix. It reports Cohen's kappa only when defined; kappa is descriptive
+consistency with the oracle, not inter-annotator agreement or independent
+validation. Any undefined metric names why. Every oracle/human outcome
+disagreement is listed by `gold_id`, reviewed by the maintainer, and
+classified as rubric gap, oracle mapping bug or label slip; the resolution
+is recorded in `reports/eval/T-103-gold-disagreements.md`. The report and
+log contain synthetic gold ids and reviewed labels only, no dataset
+records.
+
+The TSD-015 amendment owns the additive `GoldRecord` schema and the blank
+annotation sheet. TSD-019 owns the report contract and T-106 integration:
+T-106 model-prediction comparisons are not reported until T-201/T-303
+provides frozen predictions; T-103's oracle-consistency report may run
+independently once the maintainer completes its annotations.
 
 ## Generation protocol
 
@@ -596,12 +647,21 @@ counts and scores; loader deriving (never storing) the expected outcome.
   near-duplicate and no-records-committed scans green; policy-version
   guard green; stratum audit states every cell under 30 as flagged with
   reviewed/unreviewed counts separate.
-- The T-103 report separates model-prediction-vs-label agreement from
-  oracle-vs-independent-human-outcome agreement; every metric states its
-  numerator, denominator, reviewed n, evidence label and unscored reasons.
-  Oracle outcomes use only explicitly reviewed `OracleFacts`; disagreements
-  have a maintainer-reviewed classification and resolution in the committed
-  log. Undefined metrics, including kappa where applicable, are reported
-  as not defined with the reason, never omitted silently.
+- The T-103 report separates later frozen model-prediction-vs-label
+  agreement from the T-103 single-annotator consistency check against the
+  oracle table. The latter states the numerator/denominator, `scored n/50`,
+  single-annotator status, evidence label and unscored reasons. It is
+  explicitly not an independent real-world error bound and does not cover
+  T-106 defaults or message labels. Oracle outcomes use only explicitly
+  reviewed `OracleFacts`; disagreements have a maintainer-reviewed
+  classification and resolution in the committed log. Undefined metrics,
+  including kappa where applicable, are reported as not defined with the
+  reason, never omitted silently.
+- The defaults table and `derive_defaults` tests agree for empty/garbled
+  `none` messages (in-scope and ambiguous, yielding `clarify`), explicit
+  `out_of_scope` messages, human requests (`needs_person: true`) and
+  manipulation/injection messages (`needs_person: false`, oracle outcome
+  `human_queue`). Corrections to committed hand-written rows appear in
+  the review log with reviewer and reason.
 - Portuguese absent by design (T-203 owns it); English only as bounded
   test probes; no BRL, no Brazilian personas.
