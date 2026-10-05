@@ -225,6 +225,42 @@ def test_defaults_empty_garbled_unclear():
         assert probing_facts.ambiguous is True
 
 
+def test_message_row_allows_unset_area_only_for_unclear_none_intent():
+    labels = {
+        "workflow_area": None,
+        "stuck_intent": None,
+        "clear_enough": False,
+        "needs_person": False,
+        "injection": False,
+    }
+    assert (
+        make_message(
+            labels=labels,
+            oracle_facts={
+                "intent": "none",
+                "ambiguous": True,
+                "in_scope": True,
+            },
+        ).labels.workflow_area
+        is None
+    )
+
+    with pytest.raises(ValidationError, match="only for oracle intent 'none'"):
+        make_message(
+            labels=labels,
+            oracle_facts={
+                "intent": "explain",
+                "ambiguous": True,
+                "in_scope": True,
+            },
+        )
+
+
+def test_message_labels_reject_unset_area_on_clear_row():
+    with pytest.raises(ValidationError, match="only when clear_enough is false"):
+        ms.MessageLabels(workflow_area=None, clear_enough=True)
+
+
 def test_no_record_seed_does_not_override_brief_scope():
     """The brief distinguishes ambiguous in-scope from explicit out-of-scope."""
     _, facts = ms.derive_defaults(

@@ -335,6 +335,7 @@ def bridge_registry_to_oracle(
                 adversarial_kind=brief.get("adversarial_kind"),
                 seed_kind=seed.kind,
             )
+        labels.validate_area_for_intent(facts.intent)
         oracle_facts = seed_to_oracle_facts(seed, labels, facts, gate_limits=gate_limits)
         bridged.append(
             BridgedRow(

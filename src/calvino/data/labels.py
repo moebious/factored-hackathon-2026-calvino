@@ -254,7 +254,12 @@ class GoldRecord(BaseModel):
         ):
             return False
         if self.labels.workflow_area is None:
-            return self.labels.clear_enough == BinaryLabel.NO and self.labels.stuck_intent is None
+            return (
+                self.oracle_facts is not None
+                and self.oracle_facts.intent == "none"
+                and self.labels.clear_enough == BinaryLabel.NO
+                and self.labels.stuck_intent is None
+            )
         if self.labels.workflow_area == WorkflowArea.STUCK_PAYMENT:
             return self.labels.stuck_intent is not None
         return True

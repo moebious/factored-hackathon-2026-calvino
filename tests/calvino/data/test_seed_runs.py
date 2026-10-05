@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from datetime import date
 
+import pytest
+
 from calvino.data import seed_registry as sr
 from calvino.data.seed_pull import DrawnSeed, SeedCandidate
 
@@ -143,6 +145,39 @@ def test_bridge_reviewed_correction_overrides_the_default():
     assert row.labels.clear_enough is False
     assert row.oracle_facts.ambiguous is True
     assert row.outcome == "clarify"
+
+
+def test_bridge_rejects_unset_area_for_reviewed_non_none_intent():
+    seeds = [
+        seed_row(
+            "v1-r",
+            "problem_transaction",
+            {"status": "Pending", "currency": "MXN", "amount_band": "under_gate"},
+        )
+    ]
+    with pytest.raises(ValueError, match="only for oracle intent 'none'"):
+        sr.bridge_registry_to_oracle(
+            seeds,
+            {
+                "v1-r": {
+                    "intent": "explain",
+                    "reviewed": True,
+                    "labels": {
+                        "workflow_area": None,
+                        "stuck_intent": None,
+                        "clear_enough": False,
+                        "needs_person": False,
+                        "injection": False,
+                    },
+                    "oracle_facts": {
+                        "intent": "explain",
+                        "ambiguous": True,
+                        "in_scope": True,
+                    },
+                }
+            },
+            gate_limits=GATE,
+        )
 
 
 def test_bridge_missing_brief_fails_loudly():

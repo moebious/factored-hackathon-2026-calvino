@@ -255,6 +255,7 @@ def test_unclassifiable_record_without_area_counts_as_labelled_when_unclear():
         message="...",
         language_variant="es-MX",
         seed_ref="hand-written",
+        oracle_facts={"intent": "none"},
         labels={
             "workflow_area": None,
             "stuck_intent": None,
@@ -264,6 +265,25 @@ def test_unclassifiable_record_without_area_counts_as_labelled_when_unclear():
         },
     )
     assert record.is_labelled()
+
+
+def test_unset_area_with_non_none_or_missing_oracle_intent_is_incomplete():
+    base = {
+        "gold_id": "gold-area-unset",
+        "rubric_version": "v1",
+        "message": "...",
+        "language_variant": "es-MX",
+        "seed_ref": "hand-written",
+        "labels": {
+            "workflow_area": None,
+            "stuck_intent": None,
+            "clear_enough": "no",
+            "needs_person": "no",
+            "injection": "no",
+        },
+    }
+    assert not GoldRecord(**base).is_labelled()
+    assert not GoldRecord(**base, oracle_facts={"intent": "explain"}).is_labelled()
 
 
 def test_missing_area_does_not_count_as_labelled_when_message_is_clear():
