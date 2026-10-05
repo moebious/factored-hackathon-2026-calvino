@@ -151,7 +151,7 @@ What the system produces on a single turn (persona `ana`, routine Spanish status
 
 ```bash
 curl -s -H 'content-type: application/json' \
-     -d '{"persona":"ana","text":"¿Por qué sigue pendiente E-MX-002?"}' \
+     -d '{"persona":"ana","text":"Mi pago E-MX-002 sigue pendiente, ¿qué pasa?"}' \
      http://127.0.0.1:7860/api/hub/message
 ```
 

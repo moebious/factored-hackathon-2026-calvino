@@ -4,7 +4,7 @@
 // (tests/scenarios/), adapted where the deterministic TemplateAgent needs a
 // reference in the message to focus a single payment (decision 10: it never
 // picks between several payments), and tuned to laya 0.3.24's measured
-// scores under policy v2 so each button lands on the route its use case
+// scores under policy v3 (the default) so each button lands on the route its use case
 // demonstrates (decision 30).
 
 import { strings } from "./i18n";
@@ -22,13 +22,13 @@ export const SCENARIOS: Scenario[] = [
     id: "uc-1",
     labelKey: "scenario_uc1",
     persona: "ana",
-    message: "¿Por qué sigue pendiente E-MX-002?",
+    message: "Mi pago E-MX-002 sigue pendiente, ¿qué pasa?",
   },
   {
     id: "uc-2",
     labelKey: "scenario_uc2",
     persona: "ana",
-    message: "Buenas, tengo una duda con un pago de mi cuenta",
+    message: "Tengo un problema",
   },
   {
     id: "uc-3",
@@ -58,7 +58,7 @@ export const SCENARIOS: Scenario[] = [
     id: "uc-8",
     labelKey: "scenario_uc8",
     persona: "ana",
-    message: "¿Cómo va mi caso?",
+    message: "¿Cómo va el caso que abrí por mi pago?",
   },
 ];
 
