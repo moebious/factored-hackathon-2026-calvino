@@ -32,16 +32,9 @@ ANNOTATION_COLUMNS = (
     "oracle_intent",
     "oracle_ambiguous",
     "oracle_in_scope",
-    "workflow_area",
-    "stuck_intent",
-    "clear_enough",
-    "needs_person",
-    "injection",
     "human_outcome",
     "outcome_annotator",
     "outcome_labelled_at",
-    "annotator",
-    "labelled_at",
     "notes",
 )
 

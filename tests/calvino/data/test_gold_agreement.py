@@ -107,8 +107,11 @@ def test_blank_template_orders_raw_facts_before_judgements_and_never_fills_value
 
     assert columns is not None
     assert columns.index("record_status") < columns.index("oracle_intent")
-    assert columns.index("fraud_flag") < columns.index("workflow_area")
+    assert columns.index("fraud_flag") < columns.index("oracle_in_scope")
     assert columns.index("oracle_in_scope") < columns.index("human_outcome")
+    assert not {"workflow_area", "stuck_intent", "clear_enough", "needs_person", "injection"} & set(
+        columns
+    )
     assert [row["gold_id"] for row in annotated] == ["gold-001", "gold-002"]
     for row in annotated:
         assert row["message"]
