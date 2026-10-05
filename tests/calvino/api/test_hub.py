@@ -379,3 +379,20 @@ def test_hub_resume_allows_gate_ask_approval(make_hub_client):
         )
     assert response.status_code == 200
     assert "approved" in response.json()["reply"].lower()
+
+
+def test_hub_resume_enforces_idempotency_on_double_resume(make_hub_client):
+    """Resuming an already resolved case returns 403 preventing duplicate execution (TSD-025)."""
+    with make_hub_client() as client:
+        res1 = client.post(
+            "/api/hub/resume",
+            json={"ref": "CASE-LUCIA-002", "decision": True},
+        )
+        assert res1.status_code == 200
+
+        res2 = client.post(
+            "/api/hub/resume",
+            json={"ref": "CASE-LUCIA-002", "decision": True},
+        )
+        assert res2.status_code == 403
+        assert "already resolved" in res2.json()["detail"]

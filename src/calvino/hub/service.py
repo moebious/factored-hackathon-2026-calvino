@@ -28,6 +28,7 @@ from langgraph.types import Command
 from pydantic import BaseModel, ConfigDict, Field
 
 from calvino.hub.graph import HubDependencies, build_hub_graph
+from calvino.hub.storage import CaseRecord, CaseStore, create_case_store
 from calvino.records import DecisionRecord, Route, Stage, session_ref_for
 
 
@@ -48,6 +49,23 @@ class OperatorQueueItem(BaseModel):
     target_action: Literal["cancel_payment", "retry_payment", "open_investigation"] | None = None
     awaiting_ref: str | None = None
     gate_verdict: str | None = None
+
+
+def _record_to_queue_item(record: CaseRecord) -> OperatorQueueItem:
+    return OperatorQueueItem(
+        case_ref=record.case_ref,
+        persona=record.persona,
+        status=record.status,
+        reason_rule_id=record.reason_rule_id,
+        created_at=record.created_at,
+        customer_message=record.customer_message,
+        entry_reference=record.entry_reference,
+        amount=record.amount,
+        currency=record.currency,
+        target_action=record.target_action,
+        awaiting_ref=record.awaiting_ref,
+        gate_verdict=record.gate_verdict,
+    )
 
 
 DEFAULT_FALLBACK_CASES: tuple[OperatorQueueItem, ...] = (
@@ -154,20 +172,25 @@ def _default_checkpointer() -> Any:
 class HubService:
     """The demo's entry point to the hub graph: messages in, replies out."""
 
-    def __init__(self, deps: HubDependencies, checkpointer: Any | None = None) -> None:
+    def __init__(
+        self,
+        deps: HubDependencies,
+        checkpointer: Any | None = None,
+        case_store: CaseStore | None = None,
+    ) -> None:
         self._deps = deps
         self._graph = build_hub_graph(deps, checkpointer=checkpointer or _default_checkpointer())
+        self._case_store = case_store or create_case_store()
         # Ref -> thread and token: keyed by the thread ref, plus the case ref
         # a queued interrupt hands the operator.
         self._threads: dict[str, dict[str, str]] = {}
-        self._cases: dict[str, OperatorQueueItem] = {}
-        self._cases_by_ref: dict[str, OperatorQueueItem] = {}
 
     def list_cases(self) -> list[OperatorQueueItem]:
         """List all cases in the queue, returning seeded fallback cases when empty (TSD-023)."""
-        if not self._cases:
+        stored = self._case_store.list_all()
+        if not stored:
             return list(DEFAULT_FALLBACK_CASES)
-        return list(self._cases.values())
+        return [_record_to_queue_item(c) for c in stored]
 
     def handle_message(self, persona: str, text: str) -> HubReply:
         """Run one customer turn on the persona's thread."""
@@ -197,8 +220,11 @@ class HubService:
         Core safety invariant (decision 37): A human operator cannot override a
         Gate block. If gate_verdict is 'block', an approval decision raises ValueError.
         """
-        case = self._cases_by_ref.get(ref) or self._cases.get(ref)
-        if case is None:
+        record = self._case_store.get_by_ref(ref)
+        case: OperatorQueueItem | None = None
+        if record is not None:
+            case = _record_to_queue_item(record)
+        else:
             for fb in DEFAULT_FALLBACK_CASES:
                 if fb.awaiting_ref == ref or fb.case_ref == ref:
                     case = fb
@@ -207,27 +233,37 @@ class HubService:
         if case is not None and case.gate_verdict == "block" and operator_decision is True:
             raise ValueError(f"cannot approve action with Gate block: rule {case.reason_rule_id}")
 
+        if case is not None and case.status in ("resolved", "refused"):
+            raise ValueError(f"cannot resume case {case.case_ref}: already {case.status}")
+
         thread = self._threads.get(ref)
+        if thread is None and record is not None:
+            # Renew trusted session authority across process restart (TSD-025)
+            token, _ = self._deps.issuer.issue(record.persona)
+            thread = {"thread_id": record.thread_id, "token": token}
+            self._threads[ref] = thread
+            self._threads[record.thread_id] = thread
+
         if thread is None:
             if case is not None:
                 new_status = "refused" if operator_decision is False else "resolved"
-                updated_case = OperatorQueueItem(
-                    case_ref=case.case_ref,
-                    persona=case.persona,
-                    status=new_status,
-                    reason_rule_id=case.reason_rule_id,
-                    created_at=case.created_at,
-                    customer_message=case.customer_message,
-                    entry_reference=case.entry_reference,
-                    amount=case.amount,
-                    currency=case.currency,
-                    target_action=case.target_action,
-                    awaiting_ref=case.awaiting_ref,
-                    gate_verdict=case.gate_verdict,
+                self._case_store.put(
+                    CaseRecord(
+                        case_ref=case.case_ref,
+                        thread_id="seed-thread",
+                        persona=case.persona,
+                        status=new_status,
+                        reason_rule_id=case.reason_rule_id,
+                        created_at=case.created_at,
+                        customer_message=case.customer_message,
+                        entry_reference=case.entry_reference,
+                        amount=case.amount,
+                        currency=case.currency,
+                        target_action=case.target_action,
+                        awaiting_ref=case.awaiting_ref,
+                        gate_verdict=case.gate_verdict,
+                    )
                 )
-                self._cases[case.case_ref] = updated_case
-                if case.awaiting_ref:
-                    self._cases_by_ref[case.awaiting_ref] = updated_case
 
                 self._deps.log.append(
                     DecisionRecord(
@@ -262,6 +298,12 @@ class HubService:
                 )
             raise KeyError(f"no parked turn for ref {ref!r}")
 
+        new_status = "refused" if operator_decision is False else "resolved"
+        if record is not None:
+            self._case_store.update_status(record.case_ref, new_status)
+        elif case is not None:
+            self._case_store.update_status(case.case_ref, new_status)
+
         seen = self._logged_count()
         state = self._graph.invoke(
             Command(resume=operator_decision),
@@ -272,25 +314,6 @@ class HubService:
                 }
             },
         )
-        if case is not None:
-            new_status = "refused" if operator_decision is False else "resolved"
-            updated_case = OperatorQueueItem(
-                case_ref=case.case_ref,
-                persona=case.persona,
-                status=new_status,
-                reason_rule_id=case.reason_rule_id,
-                created_at=case.created_at,
-                customer_message=case.customer_message,
-                entry_reference=case.entry_reference,
-                amount=case.amount,
-                currency=case.currency,
-                target_action=case.target_action,
-                awaiting_ref=case.awaiting_ref,
-                gate_verdict=case.gate_verdict,
-            )
-            self._cases[case.case_ref] = updated_case
-            if case.awaiting_ref:
-                self._cases_by_ref[case.awaiting_ref] = updated_case
 
         return self._reply_of(state, thread["thread_id"], self._turn_trace(seen))
 
@@ -353,8 +376,9 @@ class HubService:
                     if action_name in ("cancel_payment", "retry_payment", "open_investigation")
                     else None
                 )
-                queue_item = OperatorQueueItem(
+                record = CaseRecord(
                     case_ref=case_ref or f"CASE-{state.get('persona', 'USER').upper()}-ACT",
+                    thread_id=thread_id,
                     persona=str(state.get("persona") or "unknown"),
                     status="pending_approval",
                     reason_rule_id=str(payload.get("rule_id") or "GATE-AMOUNT-LIMIT"),
@@ -369,11 +393,11 @@ class HubService:
                     awaiting_ref=awaiting_ref,
                     gate_verdict="ask",
                 )
-                self._cases[queue_item.case_ref] = queue_item
-                self._cases_by_ref[awaiting_ref] = queue_item
+                self._case_store.put(record)
             elif payload.get("type") == "operator_queue":
-                queue_item = OperatorQueueItem(
+                record = CaseRecord(
                     case_ref=case_ref or f"CASE-{state.get('persona', 'USER').upper()}-ESC",
+                    thread_id=thread_id,
                     persona=str(state.get("persona") or "unknown"),
                     status="in_investigation",
                     reason_rule_id=str(state.get("escalate_reason") or "RT-NEEDS-PERSON"),
@@ -388,8 +412,7 @@ class HubService:
                     awaiting_ref=awaiting_ref,
                     gate_verdict=None,
                 )
-                self._cases[queue_item.case_ref] = queue_item
-                self._cases_by_ref[awaiting_ref] = queue_item
+                self._case_store.put(record)
 
             return HubReply(
                 reply="",
@@ -417,8 +440,9 @@ class HubService:
                 if action_name in ("cancel_payment", "retry_payment", "open_investigation")
                 else None
             )
-            blocked_item = OperatorQueueItem(
+            blocked_record = CaseRecord(
                 case_ref=blocked_ref,
+                thread_id=thread_id,
                 persona=str(state.get("persona") or "unknown"),
                 status="refused",
                 reason_rule_id=refusal_rule,
@@ -433,8 +457,7 @@ class HubService:
                 awaiting_ref=blocked_ref,
                 gate_verdict="block",
             )
-            self._cases[blocked_item.case_ref] = blocked_item
-            self._cases_by_ref[blocked_ref] = blocked_item
+            self._case_store.put(blocked_record)
 
         return HubReply(
             reply=str(state.get("reply") or ""),

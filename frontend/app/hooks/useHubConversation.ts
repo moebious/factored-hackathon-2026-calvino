@@ -233,15 +233,27 @@ export function useOperatorQueue() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: OperatorQueueItem[] = await res.json();
       setCases(data);
-      if (data.length > 0 && !selectedCaseRef) {
-        setSelectedCaseRef(data[0].case_ref);
+      if (data.length > 0) {
+        setSelectedCaseRef((prev) => {
+          if (prev && data.some((c) => c.case_ref === prev)) {
+            return prev;
+          }
+          if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const urlRef = params.get("case_ref") || params.get("case_id");
+            if (urlRef && data.some((c) => c.case_ref === urlRef)) {
+              return urlRef;
+            }
+          }
+          return data[0].case_ref;
+        });
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error cargando la cola");
     } finally {
       setLoading(false);
     }
-  }, [selectedCaseRef]);
+  }, []);
 
   const resumeCase = useCallback(
     async (ref: string, decision: boolean | string) => {
