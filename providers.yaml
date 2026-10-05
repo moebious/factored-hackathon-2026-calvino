@@ -29,6 +29,21 @@ judge:
   pin: dated-release
   alternatives:
     - deepseek/deepseek-v4-pro
+  # What the judge role actually runs today. DeepSeek on NVIDIA was rejected (decision 31): it
+  # answers at 273-299 s and returns 504 at 302 s, so the provider's own 300 s gateway ends the
+  # request. Nemotron answers in 0.4-4.0 s and returned parseable verdicts on a real rubric.
+  # Family is nvidia, not deepseek, so a number from here describes the harness and not the
+  # pinned judge. Production stays as recorded above; this block says so rather than implying it.
+  staging:
+    provider: nvidia
+    base_url: https://integrate.api.nvidia.com/v1
+    model: nvidia/nemotron-3.5-lightning-30b-a3b
+    family: nvidia
+    measured: 2026-10-04
+    note: >-
+      Reachability and plumbing only. Rubric numbers from this model do not describe the
+      production judge: different family, so decision 20's independence and decision 29's pin
+      are both unmet here.
 
 # What each provider served on the date it was checked, which is what a later check compares
 # against. The judge ids come from OpenRouter's public /api/v1/models [measured]; the agent ids
@@ -80,3 +95,17 @@ observed:
     # 16 further deepseek ids were served the same day and are not listed: only the pinned model
     # and its alternative matter for a drift check.
     served_count: 18
+  - date: 2026-10-04
+    role: judge
+    source: nvidia /api/v1/models and two rubric calls [measured]
+    ids:
+      - nvidia/nemotron-3.5-lightning-30b-a3b
+    # A one-word probe came back in 0.43-4.01 s across four samples. A real rubric call is a
+    # different animal: 10.5 s for three criteria, then 50.5 s once the redacted customer
+    # question was in the prompt. Against a retry-then-escalate cascade that ratio matters more
+    # than the probe does, which is why both numbers are kept and neither is called "draft".
+    latency_ms_probe: 4010
+    probe_output_tokens_median: 8
+    rubric_latency_ms: 10500
+    rubric_latency_ms_full: 50500
+    reasoning_models: true

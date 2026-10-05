@@ -80,7 +80,13 @@ def check_catalogue(providers: ProviderFile) -> list[str]:
         except LlmError as error:
             failures.append(f"{role}: {providers.role(role).model} could not be checked ({error})")
             continue
-        failures.extend(verify_catalogue(providers.role(role).model, served, role=role))
+        # Check the id the client is actually configured with. When a role runs its staging model
+        # the provider asked is the staging provider, so asking it about the production id asks a
+        # question with no answer; configuration_problems is what decides whether the pairing is
+        # one the record allows.
+        if client.model != providers.role(role).model:
+            print(f"  {role}: checking its configured {client.model} against the catalogue")
+        failures.extend(verify_catalogue(client.model, served, role=role))
         recorded = _recorded_ids(providers, role)
         if recorded:
             extra = unrecorded(recorded, served)

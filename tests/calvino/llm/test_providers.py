@@ -157,6 +157,21 @@ def test_a_deployment_pointing_at_another_model_is_reported(tmp_path):
     assert "Qwen/Qwen3.6-35B-A3B-FP8" in problems[0]
 
 
+STAGING = GOOD.replace(
+    "  pin: dated-release\nobserved:",
+    "  pin: dated-release\n"
+    "  staging:\n"
+    "    provider: nvidia\n"
+    "    base_url: https://integrate.api.nvidia.com/v1\n"
+    "    model: nvidia/nemotron-3.5-lightning-30b-a3b\n"
+    "    family: nvidia\n"
+    "    measured: 2026-10-04\n"
+    "    note: Reachability only; a number from this model describes nvidia, not deepseek.\n"
+    "observed:",
+    1,
+)
+
+
 def test_a_deployment_pointing_at_another_endpoint_is_reported(tmp_path):
     providers = load_providers(write(tmp_path, GOOD))
     problems = configuration_problems(providers, {"CALVINO_JUDGE_BASE_URL": "https://elsewhere/v1"})
@@ -196,3 +211,46 @@ def test_token_prices_are_optional_and_validated(tmp_path):
     negative = priced.replace("input_usd: 0.4", "input_usd: -1")
     with pytest.raises(ValidationError):
         load_providers(write(tmp_path, negative))
+
+
+def test_a_role_running_its_staging_model_is_not_drift(tmp_path):
+    """The reachable judge is the one a deployment actually runs, and the check must say so.
+
+    Without this the check fails on every deployment that runs a staging model, and a check that
+    always fails stops being read.
+    """
+    providers = load_providers(write(tmp_path, STAGING))
+    env = {
+        "CALVINO_JUDGE_MODEL": "nvidia/nemotron-3.5-lightning-30b-a3b",
+        "CALVINO_JUDGE_BASE_URL": "https://integrate.api.nvidia.com/v1",
+    }
+    assert configuration_problems(providers, env) == ()
+
+
+def test_the_staging_block_keeps_the_production_pin_intact(tmp_path):
+    """Recording what runs must not quietly downgrade what is meant to run."""
+    providers = load_providers(write(tmp_path, STAGING))
+    judge = providers.role("judge")
+    assert judge.provider == "openrouter", "production intent is unchanged"
+    assert judge.model == "deepseek/deepseek-v4-pro-0813"
+    assert judge.pin == "dated-release", "the dated pin is the asset"
+    assert judge.staging is not None
+    assert judge.staging.family == "nvidia"
+    # Different family, so a number from staging describes the harness and not the pinned judge.
+    assert judge.family != judge.staging.family
+
+
+def test_a_staging_model_may_be_absent(tmp_path):
+    """Optional: most roles never need one, and the schema must not require it."""
+    providers = load_providers(write(tmp_path, GOOD))
+    assert providers.role("agent").staging is None
+    assert providers.role("judge").staging is None
+
+
+def test_the_judge_rubric_latency_is_recorded_separately_from_the_probe():
+    """A rubric call is not a draft; filing 50.5 s under draft_latency_ms would be a lie."""
+    latest = max((e for e in load_providers().observed if e.role == "judge"), key=lambda e: e.date)
+    assert latest.rubric_latency_ms and latest.rubric_latency_ms_full
+    # The full prompt carries the redacted question, so it costs more than the bare rubric.
+    assert latest.rubric_latency_ms_full > latest.rubric_latency_ms
+    assert latest.latency_ms_probe is not None, "the probe is still recorded, and is not the rubric"
