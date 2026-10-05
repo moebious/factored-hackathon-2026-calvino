@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | accepted for implementation (maintainer selected CSV workflow on 2026-10-05) |
+| Status | accepted; model-drafted classifier proposals require maintainer review (2026-10-05) |
 | Branch | `feat/t107-gold-annotation` |
 | Depends on | TSD-015 (gold schema and rubric), TSD-019 (agreement contract) |
 | Task | [T-107](../tasks/T-107-gold-annotation.md) |
@@ -13,7 +13,8 @@
 Give the maintainer a safe, local CSV workflow to finish classifier labels
 and the separate oracle-consistency annotations for the first 50 gold
 messages. The tools validate and apply only explicit maintainer entries.
-They never suggest or infer label values.
+Disclosed model drafts may inform classifier labels; only the maintainer
+decides and enters each final label.
 
 The committed gold file currently has 18 complete classifier-label rows
 and 32 incomplete rows. The outcome worksheet is a separate pass and
@@ -26,8 +27,10 @@ contains no completed outcome annotations.
 - TSD-019 owns the separate nominal-facts, human-outcome, report and
   disagreement-ledger contract.
 - No dataset transcript or customer record is used or added.
-- The user supplies all missing annotations. The tool does not fill
-  defaults, classify messages, infer oracle facts or decide outcomes.
+- The maintainer supplies or explicitly approves all final classifier
+  labels. The tool does not fill defaults or choose labels.
+- Model drafts apply only to classifier labels. Oracle facts and human
+  outcomes remain maintainer-entered; no model suggests or infers them.
 
 ## Classifier-label worksheet
 
@@ -48,6 +51,15 @@ Use the TSD-015 rubric. Do not guess unclear labels. An unset workflow area
 is only complete for the rubric's unclassifiable case, where it has a
 `none` oracle intent, `clear_enough = no`, and no stuck intent. Other
 workflow areas do not take a stuck intent.
+
+For the current 32 proposals, the drafting model name and version were not
+recorded. The maintainer saw the proposals before review. The README,
+agreement report and disagreement ledger must state that the 18 existing
+labels are maintainer-only and the 32 proposed labels are model-drafted.
+They must disclose that prior exposure creates anchoring risk and reduces
+label independence. Do not call the review blind or independent. Accepted,
+corrected and rejected proposals all count as proposal-exposed because the
+maintainer saw them before entering the final value.
 
 ## Import behavior
 
@@ -77,6 +89,9 @@ number of complete classifier-label rows and the number of complete,
 scored oracle/human outcomes separately. It preserves the single-annotator
 limit and reports only complete, valid outcome annotations. The
 disagreement ledger retains maintainer classifications and resolutions.
+Both artifacts disclose the classifier-label provenance split, the
+unrecorded proposal model identity/version and the anchoring caveat.
+Oracle facts and human outcomes are separate maintainer-entered annotations.
 
 ## Done when
 
@@ -86,4 +101,8 @@ disagreement ledger retains maintainer classifications and resolutions.
 - A preview shows no unintended changes before either importer is applied.
 - The report shows `50/50` complete classifier-label rows and `scored
   50/50` outcomes, with all disagreements reviewed and recorded.
-- No inferred values, customer records, or dataset transcripts are added.
+- Every final classifier label is entered or explicitly approved by the
+  maintainer. The report states the 18/32 provenance split and anchoring
+  caveat; it does not claim independent human annotation.
+- No oracle facts or human outcomes are model-drafted. No customer records
+  or dataset transcripts are added.

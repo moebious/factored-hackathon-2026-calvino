@@ -194,6 +194,12 @@ def update_disagreement_log(outcomes: tuple[ScoredOutcome, ...], path: Path) -> 
             "Single-annotator review ledger. New rows start pending; the "
             "maintainer classifies and resolves them. Rerunning the report "
             "preserves existing classifications and resolutions.\n\n"
+            "Classifier labels: 18 existing labels are maintainer-only; 32 "
+            "were model-drafted proposals. The proposal model name and version "
+            "were not recorded. Proposals were seen before review, creating "
+            "anchoring risk and reducing label independence. Do not describe "
+            "these as blind or independent human annotations. Oracle facts "
+            "and human outcomes remain separate maintainer-entered annotations.\n\n"
             "| gold_id | oracle_outcome | human_outcome | classification | "
             "rationale | resolution | reviewer | reviewed_at |\n"
             "|---|---|---|---|---|---|---|---|\n",
@@ -236,6 +242,12 @@ def render_report(
     complete_ids = {outcome.gold_id for outcome in scored}
     unscored = [row for row in rows if row.gold_id not in complete_ids]
     labelled_count = sum(row.record is not None and row.record.is_labelled() for row in rows)
+    maintainer_only_count = min(18, len(rows))
+    model_drafted_count = max(0, len(rows) - maintainer_only_count)
+    model_drafted_reviewed = min(
+        model_drafted_count,
+        max(0, labelled_count - maintainer_only_count),
+    )
 
     lines = [
         "# T-107 gold/oracle consistency report",
@@ -246,7 +258,17 @@ def render_report(
         "oracle under nominal facts",
         f"- Outcome annotator: {annotator}",
         f"- Classifier labels complete: {labelled_count}/{len(rows)}",
+        f"- Existing maintainer-only classifier labels: {maintainer_only_count}",
+        f"- Model-drafted proposal rows reviewed: {model_drafted_reviewed}/{model_drafted_count}",
         f"- Gold sheet: {len(rows)} rows; scored {denominator}/{len(rows)}",
+        "",
+        f"Classifier-label provenance: {maintainer_only_count} existing labels "
+        f"are maintainer-only; {model_drafted_count} were model-drafted proposals. "
+        "The proposal model name and version were not recorded. The maintainer "
+        "saw the proposals before review, creating anchoring risk and reducing "
+        "label independence. Do not describe these as blind or independent "
+        "human annotations. Oracle facts and human outcomes are separate "
+        "maintainer-entered annotations.",
         "",
         "This is not an independent benchmark or a real-world oracle error bound. "
         "It does not measure T-106 defaults, message labels or model predictions.",

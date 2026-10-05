@@ -11,9 +11,10 @@
 | Specification | [TSD-027](../specs/TSD-027-gold-label-annotation.md) |
 | References | TSD-015; TSD-019; TSD-013; decision 16 |
 
-**Goal.** Complete the first 50 human-reviewed gold cases and publish the
-single-annotator consistency report. This is a System 3 task. An agent must
-not supply, infer, or suggest annotation values.
+**Goal.** Complete the first 50 maintainer-reviewed gold cases and publish
+the single-annotator consistency report. This is a System 3 task. Disclosed
+model drafts may inform classifier labels only; a maintainer must review
+and enter every final value.
 
 **Inputs.** `tests/fixtures/gold/gold-050.jsonl`, the classifier-label
 worksheet at `docs/templates/T-107-gold-classifier-labels.csv`, the
@@ -29,8 +30,9 @@ disagreement ledger at `reports/eval/T-103-gold-disagreements.md`.
 
 **Done when.**
 
-- All 50 classifier-label rows are complete and reviewed. The maintainer
-  supplies the remaining 32 rows; no values are guessed or auto-filled.
+- All 50 classifier-label rows are complete and reviewed. The 18 existing
+  labels are recorded as maintainer-only; all 32 model-drafted proposals
+  receive explicit maintainer review. No values are guessed or auto-filled.
 - Every row has complete, valid oracle facts and a rubric-based human
   outcome entered by the maintainer in the specified review order.
 - The classifier-label worksheet preserves all existing labels. Its
@@ -38,6 +40,10 @@ disagreement ledger at `reports/eval/T-103-gold-disagreements.md`.
 - The report states the completeness count and `scored n/50`, numerator
   and denominator, exact agreement, single-annotator scope, and limits of
   the result. It reports kappa only when defined.
+- The README, agreement report and disagreement ledger identify the 32
+  model-drafted labels as maintainer-reviewed, say that the drafting
+  model/version was not recorded, and disclose prior exposure and
+  anchoring risk. They do not claim blind or independent human labels.
 - The maintainer reviews and classifies every disagreement as a rubric
   gap, oracle mapping bug, or label slip, and records its resolution.
 - Gold annotations remain held out from training and calibration. No
@@ -46,11 +52,11 @@ disagreement ledger at `reports/eval/T-103-gold-disagreements.md`.
 
 ## Review workflow
 
-1. Copy `docs/templates/T-107-gold-classifier-labels.csv` to
-   `data/T-107-gold-classifier-labels.csv` and review/complete the
-   classifier labels in the working copy. It carries forward existing
-   labels and leaves missing label cells blank. Use `gold/rubric-v1.md`;
-   unclear cases are flagged, never guessed.
+1. Review the 32 proposal rows in the git-ignored file
+   `data/T-107-proposals-DRAFT.csv`. Then enter your accepted or corrected values in
+   `data/T-107-gold-classifier-labels.csv`. The sheet carries forward the
+   18 existing labels and leaves missing cells blank. Use
+   `gold/rubric-v1.md`; unclear cases are flagged, never guessed.
 2. Preview the label import with
    `uv run python scripts/import_gold_labels.py --csv data/T-107-gold-classifier-labels.csv`.
    Review the proposed diff. Apply only after confirming the maintainer's

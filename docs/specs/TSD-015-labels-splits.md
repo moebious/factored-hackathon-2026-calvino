@@ -49,11 +49,14 @@ PR changes nothing marked this way without a new entry here.
   review).** As in [Purpose and boundary](#purpose-and-boundary): labels,
   splits, leakage rules, rubric and first-50 sheet here; oracle table and
   generation prompts in T-106's spec.
-- **P5 — gold workforce (proposed — maintainer confirms at spec review).**
-  The maintainer alone labels the first 50, single labelling, no second
-  annotator. The same rubric version scales to the 150–300 DESIGN-7 set;
-  if a second annotator ever joins, agreement is measured then, not
-  retrofitted.
+- **P5 — gold workforce (accepted; T-107 provenance amendment accepted 2026-10-05).**
+  The maintainer enters or explicitly approves the final labels for the
+  first 50, with no second annotator. Under the accepted T-107 amendment,
+  disclosed model proposals may inform classifier labels only. The 18
+  existing labels are maintainer-only; 32 proposals were seen before
+  review, so reports state their model-assisted provenance and anchoring
+  risk. Oracle facts and human outcomes remain maintainer-entered. The
+  same rubric version scales to the 150–300 DESIGN-7 set.
 - **P6 — leakage rules home (proposed — maintainer confirms at spec
   review).** All five rules are worded and tested under T-103; T-106's spec
   references them and runs them over its registries.
@@ -349,8 +352,13 @@ empty, preserving validation of all existing rows under
 `extra="forbid"`. When present, `oracle_facts.intent` must be a TSD-013
 `INTENTS` value; `amount_band` must be an `AMOUNT_BANDS` value; only
 `status` may be null. `human_outcome` must be a TSD-013
-`ExpectedOutcome` other than `ERROR`. No agent-suggested values or
-automatic defaults are allowed for the gold annotation fields.
+`ExpectedOutcome` other than `ERROR`. T-107 may use disclosed
+model-drafted proposals for classifier labels only; each final classifier
+label requires explicit maintainer review. The drafting model and version
+for the current proposals were not recorded, and the proposals were seen
+before review, so the report must state the anchoring risk. Model proposals
+must not supply or infer `oracle_facts` or `human_outcome`; those remain
+maintainer-entered.
 
 The implementation adds:
 

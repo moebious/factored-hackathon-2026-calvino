@@ -322,7 +322,9 @@ Gold agreement has two distinct comparisons:
   defined. This comparison requires predictions from a named, frozen model
   and configuration. It belongs to T-201/T-303, not the T-107 report, and
   is not computed until those predictions exist. Unreviewed labels are not
-  counted as gold.
+  counted as gold. Keep results for the 18 maintainer-only labels separate
+  from the 32 model-drafted, maintainer-reviewed labels; do not pool them
+  or describe the latter as independent human gold.
 - **T-107 oracle outcome vs maintainer rule application.** For each
   `gold-050` row, the maintainer first records nominal raw facts (status,
   owner, amount band and fraud flag), then records message judgements
@@ -384,6 +386,14 @@ reviewed by the maintainer, and classified as rubric gap, oracle mapping
 bug or label slip; the resolution is recorded in
 `reports/eval/T-103-gold-disagreements.md`. The report and log contain
 synthetic gold ids and reviewed labels only, no dataset records.
+
+The README, report and disagreement log disclose classifier-label
+provenance: 18 existing labels are maintainer-only and 32 rows were
+model-drafted proposals. The proposal model name and version were not
+recorded. The maintainer saw the proposals before review, which creates
+anchoring risk and reduces label independence. Do not claim blind or
+independent human annotation. Oracle facts and human outcomes are separate
+maintainer-entered annotations.
 
 T-103 implements the additive `GoldRecord` schema and blank annotation
 sheet under TSD-015. T-107 owns the maintainer's annotations and runs the

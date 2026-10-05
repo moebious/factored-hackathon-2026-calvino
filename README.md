@@ -29,6 +29,8 @@ Calvino replaces the unconstrained agent with a **governed 4-tier cognitive hier
 * **System 2 (Bounded Support Agent — Contained Language)**: Open LLM (Qwen 3.6-35B on Hetzner) strictly restricted to drafting explanations from verified tool facts. The agent has no authorization to act on its own. All drafted text passes through the financial verifier cascade (`customer-answer@2`: deterministic code checks and judge veto) before reaching the customer.
 * **System 3 (Humans — Accountable Authority)**: Human operators approve gray-zone actions (`interrupt()`), manage durable case files, and resolve edge cases. Human decisions generate gold labels for the offline data flywheel.
 
+**Gold-label review status `[measured]`:** the first 50 classifier-label rows include 18 maintainer-only labels and 32 model-drafted proposal rows that require explicit maintainer review. The drafting model name and version were not recorded. The maintainer saw the proposals before review, which creates anchoring risk and reduces label independence; do not describe the resulting labels as blind or independent human annotations. Only values the maintainer explicitly accepts or corrects become gold labels. Oracle facts and human outcomes are a separate maintainer-entered review; no model-drafted outcomes are used.
+
 ---
 
 ## The Workflow: Stuck Payments
