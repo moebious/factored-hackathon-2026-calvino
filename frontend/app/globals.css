@@ -406,3 +406,16 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .btn-send-reply:hover:not(:disabled) { opacity: .9; }
 .btn-send-reply:disabled { opacity: .45; cursor: not-allowed; }
 
+
+/* Nivel A progress choreography (F2.6): evidence steps reveal one after
+   another instead of popping in at once. Delay comes inline from
+   ChainOfThought (70 ms per step, capped); motion is disabled entirely
+   for users who prefer reduced motion. */
+.trace-step-reveal { animation: trace-step-in .35s ease both; }
+@keyframes trace-step-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trace-step-reveal { animation: none; }
+}
