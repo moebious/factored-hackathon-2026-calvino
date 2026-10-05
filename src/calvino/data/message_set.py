@@ -206,14 +206,17 @@ def is_near_duplicate(
 
 
 class RecordFacts(BaseModel):
-    """The committed seed facts for one registry row: facts only, no ids."""
+    """The committed seed facts for one registry row: facts only.
+
+    No raw ids, no raw amounts (bands only), no texts: the band carries
+    the oracle signal and the amount never leaves the pull.
+    """
 
     model_config = {"extra": "forbid"}
 
     kind: SeedKind
     status: str | None = None
     transaction_type: str | None = None
-    amount: float | None = None
     amount_band: Literal["under_gate", "over_gate"] | None = None
     currency: Literal["MXN", "COP", "ARS", "USD"] | None = None
     fraud_flag: bool = False
@@ -237,7 +240,7 @@ class SeedRow(BaseModel):
     record_facts: RecordFacts
     event_date: str = Field(min_length=1)
     policy_version: str = Field(min_length=1)
-    gate_limit_used: float | None = None
+    gate_table_hash: str | None = None
 
 
 class MessageLabels(BaseModel):
@@ -368,6 +371,23 @@ def amount_band_for(amount: float, currency: str, gate_limits: dict[str, float])
     return "over_gate"
 
 
+def gate_table_hash(gate_limits: dict[str, float]) -> str:
+    """The canonical hash of one policy's gate table (TSD-019 P6 evidence).
+
+    Stored per banded seed instead of the raw limit it replaced: equal
+    tables hash equal, so the oracle-path guard detects any table drift
+    without committing a single limit value.
+    """
+    import json  # noqa: PLC0415
+
+    canonical = json.dumps(
+        {code: float(gate_limits[code]) for code in sorted(gate_limits)},
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
 def usable_amount(
     amount: float, currency: str, gate: dict[str, float], hard: dict[str, float]
 ) -> bool:
@@ -407,13 +427,13 @@ def seed_to_oracle_facts(
             raise ValueError("the oracle path needs the evaluated policy's gate table")
         # Seeds with no amount band (complaints, no-record, hand-written
         # probes) feed no band to the oracle, so the guard has nothing to
-        # compare; banded seeds must match the evaluated table exactly.
+        # compare; banded seeds must match the evaluated table exactly
+        # under its hash (raw limits are never committed).
         if seed.record_facts.amount_band is not None:
-            currency = seed.record_facts.currency or "USD"
-            if seed.gate_limit_used is None or gate_limits.get(currency) != seed.gate_limit_used:
+            if seed.gate_table_hash is None or seed.gate_table_hash != gate_table_hash(gate_limits):
                 raise ValueError(
                     f"seed {seed.seed_key} records {seed.policy_version} "
-                    f"(gate limit {seed.gate_limit_used}) but the evaluated "
+                    f"(gate hash {seed.gate_table_hash}) but the evaluated "
                     "policy gates differ: mint a new set version (TSD-019 P6)"
                 )
     amount_band = seed.record_facts.amount_band or facts.amount_band
@@ -446,10 +466,17 @@ def expected_outcome(seed: SeedRow, labels: MessageLabels, facts: MessageOracleF
 
 @dataclass
 class RegistryCheckReport:
-    """The violations and audit notes of one registry-check run."""
+    """The violations and audit notes of one registry-check run.
+
+    ``exercised`` names every check that actually ran on real inputs;
+    ``vacuous`` names every check that had nothing to run on, with its
+    reason -- only exercised checks may ever print PASS.
+    """
 
     violations: list[Violation] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    exercised: list[str] = field(default_factory=list)
+    vacuous: list[str] = field(default_factory=list)
 
     @property
     def passed(self) -> bool:
@@ -607,14 +634,38 @@ def run_registry_checks(
     report = RegistryCheckReport()
     sources = team_sources or {"team-brief", "hand-written"}
 
+    has_seeds = any(seeds.get(split) for split in SPLITS)
+    has_messages = any(messages.get(split) for split in SPLITS)
+    has_train_test = bool(messages.get("train")) and bool(messages.get("test"))
+    has_gold_hashes = bool(gold_hashes)
+    has_gold_keys = bool(gold_keys)
+    has_gold_texts = bool(gold_texts)
+    has_t303 = bool(t303_texts)
+    has_templates = bool(template_texts)
+    has_record_ids = any(record_id is not None for ids in record_ids.values() for record_id in ids)
+    has_train_cal = bool(seeds.get("train")) or bool(seeds.get("calibration"))
+
+    def mark(name: str, exercised: bool, reason: str = "") -> None:
+        if exercised:
+            report.exercised.append(name)
+        else:
+            report.vacuous.append(f"{name}: {reason or 'inputs absent'}")
+
     hashes = {split: {seed.customer_hash for seed in rows} for split, rows in seeds.items()}
     report.violations.extend(check_l1_customer_isolation({**hashes, "gold": set(gold_hashes)}))
+    mark("L1 customer isolation across splits", has_seeds, "no seed rows")
+    mark(
+        "L1 vs gold",
+        has_seeds and has_gold_hashes,
+        "no gold hashes given" if not has_gold_hashes else "no seed rows",
+    )
     dated = [
         (seed.split, date.fromisoformat(seed.event_date))
         for split in SPLITS
         for seed in seeds.get(split, [])
     ]
     report.violations.extend(check_l2_time_order(dated))
+    mark("L2 time order", has_seeds, "no seed rows")
     report.violations.extend(
         check_l3_dataset_text(
             [CandidateInput(m.message, "team-brief") for rows in messages.values() for m in rows],
@@ -622,12 +673,18 @@ def run_registry_checks(
             sources,
         )
     )
+    mark(
+        "L3 dataset text",
+        has_messages and has_templates,
+        "no message files" if not has_messages else "no template texts given",
+    )
     entries = [
         SeedEntry(seed.seed_key, seed.split, seed.prompt_id)
         for split in SPLITS
         for seed in seeds.get(split, [])
     ]
     report.violations.extend(check_l4_generation_isolation(entries))
+    mark("L4 generation isolation", has_seeds, "no seed rows")
     report.violations.extend(
         check_l5_gold_held_out(
             set(gold_hashes),
@@ -636,13 +693,34 @@ def run_registry_checks(
             {seed.seed_key for seed in seeds.get("calibration", [])},
         )
     )
+    mark(
+        "L5 gold held-out",
+        has_gold_keys and has_train_cal,
+        "no gold keys given" if not has_gold_keys else "no train/calibration seeds",
+    )
     for split in SPLITS:
         report.violations.extend(
             check_duplicate_draw(seeds.get(split, []), record_ids.get(split, []))
         )
+    mark(
+        "duplicate-draw record ids",
+        has_record_ids,
+        "no pointer log: degraded to seed-key uniqueness",
+    )
+    mark("duplicate-draw seed keys", has_seeds, "no seed rows")
     all_seeds = [seed for split in SPLITS for seed in seeds.get(split, [])]
     all_messages = [message for split in SPLITS for message in messages.get(split, [])]
     report.violations.extend(check_no_records_committed(all_seeds, all_messages, template_texts))
+    mark(
+        "no-records-committed id scan",
+        has_seeds or has_messages,
+        "no seeds or messages",
+    )
+    mark(
+        "no-records-committed template scan",
+        has_messages and has_templates,
+        "no message files" if not has_messages else "no template texts given",
+    )
     parent_of = {
         seed.seed_key: seed.parent_seed_key
         for seed in seeds.get("test", [])
@@ -650,6 +728,7 @@ def run_registry_checks(
     }
     for split in SPLITS:
         report.violations.extend(check_intra_set(messages.get(split, []), parent_of))
+    mark("intra-set duplicates", has_messages, "no message files")
 
     def _pairs(rows: list[MessageRow]) -> list[tuple[str, str]]:
         return [(row.msg_id, row.message) for row in rows]
@@ -659,12 +738,27 @@ def run_registry_checks(
             _pairs(messages.get("train", [])), _pairs(messages.get("test", [])), "train", "test"
         )
     )
+    mark(
+        "train-test overlap",
+        has_train_test,
+        "train or test message files absent",
+    )
     gold_rows = [(f"gold-{index}", text) for index, text in enumerate(gold_texts)]
     report.violations.extend(check_cross_set(_pairs(all_messages), gold_rows, "set", "gold"))
+    mark(
+        "message-gold overlap",
+        has_messages and has_gold_texts,
+        "no message files" if not has_messages else "no gold texts given",
+    )
     t303_rows = [(f"t303-{index}", text) for index, text in enumerate(t303_texts)]
     t303_hits = check_cross_set(_pairs(all_messages), t303_rows, "set", "t303")
     for hit in t303_hits:
         report.violations.append(Violation("L4", f"T-303 quarantine: {hit.detail}"))
+    mark(
+        "T-303 quarantine",
+        has_messages and has_t303,
+        "no message files" if not has_messages else "no T-303 texts given",
+    )
 
     audit = stratum_audit(all_messages)
     for key, cell in sorted(audit.items()):
@@ -673,4 +767,5 @@ def run_registry_checks(
                 f"stratum {key} n={cell['n']} "
                 f"(reviewed={cell['reviewed']}, unreviewed={cell['unreviewed']}) under 30: flagged"
             )
+    mark("stratum audit", has_messages, "no message files")
     return report

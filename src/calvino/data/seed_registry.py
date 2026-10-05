@@ -39,6 +39,7 @@ from calvino.data.message_set import (
     SeedRow,
     derive_defaults,
     derive_seed_key,
+    gate_table_hash,
     run_registry_checks,
     salted_customer_hash,
     seed_to_oracle_facts,
@@ -47,6 +48,23 @@ from calvino.data.seed_pull import DrawnSeed, SeedCandidate, band_for
 from calvino.evaluation.oracle import oracle_outcome
 
 DEFAULT_PROMPT_IDS = {"train": "train-v1", "calibration": "train-v1", "test": "test-v1"}
+
+# Grow-vs-displace rule for nominal no-record seeds (population procedure
+# is documented in the message-set datasheet; needs a one-line TSD-019
+# amendment at review): nominals fill ONLY their own quota cell
+# (NO_RECORD_NOMINAL in seed_pull) and are appended after the
+# record-backed draws. They never backfill a record-backed shortfall --
+# a short record cell raises SeedShortfall instead -- and record-backed
+# draws never displace nominals. "False" means nominals do not grow the
+# committed total beyond its quota cell either: the committed total is
+# drawn quota plus nominal quota, nothing more.
+NO_RECORD_BACKFILLS_SHORTFALLS = False
+
+# Nominal event dates for no-record rows: one fixed date per split window
+# (train / calibration / test), so nominal rows carry a date without
+# pointing at any record. Persona ids are synthetic and deterministic
+# per (split, variant, index).
+NOMINAL_EVENT_DATES = {"train": "2024-03-10", "calibration": "2025-08-10", "test": "2026-02-10"}
 
 
 @dataclass(frozen=True)
@@ -136,6 +154,11 @@ def build_registry(
         customer_hash = salted_customer_hash(candidate.customer_id, salt)
         band = band_for(candidate, gate_limits)
         currency = candidate.currency
+        # De-identified by construction: the raw amount never leaves the
+        # pull (bands only) and no gate limit is echoed back; the table
+        # hash lets the oracle path verify the band's table without one.
+        # Residual risk, stated once: event_date + currency + channel +
+        # type stays, and a rare combination could still single out a row.
         seeds.append(
             SeedRow.model_validate(
                 {
@@ -149,7 +172,6 @@ def build_registry(
                         "kind": item.kind,
                         "status": candidate.status,
                         "transaction_type": candidate.transaction_type,
-                        "amount": candidate.amount,
                         "amount_band": band,
                         "currency": currency,
                         "fraud_flag": candidate.fraud_flag,
@@ -159,9 +181,7 @@ def build_registry(
                     },
                     "event_date": candidate.event_date.isoformat(),
                     "policy_version": policy_version,
-                    "gate_limit_used": gate_limits[currency]
-                    if band is not None and currency
-                    else None,
+                    "gate_table_hash": gate_table_hash(gate_limits) if band is not None else None,
                 }
             )
         )
@@ -225,6 +245,45 @@ def nominal_seed(
     return seed, pointer
 
 
+def build_nominal_seeds(
+    split: str,
+    count: int,
+    *,
+    salt: str,
+    set_version: str = SET_VERSION,
+    policy_version: str,
+    prompt_id: str | None = None,
+    persona_prefix: str = "persona",
+) -> tuple[list[SeedRow], list[PointerEntry]]:
+    """Build nominal no-record seeds for one split's quota cell.
+
+    Persona ids are synthetic (``{prefix}-{split}-{variant}-{index}``) and
+    deterministic, spread evenly across variants. The committed rows carry
+    no amount and no band; see ``nominal_seed``. Asserts the
+    grow-vs-displace rule: nominals only ever fill their own cell.
+    """
+    assert NO_RECORD_BACKFILLS_SHORTFALLS is False, "nominals must never backfill draws"
+    prompt = prompt_id or DEFAULT_PROMPT_IDS[split]
+    variants = ("MX", "CO", "AR")
+    seeds: list[SeedRow] = []
+    pointers: list[PointerEntry] = []
+    for index in range(count):
+        variant = variants[index % len(variants)]
+        seed, pointer = nominal_seed(
+            persona_id=f"{persona_prefix}-{split}-{variant.lower()}-{index:03d}",
+            country_variant=variant,
+            event_date=NOMINAL_EVENT_DATES[split],
+            salt=salt,
+            set_version=set_version,
+            policy_version=policy_version,
+            prompt_id=prompt,
+            split=split,  # type: ignore[arg-type]
+        )
+        seeds.append(seed)
+        pointers.append(pointer)
+    return seeds, pointers
+
+
 def write_seeds_jsonl(path: Path, seeds: list[SeedRow]) -> int:
     """Write committed registry rows, one JSON object per line."""
     with path.open("w", encoding="utf-8") as handle:
@@ -234,14 +293,44 @@ def write_seeds_jsonl(path: Path, seeds: list[SeedRow]) -> int:
 
 
 def write_pointer_log(path: Path, pointers: list[PointerEntry]) -> int:
-    """Append pointer entries to the git-ignored log. Refuses any path git
-    would commit: the record pointers are never committed."""
+    """Truncate-write pointer entries to the git-ignored log, owner-only.
+
+    Refuses any path git would commit: the record pointers are never
+    committed. The log opens in write mode (never append, so a re-pull
+    cannot duplicate keys) and lands at 0600.
+    """
     if not is_git_ignored(path):
         raise SystemExit(f"refusing: pointer log {path} is not git-ignored")
-    with path.open("a", encoding="utf-8") as handle:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
         for entry in pointers:
             handle.write(json.dumps(entry.__dict__, sort_keys=True) + "\n")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
     return len(pointers)
+
+
+def commit_pull_outputs(
+    seeds_dir: Path,
+    pointer_log: Path,
+    rows_by_split: dict[str, list[SeedRow]],
+    pointers: list[PointerEntry],
+) -> dict[str, int]:
+    """Commit one pull: the pointer log first, the registries second.
+
+    The git-ignored log lands (truncated, owner-only) BEFORE any
+    registry file is touched: if its guard refuses, the pull aborts
+    with no registry written, so a committed row always has its
+    pointer. Registries follow, one ``seeds.{split}.jsonl`` per split.
+    """
+    write_pointer_log(pointer_log, pointers)
+    seeds_dir.mkdir(parents=True, exist_ok=True)
+    return {
+        split: write_seeds_jsonl(seeds_dir / f"seeds.{split}.jsonl", rows)
+        for split, rows in rows_by_split.items()
+    }
 
 
 def load_seed_registry(path: Path) -> list[SeedRow]:

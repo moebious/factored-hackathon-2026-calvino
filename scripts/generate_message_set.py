@@ -45,10 +45,12 @@ from calvino.data.message_set import (  # noqa: E402
     check_no_records_committed,
     derive_defaults,
     derive_seed_key,
+    gate_table_hash,
     salted_customer_hash,
 )
 from calvino.llm.contracts import ChatRequest, Message, MessageRole, Role  # noqa: E402
 from calvino.llm.errors import LlmError  # noqa: E402
+from calvino.policy.config import load_policy  # noqa: E402
 
 SET_VERSION = "v1"
 DEFAULT_SALT_FILE = Path("data/message-set-salt-v1")
@@ -109,7 +111,7 @@ def build_brief_markdown(seed: SeedRow, brief: dict) -> str:
     if brief.get("parent_message"):
         lines.append(f"parent_message: {brief['parent_message']}")
     fact_bits = []
-    for name in ("status", "transaction_type", "amount", "currency", "channel"):
+    for name in ("status", "transaction_type", "currency", "channel"):
         value = getattr(facts, name)
         if value is not None:
             fact_bits.append(f"{name}={value}")
@@ -230,10 +232,14 @@ def merge_hand_written(
     salt: str,
     source: Path,
     msg_prefix: str = "test-hand",
+    gate_limits: dict[str, float] | None = None,
 ) -> tuple[list[MessageRow], list[SeedRow]]:
     """Key the team-written supplement: nominal persona ids become
     salted-hash keys under the set version's salt at merge time, so the
-    committed supplement carries no key material before review."""
+    committed supplement carries no key material before review. Any raw
+    ``amount`` in the supplement's nominal facts is dropped at the gate
+    (bands only); banded rows hash the evaluated gate table, so the
+    oracle-path guard holds for merged rows too."""
     messages: list[MessageRow] = []
     seeds: list[SeedRow] = []
     with source.open(encoding="utf-8") as handle:
@@ -245,7 +251,14 @@ def merge_hand_written(
             event_date = row.pop("event_date")
             country = row.pop("country_variant")
             kind = row.pop("kind", "hand_written")
-            record_facts = RecordFacts.model_validate(row.pop("record_facts"))
+            facts_dict = row.pop("record_facts")
+            facts_dict.pop("amount", None)  # nominal amounts never merge
+            record_facts = RecordFacts.model_validate(facts_dict)
+            if record_facts.amount_band is not None and gate_limits is None:
+                raise SystemExit("banded hand-written rows need the evaluated gate table")
+            table_hash = (
+                gate_table_hash(gate_limits) if record_facts.amount_band is not None else None
+            )
             seed_key = derive_seed_key(
                 salt=salt,
                 set_version=SET_VERSION,
@@ -264,7 +277,7 @@ def merge_hand_written(
                     record_facts=record_facts,
                     event_date=event_date,
                     policy_version=row.get("policy_version", "v2"),
-                    gate_limit_used=row.get("gate_limit_used"),
+                    gate_table_hash=table_hash,
                 )
             )
             messages.append(
@@ -303,6 +316,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--pointer-log", type=Path, default=DEFAULT_POINTER_LOG)
     parser.add_argument("--merge-hand-written", type=Path, default=None)
     parser.add_argument("--hand-written-seeds-out", type=Path, default=None)
+    parser.add_argument("--policy", type=Path, default=None)
     parser.add_argument("--verify", type=Path, default=None, help="verify a pointer log and exit")
     parser.add_argument("--dry-run", action="store_true", help="briefs and checks only, no LLM")
     args = parser.parse_args(argv)
@@ -317,7 +331,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.split != "test":
             print("hand-written rows merge into test only", file=sys.stderr)
             return 2
-        messages, seeds = merge_hand_written(salt=salt, source=args.merge_hand_written)
+        messages, seeds = merge_hand_written(
+            salt=salt,
+            source=args.merge_hand_written,
+            gate_limits=dict(load_policy(args.policy).gate.allow_amount_limit)
+            if args.policy
+            else dict(load_policy().gate.allow_amount_limit),
+        )
         print(f"keyed {len(messages)} hand-written rows (model_id hand-written)")
         if args.out is not None:
             with args.out.open("w", encoding="utf-8") as handle:

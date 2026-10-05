@@ -36,15 +36,20 @@ from calvino.data.inventory_access import (  # noqa: E402
     s3_client,
 )
 from calvino.data.inventory_report import check_budget  # noqa: E402
+from calvino.data.message_set import gate_table_hash  # noqa: E402
+from calvino.data.pull_report import write_pull_report  # noqa: E402
 from calvino.data.seed_pull import (  # noqa: E402
+    NO_RECORD_NOMINAL,
+    SeedShortfall,
     candidates_from_lakehouse,
     pull_seeds,
 )
 from calvino.data.seed_registry import (  # noqa: E402
     DEFAULT_PROMPT_IDS,
+    build_nominal_seeds,
     build_registry,
+    commit_pull_outputs,
     ensure_salt,
-    write_pointer_log,
 )
 from calvino.policy.config import load_policy  # noqa: E402
 
@@ -202,19 +207,6 @@ class S3Lakehouse:
             yield typed
 
 
-def _write_jsonl(path: Path, rows: list[object]) -> int:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as handle:
-        for row in rows:
-            if hasattr(row, "model_dump"):
-                handle.write(json.dumps(row.model_dump(mode="json")) + "\n")
-            elif hasattr(row, "__dict__"):
-                handle.write(json.dumps(row.__dict__) + "\n")
-            else:
-                handle.write(json.dumps(row) + "\n")
-    return len(rows)
-
-
 def main(argv: list[str] | None = None) -> int:
     """Pull seed registries from the live lakehouse into committed files."""
     parser = argparse.ArgumentParser(description="Pull T-106 seed registries (read-only)")
@@ -229,6 +221,12 @@ def main(argv: list[str] | None = None) -> int:
         "--pointer-log", type=Path, default=Path("data/message-set-pointers-v1.jsonl")
     )
     parser.add_argument("--seeds-dir", type=Path, default=Path("evaluation/message-set/v1"))
+    parser.add_argument(
+        "--pull-report",
+        type=Path,
+        default=None,
+        help="committed pull evidence (defaults to <seeds-dir>/pull-report.json)",
+    )
     parser.add_argument("--set-version", default="v1")
     parser.add_argument("--policy", type=Path, default=None)
     parser.add_argument("--rng-seed", type=int, default=20261005)
@@ -279,16 +277,38 @@ def main(argv: list[str] | None = None) -> int:
             gate_limits=gate,
             prompt_ids=dict(DEFAULT_PROMPT_IDS),
         )
+        for split in ("train", "calibration", "test"):
+            # Nominal no-record rows fill only their own quota cell: they
+            # never backfill a record-backed shortfall (fail-closed above).
+            nominal_rows, nominal_pointers = build_nominal_seeds(
+                split,
+                NO_RECORD_NOMINAL[split],
+                salt=salt,
+                set_version=args.set_version,
+                policy_version="v2",
+            )
+            rows.extend(nominal_rows)
+            pointers.extend(nominal_pointers)
         by_split: dict[str, list] = {"train": [], "calibration": [], "test": []}
         for row in rows:
             by_split[row.split].append(row)
-        for split, split_rows in by_split.items():
-            _write_jsonl(args.seeds_dir / f"seeds.{split}.jsonl", split_rows)
-        write_pointer_log(args.pointer_log, pointers)
+        # Pointer log first: commit_pull_outputs aborts before touching
+        # any registry when the log guard refuses.
+        counts = commit_pull_outputs(args.seeds_dir, args.pointer_log, by_split, pointers)
+        report_path = args.pull_report or (args.seeds_dir / "pull-report.json")
+        write_pull_report(
+            report_path,
+            report,
+            skipped,
+            manifest_digest=manifest.digest,
+            rng_seed=args.rng_seed,
+            policy_version=str(policy.version),
+            gate_table_hash=gate_table_hash(gate),
+        )
         summary = {
             "considered": dict(report.considered),
             "usable": dict(report.usable),
-            "drawn": {split: len(by_split[split]) for split in by_split},
+            "drawn": dict(counts),
             "excluded": dict(report.excluded),
             "skipped": dict(sorted(skipped.items())),
             "notes": list(report.notes),
@@ -299,6 +319,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except InventoryError as error:
         print(f"error={error}", file=sys.stderr)
+        return 1
+    except SeedShortfall as error:
+        print(f"error=seed-shortfall: {error}", file=sys.stderr)
         return 1
 
 

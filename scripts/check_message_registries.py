@@ -72,9 +72,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"FAILED: {violation.rule_id} {violation.detail}")
     for note in report.notes:
         print(f"note: {note}")
+    # Honest output: only checks that actually ran may print PASS; every
+    # check with nothing to run on is named VACUOUS with its reason.
+    for name in report.exercised:
+        print(f"PASS: {name}")
+    for entry in report.vacuous:
+        print(f"VACUOUS: {entry}")
     print(
         f"checked {sorted(seed_paths)}: "
-        f"{'PASS' if report.passed else f'{len(report.violations)} violations'}"
+        f"{'green' if report.passed else f'{len(report.violations)} violations'} "
+        f"on {len(report.exercised)} exercised checks, {len(report.vacuous)} vacuous"
     )
     return 0 if report.passed else 1
 

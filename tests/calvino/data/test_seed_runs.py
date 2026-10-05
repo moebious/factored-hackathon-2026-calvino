@@ -11,6 +11,7 @@ from datetime import date
 
 import pytest
 
+from calvino.data import message_set as ms
 from calvino.data import seed_registry as sr
 from calvino.data.seed_pull import DrawnSeed, SeedCandidate
 
@@ -24,7 +25,7 @@ BASE_ROW = {
     "country_variant": "MX",
     "event_date": "2024-03-10",
     "policy_version": "v2",
-    "gate_limit_used": 8500.0,
+    "gate_table_hash": ms.gate_table_hash(GATE),
 }
 
 
@@ -35,6 +36,8 @@ def seed_row(seed_key, kind, facts, **overrides):
         "kind": kind,
         "record_facts": {"kind": kind, **facts},
     }
+    if "amount_band" not in row["record_facts"]:
+        row = {**row, "gate_table_hash": None}
     row.update(overrides)
     return sr.SeedRow.model_validate(row)
 
@@ -63,7 +66,7 @@ def registry():
             country_variant="CO",
             event_date="2024-05-01",
         ),
-        seed_row("v1-none", "no_record", {}, gate_limit_used=None),
+        seed_row("v1-none", "no_record", {}),
         seed_row(
             "v1-hand",
             "hand_written",
@@ -239,7 +242,7 @@ def test_entrypoint_fires_l1_across_split_files(tmp_path):
             "customer_hash": sr.salted_customer_hash("C-1", SALT),
             "record_facts": {"kind": "problem_transaction", "status": "Pending"},
             "event_date": "2026-02-10",
-            "gate_limit_used": None,
+            "gate_table_hash": None,
         }
     )
     second = tmp_path / "seeds.test.jsonl"

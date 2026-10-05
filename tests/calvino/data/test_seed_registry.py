@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from calvino.data import seed_registry as sr
-from calvino.data.message_set import derive_seed_key, salted_customer_hash
+from calvino.data.message_set import derive_seed_key, gate_table_hash, salted_customer_hash
 from calvino.data.seed_pull import DrawnSeed, SeedCandidate
 
 SALT = "test-salt-not-secret"
@@ -76,9 +76,33 @@ def test_rows_carry_facts_only_with_recomputable_keys():
         assert pointer.customer_id not in dumped
         assert SALT not in dumped
     assert seeds[0].record_facts.amount_band == "under_gate"
-    assert seeds[0].gate_limit_used == 8500.0
+    assert seeds[0].gate_table_hash == gate_table_hash(GATE)
     assert seeds[0].policy_version == "v2"
     assert seeds[1].record_facts.complaint_status == "open"
+
+
+def test_committed_rows_carry_no_raw_amount_or_limit():
+    """The registry serialization path drops amounts and limits (bands only)."""
+    seeds, _ = sr.build_registry([drawn_tx()], salt=SALT, policy_version="v2", gate_limits=GATE)
+    (seed,) = seeds
+    dumped = seed.model_dump_json()
+    assert '"amount":' not in dumped
+    assert "gate_limit_used" not in dumped
+    assert seed.record_facts.amount_band == "under_gate"
+    assert seed.gate_table_hash == gate_table_hash(GATE)
+
+
+def test_nominal_batch_fills_only_its_quota_cell():
+    """Nominal batches are variant-spread, deterministic, and never backfill."""
+    assert sr.NO_RECORD_BACKFILLS_SHORTFALLS is False
+    seeds, pointers = sr.build_nominal_seeds("train", 6, salt=SALT, policy_version="v2")
+    assert len(seeds) == len(pointers) == 6
+    assert all(seed.kind == "no_record" for seed in seeds)
+    assert sorted(seed.country_variant for seed in seeds) == ["AR"] * 2 + ["CO"] * 2 + ["MX"] * 2
+    assert all(seed.record_facts.amount_band is None for seed in seeds)
+    assert len({seed.seed_key for seed in seeds}) == 6
+    repeat, _ = sr.build_nominal_seeds("train", 6, salt=SALT, policy_version="v2")
+    assert [s.seed_key for s in repeat] == [s.seed_key for s in seeds]
 
 
 def test_nominal_no_record_seed_hashes_its_persona():
@@ -104,6 +128,28 @@ def test_pointer_log_refuses_a_committable_path(tmp_path, monkeypatch):
     with pytest.raises(SystemExit, match="not git-ignored"):
         sr.write_pointer_log(candidate, [])
     assert not candidate.exists()
+
+
+def test_commit_writes_pointer_log_before_registries(tmp_path, monkeypatch):
+    """A refused pointer log aborts the pull with no registry written."""
+    monkeypatch.setattr(sr, "is_git_ignored", lambda path: False)
+    seeds, pointers = sr.build_registry(
+        [drawn_tx()], salt=SALT, policy_version="v2", gate_limits=GATE
+    )
+    with pytest.raises(SystemExit, match="not git-ignored"):
+        sr.commit_pull_outputs(tmp_path, tmp_path / "seed-log.jsonl", {"train": seeds}, pointers)
+    assert list(tmp_path.glob("seeds.*.jsonl")) == []
+
+
+def test_pointer_log_truncates_and_stays_owner_only(tmp_path, monkeypatch):
+    """Re-pulls replace the log (never append) at owner-only permissions."""
+    monkeypatch.setattr(sr, "is_git_ignored", lambda path: True)
+    log = tmp_path / "seed-log.jsonl"
+    log.write_text("stale-pointer\n", encoding="utf-8")
+    _, pointers = sr.build_registry([drawn_tx()], salt=SALT, policy_version="v2", gate_limits=GATE)
+    assert sr.write_pointer_log(log, pointers) == 1
+    assert "stale-pointer" not in log.read_text(encoding="utf-8")
+    assert log.stat().st_mode & 0o077 == 0
 
 
 def test_pointer_log_round_trip_and_registry_reload(tmp_path, monkeypatch):

@@ -142,7 +142,7 @@ def test_hand_written_merge_keys_at_merge_time(tmp_path):
                 "event_date": "2026-03-01",
                 "country_variant": "MX",
                 "kind": "hand_written",
-                "record_facts": {"kind": "hand_written", "status": "Declined"},
+                "record_facts": {"kind": "hand_written", "status": "Declined", "amount": 999.0},
                 "language_variant": "es-MX",
                 "message": "Se me duplicó un cargo ayer, ¿me ayudas a revisarlo?",
                 "labels": {
@@ -167,11 +167,14 @@ def test_hand_written_merge_keys_at_merge_time(tmp_path):
         encoding="utf-8",
     )
     assert "seed_key" not in supplement.read_text(encoding="utf-8")
-    messages, seeds = gen.merge_hand_written(salt="s", source=supplement)
+    messages, seeds = gen.merge_hand_written(
+        salt="s", source=supplement, gate_limits={"MXN": 8500.0}
+    )
     assert messages[0].seed_key == seeds[0].seed_key
     assert messages[0].provenance.model_id == "hand-written"
     assert messages[0].msg_id == "test-hand-01"
     assert "persona-mx-hand-01" not in messages[0].seed_key
+    assert '"amount":' not in seeds[0].model_dump_json()
 
 
 def test_pointer_log_round_trip(tmp_path):
