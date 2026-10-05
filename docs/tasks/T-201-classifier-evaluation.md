@@ -21,3 +21,5 @@
 **Done when.** every variant and its split/model version is named with sample sizes, calibration and safety-relevant errors on held-out data. Thresholds are chosen without consulting the final test split, then written as a new immutable policy version with a stated cost assumption; Portuguese remains evaluation-only.
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
+
+**Specification:** [TSD-027](../specs/TSD-027-classifier-evaluation.md) (proposed); implementation waits for the maintainer's approval of its P-defaults.
