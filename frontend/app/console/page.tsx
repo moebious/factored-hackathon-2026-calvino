@@ -37,14 +37,14 @@ export default function OperatorConsolePage() {
   return (
     <div className="app-shell operator-workspace-shell">
       <header className="topbar">
-        <a className="brand" href="/" aria-label="Calvino inicio">
+        <a className="brand" href="/" aria-label={s.brandHomeAria}>
           <span className="brand-symbol">
             <Sparkles size={16} />
           </span>
           Calvino
         </a>
 
-        <nav className="view-switcher" aria-label="Navegación de producto">
+        <nav className="view-switcher" aria-label={s.productNavAria}>
           <a href="/" className="view-tab">
             <User size={13} /> {s.customerApp}
           </a>
@@ -82,7 +82,7 @@ export default function OperatorConsolePage() {
             className="refresh-btn"
             onClick={refreshCases}
             disabled={loading}
-            title="Refrescar cola"
+            title={s.refreshQueue}
           >
             <RefreshCw size={13} className={loading ? "spin" : ""} />
           </button>
@@ -131,7 +131,7 @@ export default function OperatorConsolePage() {
             />
           </section>
 
-          <section className="dossier-column" aria-label="Detalle del caso">
+          <section className="dossier-column" aria-label={s.caseDetailAria}>
             {activeCase ? (
               <OperatorCaseDossier item={activeCase} strings={s}>
                 <ActionApprovalBar

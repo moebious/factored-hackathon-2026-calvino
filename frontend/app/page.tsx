@@ -85,13 +85,13 @@ export default function Home() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <a className="brand" href="/" aria-label="Calvino inicio">
+        <a className="brand" href="/" aria-label={s.brandHomeAria}>
           <span className="brand-symbol">
             <Sparkles size={16} />
           </span>
           Calvino
         </a>
-        <nav className="view-switcher" aria-label="Navegación de producto">
+        <nav className="view-switcher" aria-label={s.productNavAria}>
           <a href="/" className="view-tab active">
             <User size={13} /> {s.customerApp}
           </a>
@@ -203,7 +203,7 @@ export default function Home() {
                       </span>
                       <p>{turn.message}</p>
                       {turn.attachments && turn.attachments.length > 0 && (
-                        <Attachments items={turn.attachments} variant="grid" />
+                        <Attachments items={turn.attachments} variant="grid" lang={lang} />
                       )}
                     </div>
 
@@ -255,7 +255,7 @@ export default function Home() {
                         />
 
                         <div className="assistant-tools">
-                          {turn.reply.reply && <AudioPlayer text={turn.reply.reply} />}
+                          {turn.reply.reply && <AudioPlayer text={turn.reply.reply} lang={lang} />}
                           <button
                             type="button"
                             className="trace-link"

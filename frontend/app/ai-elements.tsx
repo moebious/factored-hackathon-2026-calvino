@@ -14,27 +14,30 @@ import {
   X,
 } from "lucide-react";
 import type { AttachmentItem } from "./types";
+import { strings, type Lang } from "./i18n";
 
 export function Attachments({
   items,
   variant = "inline",
   onRemove,
+  lang,
 }: {
   items: AttachmentItem[];
   variant?: "grid" | "inline" | "list";
   onRemove?: (id: string) => void;
+  lang: Lang;
 }) {
   if (items.length === 0) return null;
   return (
-    <div className={`attachments attachments-${variant}`} aria-label="Adjuntos">
+    <div className={`attachments attachments-${variant}`} aria-label={strings(lang).attachmentsAria}>
       {items.map((item) => (
-        <Attachment key={item.id} item={item} onRemove={onRemove} />
+        <Attachment key={item.id} item={item} onRemove={onRemove} lang={lang} />
       ))}
     </div>
   );
 }
 
-function Attachment({ item, onRemove }: { item: AttachmentItem; onRemove?: (id: string) => void }) {
+function Attachment({ item, onRemove, lang }: { item: AttachmentItem; onRemove?: (id: string) => void; lang: Lang }) {
   const image = item.mediaType.startsWith("image/");
   return (
     <article className={`attachment ${item.status === "failed" ? "attachment-failed" : ""}`}>
@@ -55,7 +58,7 @@ function Attachment({ item, onRemove }: { item: AttachmentItem; onRemove?: (id: 
         <button
           className="icon-button attachment-remove"
           type="button"
-          aria-label={`Quitar ${item.name}`}
+          aria-label={`${strings(lang).removeAttachment} ${item.name}`}
           onClick={() => onRemove(item.id)}
         >
           <X size={15} aria-hidden="true" />
@@ -71,8 +74,9 @@ function formatBytes(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function AudioPlayer({ text }: { text: string }) {
+export function AudioPlayer({ text, lang }: { text: string; lang: Lang }) {
   const [playing, setPlaying] = useState(false);
+  const s = strings(lang);
   const toggle = () => {
     if (!("speechSynthesis" in window)) return;
     if (playing) {
@@ -81,16 +85,16 @@ export function AudioPlayer({ text }: { text: string }) {
       return;
     }
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-ES";
+    utterance.lang = lang === "pt" ? "pt-BR" : "es-ES";
     utterance.onend = () => setPlaying(false);
     window.speechSynthesis.speak(utterance);
     setPlaying(true);
   };
   return (
-    <button className="audio-player" type="button" onClick={toggle} aria-label={playing ? "Detener respuesta hablada" : "Escuchar respuesta"}>
+    <button className="audio-player" type="button" onClick={toggle} aria-label={playing ? s.audioStopAria : s.audioListenAria}>
       {playing ? <Pause size={14} /> : <Play size={14} />}
       <Volume2 size={14} />
-      {playing ? "Reproduciendo" : "Escuchar"}
+      {playing ? s.audioPlaying : s.audioListen}
     </button>
   );
 }
