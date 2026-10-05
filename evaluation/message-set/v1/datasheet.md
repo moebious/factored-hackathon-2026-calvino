@@ -92,16 +92,30 @@ regenerating messages — never re-banded in place.
 
 Keyless scaffolding is committed and green: `src/calvino/data/message_set.py`
 (registries, derivation table, oracle bridge, normalisation, checks),
-`tests/calvino/data/test_message_set.py` and
-`test_generate_message_set.py`, both prompts, the keyed
-`scripts/generate_message_set.py`, and the 20 hand-written supplement rows
+`src/calvino/data/seed_pull.py` (P2 filter-first sampler over a
+lakehouse-shaped interface: usable-records filter via the AND-condition,
+P6 amount margins, variant-balanced deterministic draw, complaint-seed
+tightness flag, per-split considered/usable/drawn/excluded accounting),
+`src/calvino/data/seed_registry.py` (facts-only writer with salted-hash
+keys, git-ignored pointer log refused on committable paths, the
+oracle-bridge run proving defaults fire on unreviewed rows, and the L1–L5
+file entrypoint), `tests/calvino/data/test_message_set.py`,
+`test_seed_pull.py`, `test_seed_registry.py` and `test_seed_runs.py`,
+both prompts, the keyed `scripts/generate_message_set.py`, the offline
+`scripts/check_message_registries.py`, and the 20 hand-written supplement rows
 (`test-hand-written.jsonl`, merged and keyed at generation time).
+
+Registries: format done, population blocked on the dataset env (see below).
+Generation: blocked on keys.
 
 Blocked, with owner and next step each:
 
-- Seed sampling from usable records (T-106, needs the dataset lakehouse:
-  no dataset access from this environment) → full registries
-  `seeds.{train,calibration,test}.jsonl` at P1 sizes.
+- Seed-registry population (T-106, needs the dataset lakehouse via
+  `CALVINO_ENV_FILE` in a credentialed shell: no dataset access from this
+  environment) → full registries
+  `seeds.{train,calibration,test}.jsonl` at P1 sizes. The sampler,
+  writer and check entrypoint above are ready and fixture-tested; only
+  the live pull and the salt creation need the credentialed run.
 - Keyed drafting (T-106, needs `CALVINO_LLM_*` at generation time plus
   ~1,140 paced calls) → `{train,calibration,test}.jsonl`.
 - Maintainer review sample per the accept rule (`review-log.md`) → use.
