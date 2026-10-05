@@ -1,6 +1,6 @@
 [
   {
-    "description": "The signed-in customer: name, country, segment and number of accounts.",
+    "description": "Signed-in customer details; some source fields may be unavailable.",
     "input_schema": {
       "properties": {},
       "title": "get_customer_summaryArguments",
@@ -13,9 +13,17 @@
       "description": "The signed-in customer, as seen by the agent (no ISO message; a business-partner extract).",
       "properties": {
         "account_count": {
-          "minimum": 0,
-          "title": "Account Count",
-          "type": "integer"
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Account Count"
         },
         "country": {
           "description": "ISO 3166-1 alpha-2 country",
@@ -28,27 +36,40 @@
           "type": "string"
         },
         "display_name": {
-          "title": "Display Name",
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
         },
         "segment": {
-          "title": "Segment",
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segment"
         }
       },
       "required": [
         "customer_id",
-        "display_name",
-        "country",
-        "segment",
-        "account_count"
+        "country"
       ],
       "title": "CustomerSummary",
       "type": "object"
     }
   },
   {
-    "description": "The signed-in customer's accounts.",
+    "description": "The signed-in customer's accounts or linked-product projections.",
     "input_schema": {
       "properties": {},
       "title": "list_accountsArguments",
@@ -60,17 +81,25 @@
       "$defs": {
         "Account": {
           "additionalProperties": false,
-          "description": "A cash account (camt.052 ``Acct``).",
+          "description": "An account or linked-product projection (camt.052 ``Acct`` shape).",
           "properties": {
             "account_id": {
-              "description": "Acct/Id",
+              "description": "Acct/Id; source product id in the cleaned-table adapter",
               "title": "Account Id",
               "type": "string"
             },
             "account_type": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Acct/Tp",
-              "title": "Account Type",
-              "type": "string"
+              "title": "Account Type"
             },
             "balance": {
               "anyOf": [
@@ -80,28 +109,45 @@
                 {
                   "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
                   "type": "string"
+                },
+                {
+                  "type": "null"
                 }
               ],
+              "default": null,
               "description": "Bal/Amt",
               "title": "Balance"
             },
             "currency": {
+              "anyOf": [
+                {
+                  "description": "ISO 4217 currency code",
+                  "pattern": "^[A-Z]{3}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Acct/Ccy",
-              "pattern": "^[A-Z]{3}$",
-              "title": "Currency",
-              "type": "string"
+              "title": "Currency"
             },
             "status": {
-              "title": "Status",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Status"
             }
           },
           "required": [
-            "account_id",
-            "account_type",
-            "currency",
-            "status",
-            "balance"
+            "account_id"
           ],
           "title": "Account",
           "type": "object"
@@ -170,7 +216,7 @@
       "$defs": {
         "AccountEntry": {
           "additionalProperties": false,
-          "description": "An account entry (camt.053 ``Ntry`` / camt.054 notification).",
+          "description": "An account entry, with nullable fields when a source has no matching element.",
           "properties": {
             "amount": {
               "anyOf": [
@@ -181,21 +227,41 @@
                 {
                   "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
                   "type": "string"
+                },
+                {
+                  "type": "null"
                 }
               ],
+              "default": null,
               "description": "Ntry/Amt",
               "title": "Amount"
             },
             "bank_transaction_code": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Ntry/BkTxCd (domain-family-subfamily)",
-              "title": "Bank Transaction Code",
-              "type": "string"
+              "title": "Bank Transaction Code"
             },
             "booking_date": {
-              "description": "Ntry/BookgDt",
-              "format": "date",
-              "title": "Booking Date",
-              "type": "string"
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Ntry/BookgDt; projects the source transaction date, not a distinct bank booking date",
+              "title": "Booking Date"
             },
             "country": {
               "anyOf": [
@@ -213,14 +279,31 @@
               "title": "Country"
             },
             "credit_debit": {
-              "$ref": "#/$defs/CreditDebit",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CreditDebit"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Ntry/CdtDbtInd"
             },
             "currency": {
+              "anyOf": [
+                {
+                  "description": "ISO 4217 currency code",
+                  "pattern": "^[A-Z]{3}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Ntry/Amt@Ccy",
-              "pattern": "^[A-Z]{3}$",
-              "title": "Currency",
-              "type": "string"
+              "title": "Currency"
             },
             "entry_reference": {
               "description": "Ntry/NtryRef",
@@ -259,21 +342,23 @@
               "description": "Ntry/Sts"
             },
             "value_date": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Ntry/ValDt",
-              "format": "date",
-              "title": "Value Date",
-              "type": "string"
+              "title": "Value Date"
             }
           },
           "required": [
             "entry_reference",
-            "amount",
-            "currency",
-            "credit_debit",
-            "status",
-            "booking_date",
-            "value_date",
-            "bank_transaction_code"
+            "status"
           ],
           "title": "AccountEntry",
           "type": "object"
@@ -356,7 +441,7 @@
         }
       },
       "additionalProperties": false,
-      "description": "An account entry (camt.053 ``Ntry`` / camt.054 notification).",
+      "description": "An account entry, with nullable fields when a source has no matching element.",
       "properties": {
         "amount": {
           "anyOf": [
@@ -367,21 +452,41 @@
             {
               "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
               "type": "string"
+            },
+            {
+              "type": "null"
             }
           ],
+          "default": null,
           "description": "Ntry/Amt",
           "title": "Amount"
         },
         "bank_transaction_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "Ntry/BkTxCd (domain-family-subfamily)",
-          "title": "Bank Transaction Code",
-          "type": "string"
+          "title": "Bank Transaction Code"
         },
         "booking_date": {
-          "description": "Ntry/BookgDt",
-          "format": "date",
-          "title": "Booking Date",
-          "type": "string"
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Ntry/BookgDt; projects the source transaction date, not a distinct bank booking date",
+          "title": "Booking Date"
         },
         "country": {
           "anyOf": [
@@ -399,14 +504,31 @@
           "title": "Country"
         },
         "credit_debit": {
-          "$ref": "#/$defs/CreditDebit",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CreditDebit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "Ntry/CdtDbtInd"
         },
         "currency": {
+          "anyOf": [
+            {
+              "description": "ISO 4217 currency code",
+              "pattern": "^[A-Z]{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "Ntry/Amt@Ccy",
-          "pattern": "^[A-Z]{3}$",
-          "title": "Currency",
-          "type": "string"
+          "title": "Currency"
         },
         "entry_reference": {
           "description": "Ntry/NtryRef",
@@ -445,21 +567,23 @@
           "description": "Ntry/Sts"
         },
         "value_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "Ntry/ValDt",
-          "format": "date",
-          "title": "Value Date",
-          "type": "string"
+          "title": "Value Date"
         }
       },
       "required": [
         "entry_reference",
-        "amount",
-        "currency",
-        "credit_debit",
-        "status",
-        "booking_date",
-        "value_date",
-        "bank_transaction_code"
+        "status"
       ],
       "title": "AccountEntry",
       "type": "object"
@@ -570,7 +694,7 @@
       "$defs": {
         "AccountEntry": {
           "additionalProperties": false,
-          "description": "An account entry (camt.053 ``Ntry`` / camt.054 notification).",
+          "description": "An account entry, with nullable fields when a source has no matching element.",
           "properties": {
             "amount": {
               "anyOf": [
@@ -581,21 +705,41 @@
                 {
                   "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,16}|(?=[\\d.]{1,19}0*$)\\d{0,16}\\.\\d{0,2}0*$)",
                   "type": "string"
+                },
+                {
+                  "type": "null"
                 }
               ],
+              "default": null,
               "description": "Ntry/Amt",
               "title": "Amount"
             },
             "bank_transaction_code": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Ntry/BkTxCd (domain-family-subfamily)",
-              "title": "Bank Transaction Code",
-              "type": "string"
+              "title": "Bank Transaction Code"
             },
             "booking_date": {
-              "description": "Ntry/BookgDt",
-              "format": "date",
-              "title": "Booking Date",
-              "type": "string"
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Ntry/BookgDt; projects the source transaction date, not a distinct bank booking date",
+              "title": "Booking Date"
             },
             "country": {
               "anyOf": [
@@ -613,14 +757,31 @@
               "title": "Country"
             },
             "credit_debit": {
-              "$ref": "#/$defs/CreditDebit",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CreditDebit"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Ntry/CdtDbtInd"
             },
             "currency": {
+              "anyOf": [
+                {
+                  "description": "ISO 4217 currency code",
+                  "pattern": "^[A-Z]{3}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Ntry/Amt@Ccy",
-              "pattern": "^[A-Z]{3}$",
-              "title": "Currency",
-              "type": "string"
+              "title": "Currency"
             },
             "entry_reference": {
               "description": "Ntry/NtryRef",
@@ -659,21 +820,23 @@
               "description": "Ntry/Sts"
             },
             "value_date": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
               "description": "Ntry/ValDt",
-              "format": "date",
-              "title": "Value Date",
-              "type": "string"
+              "title": "Value Date"
             }
           },
           "required": [
             "entry_reference",
-            "amount",
-            "currency",
-            "credit_debit",
-            "status",
-            "booking_date",
-            "value_date",
-            "bank_transaction_code"
+            "status"
           ],
           "title": "AccountEntry",
           "type": "object"
