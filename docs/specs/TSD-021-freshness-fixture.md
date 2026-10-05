@@ -2,12 +2,12 @@
 
 | | |
 |---|---|
-| Status | approved — implementation in progress on `feat/freshness-fixture` |
+| Status | implemented and merged in #81 |
 | Branch | `feat/freshness-fixture` (`data/` is not an allowed branch type in the push hook) |
 | Task | [T-105](../tasks/T-105-freshness-fixture.md) |
 | Depends on | T-102 / TSD-007; T-103 / TSD-015 and T-106 / TSD-019 interfaces only |
 | Consumed by | T-407 and T-408; this spec defines no task-specific promotion API |
-| Blocked by | spec approval only |
+| Blocked by | — |
 | Design | DESIGN.md 8.2; decision 34 |
 
 ## Workflow context
@@ -454,7 +454,7 @@ The fixture matrix above is normative, not illustrative:
    CHANGELOG.md. No code or fixture behavior was implemented in that commit.
    The maintainer approved the spec before implementation began.
 
-**Implementation commits (completed locally; not yet merged):**
+**Implementation commits (merged in #81):**
 
 1. **`feat(data): add freshness lineage models and fixture`** — add strict
    immutable revision/lineage types and the labelled synthetic fixture.
