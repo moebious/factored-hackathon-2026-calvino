@@ -25,6 +25,7 @@ import json
 import re
 from datetime import date
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -118,6 +119,32 @@ class Deviation(_Frozen):
     reason: str
 
 
+LOSS_FULL = "policy gradient + soft cross-entropy"
+LOSS_CE_ONLY = "soft cross-entropy only"
+
+
+class LoopSettings(_Frozen):
+    """The settings the vendor notebook fixes in code (TSD-020), recorded rather than assumed."""
+
+    loss: Literal["policy gradient + soft cross-entropy", "soft cross-entropy only"]
+    cross_entropy_weight: float = Field(ge=0)
+    sigma_start: float = Field(gt=0)
+    sigma_end: float = Field(gt=0)
+    reward_weight_spherical: float = Field(ge=0)
+    reward_weight_rps: float = Field(ge=0)
+    max_len: int = Field(gt=0)
+    head_max_len: int = Field(gt=0)
+    max_tokens_per_batch: int = Field(gt=0)
+    gradient_checkpointing: bool
+    mixed_precision: str
+    # The shuffle seed is this base plus the epoch plus the rank; torch is seeded with the
+    # base plus the rank, which the vendor notebook never does (TSD-020 change 5).
+    torch_seed_base: int
+    # The temperature hold-out is chosen by the exporter, by message.
+    holdout_max_items: int = Field(gt=0)
+    holdout_fraction_percent: int = Field(gt=0)
+
+
 class Configuration(_Frozen):
     """Every P2 setting, the seed and any deviation from the spec."""
 
@@ -133,6 +160,7 @@ class Configuration(_Frozen):
     min_lr: float = Field(ge=0)
     grad_clip: float = Field(gt=0)
     seed: int
+    loop: LoopSettings
     deviations: tuple[Deviation, ...] = ()
 
 
@@ -160,6 +188,9 @@ class Training(_Frozen):
     wall_time_seconds: float = Field(gt=0)
     # question id -> training-set accuracy in [0, 1]. Never an evaluation figure.
     train_fit: dict[str, float]
+    # laya's own per-type temperatures, fitted on the hold-out slice and baked into the
+    # checkpoint's config, which laya applies at inference. Not Calvino's calibration (T-201).
+    laya_temperatures: dict[str, float] = {}
 
     @field_validator("train_fit")
     @classmethod
@@ -283,6 +314,16 @@ def render_markdown(record: FineTuneRunRecord) -> str:
         f"| Schedule | {cfg.schedule} (down to {cfg.min_lr:g}) |",
         f"| Gradient clip | {cfg.grad_clip:g} |",
         f"| Seed | {cfg.seed} |",
+        f"| Loss | {cfg.loop.loss} (cross-entropy weight {cfg.loop.cross_entropy_weight:g}) |",
+        f"| Exploration noise | {cfg.loop.sigma_start:g} to {cfg.loop.sigma_end:g} |",
+        f"| Reward weights (spherical / RPS) | {cfg.loop.reward_weight_spherical:g} / "
+        f"{cfg.loop.reward_weight_rps:g} |",
+        f"| Sequence lengths (item / head) | {cfg.loop.max_len} / {cfg.loop.head_max_len} |",
+        f"| Precision / gradient checkpointing | {cfg.loop.mixed_precision} / "
+        f"{cfg.loop.gradient_checkpointing} |",
+        f"| Torch seed base | {cfg.loop.torch_seed_base} (plus rank) |",
+        f"| Temperature hold-out | min({cfg.loop.holdout_max_items}, "
+        f"{cfg.loop.holdout_fraction_percent}% of items), chosen by message |",
         "",
     ]
     if cfg.deviations:
@@ -318,6 +359,13 @@ def render_markdown(record: FineTuneRunRecord) -> str:
         lines.append(f"| Loss, epoch {epoch} | {loss:.4f} | {TRAIN_FIT_LABEL} |")
     for question, fit in training.train_fit.items():
         lines.append(f"| Train fit, {question} | {fit:.1%} | {TRAIN_FIT_LABEL} |")
+    if training.laya_temperatures:
+        temperatures = ", ".join(f"{k} {v:.3f}" for k, v in training.laya_temperatures.items())
+        lines += [
+            "",
+            f"laya's own temperatures, fitted on the hold-out slice and baked into the "
+            f"checkpoint's config (not Calvino's calibration, which T-201 fits): {temperatures}.",
+        ]
     lines += ["", "## Leakage guard", "", "| Check | Result |", "|---|---|"]
     lines += [f"| {c.check} | {'pass' if c.passed else 'FAIL'} |" for c in record.leakage_guard]
     if record.notes:

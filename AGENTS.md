@@ -25,7 +25,9 @@ Application directories are planned and created as code lands; update this secti
 | `frontend/` | Next.js customer app and operator view (planned; CopilotKit / AG-UI console in Tier 2) |
 | `policy/` | Versioned policy files (`v1.yaml`, `v2.yaml`, `v3.yaml`; v3 is the default): every threshold and limit the policy engine reads |
 | `evaluation/` | Versioned evaluation case files (`evaluation/cases/`, TSD-013): synthetic, reviewed, scored against the oracle |
-| `reports/` | Committed run outputs: evaluation reports (`reports/eval/`, from `scripts/run_evaluation.py`), data-quality findings and baselines |
+| `reports/` | Committed run outputs: evaluation reports (`reports/eval/`, from `scripts/run_evaluation.py`), fine-tuning run records (`reports/finetune/`, from `calvino.classifiers.finetune_record`), data-quality findings and baselines |
+| `classifiers.yaml` | The committed record of which Laya checkpoints Calvino may load, each pinned by Hub commit and `model.safetensors` SHA-256, and which is the default (TSD-020). Keys are never here |
+| `notebooks/` | The adapted Kaggle notebook for the T-202 fine-tuning run, with its licence notice (Apache 2.0 for the adapted parts) |
 | `providers.yaml` | The committed record of which model answers each language role, on which provider, and what that provider served on the date it was checked (decision 29). Keys are never here |
 | `contracts/` | Generated JSON Schemas of the tool contracts (`contracts/tools/`, from `scripts/export_tool_schemas.py`) and the data contracts with their lineage (`contracts/data/`, from `scripts/export_data_schemas.py`) |
 | `tests/` | `tests/calvino/` mirrors `src/calvino/` (pytest); `tests/fixtures/` holds small synthetic fixtures; `tests/git/` tests the git rule scripts |
@@ -273,6 +275,17 @@ uv run python scripts/run_evaluation.py --suite all --repeats 3  # adds judge va
 ```
 
 Writes `reports/eval/T-303-<date>-<git-sha>.md` (the human report) and `.json` (the machine results); both are committed. The gated parts skip with a named blocker when their environment variables are missing.
+
+### Laya fine-tuning (T-202)
+
+```bash
+uv run python scripts/run_evaluation.py --suite tier0 --laya-checkpoint base            # name an entry of classifiers.yaml (default: the pinned base)
+uv run python scripts/export_finetune_dataset.py --out <dir>                            # the accepted train split as items.jsonl and manifest.json; refuses unless the leakage guard passes
+```
+
+The export is a build artifact (not committed): upload it as a private Kaggle dataset, run
+`notebooks/t202_laya_finetune_kaggle.ipynb` there, and commit the run record the notebook writes.
+Only the maintainer writes `evaluation/message-set/v1/acceptance.json`, the record the export needs.
 
 ### Data contracts
 
