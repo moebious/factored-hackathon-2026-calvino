@@ -116,6 +116,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Frontend audit findings (E1, E2): the dead `intent-driven-card.tsx` composer, the unused `GlassBox` renderer and the legacy `ChainOfThought` in `ai-elements.tsx` are deleted (both exported the same `IntentDrivenCard` name as the live composer; `SpeechInput` and `AttachmentIcon` left without users go with them), and the remaining hardcoded Spanish chrome (approval bar, case dossier, reply editor, queue table, view-switcher labels, queue refresh, attachments and spoken-reply player, whose TTS voice now follows the toggle) moves into `strings(lang)` with Portuguese equivalents. The hub's own reply drafts and the static page metadata stay untranslated by design.
 
+- Frontend audit follow-ups: a `scripts/check_frontend_i18n.sh` guard (wired into `npm run lint`) fails on hardcoded Spanish literals outside `strings(lang)`, on raw trace fields rendered outside the vocabulary resolvers, and on resurrected dead code; the intent composer commits per-keystroke observations through a `decide()` hysteresis (decision 45: same type repeats before the morph preview switches); `useHubConversation` state moves from scattered `useState` calls to a `useReducer` conversation reducer with identical behaviour; and evidence steps reveal staggered (70 ms each, honouring reduced-motion) as the first Nivel A progress-choreography slice.
+
 ## [0.1.0] - 2026-10-02
 
 ### Added
