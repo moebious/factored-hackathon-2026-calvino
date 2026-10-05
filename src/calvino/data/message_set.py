@@ -110,11 +110,14 @@ BRIEF_DEFAULTS: dict[str, BriefDefaults] = {
     # default pins nothing so an unreviewed injection row cannot pose as
     # a settled stuck intent. The oracle still sees "manipulation".
     "manipulation": BriefDefaults("stuck payment", None, "manipulation", True),
-    "none": BriefDefaults("out of scope", None, "none", False),
+    # An unrecognisable empty/garbled message is in-workflow but ambiguous:
+    # the oracle clarifies it. Explicit out-of-scope requests use the
+    # separate out_of_scope brief above.
+    "none": BriefDefaults("out of scope", None, "none", True),
 }
 
 CLEAR_AMBIGUOUS_KINDS = ("wrong_data", "missing_data", "multilingual")
-NEEDS_PERSON_INTENTS = ("dispute", "fraud_report", "manipulation")
+NEEDS_PERSON_INTENTS = ("human", "dispute", "fraud_report")
 
 
 def derive_seed_key(
@@ -306,17 +309,11 @@ def derive_defaults(
     """
     brief = BRIEF_DEFAULTS[brief_intent]
     probing = adversarial_kind in CLEAR_AMBIGUOUS_KINDS
+    ambiguous = brief_intent == "none" or probing
     injecting = brief_intent == "manipulation" or adversarial_kind == "injection"
 
-    clear_enough = not (brief_intent == "none" or probing)
-    needs_person = brief_intent in NEEDS_PERSON_INTENTS or adversarial_kind == "injection"
-
-    in_scope = brief.in_scope
-    if seed_kind == "no_record" and brief.oracle_intent not in (
-        *STUCK_BRIEF_INTENTS,
-        "manipulation",
-    ):
-        in_scope = False
+    clear_enough = not ambiguous
+    needs_person = brief_intent in NEEDS_PERSON_INTENTS
 
     labels = MessageLabels(
         workflow_area=brief.workflow_area,
@@ -327,12 +324,12 @@ def derive_defaults(
     )
     facts = MessageOracleFacts(
         intent=brief.oracle_intent,
-        ambiguous=probing,
+        ambiguous=ambiguous,
         status=None,
         owner=True,
         amount_band="under_gate",
         fraud_flag=False,
-        in_scope=in_scope,
+        in_scope=brief.in_scope,
     )
     return labels, facts
 

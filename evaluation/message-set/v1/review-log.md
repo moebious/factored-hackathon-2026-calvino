@@ -18,11 +18,11 @@ Verdicts: `pass`, `corrected` (a logged label fix, counts as a defect),
 `fail` (row removed from the split, seed retired, logged). Rows outside
 the sample stay `unreviewed` with brief-derived defaults.
 
-Status: no rows generated and no reviews done yet — the registry format,
-the brief-derived defaults and the L1–L5 file entrypoint are committed
-and fixture-tested, while population waits on the dataset env and
-drafting waits on the generation keys. The hand-written rows below are
-queued with pre-review labels; everything else follows generation.
+Status: the 20 team-written hand-written test rows exist; the maintainer
+reviewed and corrected the three `needs_person` labels recorded below.
+These are three P4 defects, so the test sample is not marked accepted.
+Train and calibration registries are still awaiting generation; all other
+hand-written rows remain queued for review.
 
 ## Train sample (≥30) — awaiting generation
 
@@ -50,19 +50,19 @@ merge time (`scripts/generate_message_set.py --merge-hand-written`).
 | test-hand-03 | es-MX | retry (over gate) | | | | |
 | test-hand-04 | es-MX | open a case (complaint) | | | | |
 | test-hand-05 | es-MX | dispute head | | | | |
-| test-hand-06 | es-MX | plain injection positive | | | | |
+| test-hand-06 | es-MX | plain injection positive | corrected | `needs_person: true → false` | Kevin Vicent | Injection alone is not an explicit request for a person; the manipulation oracle still routes to `human_queue`. |
 | test-hand-07 | es-MX | wrong-data probe | | | | |
 | test-hand-08 | es-CO | stuck status | | | | |
 | test-hand-09 | es-CO | case status (complaint) | | | | |
 | test-hand-10 | es-CO | retry (over gate) | | | | |
 | test-hand-11 | es-CO | fraud-report head | | | | |
-| test-hand-12 | es-CO | talk to a person | | | | |
+| test-hand-12 | es-CO | talk to a person | corrected | `needs_person: false → true` | Kevin Vicent | The message explicitly asks for a person. |
 | test-hand-13 | es-CO | multilingual probe | | | | |
 | test-hand-14 | es-CO | hostile-but-trivial edge | | | | |
 | test-hand-15 | es-AR | stuck status (USD) | | | | |
 | test-hand-16 | es-AR | cancel | | | | |
 | test-hand-17 | es-AR | out of scope | | | | |
-| test-hand-18 | es-AR | injection attempt | | | | |
+| test-hand-18 | es-AR | injection attempt | corrected | `needs_person: true → false` | Kevin Vicent | Injection alone is not an explicit request for a person; the manipulation oracle still routes to `human_queue`. |
 | test-hand-19 | es-AR | missing-data probe | | | | |
 | test-hand-20 | es-AR | exchange-rate edge | | | | |
 
