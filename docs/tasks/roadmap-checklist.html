@@ -60,7 +60,7 @@ var PHASES = [
   { id:"F1.2", t:"Scripts sin passcode (check_deployment + tests)", dep:"F1.1", ver:"pytest deploy" },
   { id:"F1.3", t:"Frontend sin passcode", dep:"F1.1", ver:"lint/build" },
   { id:"F1.4", t:"Docs demo abierto (DECISIONS, NFR-8, README, AGENTS, DEPLOY…)", dep:"F1.1–F1.3", ver:"review" },
-  { id:"F1.5", t:"Deploy + smoke en vivo (mantenedor) [TRACK TEMPRANO INDEPENDIENTE]", dep:"— (deploy va antes que F1.7–F1.10)", ver:"smoke verde", note:"link caído (000): verificar" },
+  { id:"F1.5", t:"Deploy + smoke en vivo (mantenedor) [TRACK TEMPRANO INDEPENDIENTE — STAND BY]", dep:"— (deploy va antes que F1.7–F1.10)", ver:"smoke verde", note:"STAND BY: pendiente de deploy (link caído 000): verificar" },
   { id:"F1.6", t:"Reapilar rama 8604f55 en commits compliant", dep:"F1.1", ver:"hooks + CI" },
   { id:"F1.7", t:"Higiene: quitar dep ai y attachments, i18n FR-13 (en vuelo local, sin push)", dep:"F1.6", ver:"lint/build" },
   { id:"F1.8", t:"Reducer de conversación (fricción 6)", dep:"F1.6", ver:"build + escenarios" },

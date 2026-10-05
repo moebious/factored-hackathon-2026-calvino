@@ -23,7 +23,7 @@ green · spec merged.
 | F1.2 | Passcode-free scripts (check_deployment + tests) | F1.1 | pytest deploy | done (#68) |
 | F1.3 | Passcode-free frontend | F1.1 | lint/build | done (#68) |
 | F1.4 | Open-demo docs (DECISIONS, NFR-8, README, AGENTS, DEPLOY…) | F1.1–F1.3 | review | done (#68) |
-| F1.5 | Live deploy + smoke (maintainer) — EARLY INDEPENDENT TRACK | — (deploy outranks F1.7–F1.10) | green smoke | todo (T-304) |
+| F1.5 | Live deploy + smoke (maintainer) — EARLY INDEPENDENT TRACK — STAND BY pending deploy | — (deploy outranks F1.7–F1.10) | green smoke | todo (T-304; on standby until the deploy unblocks) |
 | F1.6 | Restack 8604f55 into compliant commits (premium shell) | F1.1 | hooks + CI | done (#71) |
 | F1.7 | Hygiene: drop ai dep + attachments, i18n FR-13 | F1.6 | lint/build | todo |
 | F1.8 | Conversation reducer (friction 6) | F1.6 | build + scenarios | todo |
