@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Status | implemented |
-| Amendment | [TSD-024](TSD-024-cleaned-table-adapter.md) (T-206; approved, implemented locally) |
+| Amendment | [TSD-024](TSD-024-cleaned-table-adapter.md) (T-206; implemented, merged in #92, #102) |
 | Branch | `feat/mcp-tools` |
 | Depends on | TSD-000 |
 | Required by | the Calvino hub and agents (Wave 2–3) |

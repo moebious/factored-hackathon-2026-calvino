@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | implemented locally; not yet merged |
+| Status | implemented and merged in #92 and #102 |
 | Branch | `feat/workflow-tools` |
 | Task | [T-206](../tasks/T-206-workflow-tools.md) |
 | Depends on | TSD-002 / T-002; TSD-006 / T-101; TSD-007 / T-102 |
