@@ -21,6 +21,7 @@ from calvino.api.loader import SystemOneLoader
 from calvino.decision_log import DecisionLog
 from calvino.hub import (
     DEMO_PERSONAS,
+    FraudContext,
     HubDependencies,
     HubService,
     SupportAgent,
@@ -29,6 +30,7 @@ from calvino.hub import (
 )
 from calvino.policy import Policy
 from calvino.tools import (
+    BankAdapter,
     BankTools,
     ConfirmationVerifier,
     DatasetAdapter,
@@ -66,6 +68,8 @@ def build_demo_hub(
     confirmations: ConfirmationVerifier | None = None,
     agent: SupportAgent | None = None,
     judge: Judge | None = None,
+    bank_adapter: BankAdapter | None = None,
+    fraud_context: FraudContext | None = None,
 ) -> HubService:
     """Assemble the demo's ``HubService``.
 
@@ -79,12 +83,24 @@ def build_demo_hub(
     ``CALVINO_CONFIRMATION_KEY``; a missing or short key raises
     ``ConfigurationError``, and the app then leaves the hub endpoints
     disabled (fail closed) instead of serving writes without a token path.
+
+    ``bank_adapter`` replaces the bundled synthetic adapter when explicitly
+    provided. Callers must also supply its independent ``fraud_context``;
+    this function never discovers or opens a cleaned-data path.
     """
     if confirmations is None:
         confirmations = HmacConfirmationVerifier(confirmation_key_from_env())
-    fixture = json.loads(settings.bank_fixture.read_text(encoding="utf-8"))
-    adapter = DatasetAdapter(fixture)
-    tools = BankTools(adapter, confirmations)
+    if bank_adapter is None:
+        fixture = json.loads(settings.bank_fixture.read_text(encoding="utf-8"))
+        bank_adapter = DatasetAdapter(fixture)
+        chosen_fraud_context = (
+            fraud_context if fraud_context is not None else FixtureFraudContext(fixture)
+        )
+    else:
+        if fraud_context is None:
+            raise ValueError("an injected bank adapter requires an explicit fraud context")
+        chosen_fraud_context = fraud_context
+    tools = BankTools(bank_adapter, confirmations)
     chosen_agent = agent if agent is not None else TemplateAgent()
     if judge is None and isinstance(chosen_agent, TemplateAgent):
         judge = NotRunJudge()
@@ -96,7 +112,7 @@ def build_demo_hub(
         agent=chosen_agent,
         log=log,
         judge=judge,
-        fraud_context=FixtureFraudContext(fixture),
+        fraud_context=chosen_fraud_context,
         confirmations=confirmations,
     )
     # The checkpointer follows CALVINO_DATA_DIR (sqlite on the persistent

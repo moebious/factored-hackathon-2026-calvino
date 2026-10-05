@@ -49,6 +49,7 @@ from calvino.hub.state import HubStage, HubState
 from calvino.policy import ActionName, Facts, GateAction, Policy, decide_gate, decide_route
 from calvino.records import DecisionRecord, GateVerdict, HumanAction, Route, Stage
 from calvino.tools import TOOL_NAMES, BankTools, Session, ToolRefusal
+from calvino.tools.contracts import AccountEntry
 from calvino.verifier import (
     Evidence,
     Judge,
@@ -355,6 +356,36 @@ def build_hub_graph(
         updates["card"] = {"key": "refusal", "payload": {"rule": rule_id}}
         return updates
 
+    def incomplete_gate_source(
+        state: HubState,
+        updates: dict[str, Any],
+        detail: AccountEntry,
+    ) -> dict[str, Any]:
+        """Route a write with missing confirmation facts to a human, never zero."""
+        log_decision(
+            state,
+            stage=Stage.GATE,
+            rule_id="FC-INCOMPLETE-SOURCE",
+            verdict=GateVerdict.BLOCK.value,
+            inputs_summary={
+                "amount_missing": detail.amount is None,
+                "currency_missing": detail.currency is None,
+            },
+        )
+        payload = _payload(detail)
+        _, status = _focus(payload)
+        updates.update(
+            {
+                "rule_id": "FC-INCOMPLETE-SOURCE",
+                "escalate_reason": "FC-INCOMPLETE-SOURCE",
+                "human_action": HumanAction.FULL_TRANSFER,
+                "tool_results": [ToolResult(tool="get_entry_detail", payload=payload)],
+            }
+        )
+        if status is not None:
+            updates["status"] = status
+        return updates
+
     def intake(state: HubState, config: RunnableConfig) -> dict[str, Any]:
         """Resolve the session and build the hard-rule ``Facts`` (never from a model)."""
         session = resolve_session(config)
@@ -529,6 +560,8 @@ def build_hub_graph(
             detail = deps.tools.get_entry_detail(session, entry_reference)
         except ToolRefusal as tool_refusal:
             return refusal(state, updates, name, tool_refusal.rule.value)
+        if detail.amount is None or detail.currency is None:
+            return incomplete_gate_source(state, updates, detail)
         action = GateAction(
             name=ActionName(name),
             transaction_status=detail.status.value,
@@ -669,6 +702,10 @@ def build_hub_graph(
                     inputs_summary={"write": ActionName.OPEN_INVESTIGATION.value},
                 )
             token: str | None = None
+            if detail is not None:
+                if detail.amount is None or detail.currency is None:
+                    updates = incomplete_gate_source(state, updates, detail)
+                    detail = None
             if detail is not None:
                 facts = state.get("facts")
                 gate_action = GateAction(

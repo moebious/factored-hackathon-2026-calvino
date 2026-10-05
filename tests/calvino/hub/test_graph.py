@@ -18,6 +18,7 @@ the FR-7 cards, filled only from verified tool results.
 from __future__ import annotations
 
 from dataclasses import replace
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -36,8 +37,11 @@ from calvino.hub import (
 from calvino.hub.graph import verified_card
 from calvino.policy import replay_decision
 from calvino.records import DecisionRecord, HumanAction, Route, Stage
+from calvino.tools import BankTools, CleanedTableAdapter
 from calvino.tools.session import Session
 from calvino.verifier.evidence import ToolResult
+
+CLEANED_FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "cleaned_bank"
 
 # A grounded reply: every amount, date, merchant and status it states comes
 # from the get_entry_detail result for E-MX-002 (5000.00 MXN, "Transfer to a
@@ -328,6 +332,71 @@ def test_fraud_signal_hard_rule(deps_factory, fake_loader_factory):
     assert final["rule_id"] == "HR-FRAUD"
     assert final["escalated"] is True
     assert agent.requests == []
+
+
+@pytest.mark.parametrize("missing_field", ["amount", "currency"])
+def test_gate_routes_to_human_when_source_confirmation_fact_is_missing(
+    deps_factory, fake_loader_factory, missing_field: str
+):
+    """A nullable read remains visible, but the Gate never coerces missing facts."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(CANCEL_CALL,))])
+    deps = deps_factory(fake_loader_factory(route_probabilities()), agent)
+    adapter = deps.tools._adapter
+    original = adapter._records["E-MX-002"]
+    adapter._records["E-MX-002"] = original.model_copy(
+        update={"entry": original.entry.model_copy(update={missing_field: None})}
+    )
+
+    final, _ = invoke(deps, "ana", "Cancela la transferencia E-MX-002")
+
+    assert final["escalate_reason"] == "FC-INCOMPLETE-SOURCE"
+    assert final["rule_id"] == "FC-INCOMPLETE-SOURCE"
+    assert final["escalated"] is True
+    assert final["tool_results"][0].payload[missing_field] is None
+    assert adapter.action_log == []
+    gate_records = records_of(deps, Stage.GATE)
+    assert [(record.rule_id, record.verdict) for record in gate_records] == [
+        ("FC-INCOMPLETE-SOURCE", "block")
+    ]
+    assert deps.confirmations is not None
+    assert deps.confirmations._granted == set()
+
+
+def test_cleaned_adapter_missing_facts_fail_closed_at_the_gate(
+    deps_factory, fake_loader_factory, tmp_path
+):
+    """The cleaned source reaches the Hub as nulls and never as invented zero amounts."""
+    agent = ScriptedAgent(
+        [
+            AgentDraft(
+                tool_calls=(
+                    ToolCall(
+                        tool="request_cancellation",
+                        arguments={"entry_reference": "E-CO-002"},
+                    ),
+                )
+            )
+        ]
+    )
+    deps = deps_factory(fake_loader_factory(route_probabilities()), agent)
+    adapter = CleanedTableAdapter(CLEANED_FIXTURE, lineage_path=tmp_path / "cleaned-lineage.json")
+    assert deps.confirmations is not None
+    deps = replace(deps, tools=BankTools(adapter, deps.confirmations))
+
+    try:
+        final, _ = invoke(deps, "camilo", "Cancela mi transferencia pendiente")
+
+        assert final["escalate_reason"] == "FC-INCOMPLETE-SOURCE"
+        assert final["rule_id"] == "FC-INCOMPLETE-SOURCE"
+        assert final["tool_results"][0].payload["amount"] is None
+        assert final["tool_results"][0].payload["currency"] is None
+        assert adapter.action_log == []
+        assert deps.confirmations._granted == set()
+        assert [(record.rule_id, record.verdict) for record in records_of(deps, Stage.GATE)] == [
+            ("FC-INCOMPLETE-SOURCE", "block")
+        ]
+    finally:
+        adapter.close()
 
 
 def test_other_customer_data_is_refused_and_logged(deps_factory, fake_loader_factory):
