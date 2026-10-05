@@ -1,8 +1,8 @@
 "use client";
 
-// The premium demo shell. Calvino owns the verified workflow; Shapeshift
-// owns the first-second interaction and adapts gracefully when media APIs are
-// unavailable.
+// The premium demo shell. Calvino owns the verified workflow; the
+// intent-driven card owns the first-second interaction and adapts
+// gracefully when media APIs are unavailable.
 
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
@@ -12,7 +12,7 @@ import { CardView } from "./cards";
 import { GlassBox } from "./glassbox";
 import { strings } from "./i18n";
 import type { Lang } from "./i18n";
-import { ShapeshiftComposer } from "./shapeshift";
+import { IntentDrivenCard } from "./intent-driven-card";
 import { SCENARIOS, scenarioLabel } from "./scenarios";
 import type { AttachmentItem, HubReply, Turn } from "./types";
 
@@ -218,7 +218,7 @@ export default function Home() {
             </ol>
           </section>
           {error && <p className="error-banner" role="alert">{error}<button type="button" onClick={() => setError(null)}><RotateCcw size={14} /> Cerrar</button></p>}
-          <ShapeshiftComposer text={text} busy={busy} lang={lang} attachments={attachments} onTextChange={setText} onAttachmentsChange={setAttachments} onSubmit={() => { if (text.trim() && !busy) void send(text.trim(), persona); }} />
+          <IntentDrivenCard text={text} busy={busy} lang={lang} attachments={attachments} onTextChange={setText} onAttachmentsChange={setAttachments} onSubmit={() => { if (text.trim() && !busy) void send(text.trim(), persona); }} />
         </section>
 
         <aside className={`evidence-rail ${traceOpen ? "is-open" : ""}`}>

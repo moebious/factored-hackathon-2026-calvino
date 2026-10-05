@@ -85,8 +85,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .error-banner { color: var(--coral); border: 1px solid rgba(255,140,114,.25); padding: .65rem .8rem; border-radius: 8px; font-size: .8rem; display: flex; justify-content: space-between; }
 .error-banner button { color: var(--coral); background: none; border: 0; display: inline-flex; align-items: center; gap: .4rem; }
 
-.shapeshift-composer { position: relative; margin-top: 2rem; padding: 1.05rem 1.1rem .75rem; border: 1px solid var(--line-strong); border-radius: 18px; background: linear-gradient(140deg, rgba(181,243,110,.055), rgba(255,255,255,.025) 35%, rgba(117,225,196,.05)); overflow: hidden; box-shadow: 0 20px 80px rgba(0,0,0,.18); }
-.shapeshift-composer.has-intent { border-color: rgba(181,243,110,.45); }
+.intent-driven-card { position: relative; margin-top: 2rem; padding: 1.05rem 1.1rem .75rem; border: 1px solid var(--line-strong); border-radius: 18px; background: linear-gradient(140deg, rgba(181,243,110,.055), rgba(255,255,255,.025) 35%, rgba(117,225,196,.05)); overflow: hidden; box-shadow: 0 20px 80px rgba(0,0,0,.18); }
+.intent-driven-card.has-intent { border-color: rgba(181,243,110,.45); }
 .composer-orbit { position: absolute; right: -40px; top: -90px; width: 190px; height: 190px; border: 1px solid rgba(181,243,110,.15); border-radius: 50%; pointer-events: none; }
 .composer-orbit span { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--mint); }
 .composer-orbit span:nth-child(1) { left: 32px; bottom: 21px; }.composer-orbit span:nth-child(2) { left: 90px; bottom: -2px; background: var(--aqua); }.composer-orbit span:nth-child(3) { right: 14px; top: 54px; background: var(--coral); }

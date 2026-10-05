@@ -1,7 +1,7 @@
 "use client";
 
-// The hero composer. It keeps Shapeshift's core promise, one input that
-// changes shape with intent, while Calvino remains authoritative for actions.
+// The intent-driven card composer. One input that changes shape with
+// intent, while Calvino remains authoritative for actions.
 
 import { AnimatePresence, motion } from "motion/react";
 import { CalendarDays, CheckSquare, Clock3, Palette, Paperclip, Send, Sparkles, Split, X } from "lucide-react";
@@ -27,7 +27,7 @@ const morphs = [
   { match: /color|#[0-9a-f]{3,8}/i, label: "color", icon: Palette, hint: "Explora un color" },
 ];
 
-export function ShapeshiftComposer({
+export function IntentDrivenCard({
   text,
   busy,
   lang,
@@ -60,7 +60,7 @@ export function ShapeshiftComposer({
   };
 
   return (
-    <section className={`shapeshift-composer ${intent ? "has-intent" : ""}`} aria-label="Composer principal">
+    <section className={`intent-driven-card ${intent ? "has-intent" : ""}`} aria-label="Composer principal">
       <div className="composer-orbit" aria-hidden="true">
         <span />
         <span />
