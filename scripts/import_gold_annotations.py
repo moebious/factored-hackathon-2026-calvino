@@ -357,8 +357,8 @@ def main(argv: list[str] | None = None) -> int:
             f"reason: {correction['reason']}"
         )
     if args.apply:
-        _atomic_write_text(args.gold_sheet, merged)
         _append_corrections(args.correction_ledger, corrections)
+        _atomic_write_text(args.gold_sheet, merged)
         print(f"Applied merge to {args.gold_sheet}.")
         if corrections:
             print(f"Appended correction ledger {args.correction_ledger}.")

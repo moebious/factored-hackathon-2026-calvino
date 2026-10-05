@@ -235,6 +235,41 @@ def test_explicit_replacement_requires_reason_and_appends_correction_ledger(tmp_
     assert json.loads(gold.read_text(encoding="utf-8"))["oracle_facts"]["status"] == "Approved"
 
 
+def test_correction_ledger_is_written_before_gold_replacement(tmp_path, monkeypatch):
+    gold, worksheet, _ = _files(tmp_path, status="Pending")
+    ledger = tmp_path / "corrections.jsonl"
+    gold_before = gold.read_text(encoding="utf-8")
+    write_atomically = importer._atomic_write_text
+
+    def fail_gold_write(path, content):
+        if path == gold:
+            raise OSError("simulated gold replacement failure")
+        write_atomically(path, content)
+
+    monkeypatch.setattr(importer, "_atomic_write_text", fail_gold_write)
+    with pytest.raises(OSError, match="simulated gold replacement failure"):
+        importer.main(
+            [
+                "--csv",
+                str(worksheet),
+                "--gold-sheet",
+                str(gold),
+                "--correction-ledger",
+                str(ledger),
+                "--replace",
+                "gold-test-001:oracle_facts.status",
+                "--reason",
+                "Maintainer confirmed the corrected status.",
+                "--apply",
+            ]
+        )
+
+    assert gold.read_text(encoding="utf-8") == gold_before
+    correction = json.loads(ledger.read_text(encoding="utf-8"))
+    assert correction["old_value"] == "Pending"
+    assert correction["new_value"] == "Approved"
+
+
 def test_replace_argument_requires_matching_reason_and_valid_field():
     with pytest.raises(ValueError, match="one corresponding --reason"):
         importer._replacement_reasons(["gold-001:human_outcome"], [])
