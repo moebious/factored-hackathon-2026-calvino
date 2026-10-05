@@ -157,21 +157,30 @@ export default function Home() {
               <small>{s.guidedDemo}</small>
             </div>
             <div className="scenario-scroll">
-              {SCENARIOS.map((scenario) => (
-                <button
-                  key={scenario.id}
-                  type="button"
-                  className="scenario-chip"
-                  disabled={busy}
-                  onClick={() => {
-                    setPersona(scenario.persona);
-                    void send(scenario.message, scenario.persona);
-                  }}
-                >
-                  <span>{scenarioLabel(lang, scenario).split(" · ")[0]}</span>
-                  <ChevronRight size={14} />
-                </button>
-              ))}
+              {SCENARIOS.map((scenario) => {
+                // The chip shows the short code (UC-1); the full label and
+                // the scripted message it sends live in the tooltip, so
+                // judges see what each guided route does before clicking.
+                const label = scenarioLabel(lang, scenario);
+                const hint = `${label} — ${scenario.message}`;
+                return (
+                  <button
+                    key={scenario.id}
+                    type="button"
+                    className="scenario-chip"
+                    disabled={busy}
+                    title={hint}
+                    aria-label={hint}
+                    onClick={() => {
+                      setPersona(scenario.persona);
+                      void send(scenario.message, scenario.persona);
+                    }}
+                  >
+                    <span>{label.split(" · ")[0]}</span>
+                    <ChevronRight size={14} />
+                  </button>
+                );
+              })}
             </div>
           </nav>
 

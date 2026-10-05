@@ -5,6 +5,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+- Guided-scenario chips describe themselves: the full scenario label and the scripted message each button sends now live in the chip's tooltip (`title`) and `aria-label`; the chip itself still shows only the UC code.
+
 ### Fixed
 - Deployment image packaging and runtime assets (TSD-003, T-304, blocker G1): fixed `.dockerignore` to permit copying `tests/fixtures/bank/synthetic_bank.json`, copied required hub runtime assets (`playbooks/`, `prompts/`, `rubrics/`) into the image so `build_demo_hub` does not throw `FileNotFoundError` (503), and included all declared project dependencies (`duckdb`, `boto3`, `langgraph`, etc.) with PyTorch CPU index.
 
