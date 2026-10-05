@@ -67,7 +67,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-203](T-203-portuguese-test-set.md) | Translated held-out pairs and directly written Portuguese cases | 2 | T-106 | — | standard | yes | todo | maintainer |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | done | maintainer |
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | done | maintainer |
-| [T-206](T-206-workflow-tools.md) | Full cleaned-table adapter for the existing workflow tools | 2 | T-002, T-101, T-102 | — | standard | yes | doing | maintainer |
+| [T-206](T-206-workflow-tools.md) | Full cleaned-table adapter for the existing workflow tools | 2 | T-002, T-101, T-102 | — | standard | yes | done (#92) | maintainer |
 | [T-207](T-207-intent-driven-customer-app.md) | Intent-driven customer experience and visual investigation | 2 | T-205, T-003 | — | standard | yes | done (#85) | maintainer |
 | [T-208](T-208-human-request-hard-rule.md) | Hard rule for an explicit request for a person: coverage and false hits | 2 | T-106, T-001 | — | judgment checkpoint | yes | todo | maintainer |
 | [T-209](T-209-confidence-aggregation.md) | What the route's `confidence` score is computed from | 2 | T-106, T-201 | — | judgment checkpoint | yes | todo | maintainer |
@@ -102,7 +102,7 @@ The rule for T-101 is pre-registered; its status moves to `doing` when the analy
 ```
 Wave 0:  T-000 ─► T-001 · T-002 · T-003 · T-004 · T-005          (no data needed)
 Wave 1:  T-101 (done) ─► T-103 ─► T-106 ; T-104 ; T-102 (done) ─► T-105 (done)
-Wave 2:  T-106 ─► T-202 ─► T-201 ; T-208 · T-209 ; T-203 ; T-204 · T-205 (done) ─► T-207 ; T-206 (doing: local implementation)
+Wave 2:  T-106 ─► T-202 ─► T-201 ; T-208 · T-209 ; T-203 ; T-204 · T-205 (done) ─► T-207 ; T-206 (done #92)
 Wave 3:  T-301 · T-302 ─► T-401 ; T-303 ─► T-402 · T-405 · T-603 · T-408 ─► T-407
          T-206 ─► T-406 · T-604 ; T-304 (full public demo)
 Wave 5:  T-501 · T-502 · T-503 · T-504 · T-505 (submission)

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Wave | 2 |
-| Status | doing — implementation complete locally; awaiting separate push approval |
+| Status | done (#92) |
 | Branch | `feat/workflow-tools` |
 | Depends on | T-002, T-101, T-102 |
 | Blocked by | — |
@@ -23,4 +23,4 @@
 
 **Done when.** the existing conformance and security suites pass on the cleaned-table adapter, payments are selected by their actual owner/status without invented cross-table attribution, and outputs retain their source and currency. The full-table implementation is not a claim of access to a live banking core.
 
-**Implementation boundary.** [TSD-024](../specs/TSD-024-cleaned-table-adapter.md) is approved. The implementation and tests use only labelled synthetic fixtures; the operator-provided cleaned layer remains unaccessed and any full-data smoke test is a separate operator-controlled step.
+**Implementation boundary.** [TSD-024](../specs/TSD-024-cleaned-table-adapter.md) was implemented and merged in #92. The implementation and tests use only labelled synthetic fixtures; the operator-provided cleaned layer remains unaccessed, and any full-data smoke test is a separate operator-controlled step.

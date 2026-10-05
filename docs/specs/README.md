@@ -26,7 +26,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-021](TSD-021-freshness-fixture.md): update-correctness fixture (T-105, proposed)
 - [TSD-022](TSD-022-intent-driven-customer-app.md): intent-driven customer app and visual investigation (T-207, implemented)
 - [TSD-023](TSD-023-operator-console.md): operator workspace and audit timeline (T-302, proposed)
-- [TSD-024](TSD-024-cleaned-table-adapter.md): cleaned-table adapter (T-206, implemented locally; not merged)
+- [TSD-024](TSD-024-cleaned-table-adapter.md): cleaned-table adapter (T-206, implemented; merged in #92)
 
 Later tasks write their spec from their task card as the first step, numbered from TSD-025, and wait for the maintainer's approval before any code.
 
