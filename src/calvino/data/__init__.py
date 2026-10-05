@@ -53,6 +53,7 @@ from calvino.data.message_set import (
     stratum_audit,
     usable_amount,
 )
+from calvino.data.pull_report import pull_report_dict, write_pull_report
 from calvino.data.seed_pull import (
     COMPLAINT_FLOORS,
     KIND_QUOTAS,
@@ -173,6 +174,7 @@ __all__ = [
     "proxy_investigation_outcome",
     "proxy_problem_transaction",
     "proxy_resolved",
+    "pull_report_dict",
     "pull_seeds",
     "record_ids_from_pointer_log",
     "run_checks_from_files",
@@ -186,5 +188,6 @@ __all__ = [
     "validate_records",
     "window_for",
     "write_pointer_log",
+    "write_pull_report",
     "write_seeds_jsonl",
 ]

@@ -36,6 +36,8 @@ from calvino.data.inventory_access import (  # noqa: E402
     s3_client,
 )
 from calvino.data.inventory_report import check_budget  # noqa: E402
+from calvino.data.message_set import gate_table_hash  # noqa: E402
+from calvino.data.pull_report import write_pull_report  # noqa: E402
 from calvino.data.seed_pull import (  # noqa: E402
     NO_RECORD_NOMINAL,
     SeedShortfall,
@@ -219,6 +221,12 @@ def main(argv: list[str] | None = None) -> int:
         "--pointer-log", type=Path, default=Path("data/message-set-pointers-v1.jsonl")
     )
     parser.add_argument("--seeds-dir", type=Path, default=Path("evaluation/message-set/v1"))
+    parser.add_argument(
+        "--pull-report",
+        type=Path,
+        default=None,
+        help="committed pull evidence (defaults to <seeds-dir>/pull-report.json)",
+    )
     parser.add_argument("--set-version", default="v1")
     parser.add_argument("--policy", type=Path, default=None)
     parser.add_argument("--rng-seed", type=int, default=20261005)
@@ -287,6 +295,16 @@ def main(argv: list[str] | None = None) -> int:
         # Pointer log first: commit_pull_outputs aborts before touching
         # any registry when the log guard refuses.
         counts = commit_pull_outputs(args.seeds_dir, args.pointer_log, by_split, pointers)
+        report_path = args.pull_report or (args.seeds_dir / "pull-report.json")
+        write_pull_report(
+            report_path,
+            report,
+            skipped,
+            manifest_digest=manifest.digest,
+            rng_seed=args.rng_seed,
+            policy_version=str(policy.version),
+            gate_table_hash=gate_table_hash(gate),
+        )
         summary = {
             "considered": dict(report.considered),
             "usable": dict(report.usable),
