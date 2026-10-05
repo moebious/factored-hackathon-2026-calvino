@@ -52,14 +52,15 @@ is only complete for the rubric's unclassifiable case, where it has a
 `none` oracle intent, `clear_enough = no`, and no stuck intent. Other
 workflow areas do not take a stuck intent.
 
-For the current 32 proposals, the drafting model name and version were not
-recorded. The maintainer saw the proposals before review. The README,
-agreement report and disagreement ledger must state that the 18 existing
-labels are maintainer-only and the 32 proposed labels are model-drafted.
-They must disclose that prior exposure creates anchoring risk and reduces
-label independence. Do not call the review blind or independent. Accepted,
-corrected and rejected proposals all count as proposal-exposed because the
-maintainer saw them before entering the final value.
+The current 32 proposals were drafted with Claude Sonnet 5.5
+(`claude-sonnet-5-5`) in Claude Code on 2026-10-05. The maintainer saw the
+proposals before review. The README, agreement report and disagreement
+ledger must state that the 18 existing labels are maintainer-only and the
+32 proposed labels are model-drafted. They must disclose that prior
+exposure creates anchoring risk and reduces label independence. Do not
+call the review blind or independent. Accepted, corrected and rejected
+proposals all count as proposal-exposed because the maintainer saw them
+before entering the final value.
 
 ## Import behavior
 
@@ -90,7 +91,7 @@ scored oracle/human outcomes separately. It preserves the single-annotator
 limit and reports only complete, valid outcome annotations. The
 disagreement ledger retains maintainer classifications and resolutions.
 Both artifacts disclose the classifier-label provenance split, the
-unrecorded proposal model identity/version and the anchoring caveat.
+proposal model identity/version and the anchoring caveat.
 Oracle facts and human outcomes are separate maintainer-entered annotations.
 
 ## Done when

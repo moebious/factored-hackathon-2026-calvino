@@ -195,8 +195,9 @@ def update_disagreement_log(outcomes: tuple[ScoredOutcome, ...], path: Path) -> 
             "maintainer classifies and resolves them. Rerunning the report "
             "preserves existing classifications and resolutions.\n\n"
             "Classifier labels: 18 existing labels are maintainer-only; 32 "
-            "were model-drafted proposals. The proposal model name and version "
-            "were not recorded. Proposals were seen before review, creating "
+            "were model-drafted proposals from Claude Sonnet 5.5 "
+            "(`claude-sonnet-5-5`) in Claude Code on 2026-10-05. Proposals "
+            "were seen before review, creating "
             "anchoring risk and reducing label independence. Do not describe "
             "these as blind or independent human annotations. Oracle facts "
             "and human outcomes remain separate maintainer-entered annotations.\n\n"
@@ -264,8 +265,9 @@ def render_report(
         "",
         f"Classifier-label provenance: {maintainer_only_count} existing labels "
         f"are maintainer-only; {model_drafted_count} were model-drafted proposals. "
-        "The proposal model name and version were not recorded. The maintainer "
-        "saw the proposals before review, creating anchoring risk and reducing "
+        "They were drafted with Claude Sonnet 5.5 (`claude-sonnet-5-5`) in "
+        "Claude Code on 2026-10-05. The maintainer saw the proposals before "
+        "review, creating anchoring risk and reducing "
         "label independence. Do not describe these as blind or independent "
         "human annotations. Oracle facts and human outcomes are separate "
         "maintainer-entered annotations.",

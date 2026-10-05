@@ -389,11 +389,11 @@ synthetic gold ids and reviewed labels only, no dataset records.
 
 The README, report and disagreement log disclose classifier-label
 provenance: 18 existing labels are maintainer-only and 32 rows were
-model-drafted proposals. The proposal model name and version were not
-recorded. The maintainer saw the proposals before review, which creates
-anchoring risk and reduces label independence. Do not claim blind or
-independent human annotation. Oracle facts and human outcomes are separate
-maintainer-entered annotations.
+model-drafted proposals from Claude Sonnet 5.5 (`claude-sonnet-5-5`) in
+Claude Code on 2026-10-05. The maintainer saw the proposals before review,
+which creates anchoring risk and reduces label independence. Do not claim
+blind or independent human annotation. Oracle facts and human outcomes
+are separate maintainer-entered annotations.
 
 T-103 implements the additive `GoldRecord` schema and blank annotation
 sheet under TSD-015. T-107 owns the maintainer's annotations and runs the

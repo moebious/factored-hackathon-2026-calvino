@@ -79,7 +79,7 @@ def test_existing_fifty_rows_load_and_are_reported_unscored():
     assert "- Classifier labels complete: 18/50" in body
     assert "- Existing maintainer-only classifier labels: 18" in body
     assert "- Model-drafted proposal rows reviewed: 0/32" in body
-    assert "model name and version were not recorded" in body
+    assert "Claude Sonnet 5.5 (`claude-sonnet-5-5`)" in body
     assert "anchoring risk" in body
     assert "scored 0/50" in body
     assert "gold-001" in body

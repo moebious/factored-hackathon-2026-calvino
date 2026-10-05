@@ -41,9 +41,10 @@ disagreement ledger at `reports/eval/T-103-gold-disagreements.md`.
   and denominator, exact agreement, single-annotator scope, and limits of
   the result. It reports kappa only when defined.
 - The README, agreement report and disagreement ledger identify the 32
-  model-drafted labels as maintainer-reviewed, say that the drafting
-  model/version was not recorded, and disclose prior exposure and
-  anchoring risk. They do not claim blind or independent human labels.
+  model-drafted labels as maintainer-reviewed, name Claude Sonnet 5.5
+  (`claude-sonnet-5-5`) in Claude Code on 2026-10-05, and disclose prior
+  exposure and anchoring risk. They do not claim blind or independent
+  human labels.
 - The maintainer reviews and classifies every disagreement as a rubric
   gap, oracle mapping bug, or label slip, and records its resolution.
 - Gold annotations remain held out from training and calibration. No

@@ -54,8 +54,9 @@ PR changes nothing marked this way without a new entry here.
   first 50, with no second annotator. Under the accepted T-107 amendment,
   disclosed model proposals may inform classifier labels only. The 18
   existing labels are maintainer-only; 32 proposals were seen before
-  review, so reports state their model-assisted provenance and anchoring
-  risk. Oracle facts and human outcomes remain maintainer-entered. The
+  review, so reports state that Claude Sonnet 5.5 (`claude-sonnet-5-5`)
+  drafted them in Claude Code on 2026-10-05, plus the anchoring risk.
+  Oracle facts and human outcomes remain maintainer-entered. The
   same rubric version scales to the 150–300 DESIGN-7 set.
 - **P6 — leakage rules home (proposed — maintainer confirms at spec
   review).** All five rules are worded and tested under T-103; T-106's spec
@@ -354,11 +355,11 @@ empty, preserving validation of all existing rows under
 `status` may be null. `human_outcome` must be a TSD-013
 `ExpectedOutcome` other than `ERROR`. T-107 may use disclosed
 model-drafted proposals for classifier labels only; each final classifier
-label requires explicit maintainer review. The drafting model and version
-for the current proposals were not recorded, and the proposals were seen
-before review, so the report must state the anchoring risk. Model proposals
-must not supply or infer `oracle_facts` or `human_outcome`; those remain
-maintainer-entered.
+label requires explicit maintainer review. The current proposals were
+drafted with Claude Sonnet 5.5 (`claude-sonnet-5-5`) in Claude Code on
+2026-10-05. They were seen before review, so the report must state the
+anchoring risk. Model proposals must not supply or infer `oracle_facts`
+or `human_outcome`; those remain maintainer-entered.
 
 The implementation adds:
 
