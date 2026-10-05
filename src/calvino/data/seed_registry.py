@@ -293,14 +293,44 @@ def write_seeds_jsonl(path: Path, seeds: list[SeedRow]) -> int:
 
 
 def write_pointer_log(path: Path, pointers: list[PointerEntry]) -> int:
-    """Append pointer entries to the git-ignored log. Refuses any path git
-    would commit: the record pointers are never committed."""
+    """Truncate-write pointer entries to the git-ignored log, owner-only.
+
+    Refuses any path git would commit: the record pointers are never
+    committed. The log opens in write mode (never append, so a re-pull
+    cannot duplicate keys) and lands at 0600.
+    """
     if not is_git_ignored(path):
         raise SystemExit(f"refusing: pointer log {path} is not git-ignored")
-    with path.open("a", encoding="utf-8") as handle:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
         for entry in pointers:
             handle.write(json.dumps(entry.__dict__, sort_keys=True) + "\n")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
     return len(pointers)
+
+
+def commit_pull_outputs(
+    seeds_dir: Path,
+    pointer_log: Path,
+    rows_by_split: dict[str, list[SeedRow]],
+    pointers: list[PointerEntry],
+) -> dict[str, int]:
+    """Commit one pull: the pointer log first, the registries second.
+
+    The git-ignored log lands (truncated, owner-only) BEFORE any
+    registry file is touched: if its guard refuses, the pull aborts
+    with no registry written, so a committed row always has its
+    pointer. Registries follow, one ``seeds.{split}.jsonl`` per split.
+    """
+    write_pointer_log(pointer_log, pointers)
+    seeds_dir.mkdir(parents=True, exist_ok=True)
+    return {
+        split: write_seeds_jsonl(seeds_dir / f"seeds.{split}.jsonl", rows)
+        for split, rows in rows_by_split.items()
+    }
 
 
 def load_seed_registry(path: Path) -> list[SeedRow]:

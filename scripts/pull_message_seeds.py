@@ -46,8 +46,8 @@ from calvino.data.seed_registry import (  # noqa: E402
     DEFAULT_PROMPT_IDS,
     build_nominal_seeds,
     build_registry,
+    commit_pull_outputs,
     ensure_salt,
-    write_pointer_log,
 )
 from calvino.policy.config import load_policy  # noqa: E402
 
@@ -205,19 +205,6 @@ class S3Lakehouse:
             yield typed
 
 
-def _write_jsonl(path: Path, rows: list[object]) -> int:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as handle:
-        for row in rows:
-            if hasattr(row, "model_dump"):
-                handle.write(json.dumps(row.model_dump(mode="json")) + "\n")
-            elif hasattr(row, "__dict__"):
-                handle.write(json.dumps(row.__dict__) + "\n")
-            else:
-                handle.write(json.dumps(row) + "\n")
-    return len(rows)
-
-
 def main(argv: list[str] | None = None) -> int:
     """Pull seed registries from the live lakehouse into committed files."""
     parser = argparse.ArgumentParser(description="Pull T-106 seed registries (read-only)")
@@ -297,13 +284,13 @@ def main(argv: list[str] | None = None) -> int:
         by_split: dict[str, list] = {"train": [], "calibration": [], "test": []}
         for row in rows:
             by_split[row.split].append(row)
-        for split, split_rows in by_split.items():
-            _write_jsonl(args.seeds_dir / f"seeds.{split}.jsonl", split_rows)
-        write_pointer_log(args.pointer_log, pointers)
+        # Pointer log first: commit_pull_outputs aborts before touching
+        # any registry when the log guard refuses.
+        counts = commit_pull_outputs(args.seeds_dir, args.pointer_log, by_split, pointers)
         summary = {
             "considered": dict(report.considered),
             "usable": dict(report.usable),
-            "drawn": {split: len(by_split[split]) for split in by_split},
+            "drawn": dict(counts),
             "excluded": dict(report.excluded),
             "skipped": dict(sorted(skipped.items())),
             "notes": list(report.notes),

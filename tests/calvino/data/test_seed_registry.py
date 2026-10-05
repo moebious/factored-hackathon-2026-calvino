@@ -130,6 +130,28 @@ def test_pointer_log_refuses_a_committable_path(tmp_path, monkeypatch):
     assert not candidate.exists()
 
 
+def test_commit_writes_pointer_log_before_registries(tmp_path, monkeypatch):
+    """A refused pointer log aborts the pull with no registry written."""
+    monkeypatch.setattr(sr, "is_git_ignored", lambda path: False)
+    seeds, pointers = sr.build_registry(
+        [drawn_tx()], salt=SALT, policy_version="v2", gate_limits=GATE
+    )
+    with pytest.raises(SystemExit, match="not git-ignored"):
+        sr.commit_pull_outputs(tmp_path, tmp_path / "seed-log.jsonl", {"train": seeds}, pointers)
+    assert list(tmp_path.glob("seeds.*.jsonl")) == []
+
+
+def test_pointer_log_truncates_and_stays_owner_only(tmp_path, monkeypatch):
+    """Re-pulls replace the log (never append) at owner-only permissions."""
+    monkeypatch.setattr(sr, "is_git_ignored", lambda path: True)
+    log = tmp_path / "seed-log.jsonl"
+    log.write_text("stale-pointer\n", encoding="utf-8")
+    _, pointers = sr.build_registry([drawn_tx()], salt=SALT, policy_version="v2", gate_limits=GATE)
+    assert sr.write_pointer_log(log, pointers) == 1
+    assert "stale-pointer" not in log.read_text(encoding="utf-8")
+    assert log.stat().st_mode & 0o077 == 0
+
+
 def test_pointer_log_round_trip_and_registry_reload(tmp_path, monkeypatch):
     """Pointers persist git-ignored; registry rows reload as valid seeds."""
     monkeypatch.setattr(sr, "is_git_ignored", lambda path: True)
