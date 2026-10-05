@@ -16,7 +16,7 @@
 
 **Outputs.** `POST /api/composer/intent` (composer-v1), probe briefs `docs/research/q1-*.md` and `q2-*.md`, the DEPLOY runbook section. Fallback C (mode scores) if Q1 fails.
 
-**Phases.**
+**Phases.** Order of record: [frontend-roadmap.md](frontend-roadmap.md) (Fase 3); the list below summarizes it.
 - F3.0a Q1 latency on the Space (GO if p95 ≤800 ms; fallback C if >1500 ms; intermediate with 500 ms debounce) — measurable now.
 - F3.0b Q2 PT probe (GO if comparable to ES; else Laya ES-only + keywords in PT) — measurable now.
 - F3.1 POST /api/composer/intent + dedicated pool + no-log note — needs Q1/Q2 GO + F2.2.

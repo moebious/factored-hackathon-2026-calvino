@@ -16,7 +16,7 @@
 
 **Outputs.** F1.6–F1.9 foundation (restack, hygiene, reducer, vocabulary) plus F2.1–F2.6 (dossier, adaptive input, dynamic cards, faithful Chain of Thought, glass-box labels, Nivel A), all ES/PT with the 7 scenarios green.
 
-**Phases.** Prior context (merged via #68, informational): F1.1–F1.4 open demo. F1.5 deploy+smoke lives in T-304 (nothing to do here).
+**Phases.** Order of record: [frontend-roadmap.md](frontend-roadmap.md) (Fase 1–2 + FE-1 lane); the list below summarizes it. Prior context (merged via #68, informational): F1.1–F1.4 open demo. F1.5 deploy+smoke lives in T-304 (nothing to do here).
 - F1.6 premium shell restack — merged (9b82826, PR #71). Done.
 - F1.7 hygiene (drop ai dep + attachments, i18n FR-13) — needs merged F1.6.
 - F1.8 conversation reducer (friction 6) — needs F1.6.
