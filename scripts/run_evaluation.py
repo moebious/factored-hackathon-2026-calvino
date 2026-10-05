@@ -2,6 +2,11 @@
 
 ``uv run python scripts/run_evaluation.py --suite tier0``
 ``uv run python scripts/run_evaluation.py --suite all --repeats 3``
+``uv run python scripts/run_evaluation.py --suite tier0 --laya-checkpoint <name>``
+
+``--laya-checkpoint`` names an entry of ``classifiers.yaml`` (TSD-020); without it the
+registry default (the pinned base) runs. The report header records the entry's name,
+Hub commit and ``model.safetensors`` digest, so a run says which weights answered.
 
 ``--suite tier0`` drives the full case suite (AC scenarios first, then the
 oracle, adversarial and edge slices) through the real hub assembly in
@@ -39,6 +44,8 @@ from pathlib import Path
 from calvino.api.config import ApiSettings, settings_from_env
 from calvino.api.hub import build_demo_hub
 from calvino.api.loader import LayaLoader
+from calvino.classifiers import CheckpointRef, ClassifierRegistry, load_registry
+from calvino.classifiers.checkpoints import DEFAULT_CLASSIFIERS_PATH
 from calvino.decision_log import DecisionLog
 from calvino.evaluation.ablation import (
     BARE_PROMPT_VERSION,
@@ -165,7 +172,11 @@ def live_llm(env: Mapping[str, str]) -> LiveLlm | None:
     return LiveLlm(agent_client, judge_client, load_prompts().version)
 
 
-def default_hub_factory(env: Mapping[str, str], llm: LiveLlm | None = None) -> HubFactory:
+def default_hub_factory(
+    env: Mapping[str, str],
+    llm: LiveLlm | None = None,
+    checkpoint: CheckpointRef | None = None,
+) -> HubFactory:
     """The production assembly, timed: Laya in ``TimedLoader``, policy v2.
 
     Each case gets a fresh data dir (the runner makes it), a fresh random
@@ -174,7 +185,7 @@ def default_hub_factory(env: Mapping[str, str], llm: LiveLlm | None = None) -> H
     With ``llm`` the hub answers with the ``LlmAgent`` (and the real judge when
     configured); every call is metered into the run's timer.
     """
-    loader = LayaLoader()
+    loader = LayaLoader(checkpoint=checkpoint)
     loader.preload()  # fail fast: a missing checkpoint must not surface mid-suite
     fixture_path = settings_from_env(env).bank_fixture
     policy = load_policy()
@@ -241,6 +252,7 @@ def build_header(
     env: Mapping[str, str],
     llm: LiveLlm | None = None,
     llm_priced: bool = True,
+    checkpoint: CheckpointRef | None = None,
 ) -> RunHeader:
     """Every version and label the run's numbers travel with.
 
@@ -269,7 +281,15 @@ def build_header(
             else "none: judged criteria are not run"
         ),
         llm_priced=llm_priced,
+        laya_checkpoint=checkpoint.name if checkpoint is not None else None,
+        laya_checkpoint_revision=checkpoint.revision if checkpoint is not None else None,
+        laya_checkpoint_sha256=checkpoint.sha256 if checkpoint is not None else None,
     )
+
+
+def select_checkpoint(registry: ClassifierRegistry, name: str | None) -> CheckpointRef:
+    """The ``--laya-checkpoint`` entry, or the registry default when the flag is absent."""
+    return registry.get(name)
 
 
 def gated_results(
@@ -330,14 +350,27 @@ def main(
     parser.add_argument("--cases-dir", type=Path, default=DEFAULT_CASES_DIR)
     parser.add_argument("--scenarios-dir", type=Path, default=DEFAULT_SCENARIOS_DIR)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
+    parser.add_argument(
+        "--laya-checkpoint",
+        default=None,
+        metavar="NAME",
+        help="a classifiers.yaml entry to load (default: the registry default)",
+    )
+    parser.add_argument("--classifiers", type=Path, default=DEFAULT_CLASSIFIERS_PATH)
     args = parser.parse_args(argv)
     if args.repeats < 1:
         parser.error("--repeats must be at least 1")
     values = os.environ if env is None else env
+    try:
+        checkpoint = select_checkpoint(load_registry(args.classifiers), args.laya_checkpoint)
+    except KeyError as error:
+        parser.error(str(error.args[0]))
 
     cases = load_suite(args.cases_dir, args.scenarios_dir)
     llm = live_llm(values) if hub_factory is None else None
-    factory = hub_factory if hub_factory is not None else default_hub_factory(values, llm)
+    factory = (
+        hub_factory if hub_factory is not None else default_hub_factory(values, llm, checkpoint)
+    )
     fixture_path = settings_from_env(values).bank_fixture
     fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
     runner = EvaluationRunner(
@@ -355,7 +388,12 @@ def main(
     judge, ablation = gated_results(args.suite, cases, fixture, values)
     report = RunReport(
         header=build_header(
-            args.suite, args.repeats, values, llm, llm_priced=not runner.unpriced_roles
+            args.suite,
+            args.repeats,
+            values,
+            llm,
+            llm_priced=not runner.unpriced_roles,
+            checkpoint=checkpoint,
         ),
         results=results,
         determinism=runner.determinism_findings,

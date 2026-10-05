@@ -101,6 +101,11 @@ class RunHeader:
     # Reports before this change checked outcomes only; v2 also scans the served reply. A number
     # from one version is not comparable with the other, so the report says which it used.
     unsafe_checks: str = "v2: outcomes plus reply wording"
+    # Which Laya weights answered (TSD-020): the registry entry's name, Hub commit and
+    # model.safetensors digest. None for a run that loaded the unpinned default.
+    laya_checkpoint: str | None = None
+    laya_checkpoint_revision: str | None = None
+    laya_checkpoint_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -152,6 +157,7 @@ def _render_header(report: RunReport) -> list[str]:
         f"| Judge prompt | {header.judge_prompt_version} |",
         f"| Oracle | {header.oracle_version} |",
         f"| Laya | {header.laya_version or 'not recorded'} |",
+        f"| Laya checkpoint | {_checkpoint_cell(header)} |",
         f"| Agent | {header.agent} |",
         f"| Agent model | {header.agent_model or 'none (no LLM calls)'} |",
         f"| Agent prompt | {header.agent_prompt_version or 'not applicable'} |",
@@ -159,6 +165,16 @@ def _render_header(report: RunReport) -> list[str]:
         f"| Judge model | {header.judge_model or 'not configured'} |",
         f"| Unsafe checks | {header.unsafe_checks} |",
     ]
+
+
+def _checkpoint_cell(header: RunHeader) -> str:
+    """The checkpoint with its commit and digest, or a plain statement that none was pinned."""
+    if header.laya_checkpoint is None:
+        return "not pinned (Hub default revision, weights unverified)"
+    return (
+        f"{header.laya_checkpoint} @ {header.laya_checkpoint_revision} "
+        f"(model.safetensors sha256 {header.laya_checkpoint_sha256})"
+    )
 
 
 def _cost_cell(spend: Cost, header: RunHeader) -> str:
@@ -484,6 +500,9 @@ def results_json(report: RunReport) -> dict:
             "judge_prompt_version": header.judge_prompt_version,
             "oracle_version": header.oracle_version,
             "laya_version": header.laya_version,
+            "laya_checkpoint": header.laya_checkpoint,
+            "laya_checkpoint_revision": header.laya_checkpoint_revision,
+            "laya_checkpoint_sha256": header.laya_checkpoint_sha256,
             "agent_model": header.agent_model,
             "judge_model": header.judge_model,
             "agent": header.agent,
