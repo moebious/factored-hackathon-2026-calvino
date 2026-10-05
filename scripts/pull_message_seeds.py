@@ -37,11 +37,14 @@ from calvino.data.inventory_access import (  # noqa: E402
 )
 from calvino.data.inventory_report import check_budget  # noqa: E402
 from calvino.data.seed_pull import (  # noqa: E402
+    NO_RECORD_NOMINAL,
+    SeedShortfall,
     candidates_from_lakehouse,
     pull_seeds,
 )
 from calvino.data.seed_registry import (  # noqa: E402
     DEFAULT_PROMPT_IDS,
+    build_nominal_seeds,
     build_registry,
     ensure_salt,
     write_pointer_log,
@@ -279,6 +282,18 @@ def main(argv: list[str] | None = None) -> int:
             gate_limits=gate,
             prompt_ids=dict(DEFAULT_PROMPT_IDS),
         )
+        for split in ("train", "calibration", "test"):
+            # Nominal no-record rows fill only their own quota cell: they
+            # never backfill a record-backed shortfall (fail-closed above).
+            nominal_rows, nominal_pointers = build_nominal_seeds(
+                split,
+                NO_RECORD_NOMINAL[split],
+                salt=salt,
+                set_version=args.set_version,
+                policy_version="v2",
+            )
+            rows.extend(nominal_rows)
+            pointers.extend(nominal_pointers)
         by_split: dict[str, list] = {"train": [], "calibration": [], "test": []}
         for row in rows:
             by_split[row.split].append(row)
@@ -299,6 +314,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     except InventoryError as error:
         print(f"error={error}", file=sys.stderr)
+        return 1
+    except SeedShortfall as error:
+        print(f"error=seed-shortfall: {error}", file=sys.stderr)
         return 1
 
 

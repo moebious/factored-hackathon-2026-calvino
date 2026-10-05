@@ -81,6 +81,19 @@ def test_rows_carry_facts_only_with_recomputable_keys():
     assert seeds[1].record_facts.complaint_status == "open"
 
 
+def test_nominal_batch_fills_only_its_quota_cell():
+    """Nominal batches are variant-spread, deterministic, and never backfill."""
+    assert sr.NO_RECORD_BACKFILLS_SHORTFALLS is False
+    seeds, pointers = sr.build_nominal_seeds("train", 6, salt=SALT, policy_version="v2")
+    assert len(seeds) == len(pointers) == 6
+    assert all(seed.kind == "no_record" for seed in seeds)
+    assert sorted(seed.country_variant for seed in seeds) == ["AR"] * 2 + ["CO"] * 2 + ["MX"] * 2
+    assert all(seed.record_facts.amount_band is None for seed in seeds)
+    assert len({seed.seed_key for seed in seeds}) == 6
+    repeat, _ = sr.build_nominal_seeds("train", 6, salt=SALT, policy_version="v2")
+    assert [s.seed_key for s in repeat] == [s.seed_key for s in seeds]
+
+
 def test_nominal_no_record_seed_hashes_its_persona():
     """No-record rows hash the nominal persona id and carry no band."""
     seed, pointer = sr.nominal_seed(

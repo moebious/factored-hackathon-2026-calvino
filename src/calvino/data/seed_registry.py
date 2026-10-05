@@ -48,6 +48,23 @@ from calvino.evaluation.oracle import oracle_outcome
 
 DEFAULT_PROMPT_IDS = {"train": "train-v1", "calibration": "train-v1", "test": "test-v1"}
 
+# Grow-vs-displace rule for nominal no-record seeds (population procedure
+# is documented in the message-set datasheet; needs a one-line TSD-019
+# amendment at review): nominals fill ONLY their own quota cell
+# (NO_RECORD_NOMINAL in seed_pull) and are appended after the
+# record-backed draws. They never backfill a record-backed shortfall --
+# a short record cell raises SeedShortfall instead -- and record-backed
+# draws never displace nominals. "False" means nominals do not grow the
+# committed total beyond its quota cell either: the committed total is
+# drawn quota plus nominal quota, nothing more.
+NO_RECORD_BACKFILLS_SHORTFALLS = False
+
+# Nominal event dates for no-record rows: one fixed date per split window
+# (train / calibration / test), so nominal rows carry a date without
+# pointing at any record. Persona ids are synthetic and deterministic
+# per (split, variant, index).
+NOMINAL_EVENT_DATES = {"train": "2024-03-10", "calibration": "2025-08-10", "test": "2026-02-10"}
+
 
 @dataclass(frozen=True)
 class PointerEntry:
@@ -223,6 +240,45 @@ def nominal_seed(
         customer_hash=customer_hash,
     )
     return seed, pointer
+
+
+def build_nominal_seeds(
+    split: str,
+    count: int,
+    *,
+    salt: str,
+    set_version: str = SET_VERSION,
+    policy_version: str,
+    prompt_id: str | None = None,
+    persona_prefix: str = "persona",
+) -> tuple[list[SeedRow], list[PointerEntry]]:
+    """Build nominal no-record seeds for one split's quota cell.
+
+    Persona ids are synthetic (``{prefix}-{split}-{variant}-{index}``) and
+    deterministic, spread evenly across variants. The committed rows carry
+    no amount and no band; see ``nominal_seed``. Asserts the
+    grow-vs-displace rule: nominals only ever fill their own cell.
+    """
+    assert NO_RECORD_BACKFILLS_SHORTFALLS is False, "nominals must never backfill draws"
+    prompt = prompt_id or DEFAULT_PROMPT_IDS[split]
+    variants = ("MX", "CO", "AR")
+    seeds: list[SeedRow] = []
+    pointers: list[PointerEntry] = []
+    for index in range(count):
+        variant = variants[index % len(variants)]
+        seed, pointer = nominal_seed(
+            persona_id=f"{persona_prefix}-{split}-{variant.lower()}-{index:03d}",
+            country_variant=variant,
+            event_date=NOMINAL_EVENT_DATES[split],
+            salt=salt,
+            set_version=set_version,
+            policy_version=policy_version,
+            prompt_id=prompt,
+            split=split,  # type: ignore[arg-type]
+        )
+        seeds.append(seed)
+        pointers.append(pointer)
+    return seeds, pointers
 
 
 def write_seeds_jsonl(path: Path, seeds: list[SeedRow]) -> int:

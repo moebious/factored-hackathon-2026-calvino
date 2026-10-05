@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from datetime import date
 
+import pytest
+
 from calvino.data import seed_pull as sp
 from calvino.data.splits import TRAIN_BUCKETS, customer_bucket
 
@@ -22,6 +24,7 @@ DAY_OF = {
     "test": date(2026, 2, 10),
 }
 COUNTRY_OF = {"MX": "México", "CO": "Colombia", "AR": "Argentina"}
+PROBLEM_STATUSES = ("Declined", "Pending", "Reversed")
 
 
 def bucket_ids(split: str, count: int, tag: str) -> list[str]:
@@ -58,17 +61,98 @@ def customer_rows(ids_variants: list[tuple[str, str]]) -> list[dict]:
     return [{"customer_id": cid, "country": COUNTRY_OF[variant]} for cid, variant in ids_variants]
 
 
-def txn_row(record_id, customer_id, day, status="Pending", amount=4000.0, currency="MXN"):
+def txn_row(
+    record_id,
+    customer_id,
+    day,
+    status="Pending",
+    amount=4000.0,
+    currency="MXN",
+    txn_type="Transfer",
+    channel="App",
+):
     return {
         "transaction_id": record_id,
         "customer_id": customer_id,
         "transaction_date": day,
         "transaction_status": status,
-        "transaction_type": "transfer",
+        "transaction_type": txn_type,
         "amount": amount,
         "currency": currency,
         "is_fraud": False,
-        "channel": "app",
+        "channel": channel,
+    }
+
+
+def complaint_row(record_id, customer_id, day, status="Open"):
+    return {
+        "complaint_id": record_id,
+        "customer_id": customer_id,
+        "creation_date": day,
+        "category": "Transactions",
+        "status": status,
+        "sla_breached": False,
+    }
+
+
+def rich_split_fixture(split: str, tag: str, per_variant: dict[str, int]):
+    """Customers plus one transaction or complaint row per quota unit.
+
+    Problem rows cycle Transfer/Payment (stuck-grounding) and the three
+    problem statuses; clean rows are Approved. One row per customer, so
+    the customer-dedup rule never fires here.
+    """
+    customers = []
+    transactions = []
+    complaints = []
+    for variant in ("MX", "CO", "AR"):
+        counts = per_variant
+        need = (
+            counts.get("problem_transaction", 0)
+            + counts.get("clean_transaction", 0)
+            + counts.get("complaint", 0)
+        )
+        ids = bucket_ids(split, need, f"{tag}-{variant}")
+        cursor = 0
+        for i in range(counts.get("problem_transaction", 0)):
+            cid = ids[cursor]
+            cursor += 1
+            customers.append((cid, variant))
+            transactions.append(
+                txn_row(
+                    f"r-{split}-{variant}-p-{i}",
+                    cid,
+                    DAY_OF[split],
+                    status=PROBLEM_STATUSES[i % 3],
+                    txn_type="Transfer" if i % 2 == 0 else "Payment",
+                )
+            )
+        for i in range(counts.get("clean_transaction", 0)):
+            cid = ids[cursor]
+            cursor += 1
+            customers.append((cid, variant))
+            transactions.append(
+                txn_row(
+                    f"r-{split}-{variant}-c-{i}",
+                    cid,
+                    DAY_OF[split],
+                    status="Approved",
+                    txn_type="Deposit",
+                )
+            )
+        for i in range(counts.get("complaint", 0)):
+            cid = ids[cursor]
+            cursor += 1
+            customers.append((cid, variant))
+            complaints.append(complaint_row(f"k-{split}-{variant}-{i}", cid, DAY_OF[split]))
+    return customers, transactions, complaints
+
+
+def quotas_for(per_variant: dict[str, int]) -> dict[str, dict[str, int]]:
+    return {
+        "train": dict(per_variant),
+        "calibration": dict(per_variant),
+        "test": dict(per_variant),
     }
 
 
@@ -83,7 +167,11 @@ def test_filter_first_usable_only_when_bucket_and_date_agree():
     candidates, skipped = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions))
     assert skipped == {}
     drawn, report = sp.pull_seeds(
-        candidates, quotas={"train": 10, "calibration": 10, "test": 0}, gate=GATE, hard=HARD
+        candidates,
+        quotas={"train": {"problem_transaction": 1}, "calibration": {}, "test": {}},
+        floors={"train": 0, "calibration": 0, "test": 0},
+        gate=GATE,
+        hard=HARD,
     )
     assert [d.candidate.record_id for d in drawn["train"]] == ["r-ok"]
     assert drawn["calibration"] == []
@@ -102,73 +190,118 @@ def test_p6_margins_excluded_before_sampling():
     ]
     candidates, _ = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions))
     drawn, report = sp.pull_seeds(
-        candidates, quotas={"train": 10, "calibration": 0, "test": 0}, gate=GATE, hard=HARD
+        candidates,
+        quotas={"train": {"problem_transaction": 1}, "calibration": {}, "test": {}},
+        floors={"train": 0, "calibration": 0, "test": 0},
+        gate=GATE,
+        hard=HARD,
     )
     assert [d.candidate.record_id for d in drawn["train"]] == ["r-clear"]
     assert report.excluded.get("train") == 2
 
 
-def test_draw_is_variant_balanced_and_deterministic():
-    """Quotas split evenly across MX/CO/AR and repeat under the same seed."""
-    ids_variants = []
-    for split in ("train", "calibration", "test"):
-        for variant in ("MX", "CO", "AR"):
-            for cid in bucket_ids(split, 8, f"bal-{variant}"):
-                ids_variants.append((split, variant, cid))
-    customers = customer_rows([(cid, variant) for split, variant, cid in ids_variants])
-    transactions = [
-        txn_row(f"r-{split}-{variant}-{i}", cid, DAY_OF[split])
-        for split, variant, cid in ids_variants
-        for i in (0,)
-    ]
-    candidates, _ = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions))
-    quotas = {"train": 12, "calibration": 12, "test": 12}
-    first, _ = sp.pull_seeds(candidates, quotas=quotas, gate=GATE, hard=HARD, rng_seed=7)
-    second, _ = sp.pull_seeds(candidates, quotas=quotas, gate=GATE, hard=HARD, rng_seed=7)
-    for split in quotas:
-        assert len(first[split]) == 12
-        variants = [d.candidate.country_variant for d in first[split]]
-        assert sorted(variants) == ["AR"] * 4 + ["CO"] * 4 + ["MX"] * 4
-        assert [d.candidate.record_id for d in first[split]] == [
-            d.candidate.record_id for d in second[split]
-        ]
-
-
-def test_short_pool_drawn_short_and_noted_never_backfilled():
-    """A thin pool draws short with a note; other kinds never fill the gap."""
-    cal_ids = bucket_ids("calibration", 3, "thin")
-    transactions = [txn_row("r-only", cal_ids[0], DAY_OF["calibration"])]
-    complaints = [
-        {
-            "complaint_id": "c-1",
-            "customer_id": cal_ids[1],
-            "creation_date": DAY_OF["calibration"],
-            "category": "Transactions",
-            "status": "open",
-            "sla_breached": False,
-        },
-        {
-            "complaint_id": "c-2",
-            "customer_id": cal_ids[2],
-            "creation_date": DAY_OF["calibration"],
-            "category": "Transactions",
-            "status": "open",
-            "sla_breached": True,
-        },
-    ]
-    customers = customer_rows([(cid, "MX") for cid in cal_ids])
-    candidates, _ = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions, complaints))
+def test_stratified_quotas_met_per_kind_and_variant():
+    """A rich pool draws every (kind, variant) cell exactly to quota."""
+    per_variant = {"problem_transaction": 6, "complaint": 3, "clean_transaction": 3}
+    tables = [rich_split_fixture(split, "strat", per_variant) for split in ("train", "test")]
+    customers = customer_rows([row for table in tables for row in table[0]])
+    transactions = [row for table in tables for row in table[1]]
+    complaints = [row for table in tables for row in table[2]]
+    candidates, skipped = sp.candidates_from_lakehouse(
+        FakeLakehouse(customers, transactions, complaints)
+    )
+    assert skipped == {}
     drawn, report = sp.pull_seeds(
         candidates,
-        quotas={"train": 0, "calibration": 24, "test": 0},
+        quotas={
+            "train": {kind: count * 3 for kind, count in per_variant.items()},
+            "calibration": {},
+            "test": {kind: count * 3 for kind, count in per_variant.items()},
+        },
+        floors={"train": 0, "calibration": 0, "test": 0},
         gate=GATE,
         hard=HARD,
     )
-    assert len(drawn["calibration"]) == 3
-    assert any("below quota" in note for note in report.notes)
-    assert report.usable_complaints["calibration"] == 2
-    assert report.complaint_tight["calibration"] is True
-    assert any("complaint-seed tightness" in note for note in report.notes)
+    for split in ("train", "test"):
+        assert report.drawn[split] == 36
+        kinds = dict(report.drawn_kinds[split])
+        assert kinds.get("complaint") == 9
+        assert sum(kinds.values()) == 36  # re-role only renames transaction kinds
+        variants = dict(report.drawn_variants[split])
+        assert variants == {"MX": 12, "CO": 12, "AR": 12}
+
+
+def test_quota_shortfall_fails_closed():
+    """A short quota cell raises instead of drawing short or backfilling."""
+    customers, transactions, complaints = rich_split_fixture(
+        "calibration", "thin", {"problem_transaction": 3, "complaint": 3}
+    )
+    candidates, _ = sp.candidates_from_lakehouse(
+        FakeLakehouse(customer_rows(customers), transactions, complaints)
+    )
+    with pytest.raises(sp.SeedShortfall, match="calibration/complaint"):
+        sp.pull_seeds(
+            candidates,
+            quotas={
+                "train": {},
+                "calibration": {"problem_transaction": 3, "complaint": 24},
+                "test": {},
+            },
+            floors={"train": 0, "calibration": 0, "test": 0},
+            gate=GATE,
+            hard=HARD,
+        )
+
+
+def test_complaint_floor_enforced_on_drawn_counts():
+    """A draw meeting its quotas but missing the floor still fails closed."""
+    customers, transactions, complaints = rich_split_fixture(
+        "train", "floor", {"problem_transaction": 6, "clean_transaction": 3}
+    )
+    candidates, _ = sp.candidates_from_lakehouse(
+        FakeLakehouse(customer_rows(customers), transactions, complaints)
+    )
+    with pytest.raises(sp.SeedShortfall, match="below floor"):
+        sp.pull_seeds(
+            candidates,
+            quotas={
+                "train": {"problem_transaction": 6, "clean_transaction": 3},
+                "calibration": {},
+                "test": {},
+            },
+            gate=GATE,
+            hard=HARD,
+        )
+
+
+def test_non_stuck_problem_types_excluded_before_sampling():
+    """Problem transactions outside Transfer/Payment never reach the draw."""
+    ids = {}
+    for variant in ("MX", "CO", "AR"):
+        ids[variant] = bucket_ids("train", 2 if variant == "MX" else 1, f"stucktype-{variant}")
+    customers = customer_rows(
+        [(ids["MX"][0], "MX"), (ids["MX"][1], "MX"), (ids["CO"][0], "CO"), (ids["AR"][0], "AR")]
+    )
+    transactions = [
+        txn_row("r-transfer", ids["MX"][0], DAY_OF["train"], txn_type="Transfer"),
+        txn_row("r-deposit", ids["MX"][1], DAY_OF["train"], txn_type="Deposit"),
+        txn_row("r-payment", ids["CO"][0], DAY_OF["train"], txn_type="payment"),
+        txn_row("r-transfer-ar", ids["AR"][0], DAY_OF["train"], txn_type="Transfer"),
+    ]
+    candidates, skipped = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions))
+    assert skipped == {"transaction:non-stuck-type": 1}
+    drawn, _ = sp.pull_seeds(
+        candidates,
+        quotas={"train": {"problem_transaction": 3}, "calibration": {}, "test": {}},
+        floors={"train": 0, "calibration": 0, "test": 0},
+        gate=GATE,
+        hard=HARD,
+    )
+    assert sorted(d.candidate.record_id for d in drawn["train"]) == [
+        "r-payment",
+        "r-transfer",
+        "r-transfer-ar",
+    ]
 
 
 def test_complaint_routing_and_skipped_rows_counted():
@@ -181,7 +314,7 @@ def test_complaint_routing_and_skipped_rows_counted():
             "customer_id": test_ids[0],
             "creation_date": DAY_OF["test"],
             "category": "Transactions",
-            "status": "open",
+            "status": "Open",
             "sla_breached": False,
         },
         {
@@ -189,7 +322,7 @@ def test_complaint_routing_and_skipped_rows_counted():
             "customer_id": test_ids[1],
             "creation_date": DAY_OF["test"],
             "category": "Fees",
-            "status": "open",
+            "status": "Open",
             "sla_breached": False,
         },
         {
@@ -197,7 +330,7 @@ def test_complaint_routing_and_skipped_rows_counted():
             "customer_id": test_ids[2],
             "creation_date": None,
             "category": "Transactions",
-            "status": "open",
+            "status": "Open",
             "sla_breached": False,
         },
     ]
@@ -220,33 +353,42 @@ def test_complaint_routing_and_skipped_rows_counted():
 
 def test_other_customer_probes_stay_in_split():
     """A share of transaction draws is re-roled as same-split access probes."""
-    ids = [(cid, "MX") for cid in bucket_ids("train", 40, "probe")]
-    customers = customer_rows(ids)
-    transactions = [txn_row(f"r-{i}", cid, DAY_OF["train"]) for i, (cid, _) in enumerate(ids)]
-    candidates, _ = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions))
+    per_variant = {"problem_transaction": 10}
+    customers, transactions, _ = rich_split_fixture("train", "probe", per_variant)
+    candidates, _ = sp.candidates_from_lakehouse(
+        FakeLakehouse(customer_rows(customers), transactions)
+    )
     drawn, _ = sp.pull_seeds(
-        candidates, quotas={"train": 40, "calibration": 0, "test": 0}, gate=GATE, hard=HARD
+        candidates,
+        quotas={
+            "train": {"problem_transaction": 30},
+            "calibration": {},
+            "test": {},
+        },
+        floors={"train": 0, "calibration": 0, "test": 0},
+        gate=GATE,
+        hard=HARD,
     )
     probes = [d for d in drawn["train"] if d.kind == "other_customer"]
-    assert len(probes) == 2  # 5% of 40 transaction draws
+    assert len(probes) == 2  # 5% of 30 transaction draws, rounded
     assert all(d.split == "train" for d in probes)
 
 
 def test_pool_and_drawn_mix_reported_side_by_side():
     """The report carries the natural outcome mix before and after the draw."""
-    ids = [(cid, "AR") for cid in bucket_ids("test", 9, "mix")]
-    customers = customer_rows(ids)
-    statuses = ["Declined"] * 6 + ["Pending"] * 2 + ["Approved"]
-    transactions = [
-        txn_row(f"r-{i}", cid, DAY_OF["test"], status=status)
-        for i, ((cid, _), status) in enumerate(zip(ids, statuses, strict=True))
-    ]
-    candidates, _ = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions))
-    _, report = sp.pull_seeds(
-        candidates, quotas={"train": 0, "calibration": 0, "test": 9}, gate=GATE, hard=HARD
+    customers, transactions, _ = rich_split_fixture("test", "mix", {"problem_transaction": 3})
+    candidates, _ = sp.candidates_from_lakehouse(
+        FakeLakehouse(customer_rows(customers), transactions)
     )
-    assert report.pool_status_mix["test"] == {"Declined": 6, "Pending": 2, "Approved": 1}
-    assert report.drawn_status_mix["test"] == {"Declined": 6, "Pending": 2, "Approved": 1}
+    _, report = sp.pull_seeds(
+        candidates,
+        quotas={"train": {}, "calibration": {}, "test": {"problem_transaction": 9}},
+        floors={"train": 0, "calibration": 0, "test": 0},
+        gate=GATE,
+        hard=HARD,
+    )
+    assert report.pool_status_mix["test"] == {"Declined": 3, "Pending": 3, "Reversed": 3}
+    assert report.drawn_status_mix["test"] == {"Declined": 3, "Pending": 3, "Reversed": 3}
 
 
 def test_band_for_only_banded_transactions():
