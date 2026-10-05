@@ -1,23 +1,20 @@
 "use client";
 
 // Local, React 18-compatible adapters for the AI Elements interaction
-// patterns. The visual contracts mirror Attachments, ChainOfThought,
-// SpeechInput and AudioPlayer while keeping the Calvino demo dependency-light.
+// patterns. The visual contracts mirror Attachments, SpeechInput and
+// AudioPlayer while keeping the Calvino demo dependency-light.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  Check,
   FileText,
   Image as ImageIcon,
-  LoaderCircle,
   Mic,
   Pause,
   Play,
-  Search,
   Volume2,
   X,
 } from "lucide-react";
-import type { AttachmentItem, TraceStep } from "./types";
+import type { AttachmentItem } from "./types";
 
 type SpeechEvent = {
   results: ArrayLike<ArrayLike<{ transcript: string }>>;
@@ -93,49 +90,6 @@ function formatBytes(size: number) {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-export function ChainOfThought({ steps, open, onOpenChange }: {
-  steps: TraceStep[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
-  return (
-    <section className="chain-of-thought">
-      <button
-        className="chain-trigger"
-        type="button"
-        aria-expanded={open}
-        onClick={() => onOpenChange(!open)}
-      >
-        <span className="chain-trigger-copy">
-          <span className="eyebrow"><Search size={13} /> Evidencia de decisión</span>
-          <strong>{steps.length ? `${steps.length} pasos verificados` : "Sin turno seleccionado"}</strong>
-        </span>
-        <span className={`chain-chevron ${open ? "is-open" : ""}`}>⌄</span>
-      </button>
-      {open && (
-        <div className="chain-content">
-          {steps.length === 0 ? (
-            <p className="empty-copy">Selecciona una respuesta para inspeccionar su traza.</p>
-          ) : (
-            steps.map((step, index) => (
-              <div className="chain-step" key={`${step.stage}-${index}`}>
-                <div className={`chain-step-marker ${index === steps.length - 1 ? "active" : "complete"}`}>
-                  {index === steps.length - 1 ? <LoaderCircle size={13} /> : <Check size={13} />}
-                </div>
-                <div>
-                  <strong>{step.stage}</strong>
-                  <p>{step.verdict}</p>
-                  {step.rule_id && <code>{step.rule_id}</code>}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-    </section>
-  );
 }
 
 export function SpeechInput({
