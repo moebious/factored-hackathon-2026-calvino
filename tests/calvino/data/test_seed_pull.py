@@ -391,6 +391,69 @@ def test_pool_and_drawn_mix_reported_side_by_side():
     assert report.drawn_status_mix["test"] == {"Declined": 3, "Pending": 3, "Reversed": 3}
 
 
+def test_missing_fraud_flag_counted_not_coerced():
+    """A transaction without is_fraud is skipped, never defaulted to False."""
+    train_ids = bucket_ids("train", 2, "fraudnone")
+    customers = customer_rows([(cid, "MX") for cid in train_ids])
+    flagged = txn_row("r-flagged", train_ids[0], DAY_OF["train"])
+    unflagged = {**txn_row("r-unflagged", train_ids[1], DAY_OF["train"]), "is_fraud": None}
+    candidates, skipped = sp.candidates_from_lakehouse(
+        FakeLakehouse(customers, [flagged, unflagged])
+    )
+    assert [c.record_id for c in candidates] == ["r-flagged"]
+    assert skipped == {"transaction:missing-fraud-flag": 1}
+
+
+def test_missing_sla_counted_not_defaulted():
+    """A complaint without sla_breached is skipped, never assumed within SLA."""
+    test_ids = bucket_ids("test", 2, "slanone")
+    customers = customer_rows([(cid, "CO") for cid in test_ids])
+    complaints = [
+        complaint_row("c-ok", test_ids[0], DAY_OF["test"]),
+        {**complaint_row("c-no-sla", test_ids[1], DAY_OF["test"]), "sla_breached": None},
+    ]
+    candidates, skipped = sp.candidates_from_lakehouse(FakeLakehouse(customers, [], complaints))
+    assert [c.record_id for c in candidates] == ["c-ok"]
+    assert skipped == {"complaint:missing-sla": 1}
+
+
+def test_duplicate_ids_refused_and_first_customer_wins():
+    """Duplicate record ids are refused; a second row per customer is skipped."""
+    train_ids = bucket_ids("train", 2, "dedup")
+    customers = customer_rows([(cid, "MX") for cid in train_ids])
+    transactions = [
+        txn_row("r-1", train_ids[0], DAY_OF["train"]),
+        txn_row("r-1", train_ids[1], DAY_OF["train"]),
+        txn_row("r-2", train_ids[0], DAY_OF["train"]),
+    ]
+    candidates, skipped = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions))
+    assert [c.record_id for c in candidates] == ["r-1"]
+    assert skipped["transaction:duplicate-id"] == 1
+    assert skipped["transaction:duplicate-customer"] == 1
+
+
+def test_unknown_enums_rejected_and_counted():
+    """Unknown transaction types, channels and complaint statuses never draw."""
+    test_ids = bucket_ids("test", 4, "enums")
+    customers = customer_rows([(cid, "AR") for cid in test_ids])
+    transactions = [
+        {**txn_row("r-bad-type", test_ids[0], DAY_OF["test"]), "transaction_type": "Bribe"},
+        {**txn_row("r-bad-channel", test_ids[1], DAY_OF["test"]), "channel": "Pigeon"},
+        {**txn_row("r-no-type", test_ids[2], DAY_OF["test"]), "transaction_type": None},
+    ]
+    complaints = [
+        {**complaint_row("c-bad-status", test_ids[3], DAY_OF["test"]), "status": "Haunted"}
+    ]
+    candidates, skipped = sp.candidates_from_lakehouse(
+        FakeLakehouse(customers, transactions, complaints)
+    )
+    assert candidates == []
+    assert skipped["transaction:unexpected-type"] == 1
+    assert skipped["transaction:unexpected-channel"] == 1
+    assert skipped["transaction:missing-type"] == 1
+    assert skipped["complaint:unexpected-status"] == 1
+
+
 def test_band_for_only_banded_transactions():
     """Band helper returns the P6 band, or None when no amount grounds it."""
     assert (

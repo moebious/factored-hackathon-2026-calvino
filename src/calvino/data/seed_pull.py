@@ -86,6 +86,14 @@ NO_RECORD_NOMINAL = {"train": 30, "calibration": 6, "test": 6}
 # rows are excluded before sampling and counted, never drawn.
 STUCK_TRANSACTION_TYPES = ("Transfer", "Payment")
 
+# Allowlisted enums for row-level validation (compared
+# case-insensitively; live values observed in the committed registries
+# are title case). Unknown values are skipped and counted, never
+# coerced: a mistyped feed must fail visibly, not drift into a split.
+TRANSACTION_TYPES = ("Transfer", "Payment", "Deposit", "Withdrawal", "Purchase", "Adjustment")
+CHANNELS = ("App", "Web", "ATM", "POS", "Branch", "Transfer")
+COMPLAINT_STATUSES = ("Open", "In Process", "Resolved", "Closed", "Pending")
+
 # Complaint floors that keep the open-a-case / case-status intents grounded
 # (10% of each base quota, a sampler default, not a spec figure): usable
 # complaint counts below these flag tightness in the report.
@@ -187,10 +195,12 @@ def candidates_from_lakehouse(
     """Map lakehouse rows to record-backed candidates (no sampling yet).
 
     Returns the candidates and a skipped-row count by reason. Rows with no
-    event date, an unknown customer or country, an unexpected status, a
-    non-Transactions complaint, or a non-allowlisted currency are skipped
-    and counted -- never forced into a split. No-record seeds are nominal
-    (built downstream, never pulled), so none appear here.
+    event date, an unknown customer or country, a duplicate record id or
+    customer (first-wins), an unexpected status, type, channel or currency,
+    a non-Transactions complaint, a missing or unexpected complaint
+    status, or a missing fraud/SLA flag are skipped and counted -- never
+    forced into a split. No-record seeds are nominal (built downstream,
+    never pulled), so none appear here.
     """
     variants = {}
     for row in source.iter_customers():
@@ -201,6 +211,8 @@ def candidates_from_lakehouse(
 
     skipped: Counter[str] = Counter()
     candidates: list[SeedCandidate] = []
+    seen_record_ids: set[str] = set()
+    seen_customers: set[str] = set()
     for row in source.iter_transactions():
         record_id = row.get("transaction_id")
         customer_id = row.get("customer_id")
@@ -216,6 +228,17 @@ def candidates_from_lakehouse(
         if variant is None:
             skipped["transaction:unknown-customer-or-country"] += 1
             continue
+        if record_id in seen_record_ids:
+            # Duplicate record ids are refused (counted): one record
+            # draws at most once, so the duplicate-draw check holds.
+            skipped["transaction:duplicate-id"] += 1
+            continue
+        if customer_id in seen_customers:
+            # First-wins: a second seed from the same customer is
+            # skipped and counted. Last-wins would silently re-point
+            # the draw, so it is forbidden here.
+            skipped["transaction:duplicate-customer"] += 1
+            continue
         if status in PROBLEM_TRANSACTION_STATUSES:
             kind = "problem_transaction"
         elif status == "Approved":
@@ -228,14 +251,33 @@ def candidates_from_lakehouse(
             skipped["transaction:unexpected-currency"] += 1
             continue
         tx_type = row.get("transaction_type")
+        if not isinstance(tx_type, str) or not tx_type:
+            skipped["transaction:missing-type"] += 1
+            continue
+        if tx_type.lower() not in {t.lower() for t in TRANSACTION_TYPES}:
+            skipped["transaction:unexpected-type"] += 1
+            continue
         if kind == "problem_transaction" and (
-            not isinstance(tx_type, str)
-            or tx_type.lower() not in {t.lower() for t in STUCK_TRANSACTION_TYPES}
+            tx_type.lower() not in {t.lower() for t in STUCK_TRANSACTION_TYPES}
         ):
             # Only Transfer/Payment problems ground stuck intents; every
             # other problem type is excluded here (counted, never drawn).
             skipped["transaction:non-stuck-type"] += 1
             continue
+        channel = row.get("channel")
+        if channel is not None and (
+            not isinstance(channel, str) or channel.lower() not in {c.lower() for c in CHANNELS}
+        ):
+            skipped["transaction:unexpected-channel"] += 1
+            continue
+        fraud_flag = row.get("is_fraud")
+        if not isinstance(fraud_flag, bool):
+            # A missing fraud flag is an explicit skip reason: coercing
+            # it to False would invent a clean negative control.
+            skipped["transaction:missing-fraud-flag"] += 1
+            continue
+        seen_record_ids.add(record_id)
+        seen_customers.add(customer_id)  # type: ignore[arg-type]
         candidates.append(
             SeedCandidate(
                 record_id=record_id,
@@ -244,17 +286,13 @@ def candidates_from_lakehouse(
                 kind=kind,
                 country_variant=variant,
                 status=status,  # type: ignore[arg-type]
-                transaction_type=tx_type  # type: ignore[arg-type]
-                if isinstance(tx_type, str)
-                else None,
+                transaction_type=tx_type,
                 amount=float(row["amount"])
                 if isinstance(row.get("amount"), (int, float))
                 else None,
                 currency=currency,  # type: ignore[arg-type]
-                fraud_flag=bool(row.get("is_fraud")),
-                channel=row.get("channel")  # type: ignore[arg-type]
-                if isinstance(row.get("channel"), str)
-                else None,
+                fraud_flag=fraud_flag,
+                channel=channel if isinstance(channel, str) else None,
             )
         )
     for row in source.iter_complaints():
@@ -274,7 +312,28 @@ def candidates_from_lakehouse(
         if row.get("category") != COMPLAINT_CATEGORY:
             skipped["complaint:outside-category"] += 1
             continue
+        if record_id in seen_record_ids:
+            skipped["complaint:duplicate-id"] += 1
+            continue
+        if customer_id in seen_customers:
+            # First-wins across tables too: one seed per customer.
+            skipped["complaint:duplicate-customer"] += 1
+            continue
+        complaint_status = row.get("status")
+        if not isinstance(complaint_status, str) or not complaint_status:
+            skipped["complaint:missing-status"] += 1
+            continue
+        if complaint_status.lower() not in {s.lower() for s in COMPLAINT_STATUSES}:
+            skipped["complaint:unexpected-status"] += 1
+            continue
         breached = row.get("sla_breached")
+        if breached is None:
+            # A missing SLA flag is an explicit skip reason, not a silent
+            # within-SLA default: the case-status grounding needs it.
+            skipped["complaint:missing-sla"] += 1
+            continue
+        seen_record_ids.add(record_id)
+        seen_customers.add(customer_id)  # type: ignore[arg-type]
         candidates.append(
             SeedCandidate(
                 record_id=record_id,
@@ -282,12 +341,8 @@ def candidates_from_lakehouse(
                 event_date=day,
                 kind="complaint",
                 country_variant=variant,
-                complaint_status=row.get("status")  # type: ignore[arg-type]
-                if isinstance(row.get("status"), str)
-                else None,
-                sla_state=None
-                if breached is None
-                else ("breached" if bool(breached) else "within_sla"),
+                complaint_status=complaint_status,
+                sla_state="breached" if bool(breached) else "within_sla",
             )
         )
     return candidates, dict(skipped)
