@@ -203,3 +203,16 @@ def test_pointer_log_round_trip(tmp_path):
         encoding="utf-8",
     )
     assert gen.verify_regeneration("s", log) == 1
+
+
+def test_the_draft_budget_leaves_room_for_a_reasoning_model():
+    """A 256-token budget ended every live call with LLM-TRUNCATED; the budget must be generous."""
+    import importlib.util
+    from pathlib import Path
+
+    script = Path(__file__).resolve().parents[3] / "scripts" / "generate_message_set.py"
+    spec = importlib.util.spec_from_file_location("gen_budget_check", script)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.DRAFT_COMPLETION_BUDGET >= 4096

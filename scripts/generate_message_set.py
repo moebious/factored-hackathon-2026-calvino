@@ -53,6 +53,10 @@ from calvino.llm.errors import LlmError  # noqa: E402
 from calvino.policy.config import load_policy  # noqa: E402
 
 SET_VERSION = "v1"
+
+# The agent-role models are reasoning models: one three-sentence reply used 3,064 completion tokens
+# [measured, 2026-10-04], and a 256-token budget ended every call with LLM-TRUNCATED and no text.
+DRAFT_COMPLETION_BUDGET = 8192
 DEFAULT_SALT_FILE = Path("data/message-set-salt-v1")
 DEFAULT_POINTER_LOG = Path("data/message-set-seed-log.jsonl")
 
@@ -136,7 +140,7 @@ def draft_message(
             Message(role=MessageRole.USER, content=brief_markdown),
         ),
         purpose=purpose,
-        max_tokens=256,
+        max_tokens=DRAFT_COMPLETION_BUDGET,
     )
     response = client.complete(request)  # type: ignore[union-attr]
     model_id = getattr(client, "model", "") or os.environ.get("CALVINO_LLM_MODEL", "")
