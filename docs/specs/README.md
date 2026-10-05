@@ -25,9 +25,10 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-020](TSD-020-laya-fine-tuning.md): Laya fine-tuning (T-202, accepted)
 - [TSD-021](TSD-021-freshness-fixture.md): update-correctness fixture (T-105, proposed)
 - [TSD-022](TSD-022-intent-driven-customer-app.md): intent-driven customer app and visual investigation (T-207, implemented)
-- [TSD-023](TSD-023-operator-console.md): operator workspace and audit timeline (T-302, proposed)
-- [TSD-024](TSD-024-cleaned-table-adapter.md): cleaned-table adapter (T-206, implemented locally; not merged)
+- [TSD-023](TSD-023-operator-console.md): operator workspace and audit timeline (T-302, implemented)
+- [TSD-024](TSD-024-cleaned-table-adapter.md): cleaned-table adapter (T-206, implemented)
+- [TSD-025](TSD-025-durable-cases.md): durable cases and process restart recovery (T-401, proposed)
 
-Later tasks write their spec from their task card as the first step, numbered from TSD-025, and wait for the maintainer's approval before any code.
+Later tasks write their spec from their task card as the first step, numbered from TSD-026, and wait for the maintainer's approval before any code.
 
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.
