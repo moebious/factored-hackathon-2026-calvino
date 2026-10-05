@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint && bash ../scripts/check_frontend_i18n.sh"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
