@@ -12,6 +12,8 @@ import {
 import { strings } from "../i18n";
 import type { Lang } from "../i18n";
 import { useOperatorQueue } from "../hooks/useHubConversation";
+import { OperatorQueueTable } from "../components/case-study/OperatorQueueTable";
+import { OperatorCaseDossier } from "../components/case-study/OperatorCaseDossier";
 
 export default function OperatorConsolePage() {
   const [lang, setLang] = useState<Lang>("es");
@@ -119,74 +121,17 @@ export default function OperatorConsolePage() {
               <h2>{s.queueTableTitle}</h2>
               <span className="count-badge">{cases.length}</span>
             </div>
-            {/* OperatorQueueTable rendered in next step */}
-            <div className="queue-list-container">
-              {cases.length === 0 ? (
-                <div className="empty-queue-notice">{s.noCasesFound}</div>
-              ) : (
-                <ul className="queue-items">
-                  {cases.map((c) => (
-                    <li
-                      key={c.case_ref}
-                      className={`queue-item-card ${
-                        c.case_ref === activeCase?.case_ref ? "selected" : ""
-                      }`}
-                      onClick={() => setSelectedCaseRef(c.case_ref)}
-                    >
-                      <div className="item-header">
-                        <strong className="item-ref">{c.case_ref}</strong>
-                        <span className={`status-pill pill-${c.status}`}>
-                          {c.status === "pending_approval"
-                            ? s.statusPendingApproval
-                            : c.status === "in_investigation"
-                            ? s.statusInInvestigation
-                            : c.status === "refused"
-                            ? s.statusRefusedRule
-                            : s.statusResolvedCase}
-                        </span>
-                      </div>
-                      <div className="item-meta">
-                        <span className="persona-tag">@{c.persona}</span>
-                        <span className="rule-tag">{c.reason_rule_id}</span>
-                        {c.amount && (
-                          <span className="amount-tag">
-                            {c.amount} {c.currency}
-                          </span>
-                        )}
-                      </div>
-                      <p className="item-msg">{c.customer_message}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <OperatorQueueTable
+              cases={cases}
+              selectedRef={activeCase?.case_ref || null}
+              onSelectCase={(ref) => setSelectedCaseRef(ref)}
+              strings={s}
+            />
           </section>
 
           <section className="dossier-column" aria-label="Detalle del caso">
             {activeCase ? (
-              <div className="active-case-detail">
-                <div className="detail-banner">
-                  <div className="banner-meta">
-                    <span className="banner-kicker">{activeCase.case_ref}</span>
-                    <h3>{activeCase.customer_message}</h3>
-                  </div>
-                  <div className="banner-tags">
-                    <span className="persona-badge">Titular: @{activeCase.persona}</span>
-                    <span className="rule-badge">Regla: {activeCase.reason_rule_id}</span>
-                  </div>
-                </div>
-
-                {activeCase.gate_verdict === "block" && (
-                  <div className="gate-block-banner" role="alert">
-                    <ShieldAlert size={18} />
-                    <div>
-                      <strong>{s.gateBlockNoticeTitle}</strong>
-                      <p>{s.gateBlockNoticeDesc}</p>
-                      <code>{activeCase.reason_rule_id}</code>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <OperatorCaseDossier item={activeCase} strings={s} />
             ) : (
               <div className="no-case-selected">{s.selectCasePrompt}</div>
             )}
@@ -196,3 +141,4 @@ export default function OperatorConsolePage() {
     </div>
   );
 }
+
