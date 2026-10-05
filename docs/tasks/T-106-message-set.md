@@ -4,7 +4,7 @@
 |---|---|
 | Wave | 1 |
 | Branch | `data/message-set` |
-| Depends on | T-103 |
+| Depends on | T-103; T-107 for gold-subset/oracle agreement |
 | Blocked by | LLM provider keys (decision 28: the client exists, the tokens do not) |
 | Model | standard model; the maintainer reviews a sample before use |
 | Can run in parallel | no |

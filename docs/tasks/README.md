@@ -58,11 +58,12 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-011](../specs/TSD-011-llm-client.md) | LLM client and Hetzner provider | 0 | T-000 | — | standard | yes | done | maintainer |
 | [T-101](T-101-contact-reason-analysis.md) | Contact-reason analysis and workflow decision | 1 | — | dataset access | judgment checkpoint | yes | done (decision 17) | maintainer |
 | [T-102](../specs/TSD-007-data-contracts.md) | Data contracts, quality report and lineage | 1 | T-000 | dataset access | standard | yes | done | maintainer |
-| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric | 1 | T-101 | — | judgment checkpoint | no | doing | maintainer |
+| [T-103](T-103-labels-splits.md) | Labels, splits and gold-set rubric implementation | 1 | T-101 | — | judgment checkpoint | no | done | maintainer |
 | [T-104](T-104-human-baseline.md) | Reproducible full-data, category-level human baseline (not case-matched) | 1 | T-101, TSD-014, TSD-018 | — | standard | yes | done | maintainer |
 | [T-105](T-105-freshness-fixture.md) | Corrected-record lineage, label and promotion-evidence integrity fixture | 1 | T-102 | — | standard | yes | done (#81) | maintainer |
-| [T-106](T-106-message-set.md) | Disjoint training/calibration/test messages; reuse the frozen oracle contract | 1 | T-103 | LLM provider keys (`not run`: keyed generation + sample reviews deferred to post-submission) | standard + maintainer review | no | todo | maintainer |
-| [T-201](T-201-classifier-evaluation.md) | Base/calibrated/fine-tuned Laya versus simpler baselines; threshold frontier | 2 | T-005, T-106, T-202 for final comparison | `not run`: needs T-106 messages | judgment checkpoint | no | spec | maintainer |
+| [T-106](T-106-message-set.md) | Disjoint training/calibration/test messages; reuse the frozen oracle contract | 1 | T-103; T-107 for gold-subset agreement | LLM provider keys (`not run`: keyed generation + sample reviews deferred to post-submission) | standard + maintainer review | no | todo | maintainer |
+| [T-107](T-107-gold-annotation.md) | Maintainer gold annotation and agreement report | 1 | T-103 | — | judgment checkpoint | no | todo | maintainer |
+| [T-201](T-201-classifier-evaluation.md) | Base/calibrated/fine-tuned Laya versus simpler baselines; threshold frontier | 2 | T-005, T-106, T-202 for final comparison; T-107 for reviewed gold metrics | `not run`: needs T-106 messages | judgment checkpoint | no | spec | maintainer |
 | [T-202](T-202-laya-fine-tuning.md) | Reproducible open-weight Laya specialisation | 2 (thesis) | T-106 | GPU (maintainer runs the notebook) | judgment checkpoint | yes | todo | maintainer |
 | [T-203](T-203-portuguese-test-set.md) | Translated held-out pairs and directly written Portuguese cases | 2 | T-106 | — | standard | yes | todo | maintainer |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | done | maintainer |
@@ -74,7 +75,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-301](T-301-support-agent.md) | Bounded generative support agent with governed tools and policy retrieval | 3 | T-204, T-206 | LLM provider keys | standard | no | todo | maintainer |
 | [T-302](../specs/TSD-023-operator-console.md) | Full operator workspace, attributable reply/notes edits and audit timeline | 3 | T-204 | — | standard | yes | done | maintainer |
 
-| [T-303](T-303-end-to-end-evaluation.md) | Actual-system evaluation, protected measurements and honest failure accounting | 3 | T-301, T-203 for final run | provider keys for protected measurements (`not run`: full runs incl. ablation and false-pass rate deferred; tier-0 offline report stands) | judgment checkpoint | no | doing | maintainer |
+| [T-303](T-303-end-to-end-evaluation.md) | Actual-system evaluation, protected measurements and honest failure accounting | 3 | T-301, T-203 for final run; T-107 for gold-subset agreement | provider keys for protected measurements (`not run`: full runs incl. ablation and false-pass rate deferred; tier-0 offline report stands) | judgment checkpoint | no | doing | maintainer |
 | [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | doing | maintainer |
 | [T-305](T-305-gradio-demo-adapter.md) | Gradio decision-only emergency fallback, not the full app | fallback | T-005 | free Space (maintainer) | standard | yes | spec | maintainer |
 | [T-401](../specs/TSD-025-durable-cases.md) | Parked turn and case-reference resume across restart | 3 | T-204, T-302 | — | standard | yes | done | maintainer |
@@ -83,7 +84,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-404](T-404-analytics-tab.md) | Interactive manager tab; metrics stay in reports | future | T-303 | measured need | standard | yes | deferred | maintainer |
 | [T-405](T-405-fairness-tests.md) | Paired language/dialect evidence and policy-impact separation | 3 (thesis) | T-303, T-203 | — | judgment checkpoint | yes | todo | maintainer |
 | [T-406](T-406-second-adapter.md) | Two synthetic formats, one unchanged hub/policy | 3 (thesis) | T-206 | — | standard | yes | todo | maintainer |
-| [T-407](T-407-flywheel-turn.md) | One governed offline human-to-model update or rejection | 3 (thesis) | T-103, T-105, T-201, T-303, T-408 | reviewed labels | judgment checkpoint | yes | todo | maintainer |
+| [T-407](T-407-flywheel-turn.md) | One governed offline human-to-model update or rejection | 3 (thesis) | T-103, T-105, T-107, T-201, T-303, T-408 | reviewed labels | judgment checkpoint | yes | todo | maintainer |
 | [T-408](T-408-policy-replay.md) | Offline policy verdict deltas and promotion scorecard | 3 (thesis) | T-201, T-303 | independent safety labels | judgment checkpoint | yes | todo | maintainer |
 | [T-501](T-501-readme-results.md) | README usage and results report | 5 | T-303 | — | standard | yes | todo | maintainer |
 | [T-502](T-502-release.md) | Final changelog and optional submission tag, no milestone backfill | 5 | T-501 | maintainer approval | standard | yes | todo | maintainer |
@@ -101,7 +102,7 @@ The rule for T-101 is pre-registered; its status moves to `doing` when the analy
 
 ```
 Wave 0:  T-000 ─► T-001 · T-002 · T-003 · T-004 · T-005          (no data needed)
-Wave 1:  T-101 (done) ─► T-103 ─► T-106 ; T-104 ; T-102 (done) ─► T-105 (done)
+Wave 1:  T-101 (done) ─► T-103 (done) ─► T-106 ; T-107 (gold review) ; T-104 ; T-102 (done) ─► T-105 (done)
 Wave 2:  T-106 ─► T-202 ─► T-201 ; T-208 · T-209 ; T-203 ; T-204 · T-205 (done) ─► T-207 ; T-206 (doing: local implementation)
 Wave 3:  T-301 · T-302 ─► T-401 ; T-303 ─► T-402 · T-405 · T-603 · T-408 ─► T-407
          T-206 ─► T-406 · T-604 ; T-304 (full public demo)

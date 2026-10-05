@@ -1,4 +1,4 @@
-"""Tests for the T-103 gold/oracle consistency report.
+"""Tests for the T-107 gold/oracle consistency report.
 
 Fixtures are synthetic, maintainer-entered examples; this module never
 proposes or writes values into the committed gold sheet.
@@ -75,6 +75,7 @@ def test_existing_fifty_rows_load_and_are_reported_unscored():
     assert all(row.record is not None for row in rows)
     assert all(not row.record.has_complete_outcome_annotation() for row in rows if row.record)
     body = report.render_report(rows, run_date="2026-10-04", git_sha="test")
+    assert body.startswith("# T-107 gold/oracle consistency report")
     assert "scored 0/50" in body
     assert "gold-001" in body
     assert "oracle_facts, human_outcome, outcome_annotator, outcome_labelled_at" in body

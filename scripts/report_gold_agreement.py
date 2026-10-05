@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report T-103's single-annotator consistency with the TSD-013 oracle.
+"""Report T-107's single-annotator consistency with the TSD-013 oracle.
 
 The tool validates only maintainer-entered annotations. It never infers or
 suggests values. Frozen model-prediction agreement is outside this report.
@@ -190,7 +190,7 @@ def update_disagreement_log(outcomes: tuple[ScoredOutcome, ...], path: Path) -> 
     path.parent.mkdir(parents=True, exist_ok=True)
     if not path.exists():
         path.write_text(
-            "# T-103 gold/oracle disagreement log\n\n"
+            "# T-107 gold/oracle disagreement log\n\n"
             "Single-annotator review ledger. New rows start pending; the "
             "maintainer classifies and resolves them. Rerunning the report "
             "preserves existing classifications and resolutions.\n\n"
@@ -230,14 +230,14 @@ def render_report(
     annotators = {outcome.annotator for outcome in scored}
     if len(annotators) > 1:
         raise ValueError(
-            "T-103 report requires one outcome annotator; found " + ", ".join(sorted(annotators))
+            "T-107 report requires one outcome annotator; found " + ", ".join(sorted(annotators))
         )
     annotator = next(iter(annotators), "no complete annotations")
     complete_ids = {outcome.gold_id for outcome in scored}
     unscored = [row for row in rows if row.gold_id not in complete_ids]
 
     lines = [
-        "# T-103 gold/oracle consistency report",
+        "# T-107 gold/oracle consistency report",
         "",
         f"- Run date: {run_date}",
         f"- Git SHA: {git_sha}",

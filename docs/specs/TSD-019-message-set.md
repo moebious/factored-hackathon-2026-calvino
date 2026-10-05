@@ -312,7 +312,7 @@ oracle's order (ownership, human/manipulation, fraud, scope, ambiguity,
 reads, writes); the implementation's unit tests cover every mapping
 branch, and the evaluation's oracle tests already pin the table itself.
 
-## T-103 gold annotation and agreement report
+## Gold annotation and agreement report (T-107)
 
 Gold agreement has two distinct comparisons:
 
@@ -320,10 +320,10 @@ Gold agreement has two distinct comparisons:
   available prediction with the matching maintainer-reviewed field in
   `gold-050`; report per-question exact agreement and Cohen's kappa where
   defined. This comparison requires predictions from a named, frozen model
-  and configuration. It belongs to T-201/T-303, not the T-103 report, and
+  and configuration. It belongs to T-201/T-303, not the T-107 report, and
   is not computed until those predictions exist. Unreviewed labels are not
   counted as gold.
-- **T-103 oracle outcome vs maintainer rule application.** For each
+- **T-107 oracle outcome vs maintainer rule application.** For each
   `gold-050` row, the maintainer first records nominal raw facts (status,
   owner, amount band and fraud flag), then records message judgements
   (`intent`, `ambiguous`, `in_scope`), then a rubric-based human outcome.
@@ -373,7 +373,7 @@ triggering inference. Supplying either outcome field for scoring also
 requires `outcome_annotator` and `outcome_labelled_at`; ordinary
 `annotator` and `labelled_at` continue to describe the classifier labels.
 
-The T-103 report (`reports/eval/T-103-gold-agreement.md`) states oracle
+The T-107 report (`reports/eval/T-103-gold-agreement.md`) states oracle
 outcome agreement as numerator/denominator, exact agreement, `scored n/50`,
 single-annotator status, descriptive scope, and the outcome confusion
 matrix. It reports Cohen's kappa only when defined; kappa is descriptive
@@ -385,11 +385,10 @@ is recorded in `reports/eval/T-103-gold-disagreements.md`. The report and
 log contain synthetic gold ids and reviewed labels only, no dataset
 records.
 
-The TSD-015 amendment owns the additive `GoldRecord` schema and the blank
-annotation sheet. TSD-019 owns the report contract and T-106 integration:
-T-106 model-prediction comparisons are not reported until T-201/T-303
-provides frozen predictions; T-103's oracle-consistency report may run
-independently once the maintainer completes its annotations.
+T-103 implements the additive `GoldRecord` schema and blank annotation
+sheet under TSD-015. T-107 owns the maintainer's annotations and runs the
+report under this TSD-019 contract. T-106 model-prediction comparisons
+are not reported until T-201/T-303 provides frozen predictions.
 
 ## Generation protocol
 
@@ -654,8 +653,8 @@ counts and scores; loader deriving (never storing) the expected outcome.
   near-duplicate and no-records-committed scans green; policy-version
   guard green; stratum audit states every cell under 30 as flagged with
   reviewed/unreviewed counts separate.
-- The T-103 report separates later frozen model-prediction-vs-label
-  agreement from the T-103 single-annotator consistency check against the
+- The T-107 report separates later frozen model-prediction-vs-label
+  agreement from the T-107 single-annotator consistency check against the
   oracle table. The latter states the numerator/denominator, `scored n/50`,
   single-annotator status, evidence label and unscored reasons. It is
   explicitly not an independent real-world error bound and does not cover

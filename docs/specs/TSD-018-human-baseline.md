@@ -30,8 +30,7 @@ and the known defects. It establishes source counts and schema coverage,
 **not** T-104's resolution metrics or a case-level link between a call and
 a payment. Use its aggregate report as a cross-check; this baseline must
 independently compute its own populations and denominators from the full
-live tables. There is no T-107 task in the merged backlog: the inventory
-was folded into T-104's precursor.
+live tables. The inventory work was folded into T-104's precursor.
 
 ## Inputs and access
 

@@ -70,7 +70,7 @@ COMPLAINT_STILL_OPEN_SHARE = 0.745
 # The data cannot link a call to its transaction, so investigation
 # savings stay projected; the report never states a number for them.
 
-GOLD_BLOCKER = "the T-103 gold sheet is unfilled (labels pending hand-labelling)"
+GOLD_BLOCKER = "the T-107 gold review is incomplete (labels pending maintainer review)"
 
 _NOT_DEFINED = "not defined"
 

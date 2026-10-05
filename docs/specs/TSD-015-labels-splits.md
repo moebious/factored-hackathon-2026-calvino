@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | implemented; amended by TSD-019 (amendment proposed 2026-10-04) |
+| Status | implemented for T-103; human gold annotation is T-107 (scope amendment accepted 2026-10-05) |
 | Branch | `feat/labels-splits` |
 | Depends on | T-101 (workflow choice); TSD-007 (data contracts); DATA.md findings |
 | Required by | T-106 (message set); T-201 (calibration); T-303 (evaluation) |
@@ -302,18 +302,20 @@ duplicates a dataset template shape.
   the same split, and the split report states shares, windows and exclusion
   counts.
 - All five leakage tests pass; T-106's spec references L1–L5 by id.
-- Rubric v1 committed; the first 50 labelled by the maintainer with
-  the descriptive oracle-vs-human consistency report stating scored n/50,
-  single-annotator scope and its limitation to the oracle table.
+- Rubric v1, gold schema and blank first-50 worksheet are committed.
+  Maintainer annotation and the descriptive oracle-vs-human consistency
+  report are owned by T-107.
 - No dataset transcript used as model input anywhere in the path; no
   customer record committed.
 
-## Amendment proposal (2026-10-04): gold annotation and oracle consistency
+## Scope amendment (accepted 2026-10-05): implementation and human review
 
-This dated amendment is proposed with
-[TSD-019's gold agreement amendment](TSD-019-message-set.md#t-103-gold-annotation-and-agreement-report).
-It preserves the implemented rubric and schema history above. Until the
-amendment is approved and implemented, T-103's gold report is not complete.
+T-103 is complete when its rubric, split implementation, leakage rules,
+gold schema, validators, blank worksheet and reporting tools are
+implemented. The maintainer's gold annotations and agreement report are
+separate work tracked in [T-107](../tasks/T-107-gold-annotation.md).
+This amendment does not change the rubric, schema, or required review
+method below.
 
 The current 50 gold rows are all `seed_ref: "hand-written"`; they do not
 represent actual bank records. The maintainer assigns **nominal scenario

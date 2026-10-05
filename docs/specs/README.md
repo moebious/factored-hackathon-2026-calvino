@@ -17,7 +17,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-012](TSD-012-deploy-demo.md): deploy the demo at `calvino.rubrica.dev`
 - [TSD-013](TSD-013-end-to-end-evaluation.md): end-to-end evaluation (T-303)
 - [TSD-014](TSD-014-full-data-inventory.md): read-only full-data inventory
-- [TSD-015](TSD-015-labels-splits.md): labels, splits and gold-set rubric (T-103, proposed)
+- [TSD-015](TSD-015-labels-splits.md): labels, splits and gold-set rubric (T-103, implemented; human gold review in T-107)
 - [TSD-016](TSD-016-support-agent.md): support agent, the LLM language work in the hub (T-301, proposed)
 - [TSD-017](TSD-017-readme-results.md): README usage and results (T-501, proposed)
 - [TSD-018](TSD-018-human-baseline.md): full-data human baseline (T-104)

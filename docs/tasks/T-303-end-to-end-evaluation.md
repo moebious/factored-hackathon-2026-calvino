@@ -4,7 +4,7 @@
 |---|---|
 | Wave | 3 |
 | Branch | `eval/end-to-end` |
-| Depends on | T-301, T-203 |
+| Depends on | T-301, T-203; T-107 for gold-subset agreement |
 | Blocked by | — |
 | Model | strong model or maintainer review (judgment checkpoint) |
 | Can run in parallel | no |
