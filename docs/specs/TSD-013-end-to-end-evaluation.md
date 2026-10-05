@@ -282,8 +282,8 @@ groups, by id) · limitations.
   writes the report and JSON, with the AC scenarios as the first slice.
 - Outcome metrics are scored against the oracle with counts and
   denominators; the oracle's agreement with the hand-labelled gold subset
-  is reported (until T-103 lands, the gold subset is the hand-labelled part
-  of the evaluation cases, labelled as such).
+  is reported (until T-107 completes the gold review, the gold subset is
+  the hand-labelled part of the evaluation cases, labelled as such).
 - The adversarial slice covers every must-include of the card: incorrect or
   missing data, expired sessions, unauthorized access, prompt injection,
   tool failures, multilingual ambiguity, and the DESIGN 6.1 edge cases

@@ -1,4 +1,4 @@
-"""Tests for the T-103 gold/oracle consistency report.
+"""Tests for the T-107 gold/oracle consistency report.
 
 Fixtures are synthetic, maintainer-entered examples; this module never
 proposes or writes values into the committed gold sheet.
@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from calvino.data.labels import GoldRecord, validate_gold_record
+from calvino.data.labels import GoldLabels, GoldRecord, validate_gold_record
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "scripts" / "report_gold_agreement.py"
@@ -75,9 +75,40 @@ def test_existing_fifty_rows_load_and_are_reported_unscored():
     assert all(row.record is not None for row in rows)
     assert all(not row.record.has_complete_outcome_annotation() for row in rows if row.record)
     body = report.render_report(rows, run_date="2026-10-04", git_sha="test")
+    assert body.startswith("# T-107 gold/oracle consistency report")
+    assert "- Classifier labels complete: 18/50" in body
+    assert "- Existing maintainer-only classifier labels: 18" in body
+    assert "- Model-drafted proposal rows reviewed: 0/32" in body
+    assert "Claude Sonnet 5.5 (`claude-sonnet-5-5`)" in body
+    assert "anchoring risk" in body
     assert "scored 0/50" in body
     assert "gold-001" in body
     assert "oracle_facts, human_outcome, outcome_annotator, outcome_labelled_at" in body
+
+
+def test_report_counts_completed_model_proposal_rows_separately():
+    rows = list(report.load_gold_sheet(GOLD_SHEET))
+    row = rows[1]
+    assert row.record is not None
+    rows[1] = row.record.model_copy(
+        update={
+            "labels": GoldLabels.model_validate(
+                {
+                    "workflow_area": "stuck payment",
+                    "stuck_intent": "status",
+                    "clear_enough": "yes",
+                    "needs_person": "no",
+                    "injection": "no",
+                }
+            ),
+            "annotator": "maintainer-test",
+            "labelled_at": "2026-10-05",
+        }
+    )
+
+    body = report.render_report(tuple(rows), run_date="2026-10-05", git_sha="test")
+    assert "- Classifier labels complete: 19/50" in body
+    assert "- Model-drafted proposal rows reviewed: 1/32" in body
 
 
 def test_loader_keeps_invalid_rows_in_unscored_denominator(tmp_path):
@@ -219,6 +250,8 @@ def test_disagreement_ledger_adds_pending_rows_and_preserves_maintainer_resoluti
     path = tmp_path / "disagreements.md"
     report.update_disagreement_log(scored, path)
     original = path.read_text(encoding="utf-8")
+    assert "model-drafted proposals" in original
+    assert "anchoring risk" in original
     pending = (
         "| gold-test-003 | explain | clarify | pending | pending | pending | pending | pending |"
     )

@@ -301,7 +301,7 @@ def gated_results(
     """The two gated parts: run under ``--suite all``, blocked under tier0.
 
     Judge validation is called with an empty reply map on purpose: the
-    hand-label set is empty until T-103 lands, and the validation names
+    hand-label set is incomplete until T-107 is done, and the validation names
     that blocker (or the keys blocker) before it would read a reply.
     """
     rubric = load_rubric()

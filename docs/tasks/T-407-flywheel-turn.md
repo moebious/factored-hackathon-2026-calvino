@@ -4,7 +4,7 @@
 |---|---|
 | Wave | 3 (Tier 0 for decision 17) |
 | Branch | `eval/flywheel` |
-| Depends on | T-103, T-105, T-201, T-303, T-408 |
+| Depends on | T-103, T-105, T-107, T-201, T-303, T-408 |
 | Blocked by | — |
 | Model | standard model |
 | Can run in parallel | yes |

@@ -24,7 +24,7 @@ Small PRs, in this order of priority if time runs short:
 1. ~~Contact-reason analysis and workflow decision~~: done (decision 17; DATA.md findings).
 2. `eval/baseline`: the maintainer's reproducible, full-data category-level human baseline, checked against the independent headline cross-check.
 3. `data/contracts`: raw and clean contracts, validator, the data-quality report, lineage (the analyst's pipeline).
-4. `data/labels-splits`: labels, splits by customer and by time, leakage rules, the labelling rubric and the first ~50 gold labels.
+4. `data/labels-splits`: labels, splits by customer and by time, leakage rules, the labelling rubric and blank gold annotation tooling (T-103); maintainer review of the first 50 gold cases is T-107.
 5. `data/message-set`: leakage-separated generated messages for training, calibration and test (T-106), reusing T-303's oracle definitions but not training on its frozen 50-case suite.
 6. `data/freshness-fixture`: corrected-record lineage through labels and promotion evidence (T-105).
 

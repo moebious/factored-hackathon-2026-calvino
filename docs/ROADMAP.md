@@ -32,7 +32,7 @@ The gates, in order:
 
 **Stop rule.** If gate 2 produces no checkpoint, the README reports T-202 and T-201 as `not run: <blocker>` (PLAN), the over-escalation stays the named failure, and no threshold change is presented as a fix for it. A fine-tuned model that does not beat calibrated base Laya on the test split is a valid, reported result (decision 34).
 
-**Runs alongside, not blocked by this path:** the public full-flow link (T-304), the Portuguese set (T-203, test only and never trained on), gold labelling (T-103), and judge validation, which needs the OpenRouter judge plus hand labels.
+**Runs alongside, not blocked by this path:** the public full-flow link (T-304), the Portuguese set (T-203, test only and never trained on), maintainer gold labelling (T-107), and judge validation, which needs the OpenRouter judge plus hand labels.
 
 ## Prerequisites (maintainer)
 

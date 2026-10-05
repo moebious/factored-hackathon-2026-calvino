@@ -4,7 +4,7 @@
 |---|---|
 | Wave | 2 |
 | Branch | `eval/classifiers` |
-| Depends on | T-005, T-106, T-202 for the final comparison |
+| Depends on | T-005, T-106, T-202 for the final comparison; T-107 for reviewed gold metrics |
 | Blocked by | — |
 | Model | strong model or maintainer review (judgment checkpoint) |
 | Can run in parallel | no |
