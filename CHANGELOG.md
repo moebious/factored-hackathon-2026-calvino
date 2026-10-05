@@ -107,6 +107,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - `calvino.api` resolves its public names on first use instead of importing them eagerly, which removes an import cycle: `calvino.hub.graph` imports `calvino.api.decide`, whose import ran `calvino.api.__init__`, which imported `calvino.api.app`, which imported `calvino.api.hub`, which imported `calvino.hub` while `calvino.hub.__init__` was still running. `pytest tests/calvino/hub` failed on its own with `ImportError: cannot import name 'DEMO_PERSONAS'` while the full suite passed, so CI never saw it; the hub tests now run in any order.
 
 - The deployment smoke check accepts parked turns: an operator-queue park legitimately carries an empty reply and no card, but `_turn_evidence` demanded a card or reply from every scenario kind before the kind branches ran, which failed a healthy hub on the first live local run. The trace requirement stays for all kinds; the card-or-reply rule now applies to the reply kind only, and the deployment test stubs mirror the real parked shape.
+- T-206 audit follow-up: lineage is emitted only after successful preflight, identical manifests allow restart, changed data requires a new lineage path, and unsupported hard links use an exclusive-write fallback; cancel/retry now report a known fraud flag before incomplete confirmation facts.
 
 ## [0.1.0] - 2026-10-02
 
