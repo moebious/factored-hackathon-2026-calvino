@@ -46,6 +46,26 @@ class TokenPrice(BaseModel):
     output_usd: float = Field(ge=0)
 
 
+class StagingModel(BaseModel):
+    """The model a role actually runs today, when that is not the one recorded above.
+
+    A deployment is usually not the destination. The production judge sits behind an account
+    nobody has, so the reachable judge is a different family and its numbers describe the
+    harness rather than the pinned role. Recording that here keeps the gap legible, instead of
+    either hiding it (writing the staging model into ``judge:``) or leaving the file claiming a
+    model nobody has called.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    provider: str = Field(min_length=1)
+    base_url: str = Field(min_length=1)
+    model: str = Field(min_length=1)
+    family: str = Field(min_length=1)
+    measured: date
+    note: str = Field(min_length=1)
+
+
 class RoleModels(BaseModel):
     """One role's provider and model."""
 
@@ -59,6 +79,8 @@ class RoleModels(BaseModel):
     # id may be re-pointed; "dated-release" means the id names an exact version.
     pin: PinKind
     alternatives: tuple[str, ...] = ()
+    # Optional, and never a substitute for the role's recorded model. See StagingModel.
+    staging: StagingModel | None = None
     # None while unrecorded: the evaluation then reports tokens as "not priced" instead of $0.
     price_per_million_tokens: TokenPrice | None = None
 
@@ -90,6 +112,10 @@ class ObservedCatalogue(BaseModel):
     # DeepSeek id on another provider answered at 273 s, long after this client had given up at
     # 91 s, so "no answer within N seconds" must never be read as "this model is dead".
     no_answer_within_seconds: tuple[tuple[str, float], ...] = ()
+    # Judge-routed calls are not drafts, so they get their own fields rather than being forced
+    # into the agent's vocabulary. Measured on a real rubric, not on a probe.
+    rubric_latency_ms: int | None = Field(default=None, ge=0)
+    rubric_latency_ms_full: int | None = Field(default=None, ge=0)
 
 
 class ProviderFile(BaseModel):
@@ -140,15 +166,38 @@ def configuration_problems(
     for name in ("agent", "judge"):
         role = providers.role(name)
         configured = values.get(MODEL_ENV_VAR[name], "").strip()
-        if configured and configured != role.model:
-            problems.append(
-                f"{MODEL_ENV_VAR[name]}={configured} but {providers.version} records "
-                f"{role.model} for the {name} role"
-            )
         configured_url = values.get(BASE_URL_ENV_VAR[name], "").strip()
-        if configured_url and configured_url.rstrip("/") != role.base_url.rstrip("/"):
+        if not configured and not configured_url:
+            continue
+
+        # A role may legitimately run its staging model, so that pairing is a valid answer rather
+        # than drift. Without this the check fails on every deployment that runs the reachable
+        # judge, and a check that always fails stops being read.
+        candidates = [(role.model, role.base_url)]
+        if role.staging is not None:
+            candidates.append((role.staging.model, role.staging.base_url))
+
+        mismatched: list[str] = []
+        if configured and not any(configured == model for model, _ in candidates):
+            mismatched.append(f"{MODEL_ENV_VAR[name]}={configured}")
+        if configured_url and not any(
+            configured_url.rstrip("/") == base_url.rstrip("/") for _, base_url in candidates
+        ):
+            mismatched.append(f"{BASE_URL_ENV_VAR[name]}={configured_url}")
+        if mismatched:
+            staging_note = f" (staging: {role.staging.model})" if role.staging is not None else ""
+            # Name the variable that is actually wrong: the fix is always "decide which of these
+            # two is right", and a message about the wrong variable sends the reader elsewhere.
             problems.append(
-                f"{BASE_URL_ENV_VAR[name]}={configured_url} but {providers.version} records "
-                f"{role.base_url} for the {name} role"
+                f"{'; '.join(mismatched)} but {providers.version} records "
+                f"{role.model} on {role.base_url} for the {name} role{staging_note}"
+            )
+        elif role.staging is not None and configured == role.staging.model:
+            # Say it out loud: this deployment is not the recorded one, and the numbers it
+            # produces describe a different family than the role pins.
+            print(
+                f"  note: {name} runs its staging model {configured}, not the recorded "
+                f"{role.model}; its numbers describe {role.staging.family}, not "
+                f"{role.family}"
             )
     return tuple(problems)
