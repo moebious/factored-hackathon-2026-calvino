@@ -30,11 +30,18 @@ from pathlib import Path
 from calvino.data.message_set import (
     SALT_VERSION,
     SET_VERSION,
+    MessageLabels,
+    MessageOracleFacts,
+    RegistryCheckReport,
     SeedRow,
+    derive_defaults,
     derive_seed_key,
+    run_registry_checks,
     salted_customer_hash,
+    seed_to_oracle_facts,
 )
 from calvino.data.seed_pull import DrawnSeed, SeedCandidate, band_for
+from calvino.evaluation.oracle import oracle_outcome
 
 DEFAULT_PROMPT_IDS = {"train": "train-v1", "calibration": "train-v1", "test": "test-v1"}
 
@@ -255,3 +262,119 @@ def candidate_from_pointer(
         kind=entry.kind,
         country_variant="MX",
     )
+
+
+@dataclass(frozen=True)
+class BridgedRow:
+    """One registry row run to its expected outcome: labels, oracle inputs
+    and the derived outcome name (derived at load time, never stored)."""
+
+    seed_key: str
+    split: str
+    reviewed: bool
+    labels: MessageLabels
+    oracle_facts: MessageOracleFacts
+    outcome: str
+
+
+def bridge_registry_to_oracle(
+    seeds: list[SeedRow],
+    briefs: dict[str, dict],
+    *,
+    gate_limits: dict[str, float],
+) -> list[BridgedRow]:
+    """Run registry rows through the brief table to oracle outcomes.
+
+    Unreviewed rows take the deterministic brief-derived defaults, so the
+    oracle is defined on every row with no review (the audit regression:
+    rows outside the review sample keep defaults, review only moves a
+    field to a logged correction). Reviewed rows (``brief["reviewed"]``)
+    carry their corrected ``labels``/``oracle_facts``. A missing brief
+    fails loudly: every row needs its intent. The P6 policy-version guard
+    runs on this path (``gate_limits`` required), as bands feed the oracle.
+    """
+    bridged = []
+    for seed in seeds:
+        brief = briefs.get(seed.seed_key)
+        if brief is None:
+            raise KeyError(f"no brief for seed {seed.seed_key}: every row needs its intent")
+        reviewed = bool(brief.get("reviewed", False))
+        if reviewed:
+            labels = MessageLabels.model_validate(brief["labels"])
+            facts = MessageOracleFacts.model_validate(brief["oracle_facts"])
+        else:
+            labels, facts = derive_defaults(
+                brief_intent=brief["intent"],
+                adversarial_kind=brief.get("adversarial_kind"),
+                seed_kind=seed.kind,
+            )
+        oracle_facts = seed_to_oracle_facts(seed, labels, facts, gate_limits=gate_limits)
+        bridged.append(
+            BridgedRow(
+                seed_key=seed.seed_key,
+                split=seed.split,
+                reviewed=reviewed,
+                labels=labels,
+                oracle_facts=facts,
+                outcome=oracle_outcome(oracle_facts).value,
+            )
+        )
+    return bridged
+
+
+def run_checks_from_files(
+    seed_paths: dict[str, Path],
+    message_paths: dict[str, Path] | None = None,
+    *,
+    record_ids: dict[str, str] | None = None,
+    gold_hashes: set[str] | None = None,
+    gold_keys: set[str] | None = None,
+    gold_texts: list[str] | None = None,
+    t303_texts: list[str] | None = None,
+    template_texts: set[str] | None = None,
+) -> RegistryCheckReport:
+    """L1-L5 plus the TSD-019 scans over committed registry files, by id.
+
+    Wiring only: loads ``seeds.{split}.jsonl`` (and optional message
+    files), keys everything by ``seed_key``/``customer_hash``, and runs
+    ``run_registry_checks``. Real registries come later; until then this
+    runs on synthetic fixtures. Without the git-ignored pointer log the
+    record-id redraw check degrades to seed-key uniqueness (stated in the
+    report notes); pass ``record_ids`` from ``record_ids_from_pointer_log``
+    for the full duplicate-draw check.
+    """
+    from calvino.data.message_set import MessageRow  # noqa: PLC0415
+
+    seeds = {split: load_seed_registry(path) for split, path in seed_paths.items()}
+    messages: dict[str, list[MessageRow]] = {}
+    for split, path in (message_paths or {}).items():
+        rows = []
+        with path.open(encoding="utf-8") as handle:
+            for number, line in enumerate(handle, 1):
+                if line.strip():
+                    try:
+                        rows.append(MessageRow.model_validate(json.loads(line)))
+                    except ValueError as error:
+                        raise SystemExit(
+                            f"{path}:{number}: invalid message row: {error}"
+                        ) from error
+        messages[split] = rows
+    ids = {
+        split: [(record_ids or {}).get(seed.seed_key) for seed in rows]
+        for split, rows in seeds.items()
+    }
+    report = run_registry_checks(
+        seeds=seeds,
+        messages=messages,
+        record_ids=ids,
+        gold_hashes=gold_hashes or set(),
+        gold_keys=gold_keys or set(),
+        gold_texts=gold_texts or [],
+        t303_texts=t303_texts or [],
+        template_texts=template_texts or set(),
+    )
+    if record_ids is None:
+        report.notes.append(
+            "record-id redraw check degraded to seed-key uniqueness: no pointer log given"
+        )
+    return report
