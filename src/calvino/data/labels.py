@@ -8,6 +8,7 @@ so they feed the human baseline only, never classifier targets.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from datetime import date
 from enum import StrEnum
 
 from pydantic import BaseModel, Field, StrictBool, field_validator, model_validator
@@ -193,6 +194,20 @@ class GoldRecord(BaseModel):
 
         if value not in {outcome.value for outcome in ExpectedOutcome if outcome.value != "error"}:
             raise ValueError(f"unknown TSD-013 non-error outcome {value!r}")
+        return value
+
+    @field_validator("outcome_labelled_at")
+    @classmethod
+    def outcome_date_is_iso(cls, value: str | None) -> str | None:
+        """Require a supplied outcome annotation date to use YYYY-MM-DD."""
+        if not value:
+            return value
+        try:
+            parsed = date.fromisoformat(value)
+        except ValueError as error:
+            raise ValueError("outcome_labelled_at must be an ISO date (YYYY-MM-DD)") from error
+        if parsed.isoformat() != value:
+            raise ValueError("outcome_labelled_at must be an ISO date (YYYY-MM-DD)")
         return value
 
     def outcome_annotation_missing(self) -> tuple[str, ...]:

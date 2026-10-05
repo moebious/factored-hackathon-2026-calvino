@@ -207,6 +207,22 @@ def test_gold_outcome_schema_accepts_approved_clean_transaction():
     assert oracle_outcome(OracleFacts(**facts.model_dump())).value == "act_block"
 
 
+@pytest.mark.parametrize(
+    "value",
+    ["10/05/2026", "2026-2-5", "2026-10-05T00:00:00", "2026-02-30"],
+)
+def test_gold_outcome_date_rejects_non_iso_or_invalid_dates(value):
+    with pytest.raises(ValidationError, match="ISO date"):
+        GoldRecord(
+            gold_id="gold-date-test",
+            rubric_version="v1",
+            message="synthetic test-only message",
+            language_variant="es-MX",
+            seed_ref="hand-written",
+            outcome_labelled_at=value,
+        )
+
+
 def test_gold_oracle_facts_allow_drafts_but_reject_null_required_fields():
     draft = GoldOracleFacts(intent="none", status=None)
     assert draft.model_fields_set == {"intent", "status"}

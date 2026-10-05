@@ -119,6 +119,21 @@ def test_import_rejects_invalid_outcome_without_writing(tmp_path):
     assert gold.read_text(encoding="utf-8") == original_text
 
 
+def test_import_rejects_invalid_outcome_date_without_writing(tmp_path):
+    gold, worksheet, _ = _files(tmp_path, human_outcome="act_block")
+    rows = list(csv.DictReader(worksheet.open(encoding="utf-8", newline="")))
+    rows[0]["outcome_labelled_at"] = "10/05/2026"
+    with worksheet.open("w", encoding="utf-8", newline="") as destination:
+        writer = csv.DictWriter(destination, fieldnames=importer.CSV_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+    original_text = gold.read_text(encoding="utf-8")
+
+    with pytest.raises(ValueError, match="ISO date"):
+        importer.prepare_import(worksheet, gold)
+    assert gold.read_text(encoding="utf-8") == original_text
+
+
 def test_import_contract_excludes_classifier_label_columns(tmp_path):
     gold, worksheet, _ = _files(tmp_path)
     with worksheet.open(encoding="utf-8", newline="") as source:
