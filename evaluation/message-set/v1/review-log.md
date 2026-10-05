@@ -18,6 +18,12 @@ Verdicts: `pass`, `corrected` (a logged label fix, counts as a defect),
 `fail` (row removed from the split, seed retired, logged). Rows outside
 the sample stay `unreviewed` with brief-derived defaults.
 
+Status: no rows generated and no reviews done yet — the registry format,
+the brief-derived defaults and the L1–L5 file entrypoint are committed
+and fixture-tested, while population waits on the dataset env and
+drafting waits on the generation keys. The hand-written rows below are
+queued with pre-review labels; everything else follows generation.
+
 ## Train sample (≥30) — awaiting generation
 
 | msg_id | verdict | fix | reviewer | reason |
