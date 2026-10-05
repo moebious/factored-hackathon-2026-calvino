@@ -78,6 +78,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | doing | maintainer |
 | [T-305](T-305-gradio-demo-adapter.md) | Gradio decision-only emergency fallback, not the full app | fallback | T-005 | free Space (maintainer) | standard | yes | spec | maintainer |
 | [T-306](T-306-frontend-deployment.md) | Frontend deployment and live interface execution | 3 | T-205, T-207, T-304 | Vercel deployment / maintainer run | standard | yes | doing | maintainer |
+| [T-307](T-307-deployment-smoke-check-and-persistence.md) | Deployment smoke-check verification and persistence testing | 3 | T-304, T-306, T-401 | — | standard | yes | doing | maintainer |
 | [T-401](../specs/TSD-025-durable-cases.md) | Parked turn and case-reference resume across restart | 3 | T-204, T-302 | — | standard | yes | done | maintainer |
 | [T-402](T-402-verifier-panel.md) | Offline risk-tiered pre-execution veto comparison; runtime claim separately gated | 3 (thesis) | T-004, T-303 | labelled cases | judgment checkpoint | yes | todo | maintainer |
 | [T-403](T-403-coworker-agent.md) | Coworker agent, only after measured operator need | future | T-302 | measured need | standard | yes | deferred | maintainer |
