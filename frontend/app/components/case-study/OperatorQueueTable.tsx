@@ -65,12 +65,12 @@ export function OperatorQueueTable({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por caso, titular o regla…"
-            aria-label="Buscar expedientes"
+            placeholder={s.queueSearchPlaceholder}
+            aria-label={s.queueSearchAria}
           />
         </div>
 
-        <div className="filter-pills" role="tablist" aria-label="Filtro de estado">
+        <div className="filter-pills" role="tablist" aria-label={s.queueFilterAria}>
           <button
             type="button"
             className={`filter-pill ${filter === "all" ? "active" : ""}`}
