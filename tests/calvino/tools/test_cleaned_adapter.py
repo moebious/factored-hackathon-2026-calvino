@@ -165,23 +165,42 @@ def test_preflight_rejects_product_owned_by_a_different_customer(tmp_path):
     for name in ("customers.csv", "products.csv", "transactions.csv"):
         shutil.copyfile(FIXTURE / name, source / name)
     products_path = source / "products.csv"
-    contents = products_path.read_text(encoding="utf-8").replace(
-        "P-MX-001,C-MX-001", "P-MX-001,C-CO-001"
-    )
+    original = products_path.read_text(encoding="utf-8")
+    contents = original.replace("P-MX-001,C-MX-001", "P-MX-001,C-CO-001")
     products_path.write_text(contents, encoding="utf-8")
+    lineage = tmp_path / "bad-lineage.json"
 
     with pytest.raises(ConfigurationError, match="ownership audit failed"):
-        CleanedTableAdapter(source, lineage_path=tmp_path / "bad-lineage.json")
+        CleanedTableAdapter(source, lineage_path=lineage)
+
+    assert not lineage.exists()
+
+    products_path.write_text(original, encoding="utf-8")
+    adapter = CleanedTableAdapter(source, lineage_path=lineage)
+    adapter.close()
+    assert lineage.exists()
 
 
 def test_lineage_output_refuses_to_overwrite_an_existing_file(tmp_path):
     target = tmp_path / "preserve.json"
     target.write_text("keep this file\n", encoding="utf-8")
 
-    with pytest.raises(ConfigurationError, match="already exists"):
+    with pytest.raises(ConfigurationError, match="different content"):
         CleanedTableAdapter(FIXTURE, lineage_path=target)
 
     assert target.read_text(encoding="utf-8") == "keep this file\n"
+
+
+def test_lineage_output_is_idempotent_for_identical_manifest(tmp_path):
+    target = tmp_path / "lineage.json"
+    first = CleanedTableAdapter(FIXTURE, lineage_path=target)
+    first.close()
+    original = target.read_text(encoding="utf-8")
+
+    second = CleanedTableAdapter(FIXTURE, lineage_path=target)
+    second.close()
+
+    assert target.read_text(encoding="utf-8") == original
 
 
 def test_lineage_output_cannot_be_written_into_the_source_tree(tmp_path):

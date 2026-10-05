@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import tempfile
 import threading
 from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, date, datetime
@@ -96,9 +98,12 @@ class CleanedTableAdapter:
             if self._incomplete_source_counts["transactions.fraud_flag_invalid"]:
                 raise ConfigurationError("the cleaned fraud flags contain invalid values")
             owner_mismatches = self._customer_product_integrity_count()
-            self._write_lineage(Path(lineage_path), report, owner_mismatches)
             if owner_mismatches:
-                raise ConfigurationError("the cleaned transaction/product ownership audit failed")
+                raise ConfigurationError(
+                    "the cleaned transaction/product ownership audit failed: "
+                    f"{owner_mismatches} mismatches"
+                )
+            self._write_lineage(Path(lineage_path), report, owner_mismatches)
         except Exception:
             self._connection.close()
             raise
@@ -495,11 +500,44 @@ class CleanedTableAdapter:
             sort_keys=True,
         )
         manifest += "\n"
+        if target.exists():
+            self._require_identical_lineage(target, manifest)
+            return
+
+        temporary_path: Path | None = None
         try:
-            with target.open("x", encoding="utf-8") as stream:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                dir=target.parent,
+                prefix=f".{target.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as stream:
+                temporary_path = Path(stream.name)
                 stream.write(manifest)
-        except FileExistsError as exc:
-            raise ConfigurationError("the cleaned-table lineage output already exists") from exc
+                stream.flush()
+                os.fsync(stream.fileno())
+            try:
+                os.link(temporary_path, target)
+            except FileExistsError:
+                self._require_identical_lineage(target, manifest)
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
+
+    @staticmethod
+    def _require_identical_lineage(target: Path, manifest: str) -> None:
+        try:
+            existing = target.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise ConfigurationError(
+                "the cleaned-table lineage output exists but cannot be verified"
+            ) from exc
+        if existing != manifest:
+            raise ConfigurationError(
+                "the cleaned-table lineage output already exists with different content"
+            )
 
     def _transaction_rows(
         self,
