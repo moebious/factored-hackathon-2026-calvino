@@ -244,7 +244,7 @@ What this does not say:
 
 | Item | Status |
 |---|---|
-| Fine-tuned Laya run 1 (T-202) | `done`: executed on Kaggle (2× T4 GPUs), published to `kevago/calvino-laya-ft@t202-run1`, provenance recorded in `reports/finetune/`. Fit did not meet Rule R threshold (25% < 90%), so comparison is open under T-201. |
+| Fine-tuned Laya (T-202) | `in progress`: the pipeline ran end to end on Kaggle (2× T4) as a **dry run on 8 synthetic fixture items** (4 s `[measured]`, published as `kevago/calvino-laya-ft@t202-run1`); its 25% training fit says nothing about fine-tuning and it is not a candidate. The first real run is `not run`: it needs the accepted T-106 splits ([T-308](docs/tasks/T-308-first-real-finetune-run.md)). |
 | Base/calibrated/fine-tuned comparison (T-201) | `not run`: comparison suite pending per TSD-027 |
 | Keyed T-106 message set (train, calibration, test) | `not run`: generation keys and review were deferred; only the registries, tooling and 20 hand-written test rows exist |
 | Gold-subset agreement (T-103) | `not run`: the gold sheet is unfilled |
