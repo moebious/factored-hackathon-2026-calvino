@@ -24,7 +24,7 @@ REF = session_ref_for("synthetic-session-token-for-tests")
 
 @pytest.fixture(scope="module")
 def policy() -> Policy:
-    return load_policy()
+    return load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml"))
 
 
 def facts(**overrides):
@@ -72,7 +72,7 @@ def around(threshold: float):
 
 
 def test_shipped_policy_loads_and_is_labelled(policy):
-    assert DEFAULT_POLICY_PATH.name == "v2.yaml"
+    assert DEFAULT_POLICY_PATH.name == "v3.yaml"
     assert policy.version == "v2"
     assert "assumption" in policy.assumptions.lower()
     assert set(policy.hard_rules.amount_limit) == {"MXN", "COP", "ARS", "USD"}
@@ -105,7 +105,7 @@ def test_shipped_thresholds_are_pinned(policy):
 
 
 def _raw():
-    return yaml.safe_load(DEFAULT_POLICY_PATH.read_text(encoding="utf-8"))
+    return yaml.safe_load(DEFAULT_POLICY_PATH.with_name("v2.yaml").read_text(encoding="utf-8"))
 
 
 @pytest.mark.parametrize(

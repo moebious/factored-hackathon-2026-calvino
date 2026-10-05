@@ -15,8 +15,7 @@
 #   min_clear_enough: null        the clear_enough gate is off for the route (the Gate keeps its own)
 #   confidence_source: workflow_area   confidence is the area answer's, not the minimum of all five
 # The new thresholds are round values chosen before the confirmation run, not fitted numbers.
-# Status: a candidate. Adopt only when the confirmation on unseen rows and the evaluation report
-# pass the rule in docs/specs/TSD-026; the default policy stays v2 until then.
+# Status: the default policy since 2026-10-05 (decision 44); v1 and v2 stay for replay.
 version: v3
 
 assumptions: >

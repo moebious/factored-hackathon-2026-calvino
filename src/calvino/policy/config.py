@@ -13,9 +13,9 @@ from typing import Annotated, Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-# <repo>/policy/v2.yaml, found from this file (src/calvino/policy/config.py). v1 stays on disk:
+# <repo>/policy/v3.yaml, found from this file (src/calvino/policy/config.py). v1 stays on disk:
 # decisions logged under it replay under it (decision 30 lowered only route.min_clear_enough).
-DEFAULT_POLICY_PATH = Path(__file__).resolve().parents[3] / "policy" / "v2.yaml"
+DEFAULT_POLICY_PATH = Path(__file__).resolve().parents[3] / "policy" / "v3.yaml"
 
 Probability = Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)]
 Limits = dict[str, Annotated[float, Field(gt=0, allow_inf_nan=False)]]

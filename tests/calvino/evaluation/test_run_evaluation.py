@@ -389,12 +389,12 @@ def test_the_selected_checkpoint_reaches_the_loader(monkeypatch: pytest.MonkeyPa
 
 
 def test_the_policy_option_selects_the_version_the_run_is_scored_under(tmp_path: Path) -> None:
-    assert run_cli(tmp_path, "--suite", "tier0", "--repeats", "1", "--policy", "v3") == 0
-    _, js = outputs(tmp_path / "out")
-    assert json.loads(js.read_text(encoding="utf-8"))["header"]["policy_version"] == "v3"
-
-
-def test_the_default_policy_is_unchanged_without_the_option(tmp_path: Path) -> None:
-    assert run_cli(tmp_path, "--suite", "tier0", "--repeats", "1") == 0
+    assert run_cli(tmp_path, "--suite", "tier0", "--repeats", "1", "--policy", "v2") == 0
     _, js = outputs(tmp_path / "out")
     assert json.loads(js.read_text(encoding="utf-8"))["header"]["policy_version"] == "v2"
+
+
+def test_the_default_policy_is_v3_without_the_option(tmp_path: Path) -> None:
+    assert run_cli(tmp_path, "--suite", "tier0", "--repeats", "1") == 0
+    _, js = outputs(tmp_path / "out")
+    assert json.loads(js.read_text(encoding="utf-8"))["header"]["policy_version"] == "v3"

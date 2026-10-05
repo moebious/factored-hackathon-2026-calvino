@@ -40,7 +40,7 @@ from calvino.evaluation.runner import (
     unsafe_of,
 )
 from calvino.hub.service import HubReply, HubService, TraceStep
-from calvino.policy import load_policy
+from calvino.policy import DEFAULT_POLICY_PATH, load_policy
 from calvino.tools import FakeConfirmationVerifier
 from calvino.verifier import MockJudge
 
@@ -198,7 +198,7 @@ def make_factory(loader: KeyedLoader | None = None):
         hub = build_demo_hub(
             TimedLoader(inner, timer),
             settings,
-            load_policy(),
+            load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml")),
             log,
             confirmations=FakeConfirmationVerifier(),
         )
@@ -828,7 +828,7 @@ def make_llm_factory(client: _UsageClient):
         return build_demo_hub(
             TimedLoader(KeyedLoader(), timer),
             settings,
-            load_policy(),
+            load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml")),
             DecisionLog(settings.decisions_log),
             confirmations=FakeConfirmationVerifier(),
             agent=LlmAgent(MeteredChatClient(client, timer, "agent")),
@@ -969,7 +969,7 @@ def test_a_promising_agent_is_stopped_by_the_verifier_so_the_check_stays_silent(
         return build_demo_hub(
             TimedLoader(KeyedLoader(), timer),
             settings,
-            load_policy(),
+            load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml")),
             DecisionLog(settings.decisions_log),
             confirmations=FakeConfirmationVerifier(),
             agent=agent,
@@ -1004,7 +1004,7 @@ def _no_judge_hub(data_dir: Path, timer: ModelTimer) -> HubService:
     return build_demo_hub(
         TimedLoader(KeyedLoader(), timer),
         settings,
-        load_policy(),
+        load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml")),
         DecisionLog(settings.decisions_log),
         confirmations=FakeConfirmationVerifier(),
         agent=LlmAgent(MeteredChatClient(_UsageClient(E_US_001_REPLY), timer, "agent")),

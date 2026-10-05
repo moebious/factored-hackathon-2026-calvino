@@ -20,7 +20,7 @@ from calvino.classifiers import LayaAnswer
 from calvino.decision_log import DecisionLog
 from calvino.hub import DEMO_PERSONAS, HubDependencies, SupportAgent, TrustedSessionIssuer
 from calvino.hub.graph import FraudContext
-from calvino.policy import Policy, load_policy
+from calvino.policy import DEFAULT_POLICY_PATH, Policy, load_policy
 from calvino.tools import BankTools, DatasetAdapter, FakeConfirmationVerifier
 from calvino.verifier import MockJudge
 
@@ -79,7 +79,7 @@ def fake_loader_factory():
 @pytest.fixture(scope="session")
 def policy() -> Policy:
     """The released policy (v2), loaded exactly as the hub loads it."""
-    return load_policy()
+    return load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml"))
 
 
 @pytest.fixture

@@ -23,7 +23,7 @@ Application directories are planned and created as code lands; update this secti
 |---|---|
 | `src/calvino/` | Python package: `records` (shared types), `decision_log`, and the `api`, `classifiers`, `data`, `evaluation`, `hub`, `llm`, `policy`, `tools` and `verifier` subpackages |
 | `frontend/` | Next.js customer app and operator view (planned; CopilotKit / AG-UI console in Tier 2) |
-| `policy/` | Versioned policy files (`v1.yaml`, `v2.yaml`): every threshold and limit the policy engine reads |
+| `policy/` | Versioned policy files (`v1.yaml`, `v2.yaml`, `v3.yaml`; v3 is the default): every threshold and limit the policy engine reads |
 | `evaluation/` | Versioned evaluation case files (`evaluation/cases/`, TSD-013): synthetic, reviewed, scored against the oracle |
 | `reports/` | Committed run outputs: evaluation reports (`reports/eval/`, from `scripts/run_evaluation.py`), data-quality findings and baselines |
 | `providers.yaml` | The committed record of which model answers each language role, on which provider, and what that provider served on the date it was checked (decision 29). Keys are never here |
@@ -268,7 +268,7 @@ CI runs both on every pull request (`.github/workflows/tests.yml` and `conventio
 ### Evaluation
 
 ```bash
-uv run python scripts/run_evaluation.py --suite tier0            # offline: live laya (needs `uv pip install laya`), policy v2, TemplateAgent; no keys, no network
+uv run python scripts/run_evaluation.py --suite tier0            # offline: live laya (needs `uv pip install laya`), policy v3, TemplateAgent; no keys, no network
 uv run python scripts/run_evaluation.py --suite all --repeats 3  # adds judge validation and the bare-LLM ablation when their keys are set
 ```
 

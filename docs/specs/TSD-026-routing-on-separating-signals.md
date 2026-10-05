@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | candidate implemented and measured; adoption pending the maintainer |
+| Status | implemented, measured and adopted as the default policy (decision 44) |
 | Branch | `feat/needs-person-question` |
 | Depends on | TSD-001 (`decide_route`), TSD-005 (`calvino.classifiers`), TSD-013 (evaluation) |
 | Required by | TSD-020 (what the fine-tune is asked to fix), T-201, T-408 |
@@ -33,7 +33,7 @@ Was the cause the wording of the `needs_human` question, and would rewording it 
    `needs_person = no`; TSD-019: `true`). Injection rows score 0.1 on `needs_human` anyway, so
    this label is not what the route relies on; it is noted for the maintainer to settle.
 
-## Policy v3 (`policy/v3.yaml`, candidate)
+## Policy v3 (`policy/v3.yaml`, the default)
 
 Switches that default off in v1 and v2, so released files replay unchanged and v2 stays the default:
 
