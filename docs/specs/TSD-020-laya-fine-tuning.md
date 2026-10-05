@@ -41,9 +41,9 @@ training-set fit is labelled as training fit, never as evaluation.
 **Acceptance (2026-10-05).** The maintainer accepted P1–P7 as written, so the
 "proposed" wording records the original text and the defaults now stand, with
 the [run plan](#run-plan-decided-at-acceptance) below added at acceptance.
-Two sentences about the vendor notebook below are `[hypothesis]` until the
-notebook (the `NandhaKishorM/laya` repository on GitHub, not the Hub model
-repository) has been read in full by the commit that adapts it.
+The vendor notebook (`notebooks/laya_finetune_typed_decisions_2xT4_kaggle.ipynb`
+in the `NandhaKishorM/laya` repository on GitHub, not the Hub model repository)
+was read in full on 2026-10-05; see [What the vendor notebook does](#what-the-vendor-notebook-does).
 
 - **P1: method, full fine-tuning using Laya's own RLCD loop.** Start from the
   author's Kaggle notebook (`laya_finetune_typed_decisions_2xT4_kaggle.ipynb`,
@@ -57,7 +57,10 @@ repository) has been read in full by the commit that adapts it.
   Caveat `[vendor]`: the vendor's own issue #741 reports a controlled A/B
   (6,000 training samples, one seed, one A100) in which soft cross-entropy
   alone scored 80.50% against 79.08% for GRPO plus the proper-reward term, and
-  concludes the GRPO term shows "no measurable gain". Run 1 keeps the loop
+  concludes the GRPO term shows "no measurable gain". The notebook's loss is the
+  policy-gradient term plus a full-weight soft cross-entropy term, so with
+  one-hot targets the run is already mostly hard cross-entropy, and run 3 of
+  the run plan removes only the policy-gradient term. Run 1 keeps the loop
   unchanged anyway, because changing the objective is a second experiment; the
   run plan below says when that second experiment happens.
 - **P2: hyperparameters, the vendor defaults with no search.** Settings:
@@ -67,17 +70,20 @@ repository) has been read in full by the commit that adapts it.
   - learning rate 2.5e-5 for the encoder and 1.0e-4 for the head;
   - AdamW with weight decay 0.01, a cosine schedule down to 1e-6, gradient
     clipping at 1.0;
-  - seed 42.
+  - seeds as the notebook sets them (shuffle seed 42 + epoch + rank, the
+    temperature hold-out seed 20260922), plus a torch seed the notebook lacks
+    (see the changes list below).
 
   There is no dev split to search on without spending calibration or test
   data, so one fixed configuration is run and reported. Any change is a new
-  run with its own record. Our first slice is about 1,200 items (600 messages
-  times 2 questions), which is about 19 optimiser steps an epoch and about 75
-  in all at an effective batch of 64 `[computed]`, against 375 in the vendor's
-  6,000-sample A/B. A short run is expected, and so is a risk of under-training;
-  the run plan handles that without any search. The earlier draft quoted a
-  vendor run time of "4–6 minutes for 6,000 typed decisions"; that figure is
-  unverified and is withdrawn.
+  run with its own record. The notebook says its 6,000 typed decisions (1,200
+  cases times 5 questions) take "~4 to 6 minutes total" on 2×T4 `[vendor, read
+  in the notebook, not reproduced]`. Our first slice is 1,200 items (600
+  messages times 2 questions). By the notebook's own formulas, 120 of them are
+  held out for laya's temperatures and the other 1,080 give **64 scheduler
+  updates** in all, against **348** for the vendor's 6,000 `[computed]`. A
+  short run is expected, and so is a risk of under-training; the run plan
+  handles that without any search.
 - **P3: first slice, two questions.** `needs_human` and `workflow_area`,
   asked exactly as `calvino.classifiers.needs_human_question()` and
   `workflow_area_question()` build them (same instructions, same criteria,
@@ -100,10 +106,13 @@ repository) has been read in full by the commit that adapts it.
 - **P5: base checkpoint, the multilingual checkpoint at a pinned commit.**
   Use the `multilingual` checkpoint of `convaiinnovations/laya`, pinned to
   the commit the evaluation reports were run on, with laya `0.3.24` as the
-  package version. The vendor notebook loads the repository root; pointing
-  it at the multilingual subfolder works with the unchanged loop
-  `[hypothesis]`, and the notebook's first cell checks the expected files
-  exist before anything trains.
+  package version. The vendor notebook downloads the whole repository root
+  unpinned, which is the English checkpoint (421M parameters per the
+  notebook). The multilingual subfolder has the same file layout
+  (`encoder/`, `tokenizer/`, `model.safetensors`, `rl_agent_config.json`,
+  seen in the Hub cache), so pointing the notebook's `model_dir` at it is
+  expected to work with the unchanged loop `[hypothesis]` until the first cell
+  runs; that cell checks the expected files exist before anything trains.
 - **P6: hosting, one Hugging Face model repository, never overwritten.**
   The checkpoint goes to `kevago/calvino-laya-ft` (public). Its contents:
   - the weights, configuration and tokenizer;
@@ -234,6 +243,58 @@ configuration it promotes.
   These write `reports/finetune/T-202-<date>-<revision12>.json` and `.md`
   (fields below), with an evidence label on every number.
 
+## What the vendor notebook does
+
+Read on 2026-10-05 from `NandhaKishorM/laya`, file
+`notebooks/laya_finetune_typed_decisions_2xT4_kaggle.ipynb` (41,289 bytes, last
+changed upstream 2026-10-01, upstream commit `6ea584941d`; the downloaded copy
+had SHA-256 `d97004a95c878e4d2d8158d0f91efa7922cdc854d7454d7a0ccda115444eccb0`).
+The Apple Silicon script beside it holds the same loop; the Intel Mac here has
+no MPS, so it is not used.
+
+- **Data:** cell 6 builds one training item per (message, question) from the
+  `LocalLLaMA/typed-decisions` dataset. Each item holds the tokenised sequence
+  (message plus the question's instructions and criteria), the option marker
+  positions and a target distribution over the options in criteria order. With
+  our one-hot labels the target is `1.0` on the labelled option and `0.0`
+  elsewhere.
+- **Loop (cell 8, `train_ddp.py`):** DDP on two GPUs, mixed precision, gradient
+  checkpointing, `max_len` 1024, head length 256. Exploration noise starts at
+  0.4 and falls to 0.1; the reward weights are 0.75 (spherical) and 1.0 (RPS).
+  The loss is the policy-gradient term plus 1.0 times soft cross-entropy.
+- **After training:** the loop fits laya's own temperatures per question type on
+  the held-out slice, writes fp16 weights, and writes `fine_tuned: true`,
+  `model_name: laya-typed-decisions` and the fitted temperatures into
+  `rl_agent_config.json`, which laya applies at inference. Calvino's
+  temperatures are fitted separately by T-201 on top of these outputs.
+
+**Changes the adaptation commit makes** (each recorded as a deviation in the run
+record where it changes behaviour):
+
+1. Pin `laya==0.3.24` (the notebook installs `laya>=0.1.6` and
+   `transformers>=4.48.0`) and record the `torch` and `transformers` versions.
+2. Download the base at the pinned commit with `allow_patterns` for the
+   multilingual subfolder only (the notebook fetches the whole repository,
+   unpinned) and verify the `model.safetensors` SHA-256 before training.
+3. Read items from the exporter's output instead of the benchmark dataset.
+4. Count dropped items and **fail** when any is dropped: the notebook silently
+   discards an item whose marker count differs from its option count.
+5. Seed torch: the notebook never calls `torch.manual_seed`, so the exploration
+   noise is unseeded and two runs with the same settings differ. GPU
+   nondeterminism remains, so reproducible means same settings, not bit-identical.
+6. Hold the temperature slice out by message, not by item: with two questions
+   per message, the notebook's random item hold-out can put one question of a
+   message in training and the other in the hold-out. This affects only laya's
+   baked temperatures `[hypothesis: small]`.
+7. Delete the benchmark and evaluation cells (12–14, 17–18). They score a
+   different dataset and compare against a vendor system.
+8. Replace the push cell: the token comes from Kaggle Secrets, the push becomes a
+   new commit tagged `t202-run<N>`, and the cell prints the commit and the
+   `model.safetensors` SHA-256.
+9. Extend the run record's configuration with the loop settings the notebook
+   fixes in code (noise schedule, reward weights, sequence lengths, hold-out
+   size and seed), so they are recorded rather than assumed.
+
 ## Kaggle notebook setup
 
 1. **Notebook options:** accelerator *GPU T4 ×2*, internet *on*,
@@ -250,8 +311,8 @@ configuration it promotes.
    the vendor notebook says 421M parameters while DECISIONS cites 322M, so
    the run measures it rather than repeating either figure.
 6. **Train** with `torchrun --nproc_per_node=2` and the P2 settings. The
-   vendor loop holds out 10% of the training items to fit its own
-   temperatures. That is kept so the exported config is internally
+   vendor loop holds out the smaller of 400 items and 10% of the training
+   items to fit its own temperatures. That is kept so the exported config is internally
    consistent, but those temperatures are **not** Calvino's calibration:
    T-201 fits Calvino's temperatures on the calibration split, on top of the
    checkpoint's outputs.
