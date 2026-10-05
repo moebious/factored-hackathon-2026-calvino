@@ -212,11 +212,13 @@ PT_DIR = CASES_DIR.parent / "cases-pt"
 def test_portuguese_slice_loads_and_pairs_repeat_the_spanish_facts() -> None:
     spanish = {case.id: case for case in load_suite(CASES_DIR, SCENARIOS_DIR)}
     portuguese = load_cases(PT_DIR)
-    assert len(portuguese) == 36
+    assert len(portuguese) == 175
     assert {case.language for case in portuguese} == {"pt"}
     assert not {case.id for case in portuguese} & set(spanish)
     pairs = [case for case in portuguese if case.pair_of is not None]
-    assert len(pairs) == 21
+    assert len(pairs) == 150
+    direct = [case for case in portuguese if case.pair_of is None]
+    assert len(direct) == 25
     for case in pairs:
         original = spanish[case.pair_of]
         # A translation changes the message only: facts, persona and script are carried over.
@@ -226,7 +228,8 @@ def test_portuguese_slice_loads_and_pairs_repeat_the_spanish_facts() -> None:
             original.resume_script,
             original.must_not,
         ), case.id
-        assert case.message != original.message, case.id
+        if original.message and original.edge_case not in ("garbled message", "symbols only"):
+            assert case.message != original.message, case.id
 
 
 def test_portuguese_seed_records_exist_in_the_bank_fixture() -> None:
