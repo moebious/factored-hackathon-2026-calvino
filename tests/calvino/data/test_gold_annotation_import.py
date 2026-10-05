@@ -149,6 +149,18 @@ def test_default_csv_uses_ignored_working_copy_not_committed_template():
     assert importer.DEFAULT_CSV != committed_template
 
 
+def test_missing_csv_reports_how_to_create_a_working_copy(tmp_path, capsys):
+    missing = tmp_path / "not-created.csv"
+    with pytest.raises(SystemExit) as error:
+        importer.main(["--csv", str(missing)])
+
+    assert error.value.code == 2
+    message = capsys.readouterr().err
+    assert "worksheet not found" in message
+    assert str(importer.DEFAULT_TEMPLATE) in message
+    assert "copy the blank template" in message
+
+
 def test_import_accepts_utf8_bom_csv(tmp_path):
     gold, worksheet, _ = _files(tmp_path, csv_encoding="utf-8-sig")
     assert importer.prepare_import(worksheet, gold)[2] > 0
