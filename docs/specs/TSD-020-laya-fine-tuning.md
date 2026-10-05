@@ -204,20 +204,38 @@ configuration it promotes.
   caught it.
 
 **`scripts/export_finetune_dataset.py`**
-- `--split-file evaluation/message-set/v1/train.jsonl --out <dir>`.
+- `--out <dir>`; the split file defaults to `<set-dir>/train.jsonl`.
+  Exit codes: 0 exported, 1 the leakage guard failed (nothing written), 2
+  usage error.
 - Writes `items.jsonl`, one row per (message, question):
   - `item_id`, `msg_id`, `question_id`;
   - `state` (the message text exactly as `LayaClient.classify` receives it);
-  - `question` (the full question definition);
-  - `target_option`.
+  - `question` (the full question definition, **with its options in the
+    builder's order**: option order is positional, so the file is not
+    key-sorted);
+  - `target_option`;
+  - `role`: `train` or `laya_temperature_holdout`.
+- **The temperature hold-out is chosen here, by message.** The vendor
+  notebook shuffles by item, so with two questions per message it could train
+  on one question of a message and fit its temperature on the other. The
+  exporter holds out whole messages, in a fixed hash order (salt
+  `t202-temperature-holdout-v1`), until the item count reaches the notebook's
+  rule: the smaller of 400 and 10% of the items. The running system applies
+  laya's own baked temperatures, because Calvino's calibration module is
+  offline, so these must be fitted on items the model never trained on.
 - Also writes `manifest.json`:
-  - the input file's SHA-256, set version and rubric version;
+  - the input file's SHA-256, the `items.jsonl` SHA-256, set version and
+    rubric version;
   - the question-schema SHA-256 (canonical JSON of the two question
-    definitions);
-  - counts per question and option, reviewed and unreviewed counts, excluded
-    rows with their reasons;
+    definitions, a test pins it);
+  - counts per question and option, items per role, reviewed and unreviewed
+    counts, excluded rows with their reasons;
+  - the leakage-guard result, one entry per check;
   - the exporter's git SHA.
-- Deterministic: the same inputs give byte-identical outputs.
+- Deterministic: the same inputs give byte-identical outputs. It never
+  overwrites an existing export.
+- Rows with review verdict `fail` are removed from the split before the guard
+  runs and counted in the manifest.
 - The export is not committed (a build artifact). It is uploaded as a
   private Kaggle dataset, and `manifest.json` is copied into the run record.
 - Exporters must exclude rows with an unset `workflow_area` from the
@@ -294,6 +312,13 @@ record where it changes behaviour):
 9. Extend the run record's configuration with the loop settings the notebook
    fixes in code (noise schedule, reward weights, sequence lengths, hold-out
    size and seed), so they are recorded rather than assumed.
+10. Keep the training-only overrides (gradient checkpointing, sequence lengths)
+    out of the published `rl_agent_config.json`; the vendor persists them. The
+    vendor's `model_name` rename (`laya-typed-decisions`) is kept as written
+    until a first load test shows whether it matters.
+
+Change 6 is made by the exporter instead of the notebook: the notebook reads
+each item's `role` and never shuffles for the hold-out.
 
 ## Kaggle notebook setup
 
@@ -347,7 +372,14 @@ the maintainer's PR after the run:
 exit and the offending ids, when any of the following holds:
 
 - **Wrong split.** A row's `split` is not `train`, or the split's TSD-019
-  acceptance record is missing.
+  acceptance record fails. The record is
+  `evaluation/message-set/v1/acceptance.json`, written by the maintainer alone
+  after the TSD-019 P4 review; it has one entry per split with `accepted`,
+  `defects` (at most 1), `reviewed_sample`, `prompt_version`,
+  `messages_sha256` (the SHA-256 of that split's message file, so any later
+  edit invalidates it) and `accepted_on`. A missing file, a missing train
+  entry, a different set version, an unaccepted entry, too many defects or a
+  hash mismatch all fail this check.
 - **Text overlap.** A row's normalised message (TSD-019 normalisation)
   matches any message in:
   - the calibration or test splits;
@@ -360,6 +392,11 @@ exit and the offending ids, when any of the following holds:
   is evaluation only (decision 37).
 - **Unknown label.** A label does not map to an option of the question as
   built today.
+
+**The guard fails closed.** A comparison set it cannot read (calibration or
+test messages, their seed registries) fails the check that needs it; it is
+never skipped, because a check that cannot look proves nothing. It always
+reports all five checks, and reports ids and reasons, never message text.
 
 Label mapping:
 - `needs_person=yes` → `human needed`, and `no` → `can handle automatically`.
@@ -406,17 +443,24 @@ Label mapping:
 
 ## Implementation commit plan
 
+Status on 2026-10-05: commits 1, 2 and 5 are merged (#87). The rest is on
+`feat/finetune-export`, in this order:
+
 1. `feat(classifiers)`: `CheckpointRef`, `classifiers.yaml` with the base
    entry pinned, `router_kwargs`, `LayaClient` pinning, the version check,
-   and tests.
+   and tests. *(merged)*
 2. `feat(eval)`: `--laya-checkpoint` and the report-header field, with tests.
-3. `feat(data)`: the exporter, the leakage guard, the synthetic fixture and
-   tests.
-4. `feat(classifiers)`: the adapted notebook, the notebook lint test and the
-   licence notice.
+   *(merged)*
+3. `feat(data)`: the acceptance record and the leakage guard, then the
+   exporter with its manifest and the synthetic fixtures (two commits).
+4. `feat(classifiers)`: the loop settings in the run record, then the adapted
+   notebook, its lint test and the licence notice (two commits, in that order,
+   because a test validates the notebook's record assembly against the record's
+   schema).
 5. `feat(classifiers)`: `FineTuneRunRecord` and the report writer, with tests.
+   *(merged)*
 6. `docs`: the AGENTS layout (`notebooks/`, `classifiers.yaml`,
-   `reports/finetune/`), README run commands and the CHANGELOG.
+   `reports/finetune/`), commands, this spec and the CHANGELOG.
 
 Commits 1, 2 and 5 do not need TSD-019 and can merge first. Pinning the
 base checkpoint is worth having on its own: today the base is loaded
