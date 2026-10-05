@@ -30,9 +30,9 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-025](TSD-025-durable-cases.md): durable cases and process restart recovery (T-401, proposed)
 - [TSD-026](TSD-026-routing-on-separating-signals.md): routing on the signals that separate, policy v3 (measured; adopted)
 - [TSD-027](TSD-027-classifier-evaluation.md): classifier evaluation and thresholds (T-201, proposed)
-
 - [TSD-028](TSD-028-premium-experience.md): premium conversational customer experience (F1.10, proposed)
+- [TSD-029](TSD-029-human-request-hard-rule.md): deterministic human-request hard rule (T-208, implemented)
 
-Later tasks write their spec from their task card as the first step, numbered from TSD-029, and wait for the maintainer's approval before any code.
+Later tasks write their spec from their task card as the first step, numbered from TSD-030, and wait for the maintainer's approval before any code.
 
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.

@@ -38,4 +38,4 @@
 
 **Done when.** recall and false-positive rate on the held-out phrasings are reported with denominators; every table row in the unit tests passes; the AC scenarios in `tests/scenarios/`, including AC-4, still pass; a replay of the committed decisions shows each verdict that changes, with a stable case id.
 
-**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number) and get the maintainer's approval before implementing.
+**Specification:** implemented in [TSD-029](../specs/TSD-029-human-request-hard-rule.md).
