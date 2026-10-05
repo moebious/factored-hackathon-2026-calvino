@@ -206,14 +206,17 @@ def is_near_duplicate(
 
 
 class RecordFacts(BaseModel):
-    """The committed seed facts for one registry row: facts only, no ids."""
+    """The committed seed facts for one registry row: facts only.
+
+    No raw ids, no raw amounts (bands only), no texts: the band carries
+    the oracle signal and the amount never leaves the pull.
+    """
 
     model_config = {"extra": "forbid"}
 
     kind: SeedKind
     status: str | None = None
     transaction_type: str | None = None
-    amount: float | None = None
     amount_band: Literal["under_gate", "over_gate"] | None = None
     currency: Literal["MXN", "COP", "ARS", "USD"] | None = None
     fraud_flag: bool = False
@@ -237,7 +240,7 @@ class SeedRow(BaseModel):
     record_facts: RecordFacts
     event_date: str = Field(min_length=1)
     policy_version: str = Field(min_length=1)
-    gate_limit_used: float | None = None
+    gate_table_hash: str | None = None
 
 
 class MessageLabels(BaseModel):
@@ -368,6 +371,23 @@ def amount_band_for(amount: float, currency: str, gate_limits: dict[str, float])
     return "over_gate"
 
 
+def gate_table_hash(gate_limits: dict[str, float]) -> str:
+    """The canonical hash of one policy's gate table (TSD-019 P6 evidence).
+
+    Stored per banded seed instead of the raw limit it replaced: equal
+    tables hash equal, so the oracle-path guard detects any table drift
+    without committing a single limit value.
+    """
+    import json  # noqa: PLC0415
+
+    canonical = json.dumps(
+        {code: float(gate_limits[code]) for code in sorted(gate_limits)},
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+
 def usable_amount(
     amount: float, currency: str, gate: dict[str, float], hard: dict[str, float]
 ) -> bool:
@@ -407,13 +427,13 @@ def seed_to_oracle_facts(
             raise ValueError("the oracle path needs the evaluated policy's gate table")
         # Seeds with no amount band (complaints, no-record, hand-written
         # probes) feed no band to the oracle, so the guard has nothing to
-        # compare; banded seeds must match the evaluated table exactly.
+        # compare; banded seeds must match the evaluated table exactly
+        # under its hash (raw limits are never committed).
         if seed.record_facts.amount_band is not None:
-            currency = seed.record_facts.currency or "USD"
-            if seed.gate_limit_used is None or gate_limits.get(currency) != seed.gate_limit_used:
+            if seed.gate_table_hash is None or seed.gate_table_hash != gate_table_hash(gate_limits):
                 raise ValueError(
                     f"seed {seed.seed_key} records {seed.policy_version} "
-                    f"(gate limit {seed.gate_limit_used}) but the evaluated "
+                    f"(gate hash {seed.gate_table_hash}) but the evaluated "
                     "policy gates differ: mint a new set version (TSD-019 P6)"
                 )
     amount_band = seed.record_facts.amount_band or facts.amount_band

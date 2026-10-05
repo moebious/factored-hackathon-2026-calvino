@@ -26,13 +26,12 @@ def make_seed(**overrides) -> SeedRow:
         "record_facts": {
             "kind": "problem_transaction",
             "status": "Pending",
-            "amount": 4500.0,
             "amount_band": "under_gate",
             "currency": "MXN",
         },
         "event_date": "2024-03-10",
         "policy_version": "v2",
-        "gate_limit_used": 8500.0,
+        "gate_table_hash": ms.gate_table_hash(GATE),
     }
     base.update(overrides)
     return SeedRow.model_validate(base)
@@ -322,11 +321,9 @@ def test_over_gate_write_parks_for_a_person():
         record_facts={
             "kind": "problem_transaction",
             "status": "Declined",
-            "amount": 12000.0,
             "amount_band": "over_gate",
             "currency": "MXN",
         },
-        gate_limit_used=8500.0,
     )
     labels, facts = ms.derive_defaults(
         brief_intent="retry", adversarial_kind=None, seed_kind="problem_transaction"
@@ -358,13 +355,20 @@ def test_oracle_defined_on_unreviewed_rows():
 
 def test_policy_guard_raises_on_oracle_path_only():
     """A re-banded policy raises on the oracle path, never on text reads."""
-    seed = make_seed(gate_limit_used=9000.0)
+    seed = make_seed(gate_table_hash="staletablehash00")
     labels, facts = ms.derive_defaults(
         brief_intent="explain", adversarial_kind=None, seed_kind="problem_transaction"
     )
     with pytest.raises(ValueError, match="mint a new set version"):
         ms.seed_to_oracle_facts(seed, labels, facts, gate_limits=GATE)
     ms.seed_to_oracle_facts(seed, labels, facts, text_only=True)
+
+
+def test_gate_table_hash_stable_and_sensitive():
+    """Equal tables hash equal; any limit change flips the hash."""
+    assert ms.gate_table_hash(GATE) == ms.gate_table_hash(dict(GATE))
+    other = dict(GATE, MXN=9000.0)
+    assert ms.gate_table_hash(other) != ms.gate_table_hash(GATE)
 
 
 def test_amount_margins():

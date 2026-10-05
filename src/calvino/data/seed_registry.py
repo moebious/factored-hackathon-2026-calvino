@@ -39,6 +39,7 @@ from calvino.data.message_set import (
     SeedRow,
     derive_defaults,
     derive_seed_key,
+    gate_table_hash,
     run_registry_checks,
     salted_customer_hash,
     seed_to_oracle_facts,
@@ -153,6 +154,11 @@ def build_registry(
         customer_hash = salted_customer_hash(candidate.customer_id, salt)
         band = band_for(candidate, gate_limits)
         currency = candidate.currency
+        # De-identified by construction: the raw amount never leaves the
+        # pull (bands only) and no gate limit is echoed back; the table
+        # hash lets the oracle path verify the band's table without one.
+        # Residual risk, stated once: event_date + currency + channel +
+        # type stays, and a rare combination could still single out a row.
         seeds.append(
             SeedRow.model_validate(
                 {
@@ -166,7 +172,6 @@ def build_registry(
                         "kind": item.kind,
                         "status": candidate.status,
                         "transaction_type": candidate.transaction_type,
-                        "amount": candidate.amount,
                         "amount_band": band,
                         "currency": currency,
                         "fraud_flag": candidate.fraud_flag,
@@ -176,9 +181,7 @@ def build_registry(
                     },
                     "event_date": candidate.event_date.isoformat(),
                     "policy_version": policy_version,
-                    "gate_limit_used": gate_limits[currency]
-                    if band is not None and currency
-                    else None,
+                    "gate_table_hash": gate_table_hash(gate_limits) if band is not None else None,
                 }
             )
         )

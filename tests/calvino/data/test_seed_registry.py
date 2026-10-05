@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from calvino.data import seed_registry as sr
-from calvino.data.message_set import derive_seed_key, salted_customer_hash
+from calvino.data.message_set import derive_seed_key, gate_table_hash, salted_customer_hash
 from calvino.data.seed_pull import DrawnSeed, SeedCandidate
 
 SALT = "test-salt-not-secret"
@@ -76,9 +76,20 @@ def test_rows_carry_facts_only_with_recomputable_keys():
         assert pointer.customer_id not in dumped
         assert SALT not in dumped
     assert seeds[0].record_facts.amount_band == "under_gate"
-    assert seeds[0].gate_limit_used == 8500.0
+    assert seeds[0].gate_table_hash == gate_table_hash(GATE)
     assert seeds[0].policy_version == "v2"
     assert seeds[1].record_facts.complaint_status == "open"
+
+
+def test_committed_rows_carry_no_raw_amount_or_limit():
+    """The registry serialization path drops amounts and limits (bands only)."""
+    seeds, _ = sr.build_registry([drawn_tx()], salt=SALT, policy_version="v2", gate_limits=GATE)
+    (seed,) = seeds
+    dumped = seed.model_dump_json()
+    assert '"amount":' not in dumped
+    assert "gate_limit_used" not in dumped
+    assert seed.record_facts.amount_band == "under_gate"
+    assert seed.gate_table_hash == gate_table_hash(GATE)
 
 
 def test_nominal_batch_fills_only_its_quota_cell():
