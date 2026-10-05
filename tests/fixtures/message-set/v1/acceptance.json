@@ -1,0 +1,13 @@
+{
+  "set_version": "v1",
+  "splits": {
+    "train": {
+      "accepted": true,
+      "accepted_on": "2026-10-20",
+      "defects": 0,
+      "messages_sha256": "5f865b9817fe8ee4c185227b110dfdcc7b81d003bb716d52643f2a07118fb671",
+      "prompt_version": "train-v1",
+      "reviewed_sample": 2
+    }
+  }
+}
