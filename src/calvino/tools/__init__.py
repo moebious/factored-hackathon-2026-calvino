@@ -3,6 +3,7 @@ ownership and eligibility are checked here, outside any model.
 """
 
 from calvino.tools.adapter import BankAdapter
+from calvino.tools.cleaned import CleanedTableAdapter
 from calvino.tools.confirmation import (
     ConfirmationVerifier,
     FakeConfirmationVerifier,
@@ -21,6 +22,7 @@ __all__ = [
     "BankTools",
     "ConfigurationError",
     "ConfirmationVerifier",
+    "CleanedTableAdapter",
     "DatasetAdapter",
     "FakeConfirmationVerifier",
     "HmacConfirmationVerifier",

@@ -1,0 +1,4 @@
+customer_id,country,segment,detected_accent,credit_score
+C-MX-001,México,retail,Mexican,650
+C-CO-001,Colombia,retail,Colombian,640
+C-AR-001,Argentina,business,Argentine,700
