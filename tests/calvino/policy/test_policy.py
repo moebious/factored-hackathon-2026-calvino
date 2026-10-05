@@ -247,6 +247,50 @@ def test_escalation_beats_clarification(policy):
     assert decision.rule_id == "RT-ESCALATE"
 
 
+def test_cited_reference_anchors_out_of_scope_to_the_agent(policy):
+    """A message naming one entry is explained from a verified read, not
+    judged out of scope by phrasing."""
+    decision = decide_route(
+        scores(workflow_out_of_scope=0.78), facts(entry_reference="E-MX-002"), policy
+    )
+    assert (decision.route, decision.rule_id) == (Route.AGENTS, "RT-REF-ANCHORED")
+    assert decision.record.inputs_summary["fact.entry_reference"] == "E-MX-002"
+
+
+def test_anchor_never_overrides_a_human_verdict(policy):
+    anchored = facts(entry_reference="E-MX-002")
+    assert (
+        decide_route(scores(workflow_dispute_or_fraud=0.9), anchored, policy).rule_id
+        == "RT-DISPUTE-FRAUD"
+    )
+    assert decide_route(scores(injection=0.9), anchored, policy).rule_id == "RT-INJECTION"
+    assert decide_route(scores(needs_human=0.9), anchored, policy).rule_id == "RT-ESCALATE"
+    decision = decide_route(
+        scores(), facts(entry_reference="E-MX-002", asks_for_human=True), policy
+    )
+    assert decision.rule_id == "HR-ASKS-HUMAN"
+
+
+def test_anchor_needs_exactly_one_reference(policy):
+    assert (
+        decide_route(scores(workflow_out_of_scope=0.78), facts(), policy).rule_id
+        == "RT-OUT-OF-SCOPE"
+    )
+
+
+def test_malformed_reference_fails_closed(policy):
+    decision = decide_route(scores(), facts(entry_reference="E-XX"), policy)
+    assert (decision.route, decision.rule_id) == (Route.HUMAN, "FC-INPUTS")
+
+
+def test_anchored_verdict_replays(policy):
+    decision = decide_route(
+        scores(workflow_out_of_scope=0.78), facts(entry_reference="E-MX-002"), policy
+    )
+    replayed = replay_decision(decision.record, policy)
+    assert (replayed.route, replayed.rule_id) == (Route.AGENTS, "RT-REF-ANCHORED")
+
+
 def test_route_accepts_models(policy):
     from calvino.policy import Facts, Scores
 

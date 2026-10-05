@@ -66,6 +66,10 @@ class Facts(_Strict):
     auth_failures: int = Field(ge=0)
     via_regulator: bool
     vulnerable_customer: bool
+    # The single entry reference the message names, if exactly one
+    # (harness-detected, never a model): citing a concrete bank entry anchors
+    # the turn on it. None when the message names zero or several references.
+    entry_reference: str | None = Field(default=None, pattern=r"^E-[A-Z]{2}-\d{3}$")
     amount: float | None = Field(default=None, ge=0, allow_inf_nan=False)
     currency: str | None = Field(default=None, min_length=1)
 

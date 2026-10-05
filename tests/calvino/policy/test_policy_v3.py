@@ -87,6 +87,12 @@ def test_v3_gates_fire_at_their_thresholds(override, route, rule_id):
     assert (decision.route, decision.rule_id) == (route, rule_id)
 
 
+def test_v3_anchors_a_cited_reference_before_out_of_scope():
+    anchored = {**FACTS, "entry_reference": "E-MX-002"}
+    decision = decide_route(routine(workflow_out_of_scope=0.78), anchored, V3)
+    assert (decision.route, decision.rule_id) == (Route.AGENTS, "RT-REF-ANCHORED")
+
+
 def test_just_below_each_v3_threshold_does_not_fire():
     below = routine(
         workflow_dispute_or_fraud=0.49,

@@ -96,6 +96,14 @@ def decide_route(
 
     if parsed.workflow_dispute_or_fraud >= rules.dispute_or_fraud_at:  # type: ignore[operator]
         return done(Route.HUMAN, "RT-DISPUTE-FRAUD", Stage.CLASSIFIER, rules.dispute_or_fraud_at)
+    if parsed_facts.entry_reference is not None and not _requests_a_person(parsed, rules):
+        # A cited entry reference anchors the turn on it: the message names
+        # a concrete bank entry, so it is explained from a verified read
+        # instead of being judged out of scope by phrasing. Fraud and hard
+        # rules already won above, injection and requests for a person still
+        # win through the guard, and the agent path still verifies while the
+        # Gate still guards every write.
+        return done(Route.AGENTS, "RT-REF-ANCHORED", Stage.CLASSIFIER)
     if parsed.workflow_out_of_scope >= rules.out_of_scope_at:  # type: ignore[operator]
         return done(Route.OUT_OF_SCOPE, "RT-OUT-OF-SCOPE", Stage.CLASSIFIER, rules.out_of_scope_at)
     if parsed.injection >= rules.injection_at:  # type: ignore[operator]
@@ -119,3 +127,21 @@ def decide_route(
     if needs_human is not None and needs_human >= rules.act_below:
         return done(Route.CLARIFY, "RT-CLARIFY-BAND", Stage.CLASSIFIER, rules.act_below)
     return done(Route.AGENTS, "RT-ACT", Stage.CLASSIFIER, rules.act_below)
+
+
+def _requests_a_person(parsed: Scores, rules: RoutePolicy) -> bool:
+    """Whether a human verdict below the reference anchor would fire.
+
+    Mirrors the injection, talk-to-person and escalate gates with the same
+    thresholds, so the anchor never overrides them: a manipulated request is
+    never explained, and an explicit or scored request for a person still
+    goes to a person. Reads the same ``rules`` object, so it cannot drift.
+    """
+    needs_human = parsed.needs_human if rules.use_needs_human else None
+    return (
+        parsed.injection >= rules.injection_at  # type: ignore[operator]
+        or (
+            rules.talk_to_person_at is not None and parsed.talk_to_person >= rules.talk_to_person_at  # type: ignore[operator]
+        )
+        or (needs_human is not None and needs_human >= rules.escalate_at)  # type: ignore[operator]
+    )
