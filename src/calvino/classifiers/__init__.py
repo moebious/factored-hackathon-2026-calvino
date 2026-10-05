@@ -1,6 +1,7 @@
 """Laya service and calibration (TSD-005): System 1 typed decisions with calibrated probabilities.
 
 Public API:
+- FineTuneRunRecord, write_run_record: the record of one fine-tuning run (TSD-020).
 - CheckpointRef, load_registry, router_kwargs: pinned checkpoints (commit plus
   weights digest) listed in classifiers.yaml (TSD-020).
 - LayaClient: wrapper around laya.Router pinned to one multilingual model.
@@ -19,6 +20,11 @@ from calvino.classifiers.checkpoints import (
     load_registry,
     router_kwargs,
 )
+from calvino.classifiers.finetune_record import (
+    FineTuneRunRecord,
+    load_run_record,
+    write_run_record,
+)
 from calvino.classifiers.laya import (
     LayaAnswer,
     LayaClient,
@@ -32,11 +38,14 @@ __all__ = [
     "Calibrator",
     "CheckpointRef",
     "ClassifierRegistry",
+    "FineTuneRunRecord",
     "LayaAnswer",
     "LayaClient",
     "QuestionBuilder",
     "load_registry",
+    "load_run_record",
     "parse_answers",
     "router_kwargs",
     "workflow_questions",
+    "write_run_record",
 ]
