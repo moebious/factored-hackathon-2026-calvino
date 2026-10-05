@@ -69,6 +69,8 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | done | maintainer |
 | [T-206](T-206-workflow-tools.md) | Full cleaned-table adapter for the existing workflow tools | 2 | T-002, T-101 | — | standard | yes | todo | maintainer |
 | [T-207](T-207-intent-driven-customer-app.md) | Intent-driven customer experience and visual investigation | 2 | T-205, T-003 | — | standard | yes | doing | maintainer |
+| [T-208](T-208-human-request-hard-rule.md) | Hard rule for an explicit request for a person: coverage and false hits | 2 | T-106, T-001 | — | judgment checkpoint | yes | todo | maintainer |
+| [T-209](T-209-confidence-aggregation.md) | What the route's `confidence` score is computed from | 2 | T-106, T-201 | — | judgment checkpoint | yes | todo | maintainer |
 | [T-301](T-301-support-agent.md) | Bounded generative support agent with governed tools and policy retrieval | 3 | T-204, T-206 | LLM provider keys | standard | no | todo | maintainer |
 | [T-302](T-302-console-queue.md) | Full operator workspace, attributable reply/notes edits and audit timeline | 3 | T-204 | — | standard | yes | todo | maintainer |
 | [T-303](T-303-end-to-end-evaluation.md) | Actual-system evaluation, protected measurements and honest failure accounting | 3 | T-301, T-203 for final run | provider keys for protected measurements | judgment checkpoint | no | doing | maintainer |
@@ -99,7 +101,7 @@ The rule for T-101 is pre-registered; its status moves to `doing` when the analy
 ```
 Wave 0:  T-000 ─► T-001 · T-002 · T-003 · T-004 · T-005          (no data needed)
 Wave 1:  T-101 (done) ─► T-103 ─► T-106 ; T-104 ; T-102 (done) ─► T-105 (done)
-Wave 2:  T-106 ─► T-202 ─► T-201 ; T-203 ; T-204 · T-205 (done) ─► T-207 ; T-206
+Wave 2:  T-106 ─► T-202 ─► T-201 ; T-208 · T-209 ; T-203 ; T-204 · T-205 (done) ─► T-207 ; T-206
 Wave 3:  T-301 · T-302 ─► T-401 ; T-303 ─► T-402 · T-405 · T-603 · T-408 ─► T-407
          T-206 ─► T-406 · T-604 ; T-304 (full public demo)
 Wave 5:  T-501 · T-502 · T-503 · T-504 · T-505 (submission)
