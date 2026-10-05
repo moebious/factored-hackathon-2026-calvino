@@ -6,6 +6,7 @@ import csv
 import importlib.util
 import json
 import sys
+import unicodedata
 from pathlib import Path
 
 import pytest
@@ -19,7 +20,13 @@ sys.modules[SPEC.name] = importer
 SPEC.loader.exec_module(importer)
 
 
-def _files(tmp_path: Path, *, status: str | None = None, human_outcome: str | None = None):
+def _files(
+    tmp_path: Path,
+    *,
+    status: str | None = None,
+    human_outcome: str | None = None,
+    csv_encoding: str = "utf-8",
+):
     """Build one synthetic source record and one worksheet row."""
     gold = tmp_path / "gold.jsonl"
     record = {
@@ -68,7 +75,7 @@ def _files(tmp_path: Path, *, status: str | None = None, human_outcome: str | No
             outcome_annotator="maintainer",
             outcome_labelled_at="2026-10-05",
         )
-    with worksheet.open("w", encoding="utf-8", newline="") as destination:
+    with worksheet.open("w", encoding=csv_encoding, newline="") as destination:
         writer = csv.DictWriter(destination, fieldnames=importer.CSV_FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerow(row)
@@ -119,3 +126,34 @@ def test_import_contract_excludes_classifier_label_columns(tmp_path):
         assert reader.fieldnames == list(importer.CSV_FIELDS)
         assert not {"workflow_area", "stuck_intent", "needs_person"} & set(reader.fieldnames or ())
     assert importer.prepare_import(worksheet, gold)[2] > 0
+
+
+def test_import_accepts_utf8_bom_csv(tmp_path):
+    gold, worksheet, _ = _files(tmp_path, csv_encoding="utf-8-sig")
+    assert importer.prepare_import(worksheet, gold)[2] > 0
+
+
+def test_import_identity_uses_nfc_and_trimming(tmp_path):
+    gold, worksheet, original = _files(tmp_path)
+    rows = list(csv.DictReader(worksheet.open(encoding="utf-8", newline="")))
+    rows[0]["message"] = f"  {unicodedata.normalize('NFD', original['message'])}  "
+    rows[0]["language_variant"] = " es-MX "
+    with worksheet.open("w", encoding="utf-8", newline="") as destination:
+        writer = csv.DictWriter(destination, fieldnames=importer.CSV_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert importer.prepare_import(worksheet, gold)[2] > 0
+
+
+def test_import_rejects_real_message_identity_difference(tmp_path):
+    gold, worksheet, _ = _files(tmp_path)
+    rows = list(csv.DictReader(worksheet.open(encoding="utf-8", newline="")))
+    rows[0]["message"] = "A different synthetic message"
+    with worksheet.open("w", encoding="utf-8", newline="") as destination:
+        writer = csv.DictWriter(destination, fieldnames=importer.CSV_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+    with pytest.raises(ValueError, match="worksheet message does not match"):
+        importer.prepare_import(worksheet, gold)

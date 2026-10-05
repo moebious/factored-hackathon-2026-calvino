@@ -13,6 +13,7 @@ import csv
 import difflib
 import json
 import sys
+import unicodedata
 from pathlib import Path
 from typing import Any
 
@@ -95,7 +96,7 @@ def prepare_import(csv_path: Path, gold_path: Path) -> tuple[str, str, int]:
         rows[record.gold_id] = data
         order.append(record.gold_id)
 
-    with csv_path.open(encoding="utf-8", newline="") as source:
+    with csv_path.open(encoding="utf-8-sig", newline="") as source:
         reader = csv.DictReader(source)
         if tuple(reader.fieldnames or ()) != CSV_FIELDS:
             raise ValueError(
@@ -117,7 +118,11 @@ def prepare_import(csv_path: Path, gold_path: Path) -> tuple[str, str, int]:
             raise ValueError(f"unknown gold_id in CSV: {gold_id}")
         record = rows[gold_id]
         for identity_field in ("message", "language_variant"):
-            if annotation.get(identity_field) != record[identity_field]:
+            worksheet_identity = unicodedata.normalize(
+                "NFC", (annotation.get(identity_field) or "").strip()
+            )
+            gold_identity = unicodedata.normalize("NFC", record[identity_field].strip())
+            if worksheet_identity != gold_identity:
                 raise ValueError(
                     f"{gold_id}: worksheet {identity_field} does not match the gold JSONL"
                 )
