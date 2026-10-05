@@ -20,3 +20,12 @@ checkpoints:
     revision: 7b928d828b7b0e022f929d9bd2e44165aa270148
     sha256: 9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204
     laya_version: "0.3.24"
+
+  candidate:
+    name: candidate
+    slot: multilingual
+    repo: kevago/calvino-laya-ft
+    revision: 464ee356fe2f9fea081bd0a766cc12646c0e8f80
+    sha256: a61d75fc57dc2d512a0986cbda859e8378c7502232d8882f559f45887abe4fcd
+    laya_version: "0.3.24"
+    run_record: reports/finetune/T-202-2026-10-05-464ee356fe2f.json

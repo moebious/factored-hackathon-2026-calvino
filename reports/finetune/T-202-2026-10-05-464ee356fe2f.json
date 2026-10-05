@@ -1,0 +1,124 @@
+{
+  "base": {
+    "parameter_count": 321908995,
+    "repo": "convaiinnovations/laya",
+    "revision": "7b928d828b7b0e022f929d9bd2e44165aa270148",
+    "sha256": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204",
+    "subfolder": "multilingual"
+  },
+  "configuration": {
+    "deviations": [],
+    "effective_batch": 64,
+    "epochs": 4,
+    "grad_accum": 4,
+    "grad_clip": 1.0,
+    "group_size": 4,
+    "loop": {
+      "cross_entropy_weight": 1.0,
+      "gradient_checkpointing": true,
+      "head_max_len": 256,
+      "holdout_fraction_percent": 10,
+      "holdout_max_items": 400,
+      "loss": "policy gradient + soft cross-entropy",
+      "max_len": 1024,
+      "max_tokens_per_batch": 4096,
+      "mixed_precision": "fp16",
+      "reward_weight_rps": 1.0,
+      "reward_weight_spherical": 0.75,
+      "sigma_end": 0.1,
+      "sigma_start": 0.4,
+      "torch_seed_base": 42
+    },
+    "lr_encoder": 2.5e-05,
+    "lr_head": 0.0001,
+    "micro_batch": 8,
+    "min_lr": 1e-06,
+    "schedule": "cosine",
+    "seed": 42,
+    "weight_decay": 0.01
+  },
+  "data": {
+    "counts": {
+      "needs_human": {
+        "can handle automatically": 5,
+        "human needed": 1
+      },
+      "workflow_area": {
+        "dispute or unrecognised charge": 1,
+        "fraud or stolen access": 0,
+        "other banking": 0,
+        "out of scope": 1,
+        "stuck payment": 3
+      }
+    },
+    "excluded": {
+      "review verdict fail (removed from the split)": 1,
+      "workflow area unset (no area item)": 1
+    },
+    "exporter_git_sha": "311712f",
+    "input_sha256": "5f865b9817fe8ee4c185227b110dfdcc7b81d003bb716d52643f2a07118fb671",
+    "question_schema_sha256": "abd8431deb8702f6dfb3d2c473e32689570c99cd34782858312fc01521cf60e4",
+    "reviewed": 2,
+    "rubric_version": "v1",
+    "set_version": "v1",
+    "unreviewed": 4
+  },
+  "environment": {
+    "cuda_version": "12.8",
+    "gpu_count": 2,
+    "gpu_model": "Tesla T4",
+    "laya_version": "0.3.24",
+    "torch_version": "2.11.0+cu128",
+    "transformers_version": "5.16.1"
+  },
+  "leakage_guard": [
+    {
+      "check": "wrong-split",
+      "passed": true
+    },
+    {
+      "check": "text-overlap",
+      "passed": true
+    },
+    {
+      "check": "shared-keys",
+      "passed": true
+    },
+    {
+      "check": "portuguese-row",
+      "passed": true
+    },
+    {
+      "check": "unknown-label",
+      "passed": true
+    }
+  ],
+  "notebook": "notebooks/t202_laya_finetune_kaggle.ipynb",
+  "notes": "Rule R (train fit >= 90% on both questions): FAIL. Option order is fixed (the vendor loop does not shuffle options). Weights are saved in fp16. The vendor's model_name rename is kept. Train items used: 8; temperature hold-out items: 2.",
+  "output": {
+    "repo": "kevago/calvino-laya-ft",
+    "revision": "464ee356fe2f9fea081bd0a766cc12646c0e8f80",
+    "sha256": "a61d75fc57dc2d512a0986cbda859e8378c7502232d8882f559f45887abe4fcd",
+    "tag": "t202-run1"
+  },
+  "run": 1,
+  "run_date": "2026-10-05",
+  "training": {
+    "laya_temperatures": {
+      "choice": 1.0,
+      "noul": 1.2,
+      "score": 1.2
+    },
+    "loss_per_epoch": [
+      0.440756618976593,
+      0.7022494077682495,
+      0.522672712802887,
+      0.47528699040412903
+    ],
+    "train_fit": {
+      "needs_human": 0.25,
+      "workflow_area": 0.25
+    },
+    "wall_time_seconds": 4.242645978927612
+  }
+}

@@ -64,7 +64,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-106](T-106-message-set.md) | Disjoint training/calibration/test messages; reuse the frozen oracle contract | 1 | T-103; T-107 for gold-subset agreement | LLM provider keys (`not run`: keyed generation + sample reviews deferred to post-submission) | standard + maintainer review | no | todo | maintainer |
 | [T-107](T-107-gold-annotation.md) | Maintainer gold annotation and agreement report | 1 | T-103 | — | judgment checkpoint | no | todo | maintainer |
 | [T-201](T-201-classifier-evaluation.md) | Base/calibrated/fine-tuned Laya versus simpler baselines; threshold frontier | 2 | T-005, T-106, T-202 for final comparison; T-107 for reviewed gold metrics | `not run`: needs T-106 messages | judgment checkpoint | no | spec | maintainer |
-| [T-202](T-202-laya-fine-tuning.md) | Reproducible open-weight Laya specialisation | 2 (thesis) | T-106 | GPU (maintainer runs the notebook) | judgment checkpoint | yes | todo | maintainer |
+| [T-202](T-202-laya-fine-tuning.md) | Reproducible open-weight Laya specialisation | 2 (thesis) | T-106 | GPU (maintainer runs the notebook) | judgment checkpoint | yes | done (run 1) | maintainer |
 | [T-203](T-203-portuguese-test-set.md) | Translated held-out pairs and directly written Portuguese cases | 2 | T-106 | — | standard | yes | todo | maintainer |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | done | maintainer |
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | done | maintainer |
