@@ -15,15 +15,12 @@ read-back the evidence confirms.
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from calvino.hub.agent import AgentDraft, AgentRequest, ToolCall
+from calvino.hub.entry_reference import ENTRY_REF_RE as _ENTRY_REF_RE
 from calvino.hub.state import HubStage
 from calvino.verifier.evidence import ToolResult
-
-# Fixture entry references ("E-MX-002") a demo message may name.
-_ENTRY_REF_RE = re.compile(r"\bE-[A-Z]{2}-\d{3}\b")
 
 # The Spanish status words, matching the verifier's status vocabulary so a
 # template can never state a status the code check would reject. Gendered
