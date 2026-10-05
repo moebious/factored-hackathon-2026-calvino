@@ -69,7 +69,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | done | maintainer |
 | [T-206](T-206-workflow-tools.md) | Full cleaned-table adapter for the existing workflow tools | 2 | T-002, T-101, T-102 | — | standard | yes | doing | maintainer |
 | [T-207](T-207-intent-driven-customer-app.md) | Intent-driven customer experience and visual investigation | 2 | T-205, T-003 | — | standard | yes | done (#85) | maintainer |
-| [T-208](T-208-human-request-hard-rule.md) | Hard rule for an explicit request for a person: coverage and false hits | 2 | T-106, T-001 | — | judgment checkpoint | yes | todo | maintainer |
+| [T-208](../specs/TSD-029-human-request-hard-rule.md) | Hard rule for an explicit request for a person: coverage and false hits | 2 | T-106, T-001 | — | judgment checkpoint | yes | done | maintainer |
 | [T-209](T-209-confidence-aggregation.md) | What the route's `confidence` score is computed from | 2 | T-106, T-201 | — | judgment checkpoint | yes | todo | maintainer |
 | [T-301](T-301-support-agent.md) | Bounded generative support agent with governed tools and policy retrieval | 3 | T-204, T-206 | LLM provider keys | standard | no | todo | maintainer |
 | [T-302](../specs/TSD-023-operator-console.md) | Full operator workspace, attributable reply/notes edits and audit timeline | 3 | T-204 | — | standard | yes | done | maintainer |
