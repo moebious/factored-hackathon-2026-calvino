@@ -3,12 +3,13 @@
 | | |
 |---|---|
 | Wave | 3 (Tier 0 for decision 17) |
+| Status | done |
 | Branch | `feat/durable-cases` |
 | Depends on | T-204, T-302 |
 | Blocked by | — |
 | Model | standard model |
 | Can run in parallel | yes |
-| References | DESIGN.md 6 |
+| References | DESIGN.md 6; TSD-025 |
 
 **Goal.** A parked graph turn remains resumable by its case reference after a **process restart**, not just within one in-memory service (decision 37).
 
