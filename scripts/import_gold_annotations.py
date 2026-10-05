@@ -78,6 +78,18 @@ def _merge_value(target: dict[str, Any], key: str, value: Any, *, label: str) ->
     return True
 
 
+def _append_note(record: dict[str, Any], note: str) -> bool:
+    """Append a worksheet note once, preserving any existing notes."""
+    addition = note.strip()
+    if not addition:
+        return False
+    existing = record.get("notes", "").strip()
+    if addition in existing.split("\n\n"):
+        return False
+    record["notes"] = f"{existing}\n\n{addition}".strip()
+    return True
+
+
 def prepare_import(csv_path: Path, gold_path: Path) -> tuple[str, str, int]:
     """Validate a worksheet and produce a proposed JSONL merge in memory."""
     original = gold_path.read_text(encoding="utf-8")
@@ -164,6 +176,7 @@ def prepare_import(csv_path: Path, gold_path: Path) -> tuple[str, str, int]:
         for field, raw in supplied_outcome.items():
             if raw:
                 changed_fields += _merge_value(record, field, raw, label=f"{gold_id}.{field}")
+        changed_fields += _append_note(record, annotation.get("notes") or "")
         validate_gold_record(record)
 
     rendered = "".join(json.dumps(rows[gold_id], ensure_ascii=False) + "\n" for gold_id in order)

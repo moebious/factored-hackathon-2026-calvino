@@ -157,3 +157,23 @@ def test_import_rejects_real_message_identity_difference(tmp_path):
 
     with pytest.raises(ValueError, match="worksheet message does not match"):
         importer.prepare_import(worksheet, gold)
+
+
+def test_import_appends_notes_and_repeat_import_is_idempotent(tmp_path):
+    gold, worksheet, _ = _files(tmp_path)
+    rows = list(csv.DictReader(worksheet.open(encoding="utf-8", newline="")))
+    rows[0]["notes"] = "Reviewed as an empty record."
+    with worksheet.open("w", encoding="utf-8", newline="") as destination:
+        writer = csv.DictWriter(destination, fieldnames=importer.CSV_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+    original, merged, count = importer.prepare_import(worksheet, gold)
+    assert count > 0
+    assert json.loads(merged)["notes"] == "Reviewed as an empty record."
+    assert gold.read_text(encoding="utf-8") == original
+
+    gold.write_text(merged, encoding="utf-8")
+    repeated_original, repeated_merged, repeated_count = importer.prepare_import(worksheet, gold)
+    assert repeated_count == 0
+    assert repeated_merged == repeated_original
