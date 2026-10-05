@@ -1,3 +1,12 @@
+---
+title: Calvino
+emoji: 🏛️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+---
+
 # Project Calvino
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
