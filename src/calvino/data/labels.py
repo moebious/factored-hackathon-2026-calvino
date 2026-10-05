@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictBool, field_validator, model_validator
 
 RUBRIC_VERSION = "v1"
 
@@ -83,8 +83,7 @@ def proxy_investigation_outcome(row: Mapping[str, object]) -> dict[str, object |
 
 
 class GoldLabels(BaseModel):
-    """One gold case's labels. All optional: the empty labelling sheet ships
-    with every column unfilled for the maintainer to label by hand."""
+    """One gold case's classifier labels; unset fields remain unlabelled."""
 
     model_config = {"extra": "forbid"}
 
@@ -95,9 +94,77 @@ class GoldLabels(BaseModel):
     injection: BinaryLabel | None = None
 
 
+class GoldOracleFacts(BaseModel):
+    """Maintainer-entered TSD-013 facts for the T-103 consistency report.
+
+    These are nominal scenario facts for hand-written gold messages, not
+    claims about real bank records. Missing facts are never inferred.
+    """
+
+    model_config = {"extra": "forbid"}
+
+    intent: str | None = None
+    ambiguous: StrictBool | None = None
+    status: str | None = None
+    owner: StrictBool | None = None
+    amount_band: str | None = None
+    fraud_flag: StrictBool | None = None
+    in_scope: StrictBool | None = None
+
+    @field_validator("intent")
+    @classmethod
+    def intent_is_in_oracle_table(cls, value: str | None) -> str | None:
+        """Keep the gold sheet aligned with TSD-013's frozen intent set."""
+        from calvino.evaluation.oracle import INTENTS
+
+        if value is not None and value not in INTENTS:
+            raise ValueError(f"unknown TSD-013 intent {value!r}")
+        return value
+
+    @field_validator("amount_band")
+    @classmethod
+    def amount_band_is_in_oracle_table(cls, value: str | None) -> str | None:
+        """Keep the gold sheet aligned with TSD-013's frozen amount bands."""
+        from calvino.evaluation.oracle import AMOUNT_BANDS
+
+        if value is not None and value not in AMOUNT_BANDS:
+            raise ValueError(f"unknown TSD-013 amount band {value!r}")
+        return value
+
+    @field_validator("status")
+    @classmethod
+    def status_is_nullable_problem_status(cls, value: str | None) -> str | None:
+        """Allow only the transaction statuses represented by the oracle."""
+        if value is not None and value not in PROBLEM_TRANSACTION_STATUSES:
+            raise ValueError(f"unknown TSD-013 transaction status {value!r}")
+        return value
+
+    @model_validator(mode="after")
+    def required_supplied_facts_cannot_be_null(self) -> GoldOracleFacts:
+        """Allow omitted draft fields but permit null only for status."""
+        required = {
+            "intent",
+            "ambiguous",
+            "owner",
+            "amount_band",
+            "fraud_flag",
+            "in_scope",
+        }
+        invalid_nulls = sorted(
+            field for field in required & self.model_fields_set if getattr(self, field) is None
+        )
+        if invalid_nulls:
+            raise ValueError(
+                "only status may be null; invalid null fields: " + ", ".join(invalid_nulls)
+            )
+        return self
+
+
 class GoldRecord(BaseModel):
-    """One row of ``tests/fixtures/gold/gold-050.jsonl``: team-generated
-    message plus seed facts, never a customer record or dataset text."""
+    """One team-generated gold message and optional maintainer annotations.
+
+    Nominal oracle facts describe the scenario, never a customer record.
+    """
 
     model_config = {"extra": "forbid"}
 
@@ -107,9 +174,56 @@ class GoldRecord(BaseModel):
     language_variant: str
     seed_ref: str = Field(min_length=1)
     labels: GoldLabels = Field(default_factory=GoldLabels)
+    oracle_facts: GoldOracleFacts | None = None
+    human_outcome: str | None = None
+    outcome_annotator: str | None = None
+    outcome_labelled_at: str | None = None
     annotator: str = ""
     labelled_at: str = ""
     notes: str = ""
+
+    @field_validator("human_outcome")
+    @classmethod
+    def outcome_is_produced_by_oracle_table(cls, value: str | None) -> str | None:
+        """Accept only TSD-013 outcomes the table can actually produce."""
+        if value is None:
+            return None
+        from calvino.evaluation.oracle import ExpectedOutcome
+
+        if value not in {outcome.value for outcome in ExpectedOutcome if outcome.value != "error"}:
+            raise ValueError(f"unknown TSD-013 non-error outcome {value!r}")
+        return value
+
+    def outcome_annotation_missing(self) -> tuple[str, ...]:
+        """Fields missing before this row can enter the T-103 comparison."""
+        missing = []
+        if self.oracle_facts is None:
+            missing.append("oracle_facts")
+        else:
+            for field in (
+                "intent",
+                "ambiguous",
+                "status",
+                "owner",
+                "amount_band",
+                "fraud_flag",
+                "in_scope",
+            ):
+                if field not in self.oracle_facts.model_fields_set or (
+                    field != "status" and getattr(self.oracle_facts, field) is None
+                ):
+                    missing.append(f"oracle_facts.{field}")
+        if self.human_outcome is None:
+            missing.append("human_outcome")
+        if not self.outcome_annotator:
+            missing.append("outcome_annotator")
+        if not self.outcome_labelled_at:
+            missing.append("outcome_labelled_at")
+        return tuple(missing)
+
+    def has_complete_outcome_annotation(self) -> bool:
+        """Whether every separately reviewed outcome field is present."""
+        return not self.outcome_annotation_missing()
 
     def is_labelled(self) -> bool:
         """Whether the maintainer has filled every applicable label column.
