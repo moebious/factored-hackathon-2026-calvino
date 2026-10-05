@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed — maintainer confirms the P-defaults at spec review |
+| Status | accepted — the maintainer accepted P1–P7 and the run plan below on 2026-10-05 |
 | Branch | `eval/laya-finetune` |
 | Task | [T-202](../tasks/T-202-laya-fine-tuning.md) |
 | Depends on | TSD-019 (message set, T-106: accepted train split; test split frozen first); TSD-015 (labels, splits, leakage rules L1–L5); TSD-005 (`calvino.classifiers`) |
@@ -38,6 +38,13 @@ training-set fit is labelled as training fit, never as evaluation.
 
 ## Proposed defaults (maintainer confirms at spec review)
 
+**Acceptance (2026-10-05).** The maintainer accepted P1–P7 as written, so the
+"proposed" wording records the original text and the defaults now stand, with
+the [run plan](#run-plan-decided-at-acceptance) below added at acceptance.
+Two sentences about the vendor notebook below are `[hypothesis]` until the
+notebook (the `NandhaKishorM/laya` repository on GitHub, not the Hub model
+repository) has been read in full by the commit that adapts it.
+
 - **P1: method, full fine-tuning using Laya's own RLCD loop.** Start from the
   author's Kaggle notebook (`laya_finetune_typed_decisions_2xT4_kaggle.ipynb`,
   Apache 2.0): it trains the encoder and the decision head together. The
@@ -47,6 +54,12 @@ training-set fit is labelled as training fit, never as evaluation.
   is small enough for a T4, and an untested LoRA variant of an RL loop would
   be a second experiment. QLoRA was already rejected. LoRA becomes a fallback
   only if the full run does not fit in T4 memory, recorded as a deviation.
+  Caveat `[vendor]`: the vendor's own issue #741 reports a controlled A/B
+  (6,000 training samples, one seed, one A100) in which soft cross-entropy
+  alone scored 80.50% against 79.08% for GRPO plus the proper-reward term, and
+  concludes the GRPO term shows "no measurable gain". Run 1 keeps the loop
+  unchanged anyway, because changing the objective is a second experiment; the
+  run plan below says when that second experiment happens.
 - **P2: hyperparameters, the vendor defaults with no search.** Settings:
   - 4 epochs;
   - micro-batch 8, gradient accumulation 4, effective batch 64 across 2 GPUs;
@@ -58,15 +71,24 @@ training-set fit is labelled as training fit, never as evaluation.
 
   There is no dev split to search on without spending calibration or test
   data, so one fixed configuration is run and reported. Any change is a new
-  run with its own record. The vendor reports 4–6 minutes for 6,000 typed
-  decisions on 2×T4 `[vendor]`. Our first slice is about 1,200 items, so a
-  short run is expected `[hypothesis]`.
+  run with its own record. Our first slice is about 1,200 items (600 messages
+  times 2 questions), which is about 19 optimiser steps an epoch and about 75
+  in all at an effective batch of 64 `[computed]`, against 375 in the vendor's
+  6,000-sample A/B. A short run is expected, and so is a risk of under-training;
+  the run plan handles that without any search. The earlier draft quoted a
+  vendor run time of "4–6 minutes for 6,000 typed decisions"; that figure is
+  unverified and is withdrawn.
 - **P3: first slice, two questions.** `needs_human` and `workflow_area`,
   asked exactly as `calvino.classifiers.needs_human_question()` and
   `workflow_area_question()` build them (same instructions, same criteria,
   same option order, since option order is positional in Laya). The other
   three questions (`intent`, `clear_enough`, `injection`) follow only after
-  T-201 has compared this slice.
+  T-201 has compared this slice. The candidate replaces the whole checkpoint,
+  so those three answers would come from weights never trained on them; the run
+  plan makes T-201 measure that. Known limitation: the vendor notebook does not
+  shuffle option order during training (issue #887), and option order is
+  positional in Laya. Inference uses the same fixed order, so this is
+  consistent, but it can bake in position effects; the run record notes it.
 - **P4: data, the accepted train split only.** Rows come from
   `evaluation/message-set/v1/train.jsonl` (TSD-019) with
   `review_verdict` not `fail`. The split must be accepted under TSD-019's P4
@@ -95,22 +117,61 @@ training-set fit is labelled as training fit, never as evaluation.
   the maintainer's T-407 sign-off. A rejected candidate stays recorded and
   unpinned.
 
+## Run plan (decided at acceptance)
+
+Decided on 2026-10-05, before any run, using **training-side evidence only**.
+No run is ever launched, repeated or chosen after looking at calibration or
+test results.
+
+- **Run 1:** the vendor loop unchanged, with the P2 settings.
+- **Rule R `[hypothesis]`:** a run is carried into T-201 only if its
+  training-set fit (`train fit, not evaluation`) is at least 90% on both
+  questions. The bar was chosen before any run and is not a quality claim: it
+  only says the loop learned the task it was given. Every run's fit is reported
+  either way.
+- **Run 2, only if run 1 fails R:** the same settings with 8 epochs, twice
+  P2's. It is recorded as a deviation with this reason.
+- **Run 3, only if run 2 fails R:** the run 2 settings with soft
+  cross-entropy only in place of the GRPO term, for the reason in P1's caveat.
+  Recorded as a deviation.
+- **Stop:** if run 3 fails R, no checkpoint is carried. The README then reports
+  T-202 and T-201 as `not run: no run met the training-fit rule`, and the
+  over-escalation stays the named failure (ROADMAP stop rule).
+- **The candidate** is the first run that passes R. Earlier runs stay recorded
+  and unpinned. A candidate that then fails to beat calibrated base Laya is a
+  valid result and never a reason for another run.
+
+**What T-201 measures (obligation).** On the same frozen test split, T-201
+scores the candidate in two configurations: all five questions from the
+candidate, and a hybrid with `needs_human` and `workflow_area` from the
+candidate and `intent`, `clear_enough` and `injection` from base. The first
+shows whether the untrained heads degrade; the second needs a client that loads
+two checkpoints, which T-201's own specification designs (it costs a second
+model call per message). The pull request that promotes a candidate names the
+configuration it promotes.
+
 ## Interfaces
 
 **`classifiers.yaml`** (repository root, beside `providers.yaml`)
-- The committed record of which Laya checkpoint each role uses. Entries:
-  - `base`: repository, subfolder, commit, `model.safetensors` SHA-256 and
-    laya package version;
-  - `candidates`: a list of the same fields plus `run_record`, the path of
-    its T-202 run record;
-  - `default`: the name the hub loads.
+- The committed record of which Laya checkpoint each role uses:
+  - `default`: the name the hub loads;
+  - `checkpoints`: a mapping from name to entry. Each entry has `name`,
+    `slot`, `repo`, `subfolder`, `revision`, `sha256` and `laya_version`, and a
+    candidate adds `run_record`, the path of its T-202 run record. `base` is
+    the first entry.
+- `slot` exists because laya 0.3.24's `Router` accepts only its three
+  built-in names (`english`, `multilingual`, `typed-decisions`) as `models`
+  keys: a candidate loads by taking over the `multilingual` slot with its own
+  repository.
 - It holds no keys. Changing `default` is the promotion (P7).
 
 **`calvino.classifiers.checkpoints`**
-- `CheckpointRef` (pydantic): `name`, `repo`, `subfolder | None`,
+- `CheckpointRef` (pydantic): `name`, `slot`, `repo`, `subfolder | None`,
   `revision` (exactly 40 hex characters), `sha256` (exactly 64 hex
-  characters), `laya_version`. It refuses branches, tags and short SHAs.
-- `load_checkpoints(path) -> Checkpoints` reads and validates `classifiers.yaml`.
+  characters), `laya_version`, `run_record | None`. It refuses branches, tags
+  and short SHAs.
+- `load_registry(path) -> ClassifierRegistry` reads and validates
+  `classifiers.yaml`; `registry.get(name)` returns one entry, or the default.
 - `router_kwargs(ref) -> dict` builds the `laya.Router` arguments that load
   exactly this checkpoint under the `multilingual` slot:
   - `models={"multilingual": repo[/subfolder]}`;
@@ -124,7 +185,8 @@ training-set fit is labelled as training fit, never as evaluation.
 - `LayaClient(model="multilingual", checkpoint: CheckpointRef | None = None)`.
   With a `checkpoint`, `_load_router` passes `router_kwargs(checkpoint)`.
   Without one, behaviour is unchanged.
-- `LayaClient.checkpoint_id` returns `name@revision[:12]`, or `unpinned`.
+- Each `LayaAnswer` carries `checkpoint_id` (`name@revision`, the full
+  commit), or `None` when the client has no checkpoint.
   It is used in decision records and report headers so every logged verdict
   names the weights it came from.
 - The installed laya version is compared with `CheckpointRef.laya_version`
