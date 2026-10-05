@@ -143,6 +143,12 @@ def test_import_contract_excludes_classifier_label_columns(tmp_path):
     assert importer.prepare_import(worksheet, gold)[2] > 0
 
 
+def test_default_csv_uses_ignored_working_copy_not_committed_template():
+    committed_template = ROOT / "docs" / "templates" / "T-103-gold-outcome-annotations.csv"
+    assert importer.DEFAULT_CSV == ROOT / "data" / "T-103-gold-outcome-annotations.csv"
+    assert importer.DEFAULT_CSV != committed_template
+
+
 def test_import_accepts_utf8_bom_csv(tmp_path):
     gold, worksheet, _ = _files(tmp_path, csv_encoding="utf-8-sig")
     assert importer.prepare_import(worksheet, gold)[2] > 0

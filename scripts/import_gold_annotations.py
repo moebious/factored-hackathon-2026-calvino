@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from calvino.data.labels import validate_gold_record  # noqa: E402
 
-DEFAULT_CSV = ROOT / "docs" / "templates" / "T-103-gold-outcome-annotations.csv"
+DEFAULT_CSV = ROOT / "data" / "T-103-gold-outcome-annotations.csv"
 DEFAULT_GOLD = ROOT / "tests" / "fixtures" / "gold" / "gold-050.jsonl"
 DEFAULT_CORRECTION_LEDGER = ROOT / "reports" / "eval" / "T-103-gold-import-corrections.jsonl"
 
@@ -305,7 +305,12 @@ def _atomic_write_text(path: Path, content: str) -> None:
 def main(argv: list[str] | None = None) -> int:
     """Print a proposed unified diff; write only when --apply is supplied."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--csv", type=Path, default=DEFAULT_CSV)
+    parser.add_argument(
+        "--csv",
+        type=Path,
+        default=DEFAULT_CSV,
+        help="maintainer's working copy (defaults under git-ignored data/)",
+    )
     parser.add_argument("--gold-sheet", type=Path, default=DEFAULT_GOLD)
     parser.add_argument("--correction-ledger", type=Path, default=DEFAULT_CORRECTION_LEDGER)
     parser.add_argument(
