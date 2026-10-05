@@ -10,6 +10,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Clarify rubric v1: unclassifiable messages leave workflow area unset, are excluded from the T-202 area head but remain clarity examples; without a route change they may still be refused at inference, so the next evaluation must measure this accepted risk.
 
 ### Added
+- Operator workspace and audit timeline specification (TSD-023, T-302, proposed): specifies the System 3 workspace at /console, the GET /api/hub/cases endpoint with fallback seeds, action approval/denial controls bound to /api/hub/resume with Gate block immutability, attributable reply and note editing, and refusal audit timelines.
 - T-103 gold schema: optional, backward-compatible `GoldRecord` nominal `OracleFacts` and human-outcome annotations; validators enforce TSD-013 intents, all transaction statuses including `Approved`, amount bands and non-error outcomes, with explicit completeness checks while existing rows continue to validate. No gold annotation values are prefilled.
 - T-103 reporting tools: a blank 50-row worksheet for new oracle facts and outcomes only, plus an offline report generator that validates rows, reports `scored n/50`, keeps kappa limits explicit and preserves maintainer disagreement resolutions. No gold annotations are prefilled.
 - T-103 CSV importer: validates the outcome-only worksheet against the gold JSONL, prints a proposed diff by default, and merges only missing facts/outcomes when invoked with `--apply`; existing classifier labels are not included or changed.
