@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from calvino.data.labels import validate_gold_record  # noqa: E402
 
 DEFAULT_CSV = ROOT / "data" / "T-103-gold-outcome-annotations.csv"
+DEFAULT_TEMPLATE = ROOT / "docs" / "templates" / "T-103-gold-outcome-annotations.csv"
 DEFAULT_GOLD = ROOT / "tests" / "fixtures" / "gold" / "gold-050.jsonl"
 DEFAULT_CORRECTION_LEDGER = ROOT / "reports" / "eval" / "T-103-gold-import-corrections.jsonl"
 
@@ -68,9 +69,10 @@ def _csv_value(column: str, raw: str) -> Any:
     """Parse a non-empty cell into the strict schema's Python value."""
     value = raw.strip()
     if column in BOOL_FIELDS:
-        if value not in {"true", "false"}:
+        normalized = value.casefold()
+        if normalized not in {"true", "false"}:
             raise ValueError(f"{column} must be 'true' or 'false', got {raw!r}")
-        return value == "true"
+        return normalized == "true"
     if column == "record_status" and value.lower() == "null":
         return None
     return value
@@ -333,6 +335,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if not args.csv.is_file():
+        parser.error(
+            f"worksheet not found at {args.csv}; copy the blank template "
+            f"from {DEFAULT_TEMPLATE} to that path and fill the working copy"
+        )
     try:
         replacement_reasons = _replacement_reasons(args.replace, args.reason)
         original, merged, changed_fields, corrections = prepare_import(
@@ -357,8 +364,8 @@ def main(argv: list[str] | None = None) -> int:
             f"reason: {correction['reason']}"
         )
     if args.apply:
-        _atomic_write_text(args.gold_sheet, merged)
         _append_corrections(args.correction_ledger, corrections)
+        _atomic_write_text(args.gold_sheet, merged)
         print(f"Applied merge to {args.gold_sheet}.")
         if corrections:
             print(f"Appended correction ledger {args.correction_ledger}.")

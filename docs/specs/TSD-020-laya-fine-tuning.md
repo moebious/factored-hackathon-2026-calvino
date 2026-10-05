@@ -149,7 +149,11 @@ training-set fit is labelled as training fit, never as evaluation.
 - Deterministic: the same inputs give byte-identical outputs.
 - The export is not committed (a build artifact). It is uploaded as a
   private Kaggle dataset, and `manifest.json` is copied into the run record.
-- Rows with an unset `workflow_area` are excluded from the workflow-area head; the clarity head still learns from them.
+- Exporters must exclude rows with an unset `workflow_area` from the
+  workflow-area head; they must not encode a missing area as a class.
+  T-202's first slice trains `needs_human` and `workflow_area` only (P3),
+  so these rows train neither head in that slice. They can train the
+  clarity head only if `clear_enough` is added in a later slice.
 
 **`notebooks/t202_laya_finetune_kaggle.ipynb`**
 - An adaptation of the vendor notebook. Its header cell credits the source

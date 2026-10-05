@@ -149,9 +149,43 @@ def test_default_csv_uses_ignored_working_copy_not_committed_template():
     assert importer.DEFAULT_CSV != committed_template
 
 
+def test_missing_csv_reports_how_to_create_a_working_copy(tmp_path, capsys):
+    missing = tmp_path / "not-created.csv"
+    with pytest.raises(SystemExit) as error:
+        importer.main(["--csv", str(missing)])
+
+    assert error.value.code == 2
+    message = capsys.readouterr().err
+    assert "worksheet not found" in message
+    assert str(importer.DEFAULT_TEMPLATE) in message
+    assert "copy the blank template" in message
+
+
 def test_import_accepts_utf8_bom_csv(tmp_path):
     gold, worksheet, _ = _files(tmp_path, csv_encoding="utf-8-sig")
     assert importer.prepare_import(worksheet, gold)[2] > 0
+
+
+def test_import_accepts_case_insensitive_boolean_cells(tmp_path):
+    gold, worksheet, _ = _files(tmp_path)
+    rows = list(csv.DictReader(worksheet.open(encoding="utf-8", newline="")))
+    rows[0].update(
+        owner="TRUE",
+        fraud_flag="FALSE",
+        oracle_ambiguous="False",
+        oracle_in_scope="TrUe",
+    )
+    with worksheet.open("w", encoding="utf-8", newline="") as destination:
+        writer = csv.DictWriter(destination, fieldnames=importer.CSV_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+    _, merged, _, _ = importer.prepare_import(worksheet, gold)
+    facts = json.loads(merged)["oracle_facts"]
+    assert facts["owner"] is True
+    assert facts["fraud_flag"] is False
+    assert facts["ambiguous"] is False
+    assert facts["in_scope"] is True
 
 
 def test_import_identity_uses_nfc_and_trimming(tmp_path):
@@ -233,6 +267,41 @@ def test_explicit_replacement_requires_reason_and_appends_correction_ledger(tmp_
     assert correction["new_value"] == "Approved"
     assert correction["reason"] == reason
     assert json.loads(gold.read_text(encoding="utf-8"))["oracle_facts"]["status"] == "Approved"
+
+
+def test_correction_ledger_is_written_before_gold_replacement(tmp_path, monkeypatch):
+    gold, worksheet, _ = _files(tmp_path, status="Pending")
+    ledger = tmp_path / "corrections.jsonl"
+    gold_before = gold.read_text(encoding="utf-8")
+    write_atomically = importer._atomic_write_text
+
+    def fail_gold_write(path, content):
+        if path == gold:
+            raise OSError("simulated gold replacement failure")
+        write_atomically(path, content)
+
+    monkeypatch.setattr(importer, "_atomic_write_text", fail_gold_write)
+    with pytest.raises(OSError, match="simulated gold replacement failure"):
+        importer.main(
+            [
+                "--csv",
+                str(worksheet),
+                "--gold-sheet",
+                str(gold),
+                "--correction-ledger",
+                str(ledger),
+                "--replace",
+                "gold-test-001:oracle_facts.status",
+                "--reason",
+                "Maintainer confirmed the corrected status.",
+                "--apply",
+            ]
+        )
+
+    assert gold.read_text(encoding="utf-8") == gold_before
+    correction = json.loads(ledger.read_text(encoding="utf-8"))
+    assert correction["old_value"] == "Pending"
+    assert correction["new_value"] == "Approved"
 
 
 def test_replace_argument_requires_matching_reason_and_valid_field():

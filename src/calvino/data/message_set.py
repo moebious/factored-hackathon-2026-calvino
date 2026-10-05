@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from calvino.data.leakage import (
     CandidateInput,
@@ -251,6 +251,18 @@ class MessageLabels(BaseModel):
     needs_person: bool = False
     injection: bool = False
 
+    @model_validator(mode="after")
+    def an_unset_area_must_be_unclear(self) -> MessageLabels:
+        """An omitted workflow area cannot be a target on a clear message."""
+        if self.workflow_area is None and self.clear_enough:
+            raise ValueError("workflow_area may be unset only when clear_enough is false")
+        return self
+
+    def validate_area_for_intent(self, oracle_intent: str) -> None:
+        """Only the unclassifiable `none` intent permits an unset area."""
+        if self.workflow_area is None and oracle_intent != "none":
+            raise ValueError("workflow_area may be unset only for oracle intent 'none'")
+
 
 class MessageOracleFacts(BaseModel):
     """The oracle inputs derived for one message (reviewed or defaulted)."""
@@ -293,6 +305,12 @@ class MessageRow(BaseModel):
     oracle_facts: MessageOracleFacts
     provenance: MessageProvenance
     synthetic: bool = True
+
+    @model_validator(mode="after")
+    def workflow_area_matches_oracle_intent(self) -> MessageRow:
+        """Require an unlabelled area to correspond to an unclear `none` row."""
+        self.labels.validate_area_for_intent(self.oracle_facts.intent)
+        return self
 
 
 def derive_defaults(
