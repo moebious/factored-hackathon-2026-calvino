@@ -1,6 +1,6 @@
 {
   "base": {
-    "parameter_count": 322000000,
+    "parameter_count": 321908995,
     "repo": "convaiinnovations/laya",
     "revision": "7b928d828b7b0e022f929d9bd2e44165aa270148",
     "sha256": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204",
@@ -40,33 +40,36 @@
   "data": {
     "counts": {
       "needs_human": {
-        "can handle automatically": 500,
-        "human needed": 100
+        "can handle automatically": 5,
+        "human needed": 1
       },
       "workflow_area": {
-        "fraud or stolen access": 30,
-        "out of scope": 90,
-        "stuck payment": 480
+        "dispute or unrecognised charge": 1,
+        "fraud or stolen access": 0,
+        "other banking": 0,
+        "out of scope": 1,
+        "stuck payment": 3
       }
     },
     "excluded": {
-      "review fail": 3
+      "review verdict fail (removed from the split)": 1,
+      "workflow area unset (no area item)": 1
     },
-    "exporter_git_sha": "abc1234",
-    "input_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
-    "question_schema_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
-    "reviewed": 30,
+    "exporter_git_sha": "311712f",
+    "input_sha256": "5f865b9817fe8ee4c185227b110dfdcc7b81d003bb716d52643f2a07118fb671",
+    "question_schema_sha256": "abd8431deb8702f6dfb3d2c473e32689570c99cd34782858312fc01521cf60e4",
+    "reviewed": 2,
     "rubric_version": "v1",
     "set_version": "v1",
-    "unreviewed": 570
+    "unreviewed": 4
   },
   "environment": {
-    "cuda_version": "12.1",
+    "cuda_version": "12.8",
     "gpu_count": 2,
     "gpu_model": "Tesla T4",
     "laya_version": "0.3.24",
-    "torch_version": "2.2.2",
-    "transformers_version": "4.57.6"
+    "torch_version": "2.11.0+cu128",
+    "transformers_version": "5.16.1"
   },
   "leakage_guard": [
     {
@@ -91,31 +94,31 @@
     }
   ],
   "notebook": "notebooks/t202_laya_finetune_kaggle.ipynb",
-  "notes": "SYNTHETIC FIXTURE: no run happened and every value is made up for the tests.",
+  "notes": "Rule R (train fit >= 90% on both questions): FAIL. Option order is fixed (the vendor loop does not shuffle options). Weights are saved in fp16. The vendor's model_name rename is kept. Train items used: 8; temperature hold-out items: 2.",
   "output": {
     "repo": "kevago/calvino-laya-ft",
-    "revision": "3333333333333333333333333333333333333333",
-    "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "revision": "464ee356fe2f9fea081bd0a766cc12646c0e8f80",
+    "sha256": "a61d75fc57dc2d512a0986cbda859e8378c7502232d8882f559f45887abe4fcd",
     "tag": "t202-run1"
   },
   "run": 1,
-  "run_date": "2026-10-20",
+  "run_date": "2026-10-05",
   "training": {
     "laya_temperatures": {
-      "choice": 1.18,
+      "choice": 1.0,
       "noul": 1.2,
       "score": 1.2
     },
     "loss_per_epoch": [
-      0.9,
-      0.6,
-      0.45,
-      0.4
+      0.440756618976593,
+      0.7022494077682495,
+      0.522672712802887,
+      0.47528699040412903
     ],
     "train_fit": {
-      "needs_human": 0.97,
-      "workflow_area": 0.95
+      "needs_human": 0.25,
+      "workflow_area": 0.25
     },
-    "wall_time_seconds": 420.0
+    "wall_time_seconds": 4.242645978927612
   }
 }

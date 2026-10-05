@@ -34,7 +34,7 @@ from calvino.hub import (
     ToolCall,
     build_hub_graph,
 )
-from calvino.hub.graph import verified_card
+from calvino.hub.graph import CLARIFY_QUESTION, verified_card
 from calvino.policy import replay_decision
 from calvino.records import DecisionRecord, HumanAction, Route, Stage
 from calvino.tools import BankTools, CleanedTableAdapter
@@ -290,6 +290,24 @@ def test_cited_reference_anchors_free_text_to_verified_evidence(deps_factory, fa
     assert final["card"]["key"] == "payment_status"
     assert final["card"]["payload"]["entry_reference"] == "E-MX-002"
     assert [record.rule_id for record in records_of(deps, Stage.CLASSIFIER)] == ["RT-REF-ANCHORED"]
+
+
+def test_empty_message_clarifies_before_laya(deps_factory, fake_loader_factory):
+    """HR-EMPTY-INPUT: a message with no letter or digit asks a question and never reaches Laya,
+    even when the scores would have said "agents"."""
+    agent = ScriptedAgent([])
+    loader = fake_loader_factory(route_probabilities())
+    deps = deps_factory(loader, agent)
+
+    for message in ("", "   ", "😀"):
+        final, _ = invoke(deps, "ana", message)
+
+        assert final["route"] is Route.CLARIFY
+        assert final["rule_id"] == "HR-EMPTY-INPUT"
+        assert final["reply"] == CLARIFY_QUESTION
+    assert loader.classified == []
+    assert agent.requests == []
+    assert [r.rule_id for r in deps.log][:1] == ["HR-EMPTY-INPUT"]
 
 
 def test_asks_for_human_hard_rule_wins(deps_factory, fake_loader_factory):
