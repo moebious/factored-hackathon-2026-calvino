@@ -22,6 +22,9 @@ no dataset. The salt in tests is a fixed non-secret string.
 from __future__ import annotations
 
 import json
+import os
+import secrets
+import stat
 import subprocess
 from dataclasses import dataclass
 from datetime import date
@@ -75,6 +78,30 @@ def is_git_ignored(path: Path) -> bool:
         )
     except OSError:
         return False
+
+
+def ensure_salt(path: Path) -> str:
+    """Load the per-version secret salt, creating it once with owner-only
+    permissions. Refuses any path git would commit: the salt is never
+    committed."""
+    if not is_git_ignored(path):
+        raise SystemExit(f"refusing: salt file {path} is not git-ignored")
+    if path.exists():
+        return path.read_text(encoding="utf-8").strip()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    value = secrets.token_hex(32)
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+        handle.write(value + "\n")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
+    mode = stat.S_IMODE(path.stat().st_mode)
+    if mode & 0o077:
+        raise SystemExit(f"refusing: salt file {path} is group/world readable")
+    print(f"created per-version salt at {path} (secret, git-ignored)")
+    return value
 
 
 def build_registry(

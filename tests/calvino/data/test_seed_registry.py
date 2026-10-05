@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 from datetime import date
+from pathlib import Path
 
 import pytest
 
@@ -122,3 +123,21 @@ def test_pointer_log_round_trip_and_registry_reload(tmp_path, monkeypatch):
     assert mapping[seeds[0].seed_key] == "r-1"
     log_text = log.read_text(encoding="utf-8")
     assert json.loads(log_text)["salt_version"] == "salt-v1"
+
+
+def test_ensure_salt_refuses_committable_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(sr, "is_git_ignored", lambda path: False)
+    with pytest.raises(SystemExit, match="not git-ignored"):
+        sr.ensure_salt(tmp_path / "salt")
+
+
+def test_ensure_salt_creates_once_and_reloads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(sr, "is_git_ignored", lambda path: True)
+    first = sr.ensure_salt(tmp_path / "salt-v1")
+    assert len(first) == 64
+    assert (tmp_path / "salt-v1").stat().st_mode & 0o077 == 0
+    assert sr.ensure_salt(tmp_path / "salt-v1") == first
