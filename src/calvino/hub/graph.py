@@ -43,6 +43,7 @@ from calvino.api.loader import SystemOneLoader
 from calvino.classifiers import workflow_questions
 from calvino.decision_log import DecisionLog
 from calvino.hub.agent import AgentRequest, SupportAgent
+from calvino.hub.human_request import detects_human_request
 from calvino.hub.playbook import Playbook, StatusGuidance, load_playbook
 from calvino.hub.sessions import TrustedSessionIssuer
 from calvino.hub.state import HubStage, HubState
@@ -102,24 +103,8 @@ _ROUTE_STAGES: dict[Route, HubStage] = {
     Route.HUMAN: HubStage.INVESTIGATE,
     Route.OUT_OF_SCOPE: HubStage.OUT_OF_SCOPE,
 }
-
-# The deterministic hard-rule input for "explicitly asks for a human" (design
-# rule: hard rules run before Laya and always win). A literal phrase scan on
-# purpose: no model decides this, and Laya's needs_human score is the softer
-# signal behind it. Spanish and English, the demo's two chat languages.
-HUMAN_REQUEST_PHRASES: tuple[str, ...] = (
-    "hablar con una persona",
-    "hablar con alguien",
-    "una persona real",
-    "agente humano",
-    "representante",
-    "human agent",
-    "real person",
-    "talk to a person",
-    "talk to a human",
-    "speak to a person",
-    "speak to a human",
-)
+# Hard-rule detector for explicit customer requests to talk to a person
+# (HR-ASKS-HUMAN, TSD-029: detects_human_request). Hard rules run before Laya and always win.
 
 # Fixed harness-authored replies. They are not model output, so they do not go
 # through the verifier cascade; the cascade checks what the agent drafts.
@@ -402,8 +387,7 @@ def build_hub_graph(
                 "rule_id": "FC-SESSION",
                 "escalate_reason": "FC-SESSION",
             }
-        lowered = state.get("message", "").casefold()
-        asks_for_human = any(phrase in lowered for phrase in HUMAN_REQUEST_PHRASES)
+        asks_for_human = detects_human_request(state.get("message", ""))
         fraud_signal = (
             deps.fraud_context.is_flagged(session) if deps.fraud_context is not None else False
         )

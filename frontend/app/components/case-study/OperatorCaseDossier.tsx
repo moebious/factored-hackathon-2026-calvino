@@ -35,7 +35,7 @@ export function OperatorCaseDossier({
       <header className="dossier-header">
         <div className="dossier-id-row">
           <div className="id-group">
-            <span className="id-kicker">Expediente Oficial</span>
+            <span className="id-kicker">{s.dossierOfficial}</span>
             <h2>{item.case_ref}</h2>
           </div>
           <span className={`status-pill pill-${item.status}`}>
@@ -54,7 +54,7 @@ export function OperatorCaseDossier({
             <User size={12} /> Titular: <strong>@{item.persona}</strong>
           </span>
           <span className="meta-chip">
-            <Tag size={12} /> Regla: <code>{item.reason_rule_id}</code>
+            <Tag size={12} /> {s.dossierRule} <code>{item.reason_rule_id}</code>
           </span>
           <span className="meta-chip">
             <Calendar size={12} /> Registrado:{" "}
@@ -76,7 +76,7 @@ export function OperatorCaseDossier({
             <p>{s.gateBlockNoticeDesc}</p>
             <div className="rule-enforcement-tag">
               <Lock size={12} />
-              <span>Regla aplicada: <strong>{item.reason_rule_id}</strong> (Inmutable)</span>
+              <span>{s.dossierRuleApplied} <strong>{item.reason_rule_id}</strong> {s.dossierImmutable}</span>
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@ export function OperatorCaseDossier({
       <section className="dossier-card customer-inquiry-card">
         <div className="card-header">
           <FileText size={14} />
-          <h3>Consulta y Declaración del Cliente</h3>
+          <h3>{s.dossierCustomerHeading}</h3>
         </div>
         <blockquote className="customer-quote">
           &ldquo;{item.customer_message}&rdquo;
@@ -98,35 +98,35 @@ export function OperatorCaseDossier({
       <section className="dossier-card bank-facts-card">
         <div className="card-header">
           <Database size={14} />
-          <h3>Evidencia Bancaria Verificada (Solo Lectura)</h3>
+          <h3>{s.dossierBankHeading}</h3>
           <span className="immutable-badge">
-            <Lock size={11} /> Inmutable
+            <Lock size={11} /> {s.dossierImmutableBadge}
           </span>
         </div>
 
         <div className="facts-grid">
           <div className="fact-item">
-            <span className="fact-label">Referencia de Transacción</span>
+            <span className="fact-label">{s.dossierTxRef}</span>
             <strong className="fact-value font-mono">
-              {item.entry_reference || "Sin transacción vinculada"}
+              {item.entry_reference || s.dossierNoTx}
             </strong>
           </div>
           <div className="fact-item">
-            <span className="fact-label">Monto Verificado</span>
+            <span className="fact-label">{s.dossierVerifiedAmount}</span>
             <strong className="fact-value font-mono amount-highlight">
               {item.amount ? `${item.amount} ${item.currency}` : "N/A"}
             </strong>
           </div>
           <div className="fact-item">
-            <span className="fact-label">Acción Destino</span>
+            <span className="fact-label">{s.dossierTargetAction}</span>
             <strong className="fact-value font-mono">
-              {item.target_action || "Investigación general"}
+              {item.target_action || s.dossierGeneralInquiry}
             </strong>
           </div>
           <div className="fact-item">
-            <span className="fact-label">Veredicto Gate</span>
+            <span className="fact-label">{s.dossierGateVerdict}</span>
             <strong className={`fact-value font-mono verdict-${item.gate_verdict || "none"}`}>
-              {item.gate_verdict ? item.gate_verdict.toUpperCase() : "ESCALACIÓN HUMANA"}
+              {item.gate_verdict ? item.gate_verdict.toUpperCase() : s.dossierHumanEscalation}
             </strong>
           </div>
         </div>

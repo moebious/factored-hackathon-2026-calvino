@@ -1,3 +1,12 @@
+---
+title: Calvino
+emoji: 🏛️
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+---
+
 # Project Calvino
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
@@ -19,6 +28,8 @@ Calvino replaces the unconstrained agent with a **governed 4-tier cognitive hier
 * **System 1.5 (Calvino Hub — Deterministic Governance)**: The bridge. Enforces the rule: **"Probabilities in, deterministic verdicts out."** Hard rules (fraud indicators, authentication failures, explicit human requests) evaluate first and always win. Versioned policies ([`policy/v1.yaml`](policy/v1.yaml), [`policy/v2.yaml`](policy/v2.yaml)) determine routing. The Gate intercepts every tool write (`allow`, `ask` a person, or `block`). Missing inputs fail closed. Every verdict is written to `decisions.jsonl` with 100% replayability.
 * **System 2 (Bounded Support Agent — Contained Language)**: Open LLM (Qwen 3.6-35B on Hetzner) strictly restricted to drafting explanations from verified tool facts. The agent has no authorization to act on its own. All drafted text passes through the financial verifier cascade (`customer-answer@2`: deterministic code checks and judge veto) before reaching the customer.
 * **System 3 (Humans — Accountable Authority)**: Human operators approve gray-zone actions (`interrupt()`), manage durable case files, and resolve edge cases. Human decisions generate gold labels for the offline data flywheel.
+
+**Gold-label review status `[measured]`:** the first 50 classifier-label rows include 18 maintainer-only labels and 32 model-drafted proposal rows that require explicit maintainer review. The proposals were drafted with Claude Sonnet 5.5 (`claude-sonnet-5-5`) in Claude Code on 2026-10-05. The maintainer saw the proposals before review, which creates anchoring risk and reduces label independence; do not describe the resulting labels as blind or independent human annotations. Only values the maintainer explicitly accepts or corrects become gold labels. Oracle facts and human outcomes are a separate maintainer-entered review; no model-drafted outcomes are used.
 
 ---
 
@@ -207,14 +218,51 @@ Calvino evaluates decisions against an executable oracle and real human banking 
 * **Escalation Quality**: The system prefers safe escalation to a human over speculative action. Over-escalation is treated as an optimization opportunity; under-escalation is treated as a defect.
 * **Human Baseline Benchmark**: 91.5% first-contact resolution on Transaccional calls measured on the hackathon lakehouse ([`reports/baseline/README.md`](reports/baseline/README.md)).
 
+### Results so far
+
+Offline run, policy v2 against policy v3 (the default), live pinned Laya 0.3.24, the template agent (no language model), 86 cases (the 50 frozen Spanish cases plus 36 synthetic Portuguese cases), 3 repeats, 0 errors `[measured]`. Reports: [v2](reports/eval/T-303-2026-10-05-98657bc-v2-with-portuguese.md), [v3](reports/eval/T-303-2026-10-05-98657bc-v3-with-portuguese.md).
+
+| | policy v2 | policy v3 (default) |
+|---|---|---|
+| Outcome agreement with the oracle | 33/86 (38.4%) | 44/86 (51.2%) |
+| Containment | 42/86 (48.8%) | 58/86 (67.4%) |
+| Unnecessary escalations | 21 | 6 |
+| Missed escalations | 2 | 3 |
+| Unsafe outcomes | 0/86 | 0/86 |
+| Spanish / Portuguese agreement | 22/50 (44%) / 11/36 (31%) | 26/50 (52%) / 18/36 (50%) |
+| Spanish/Portuguese pairs on the same route | 16/21 | 14/21 |
+
+What this says: the base Laya model's `needs_human` score is at chance against the needs-a-person label (AUROC 0.39 to 0.49 `[measured]`), so v3 routes on the signals that do separate (workflow area, talk-to-person intent, injection; [TSD-026](docs/specs/TSD-026-routing-on-separating-signals.md), decision 44). That sends more routine requests to the agent and fewer to a person without any unsafe outcome, at the price of one more missed escalation (v3 misses ADV-002, ORC-018 and PT-034) and less consistency between a request and its Portuguese translation. The Verifier and the Gate are the backstop for what the route lets through.
+
+What this does not say:
+
+* These are offline template-agent runs. They measure routing and the deterministic harness, not the quality of language-model replies.
+* The 36 Portuguese cases are team-written and synthetic, not native-speaker reviewed; the 21 pairs are team translations ([`evaluation/cases-pt/`](evaluation/cases-pt/)).
+* The v3 thresholds come from about 190 team-written messages (exploratory), not a held-out split; the 50 frozen cases were not used to choose them.
+
+### Not run, and why
+
+| Item | Status |
+|---|---|
+| Fine-tuned Laya (T-202) and the base/calibrated/fine-tuned comparison (T-201) | `not run`: needs the T-106 training split (never generated) and a GPU run |
+| Keyed T-106 message set (train, calibration, test) | `not run`: generation keys and review were deferred; only the registries, tooling and 20 hand-written test rows exist |
+| Gold-subset agreement (T-103) | `not run`: the gold sheet is unfilled |
+| Policy replay scorecard (T-408) | `not run`: needs T-201 |
+| Production judge (`deepseek/deepseek-v4-pro-0813` on OpenRouter) | `not run`: no account; NVIDIA's DeepSeek times out (decision 31), so any judge number here comes from Nemotron as a staging judge and does not describe the production judge (decision 41) |
+| The full T-203 (150 to 200 held-out translated pairs) | `not run`: depends on T-106 |
+
 ### Reproducing the Evaluation Suite Locally
 
-To run the offline evaluation suite using live local Laya, policy v2, and the synthetic case set:
+To run the offline evaluation suite using live local Laya, the default policy (v3) and the synthetic case set:
 
 ```bash
 uv pip install laya
-uv run python scripts/run_evaluation.py --suite tier0
+uv run python scripts/run_evaluation.py --suite tier0                          # the 50 frozen cases
+uv run python scripts/run_evaluation.py --suite tier0 --with-portuguese        # plus the 36 Portuguese cases
+uv run python scripts/run_evaluation.py --suite tier0 --policy v2              # the earlier policy
 ```
+
+With the language-model keys in the environment the same command drives the live agent; unset them for the offline run.
 
 All detailed run logs, evaluation metrics, and ablation reports are committed under [`reports/eval/`](reports/eval/).
 

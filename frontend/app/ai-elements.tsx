@@ -1,64 +1,43 @@
 "use client";
 
 // Local, React 18-compatible adapters for the AI Elements interaction
-// patterns. The visual contracts mirror Attachments, ChainOfThought,
-// SpeechInput and AudioPlayer while keeping the Calvino demo dependency-light.
+// patterns. The visual contracts mirror Attachments and AudioPlayer while
+// keeping the Calvino demo dependency-light. Voice dictation in the live
+// composer uses the useSpeechRecognition hook with a Mic button instead.
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState } from "react";
 import {
-  Check,
   FileText,
-  Image as ImageIcon,
-  LoaderCircle,
-  Mic,
   Pause,
   Play,
-  Search,
   Volume2,
   X,
 } from "lucide-react";
-import type { AttachmentItem, TraceStep } from "./types";
-
-type SpeechEvent = {
-  results: ArrayLike<ArrayLike<{ transcript: string }>>;
-};
-
-type BrowserSpeechRecognition = {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((event: SpeechEvent) => void) | null;
-  onend: (() => void) | null;
-  onerror: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-
-type SpeechWindow = Window & {
-  SpeechRecognition?: new () => BrowserSpeechRecognition;
-  webkitSpeechRecognition?: new () => BrowserSpeechRecognition;
-};
+import type { AttachmentItem } from "./types";
+import { strings, type Lang } from "./i18n";
 
 export function Attachments({
   items,
   variant = "inline",
   onRemove,
+  lang,
 }: {
   items: AttachmentItem[];
   variant?: "grid" | "inline" | "list";
   onRemove?: (id: string) => void;
+  lang: Lang;
 }) {
   if (items.length === 0) return null;
   return (
-    <div className={`attachments attachments-${variant}`} aria-label="Adjuntos">
+    <div className={`attachments attachments-${variant}`} aria-label={strings(lang).attachmentsAria}>
       {items.map((item) => (
-        <Attachment key={item.id} item={item} onRemove={onRemove} />
+        <Attachment key={item.id} item={item} onRemove={onRemove} lang={lang} />
       ))}
     </div>
   );
 }
 
-function Attachment({ item, onRemove }: { item: AttachmentItem; onRemove?: (id: string) => void }) {
+function Attachment({ item, onRemove, lang }: { item: AttachmentItem; onRemove?: (id: string) => void; lang: Lang }) {
   const image = item.mediaType.startsWith("image/");
   return (
     <article className={`attachment ${item.status === "failed" ? "attachment-failed" : ""}`}>
@@ -79,7 +58,7 @@ function Attachment({ item, onRemove }: { item: AttachmentItem; onRemove?: (id: 
         <button
           className="icon-button attachment-remove"
           type="button"
-          aria-label={`Quitar ${item.name}`}
+          aria-label={`${strings(lang).removeAttachment} ${item.name}`}
           onClick={() => onRemove(item.id)}
         >
           <X size={15} aria-hidden="true" />
@@ -95,106 +74,9 @@ function formatBytes(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function ChainOfThought({ steps, open, onOpenChange }: {
-  steps: TraceStep[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
-  return (
-    <section className="chain-of-thought">
-      <button
-        className="chain-trigger"
-        type="button"
-        aria-expanded={open}
-        onClick={() => onOpenChange(!open)}
-      >
-        <span className="chain-trigger-copy">
-          <span className="eyebrow"><Search size={13} /> Evidencia de decisión</span>
-          <strong>{steps.length ? `${steps.length} pasos verificados` : "Sin turno seleccionado"}</strong>
-        </span>
-        <span className={`chain-chevron ${open ? "is-open" : ""}`}>⌄</span>
-      </button>
-      {open && (
-        <div className="chain-content">
-          {steps.length === 0 ? (
-            <p className="empty-copy">Selecciona una respuesta para inspeccionar su traza.</p>
-          ) : (
-            steps.map((step, index) => (
-              <div className="chain-step" key={`${step.stage}-${index}`}>
-                <div className={`chain-step-marker ${index === steps.length - 1 ? "active" : "complete"}`}>
-                  {index === steps.length - 1 ? <LoaderCircle size={13} /> : <Check size={13} />}
-                </div>
-                <div>
-                  <strong>{step.stage}</strong>
-                  <p>{step.verdict}</p>
-                  {step.rule_id && <code>{step.rule_id}</code>}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-    </section>
-  );
-}
-
-export function SpeechInput({
-  lang,
-  onTranscriptionChange,
-  disabled,
-}: {
-  lang: string;
-  onTranscriptionChange: (text: string) => void;
-  disabled?: boolean;
-}) {
-  const [listening, setListening] = useState(false);
-  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
-
-  const toggle = () => {
-    if (listening) {
-      recognitionRef.current?.stop();
-      setListening(false);
-      return;
-    }
-    const speechWindow = window as SpeechWindow;
-    const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-    if (!Recognition) return;
-    const recognition = new Recognition();
-    recognition.lang = lang;
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.onresult = (event) => {
-      const transcript = event.results[0]?.[0]?.transcript ?? "";
-      if (transcript) onTranscriptionChange(transcript);
-    };
-    recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
-    recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
-  };
-
-  useEffect(() => () => recognitionRef.current?.stop(), []);
-
-  const available = typeof window !== "undefined" &&
-    Boolean((window as SpeechWindow).SpeechRecognition ?? (window as SpeechWindow).webkitSpeechRecognition);
-  return (
-    <button
-      className={`icon-button voice-button ${listening ? "is-listening" : ""}`}
-      type="button"
-      aria-label={listening ? "Detener dictado" : "Dictar mensaje"}
-      aria-pressed={listening}
-      disabled={disabled || !available}
-      onClick={toggle}
-    >
-      <Mic size={18} aria-hidden="true" />
-      {listening && <span className="voice-pulse" aria-hidden="true" />}
-    </button>
-  );
-}
-
-export function AudioPlayer({ text }: { text: string }) {
+export function AudioPlayer({ text, lang }: { text: string; lang: Lang }) {
   const [playing, setPlaying] = useState(false);
+  const s = strings(lang);
   const toggle = () => {
     if (!("speechSynthesis" in window)) return;
     if (playing) {
@@ -203,20 +85,16 @@ export function AudioPlayer({ text }: { text: string }) {
       return;
     }
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-ES";
+    utterance.lang = lang === "pt" ? "pt-BR" : "es-ES";
     utterance.onend = () => setPlaying(false);
     window.speechSynthesis.speak(utterance);
     setPlaying(true);
   };
   return (
-    <button className="audio-player" type="button" onClick={toggle} aria-label={playing ? "Detener respuesta hablada" : "Escuchar respuesta"}>
+    <button className="audio-player" type="button" onClick={toggle} aria-label={playing ? s.audioStopAria : s.audioListenAria}>
       {playing ? <Pause size={14} /> : <Play size={14} />}
       <Volume2 size={14} />
-      {playing ? "Reproduciendo" : "Escuchar"}
+      {playing ? s.audioPlaying : s.audioListen}
     </button>
   );
-}
-
-export function AttachmentIcon({ item }: { item: AttachmentItem }): ReactNode {
-  return item.mediaType.startsWith("image/") ? <ImageIcon size={16} /> : <FileText size={16} />;
 }

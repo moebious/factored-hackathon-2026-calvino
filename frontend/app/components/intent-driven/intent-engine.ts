@@ -164,3 +164,31 @@ export function detectIntent(text: string, lang: Lang = "es"): DetectedIntent {
     params: {},
   };
 }
+
+// Calm-UI hysteresis (decision 45): detectIntent runs per keystroke, so the
+// composer only commits to a new intent after the same type repeats on
+// consecutive observations, instead of remounting the preview on every
+// intermediate regex match while the user types. The first observation
+// commits immediately. There is no confidence bypass: intermediate matches
+// while typing (for example a half-written reference) also score high.
+export type CalmState = {
+  committed: DetectedIntent;
+  candidate: DetectedIntent | null;
+  candidateStreak: number;
+};
+
+const CONFIRM_STREAK = 2;
+
+export function decide(prev: CalmState | null, observed: DetectedIntent): CalmState {
+  if (!prev || observed.type === prev.committed.type) {
+    return { committed: observed, candidate: null, candidateStreak: 0 };
+  }
+  if (prev.candidate !== null && observed.type === prev.candidate.type) {
+    const candidateStreak = prev.candidateStreak + 1;
+    if (candidateStreak >= CONFIRM_STREAK) {
+      return { committed: observed, candidate: null, candidateStreak: 0 };
+    }
+    return { committed: prev.committed, candidate: observed, candidateStreak };
+  }
+  return { committed: prev.committed, candidate: observed, candidateStreak: 1 };
+}

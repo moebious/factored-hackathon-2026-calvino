@@ -54,7 +54,7 @@ from calvino.evaluation.ablation import (
     BareScorer,
     run_ablation,
 )
-from calvino.evaluation.cases import EvalCase, load_suite
+from calvino.evaluation.cases import EvalCase, load_cases, load_suite
 from calvino.evaluation.judge_validation import (
     JudgeConfusion,
     load_hand_labels,
@@ -94,6 +94,7 @@ from calvino.verifier.rubric import load_rubric
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CASES_DIR = REPO_ROOT / "evaluation" / "cases"
+DEFAULT_PORTUGUESE_DIR = REPO_ROOT / "evaluation" / "cases-pt"
 DEFAULT_SCENARIOS_DIR = REPO_ROOT / "tests" / "scenarios"
 DEFAULT_OUT_DIR = REPO_ROOT / "reports" / "eval"
 
@@ -300,7 +301,7 @@ def gated_results(
     """The two gated parts: run under ``--suite all``, blocked under tier0.
 
     Judge validation is called with an empty reply map on purpose: the
-    hand-label set is empty until T-103 lands, and the validation names
+    hand-label set is incomplete until T-107 is done, and the validation names
     that blocker (or the keys blocker) before it would read a reply.
     """
     rubric = load_rubric()
@@ -355,6 +356,11 @@ def main(
         help="policy version to evaluate, e.g. v3 (default: the released default)",
     )
     parser.add_argument("--cases-dir", type=Path, default=DEFAULT_CASES_DIR)
+    parser.add_argument(
+        "--with-portuguese",
+        action="store_true",
+        help="also run the Portuguese slice (evaluation/cases-pt); the 50 cases are unchanged",
+    )
     parser.add_argument("--scenarios-dir", type=Path, default=DEFAULT_SCENARIOS_DIR)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
     parser.add_argument(
@@ -374,6 +380,8 @@ def main(
         parser.error(str(error.args[0]))
 
     cases = load_suite(args.cases_dir, args.scenarios_dir)
+    if args.with_portuguese:
+        cases += load_cases(DEFAULT_PORTUGUESE_DIR)
     llm = live_llm(values) if hub_factory is None else None
     policy = load_policy(REPO_ROOT / "policy" / f"{args.policy}.yaml") if args.policy else None
     factory = (

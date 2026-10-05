@@ -4,7 +4,7 @@
 |---|---|
 | Wave | 2 |
 | Branch | `eval/classifiers` |
-| Depends on | T-005, T-106, T-202 for the final comparison |
+| Depends on | T-005, T-106, T-202 for the final comparison; T-107 for reviewed gold metrics |
 | Blocked by | — |
 | Model | strong model or maintainer review (judgment checkpoint) |
 | Can run in parallel | no |
@@ -21,3 +21,5 @@
 **Done when.** every variant and its split/model version is named with sample sizes, calibration and safety-relevant errors on held-out data. Thresholds are chosen without consulting the final test split, then written as a new immutable policy version with a stated cost assumption; Portuguese remains evaluation-only.
 
 **First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
+
+**Specification:** [TSD-027](../specs/TSD-027-classifier-evaluation.md) (proposed); implementation waits for the maintainer's approval of its P-defaults.

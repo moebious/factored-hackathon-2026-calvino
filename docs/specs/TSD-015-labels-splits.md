@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | implemented; amended by TSD-019 (amendment proposed 2026-10-04) |
+| Status | implemented for T-103; human gold annotation is T-107 (scope amendment accepted 2026-10-05) |
 | Branch | `feat/labels-splits` |
 | Depends on | T-101 (workflow choice); TSD-007 (data contracts); DATA.md findings |
 | Required by | T-106 (message set); T-201 (calibration); T-303 (evaluation) |
@@ -49,11 +49,15 @@ PR changes nothing marked this way without a new entry here.
   review).** As in [Purpose and boundary](#purpose-and-boundary): labels,
   splits, leakage rules, rubric and first-50 sheet here; oracle table and
   generation prompts in T-106's spec.
-- **P5 — gold workforce (proposed — maintainer confirms at spec review).**
-  The maintainer alone labels the first 50, single labelling, no second
-  annotator. The same rubric version scales to the 150–300 DESIGN-7 set;
-  if a second annotator ever joins, agreement is measured then, not
-  retrofitted.
+- **P5 — gold workforce (accepted; T-107 provenance amendment accepted 2026-10-05).**
+  The maintainer enters or explicitly approves the final labels for the
+  first 50, with no second annotator. Under the accepted T-107 amendment,
+  disclosed model proposals may inform classifier labels only. The 18
+  existing labels are maintainer-only; 32 proposals were seen before
+  review, so reports state that Claude Sonnet 5.5 (`claude-sonnet-5-5`)
+  drafted them in Claude Code on 2026-10-05, plus the anchoring risk.
+  Oracle facts and human outcomes remain maintainer-entered. The
+  same rubric version scales to the 150–300 DESIGN-7 set.
 - **P6 — leakage rules home (proposed — maintainer confirms at spec
   review).** All five rules are worded and tested under T-103; T-106's spec
   references them and runs them over its registries.
@@ -302,18 +306,20 @@ duplicates a dataset template shape.
   the same split, and the split report states shares, windows and exclusion
   counts.
 - All five leakage tests pass; T-106's spec references L1–L5 by id.
-- Rubric v1 committed; the first 50 labelled by the maintainer with
-  the descriptive oracle-vs-human consistency report stating scored n/50,
-  single-annotator scope and its limitation to the oracle table.
+- Rubric v1, gold schema and blank first-50 worksheet are committed.
+  Maintainer annotation and the descriptive oracle-vs-human consistency
+  report are owned by T-107.
 - No dataset transcript used as model input anywhere in the path; no
   customer record committed.
 
-## Amendment proposal (2026-10-04): gold annotation and oracle consistency
+## Scope amendment (accepted 2026-10-05): implementation and human review
 
-This dated amendment is proposed with
-[TSD-019's gold agreement amendment](TSD-019-message-set.md#t-103-gold-annotation-and-agreement-report).
-It preserves the implemented rubric and schema history above. Until the
-amendment is approved and implemented, T-103's gold report is not complete.
+T-103 is complete when its rubric, split implementation, leakage rules,
+gold schema, validators, blank worksheet and reporting tools are
+implemented. The maintainer's gold annotations and agreement report are
+separate work tracked in [T-107](../tasks/T-107-gold-annotation.md).
+This amendment does not change the rubric, schema, or required review
+method below.
 
 The current 50 gold rows are all `seed_ref: "hand-written"`; they do not
 represent actual bank records. The maintainer assigns **nominal scenario
@@ -347,8 +353,13 @@ empty, preserving validation of all existing rows under
 `extra="forbid"`. When present, `oracle_facts.intent` must be a TSD-013
 `INTENTS` value; `amount_band` must be an `AMOUNT_BANDS` value; only
 `status` may be null. `human_outcome` must be a TSD-013
-`ExpectedOutcome` other than `ERROR`. No agent-suggested values or
-automatic defaults are allowed for the gold annotation fields.
+`ExpectedOutcome` other than `ERROR`. T-107 may use disclosed
+model-drafted proposals for classifier labels only; each final classifier
+label requires explicit maintainer review. The current proposals were
+drafted with Claude Sonnet 5.5 (`claude-sonnet-5-5`) in Claude Code on
+2026-10-05. They were seen before review, so the report must state the
+anchoring risk. Model proposals must not supply or infer `oracle_facts`
+or `human_outcome`; those remain maintainer-entered.
 
 The implementation adds:
 

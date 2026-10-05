@@ -389,3 +389,12 @@ def test_header_names_the_checkpoint_revision_and_digest() -> None:
     assert (
         f"| Laya checkpoint | base @ {'7' * 40} (model.safetensors sha256 {'9' * 64}) |" in rendered
     )
+
+
+def test_paired_portuguese_cases_get_a_flip_table() -> None:
+    spanish = make_case("ORC-1")
+    pair = make_case("PT-1", language="pt")
+    pair = replace(pair, pair_of="ORC-1")
+    rendered = render_report(make_report((make_result(spanish), make_result(pair))))
+    assert "Paired Spanish/Portuguese flip table: 1 translated pairs" in rendered
+    assert "| ORC-1 / PT-1 |" in rendered
