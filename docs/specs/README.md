@@ -35,7 +35,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-030](TSD-030-route-confidence-aggregation.md): route confidence aggregation and policy v4 (T-209, implemented)
 
 - [TSD-031](TSD-031-gold-label-annotation.md): maintainer gold-label annotation workflow (T-107, accepted)
-- [TSD-032](TSD-032-portuguese-test-set.md): Portuguese held-out test set (T-203, proposed)
+- [TSD-032](TSD-032-portuguese-test-set.md): Portuguese held-out test set (T-203, implemented)
 
 Later tasks write their spec from their task card as the first step, numbered from TSD-033, and wait for the maintainer's approval before any code.
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.

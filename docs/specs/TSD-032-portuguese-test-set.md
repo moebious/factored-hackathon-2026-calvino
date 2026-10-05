@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented |
 | Branch | `feat/pt-test-set` |
 | Task | [T-203](../tasks/T-203-portuguese-test-set.md) |
 | Depends on | TSD-013 (Evaluation harness), TSD-015 (Labels & splits) |

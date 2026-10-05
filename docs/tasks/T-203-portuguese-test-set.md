@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | Wave | 2 |
+| Status | done |
 | Branch | `feat/pt-test-set` |
 | Depends on | T-106 |
 | Blocked by | — |
@@ -22,4 +23,4 @@
 
 **Done when.** translated held-out pairs and directly written cases cover the workflow's routes and high-risk boundaries, have reviewed labels, are never used for training or calibration, and their synthetic provenance and limitations are documented. T-405 reports paired model and policy effects separately.
 
-**Specification:** [TSD-032](../specs/TSD-032-portuguese-test-set.md) (proposed).
+**Specification:** [TSD-032](../specs/TSD-032-portuguese-test-set.md) (implemented).
