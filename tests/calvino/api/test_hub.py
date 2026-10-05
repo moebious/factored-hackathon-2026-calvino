@@ -344,3 +344,38 @@ def test_only_the_template_agent_gets_the_not_run_judge(tmp_path, monkeypatch):
     explicit = NotRunJudge()
     judge, _ = judge_of(agent=ScriptedAgent([]), judge=explicit)
     assert judge is explicit
+
+
+def test_hub_cases_returns_fallback_seeds(make_hub_client):
+    """GET /api/hub/cases returns pre-seeded cases when checkpointer is empty (TSD-023)."""
+    with make_hub_client() as client:
+        response = client.get("/api/hub/cases")
+    assert response.status_code == 200
+    cases = response.json()
+    assert isinstance(cases, list)
+    assert len(cases) >= 2
+    refs = [c["case_ref"] for c in cases]
+    assert "CASE-ANA-001" in refs
+    assert "CASE-LUCIA-002" in refs
+
+
+def test_hub_resume_enforces_gate_block(make_hub_client):
+    """Decision 37: A human operator cannot override a Gate block via resume."""
+    with make_hub_client() as client:
+        response = client.post(
+            "/api/hub/resume",
+            json={"ref": "CASE-CARLOS-003", "decision": True},
+        )
+    assert response.status_code == 403
+    assert "cannot approve action with Gate block" in response.json()["detail"]
+
+
+def test_hub_resume_allows_gate_ask_approval(make_hub_client):
+    """Operator approval of a gray-zone action succeeds."""
+    with make_hub_client() as client:
+        response = client.post(
+            "/api/hub/resume",
+            json={"ref": "CASE-LUCIA-002", "decision": True},
+        )
+    assert response.status_code == 200
+    assert "approved" in response.json()["reply"].lower()

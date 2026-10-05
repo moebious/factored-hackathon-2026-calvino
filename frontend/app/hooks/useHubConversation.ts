@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { AttachmentItem, HubReply, Turn } from "../types";
-import type { CaseStudy, CaseStudyStatus } from "../types/case-study";
+import type { CaseStudy, CaseStudyStatus, OperatorQueueItem } from "../types/case-study";
 import { detectIntent } from "../components/intent-driven/intent-engine";
 
 const READY_POLL_MS = 3000;
@@ -218,3 +218,74 @@ export function useHubConversation() {
     resume,
   };
 }
+
+export function useOperatorQueue() {
+  const [cases, setCases] = useState<OperatorQueueItem[]>([]);
+  const [selectedCaseRef, setSelectedCaseRef] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
+  const fetchCases = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/hub/cases");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data: OperatorQueueItem[] = await res.json();
+      setCases(data);
+      if (data.length > 0 && !selectedCaseRef) {
+        setSelectedCaseRef(data[0].case_ref);
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Error cargando la cola");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCaseRef]);
+
+  const resumeCase = useCallback(
+    async (ref: string, decision: boolean | string) => {
+      setLoading(true);
+      setError(null);
+      setActionSuccess(null);
+      try {
+        const res = await fetch("/api/hub/resume", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ref, decision }),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.detail || `Error HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        setActionSuccess(data.reply || "Decisión registrada en auditoría");
+        await fetchCases();
+        return data;
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : "Error ejecutando acción";
+        setError(msg);
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchCases]
+  );
+
+  useEffect(() => {
+    fetchCases();
+  }, [fetchCases]);
+
+  return {
+    cases,
+    selectedCaseRef,
+    setSelectedCaseRef,
+    loading,
+    error,
+    actionSuccess,
+    refreshCases: fetchCases,
+    resumeCase,
+  };
+}
+

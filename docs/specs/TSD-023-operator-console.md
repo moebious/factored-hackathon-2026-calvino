@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented |
 | Branch | `feat/console-queue` |
 | Depends on | TSD-009, TSD-010, TSD-022 |
 | Required by | T-302 (Operator workspace), T-401 (Durable cases), T-304 (Deployment demo) |

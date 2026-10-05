@@ -29,7 +29,7 @@ from calvino.api.decide import DemoDecision, run_demo_decision
 from calvino.api.hub import build_demo_hub
 from calvino.api.loader import SystemOneLoader
 from calvino.decision_log import DecisionLog
-from calvino.hub import DEMO_PERSONAS, HubReply, HubService
+from calvino.hub import DEMO_PERSONAS, HubReply, HubService, OperatorQueueItem
 from calvino.policy import Policy, load_policy
 from calvino.tools import ConfigurationError
 
@@ -197,6 +197,13 @@ def create_app(
         guard(request)
         return {"personas": list(DEMO_PERSONAS)}
 
+    @app.get("/api/hub/cases", response_model=list[OperatorQueueItem])
+    async def hub_cases(request: Request) -> list[OperatorQueueItem]:
+        """List active cases in the operator queue or pending human approval (TSD-023)."""
+        guard(request)
+        service = hub_or_503(request)
+        return await anyio.to_thread.run_sync(service.list_cases)
+
     @app.post("/api/hub/message", response_model=HubReply)
     async def hub_message(payload: HubMessageRequest, request: Request) -> HubReply:
         """Run one customer turn through the hub."""
@@ -220,6 +227,9 @@ def create_app(
             return await anyio.to_thread.run_sync(
                 lambda: service.resume(payload.ref, payload.decision)
             )
+        except ValueError as error:
+            # Gate block violation or invalid decision raises ValueError (403 Forbidden).
+            raise HTTPException(status_code=403, detail=str(error)) from error
         except KeyError as error:
             # An unknown ref fails closed at the service.
             raise HTTPException(status_code=404, detail=f"no parked turn: {error}") from error
