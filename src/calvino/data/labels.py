@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field, StrictBool, field_validator, model_valida
 RUBRIC_VERSION = "v1"
 
 PROBLEM_TRANSACTION_STATUSES = ("Declined", "Pending", "Reversed")
+ORACLE_TRANSACTION_STATUSES = (*PROBLEM_TRANSACTION_STATUSES, "Approved")
 
 
 class WorkflowArea(StrEnum):
@@ -133,9 +134,9 @@ class GoldOracleFacts(BaseModel):
 
     @field_validator("status")
     @classmethod
-    def status_is_nullable_problem_status(cls, value: str | None) -> str | None:
-        """Allow only the transaction statuses represented by the oracle."""
-        if value is not None and value not in PROBLEM_TRANSACTION_STATUSES:
+    def status_is_nullable_oracle_status(cls, value: str | None) -> str | None:
+        """Accept every canonical transaction status, including clean rows."""
+        if value is not None and value not in ORACLE_TRANSACTION_STATUSES:
             raise ValueError(f"unknown TSD-013 transaction status {value!r}")
         return value
 

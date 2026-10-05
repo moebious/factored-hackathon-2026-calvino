@@ -159,7 +159,7 @@ def test_gold_outcome_fields_are_optional_but_require_complete_metadata_for_scor
     [
         ("intent", "refund"),
         ("amount_band", "near_gate"),
-        ("status", "Approved"),
+        ("status", "Succeeded"),
         ("human_outcome", "error"),
     ],
 )
@@ -189,6 +189,22 @@ def test_gold_outcome_schema_rejects_unknown_or_error_values(field, value):
         row[field] = value
     with pytest.raises(ValidationError):
         validate_gold_record(row)
+
+
+def test_gold_outcome_schema_accepts_approved_clean_transaction():
+    from calvino.evaluation.oracle import OracleFacts, oracle_outcome
+
+    facts = GoldOracleFacts(
+        intent="cancel",
+        ambiguous=False,
+        status="Approved",
+        owner=True,
+        amount_band="under_gate",
+        fraud_flag=False,
+        in_scope=True,
+    )
+    assert facts.status == "Approved"
+    assert oracle_outcome(OracleFacts(**facts.model_dump())).value == "act_block"
 
 
 def test_gold_oracle_facts_allow_drafts_but_reject_null_required_fields():
