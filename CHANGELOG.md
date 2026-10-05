@@ -5,6 +5,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Fixed
+- Deployment image packaging and runtime assets (TSD-003, T-304, blocker G1): fixed `.dockerignore` to permit copying `tests/fixtures/bank/synthetic_bank.json`, copied required hub runtime assets (`playbooks/`, `prompts/`, `rubrics/`) into the image so `build_demo_hub` does not throw `FileNotFoundError` (503), and included all declared project dependencies (`duckdb`, `boto3`, `langgraph`, etc.) with PyTorch CPU index.
+
 ### Changed
 - README refactored to be durable and evergreen: dynamic point-in-time facts (hardcoded test counts, transient run scores, ephemeral task blockers, and 86 lines of S3 ETL procedures) removed; upgraded the system architecture diagram to visually capture the 4-tier cognitive hierarchy (Systems 1, 1.5, 2, 3), the Gate, and the data flywheel; added an ISO 20022 message contract specification table; streamlined Quick Start and fixed `docker run` to include `CALVINO_CONFIRMATION_KEY`.
 - Clarify rubric v1: unclassifiable messages leave workflow area unset and are excluded from T-202's area head. The first fine-tuning slice does not train the clarity head; without a route change these messages may still be refused at inference, so the next evaluation must measure this accepted risk.
