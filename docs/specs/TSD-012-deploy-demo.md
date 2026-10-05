@@ -37,11 +37,13 @@ repository adds what DEPLOY.md cannot do by hand:
 - The guard's client key becomes the first `X-Forwarded-For` entry when the
   header is present, else the direct peer. The comment says why (Vercel's
   rewrite proxies every judge from one IP) and names the trade-off: a client
-  hitting the Space URL directly can spoof the header, which weakens only the rate
-  limit; writes stay guarded by the confirmation key (decision 38).
+  hitting the Space URL directly can spoof the header, which lets a client
+  choose its own rate-limit key; writes are guarded by the confirmation
+  key, and resume authority is tracked in audit ticket 08.
 - Unit tests in `tests/calvino/api/`: header present keys on the first entry,
-  absent keys on the peer, and a spoofed header changes only the limit, never
-  authentication.
+  absent keys on the peer, and a spoofed header selects a different
+  rate-limit key — there is no per-request authentication on these
+  endpoints (resume authority is tracked in audit ticket 08).
 
 **`scripts/check_deployment.py`**
 
