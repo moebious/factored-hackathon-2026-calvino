@@ -21,7 +21,7 @@ Make the deployment path real before the features exist, so every later PR can b
 |---|---|
 | `GET /health` | process is up |
 | `GET /ready` | true once Laya is loaded |
-| `POST /api/demo/decide` | runs one Laya decision on a short text (passcode required) |
+| `POST /api/demo/decide` | runs one Laya decision on a short text (open endpoint behind the rate limit) |
 
 **Hugging Face Space:** a Dockerfile (port 7860, non-root user) that installs the package and downloads the `laya-multilingual` checkpoint at build time, so restarts don't re-download. Laya is preloaded at startup, never on the first request.
 
@@ -31,7 +31,7 @@ Make the deployment path real before the features exist, so every later PR can b
 
 ## Behaviour
 
-- Demo passcode and a simple rate limit on the API.
+- Open endpoints behind a simple per-client rate limit on the API (decision 38 removed the demo passcode).
 - No secrets in the repository; all keys come from Space secrets and Vercel environment variables.
 - **State survives restarts.** A Space's own disk is wiped on restart, so the LangGraph checkpointer and `decisions.jsonl` live on durable storage: the Space's persistent storage mounted at `/data`, or an external database whose URL comes from an environment variable. The location is configuration, never code. Durable cases (T-401) and policy replay (T-408) depend on it.
 

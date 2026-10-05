@@ -14,7 +14,7 @@
 
 **Inputs.** the deployment skeleton; the maintainer's Space and Vercel projects and secrets
 
-**Outputs.** a deployed backend and UI; keep-alive active; passcode and rate limit on; checkpoints and the decision log on persistent storage, with the restart test passing on the live Space
+**Outputs.** a deployed backend and UI; keep-alive active; rate limit on (no passcode since decision 38); checkpoints and the decision log on persistent storage, with the restart test passing on the live Space
 
 **Open parameters.** none
 

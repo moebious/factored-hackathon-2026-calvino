@@ -37,8 +37,8 @@ repository adds what DEPLOY.md cannot do by hand:
 - The guard's client key becomes the first `X-Forwarded-For` entry when the
   header is present, else the direct peer. The comment says why (Vercel's
   rewrite proxies every judge from one IP) and names the trade-off: a client
-  hitting the Space URL directly can spoof the header, which weakens the rate
-  limit but never the passcode (NFR-8; decided in the TSD-012 review).
+  hitting the Space URL directly can spoof the header, which weakens only the rate
+  limit; writes stay guarded by the confirmation key (decision 38).
 - Unit tests in `tests/calvino/api/`: header present keys on the first entry,
   absent keys on the peer, and a spoofed header changes only the limit, never
   authentication.
@@ -46,12 +46,11 @@ repository adds what DEPLOY.md cannot do by hand:
 **`scripts/check_deployment.py`**
 
 ```bash
-CALVINO_DEMO_PASSCODE=<passcode> uv run python scripts/check_deployment.py \
+uv run python scripts/check_deployment.py \
   --url https://calvino.rubrica.dev            # exit 0 only when every check passes
 ```
 
-- The passcode is read from the environment, never from the CLI: it must not
-  end up in shell history or a process listing.
+- The script takes no secrets: it needs only the live URL.
 - HTTP client: `httpx`, already a dev dependency (FastAPI's TestClient);
   `uv run` includes it, and the script stays out of the runtime image.
 - Checks, in order:
@@ -73,13 +72,13 @@ CALVINO_DEMO_PASSCODE=<passcode> uv run python scripts/check_deployment.py \
      an `action_result` card.
   6. The operator-queue scenario (UC-4) parks with `awaiting: operator_queue`
      and resumes with a decision string.
-- Budget: one full run costs about ten guarded requests (personas, seven
+- Budget: one full run costs about ten open requests within the rate limit (personas, seven
   scenario messages, two resumes) — comfortably inside the judging-window
   limit, but no rapid re-runs within a window.
 - Output: one line per check with its latency `[measured]`, then a summary;
-  exit 1 on any failure, printing expected versus received. The passcode is
-  never printed.
-- Not run in CI: it needs the live URL and the passcode. The maintainer runs
+  exit 1 on any failure, printing expected versus received. No secret is
+  ever printed.
+- Not run in CI: it needs the live URL. The maintainer runs
   it after every Space rebuild and after a restart (the cold-start proof).
 
 **`docs/DEPLOY.md` changes**
@@ -113,8 +112,8 @@ One public origin, the UI as a verdict: the browser only ever talks to the
 Vercel domain, which rewrites `/api/*`, `/health` and `/ready` to the Space.
 NFR-5 (reachable through judging) is the keep-alive workflow from TSD-003
 plus this task's cold-start evidence; NFR-8 (abuse protection) is the
-passcode and rate limit already built, proven live by the smoke check's
-guarded endpoints.
+rate limit plus the confirmation key on writes, already built, proven live by the smoke check's
+open endpoints.
 
 ## Tests and acceptance
 
@@ -123,8 +122,8 @@ guarded endpoints.
 - Unit tests for the script in `tests/deployment/` (the `scripts/` ↔ `tests/`
   precedent; no network): the scenario table covers UC-1 to UC-5, UC-7 and
   UC-8 and includes the dana/retry approval flow; the check functions against
-  a stubbed transport (success, health timeout, ready timeout, wrong card,
-  missing passcode); the passcode never appears in argv or in the printed
+  a stubbed transport (success, health timeout, ready timeout, a missing frontend, a wrong parked state, turns without trace or card,
+  a failing exit code); no secret ever appears in argv or in the printed
   output; exit codes.
 - Done when: `scripts/check_deployment.py --url https://calvino.rubrica.dev`
   exits 0 after a Space restart (cold start), the keep-alive workflow has run
