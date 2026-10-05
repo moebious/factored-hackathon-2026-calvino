@@ -558,6 +558,7 @@ def test_registry_checks_green_on_clean_world():
     """A clean synthetic world passes every registry check."""
     report = ms.run_registry_checks(**green_inputs())
     assert report.passed, [v.detail for v in report.violations]
+    assert report.vacuous == []
 
 
 def test_l1_fires_across_splits_not_within_test():
@@ -639,6 +640,44 @@ def test_t303_quarantine_catches_case_text():
     )
     report = ms.run_registry_checks(**inputs)
     assert any("T-303 quarantine" in v.detail for v in report.violations)
+
+
+def test_checker_names_every_vacuous_check():
+    """With seeds only, message/gold/T-303 checks are named vacuous, never PASS."""
+    report = ms.run_registry_checks(
+        seeds={"train": [make_seed()]},
+        messages={},
+        record_ids={"train": [None]},
+        gold_hashes=set(),
+        gold_keys=set(),
+        gold_texts=[],
+        t303_texts=[],
+        template_texts=set(),
+    )
+    assert report.passed, [v.detail for v in report.violations]
+    joined = "\n".join(report.vacuous)
+    for name in (
+        "L1 vs gold",
+        "L3 dataset text",
+        "L5 gold held-out",
+        "duplicate-draw record ids",
+        "intra-set duplicates",
+        "train-test overlap",
+        "message-gold overlap",
+        "T-303 quarantine",
+        "stratum audit",
+    ):
+        assert name in joined, name
+    for name in (
+        "L1 customer isolation across splits",
+        "L2 time order",
+        "L4 generation isolation",
+        "duplicate-draw seed keys",
+        "no-records-committed id scan",
+    ):
+        assert name in report.exercised, name
+    assert "L3 dataset text" not in report.exercised
+    assert "T-303 quarantine" not in report.exercised
 
 
 def test_stratum_audit_flags_small_cells_and_splits_review():
