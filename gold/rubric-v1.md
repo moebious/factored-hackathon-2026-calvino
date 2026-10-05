@@ -61,9 +61,10 @@ set lands.
 
 - 2026-10-05 (v1 clarification): unclassifiable empty, emoji-only and
   garbled messages have no workflow-area label; the clarity label remains
-  `no`. T-202 excludes these rows from the workflow-area head but includes
-  them for the clarity head. No labelled gold row changes; gold-039–041
-  remain blank pending maintainer annotation. Without a routing reorder,
-  an empty message can still be refused at inference if the workflow-area
-  head predicts out of scope. This risk is accepted, not solved; the next
-  evaluation run must measure it.
+  `no`. T-202 excludes these rows from the workflow-area head. Its first
+  slice does not train the clarity head; these rows can train that head
+  only if `clear_enough` is added in a later slice. No labelled gold row
+  changes; gold-039–041 remain blank pending maintainer annotation.
+  Without a routing reorder, an empty message can still be refused at
+  inference if the workflow-area head predicts out of scope. This risk is
+  accepted, not solved; the next evaluation run must measure it.

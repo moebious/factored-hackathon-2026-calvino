@@ -289,6 +289,11 @@ groups, by id) · limitations.
   tool failures, multilingual ambiguity, and the DESIGN 6.1 edge cases
   (exchange-rate discrepancy, hostile message about a trivial fee, empty or
   garbled messages).
+- The next evaluation reports the actual route and outcome for EDGE-001,
+  EDGE-002 and EDGE-003, including whether an out-of-scope classifier score
+  causes refusal despite the oracle's `clarify` outcome. Name the model and
+  policy versions; report this as a measured residual risk, not a solved
+  behavior.
 - Judge validation (false-pass rate, other-family judge) and the bare-LLM
   ablation either ran with keys or are reported `not run` with the blocker.
   A `not run` line satisfies **this spec** (the harness is complete and

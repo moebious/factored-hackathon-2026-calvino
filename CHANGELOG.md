@@ -7,7 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 - README refactored to be durable and evergreen: dynamic point-in-time facts (hardcoded test counts, transient run scores, ephemeral task blockers, and 86 lines of S3 ETL procedures) removed; upgraded the system architecture diagram to visually capture the 4-tier cognitive hierarchy (Systems 1, 1.5, 2, 3), the Gate, and the data flywheel; added an ISO 20022 message contract specification table; streamlined Quick Start and fixed `docker run` to include `CALVINO_CONFIRMATION_KEY`.
-- Clarify rubric v1: unclassifiable messages leave workflow area unset, are excluded from the T-202 area head but remain clarity examples; without a route change they may still be refused at inference, so the next evaluation must measure this accepted risk.
+- Clarify rubric v1: unclassifiable messages leave workflow area unset and are excluded from T-202's area head. The first fine-tuning slice does not train the clarity head; without a route change these messages may still be refused at inference, so the next evaluation must measure this accepted risk.
 - Enforce that a message row may omit workflow area only when it is unclear and its oracle intent is `none`; gold label completion applies the same intent condition and requires the oracle intent to be present.
 
 ### Added
