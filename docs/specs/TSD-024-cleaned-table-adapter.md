@@ -177,10 +177,20 @@ facts. The hub must check for required action evidence before constructing
 ## Lineage and data handling
 
 - The mapping table above is the source-to-tool contract.
-- At adapter initialization, record the selected logical table names, TSD-007
-  contract version, and SHA-256 digests of the input files in local run
-  metadata. Record relative logical names only, not absolute paths or storage
-  identifiers. Do not serialize source rows into the manifest.
+- After all required-table and ownership preflight checks pass, record the
+  selected logical table names, TSD-007 contract version, and SHA-256 digests
+  of the input files in local run metadata. A failed preflight writes no
+  lineage manifest. Record relative logical names only, not absolute paths or
+  storage identifiers. Do not serialize source rows into the manifest.
+- Reusing a `lineage_path` with an identical manifest is an idempotent no-op.
+  Different manifest content is refused; operators must choose a new path for
+  each cleaned-data version.
+- Create manifests without overwriting existing files. Prefer an atomic
+  same-directory hard link from a temporary file. When the filesystem reports
+  hard links unsupported, fall back to an exclusive (`x`) write. The fallback
+  is not atomic against process termination: a crash mid-write can leave a
+  partial manifest that blocks restart. After confirming no writer remains,
+  an operator must remove that partial metadata file or use a new path.
 - The validator's row counts and known-defect counts remain aggregates.
   Git-tracked outputs contain only the synthetic fixture and its README.
 - Use the existing DATA.md rules: no BRL or Brazilian demo customers; retain

@@ -172,12 +172,12 @@ class BankTools:
                         "this idempotency key was already used for a different request",
                     )
                 return result
+            check_eligible(s, record)
             if record.entry.amount is None or record.entry.currency is None:
                 raise ToolRefusal(
                     Rule.SOURCE_INCOMPLETE,
                     "the source lacks the amount or currency required to confirm this action",
                 )
-            check_eligible(s, record)
             self._verifier.verify_and_consume(
                 confirmation_token,
                 customer_id=s.customer_id,

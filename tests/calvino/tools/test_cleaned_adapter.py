@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import shutil
 from datetime import UTC, datetime
@@ -10,7 +11,7 @@ from pathlib import Path
 import pytest
 from tests.calvino.tools.conftest import build_env
 
-from calvino.tools import CleanedTableAdapter, ConfigurationError, Rule, ToolRefusal
+from calvino.tools import CleanedTableAdapter, ConfigurationError, Rule, ToolRefusal, cleaned
 
 FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "cleaned_bank"
 
@@ -165,23 +166,100 @@ def test_preflight_rejects_product_owned_by_a_different_customer(tmp_path):
     for name in ("customers.csv", "products.csv", "transactions.csv"):
         shutil.copyfile(FIXTURE / name, source / name)
     products_path = source / "products.csv"
-    contents = products_path.read_text(encoding="utf-8").replace(
-        "P-MX-001,C-MX-001", "P-MX-001,C-CO-001"
-    )
+    original = products_path.read_text(encoding="utf-8")
+    contents = original.replace("P-MX-001,C-MX-001", "P-MX-001,C-CO-001")
     products_path.write_text(contents, encoding="utf-8")
+    lineage = tmp_path / "bad-lineage.json"
 
     with pytest.raises(ConfigurationError, match="ownership audit failed"):
-        CleanedTableAdapter(source, lineage_path=tmp_path / "bad-lineage.json")
+        CleanedTableAdapter(source, lineage_path=lineage)
+
+    assert not lineage.exists()
+
+    products_path.write_text(original, encoding="utf-8")
+    adapter = CleanedTableAdapter(source, lineage_path=lineage)
+    adapter.close()
+    assert lineage.exists()
 
 
 def test_lineage_output_refuses_to_overwrite_an_existing_file(tmp_path):
     target = tmp_path / "preserve.json"
     target.write_text("keep this file\n", encoding="utf-8")
 
-    with pytest.raises(ConfigurationError, match="already exists"):
+    with pytest.raises(ConfigurationError, match="different content"):
         CleanedTableAdapter(FIXTURE, lineage_path=target)
 
     assert target.read_text(encoding="utf-8") == "keep this file\n"
+
+
+def test_lineage_output_is_idempotent_for_identical_manifest(tmp_path):
+    target = tmp_path / "lineage.json"
+    first = CleanedTableAdapter(FIXTURE, lineage_path=target)
+    first.close()
+    original = target.read_text(encoding="utf-8")
+
+    second = CleanedTableAdapter(FIXTURE, lineage_path=target)
+    second.close()
+
+    assert target.read_text(encoding="utf-8") == original
+
+
+def test_lineage_uses_exclusive_fallback_when_hard_links_are_unsupported(tmp_path, monkeypatch):
+    def unsupported_link(_source, _target):
+        raise OSError(errno.EOPNOTSUPP, "hard links are unsupported")
+
+    monkeypatch.setattr(cleaned.os, "link", unsupported_link)
+    target = tmp_path / "lineage.json"
+    adapter = CleanedTableAdapter(FIXTURE, lineage_path=target)
+    adapter.close()
+
+    lineage = json.loads(target.read_text(encoding="utf-8"))
+    assert set(lineage["tables"]) == {"customers", "products", "transactions"}
+    assert list(tmp_path.glob(".lineage.json.*.tmp")) == []
+
+
+@pytest.mark.parametrize(
+    ("race_content", "refuse"),
+    [("identical", False), ("different", True)],
+)
+def test_lineage_fallback_checks_a_racing_existing_file(
+    tmp_path, monkeypatch, race_content, refuse
+):
+    reference = tmp_path / "reference.json"
+    adapter = CleanedTableAdapter(FIXTURE, lineage_path=reference)
+    adapter.close()
+    expected_manifest = reference.read_text(encoding="utf-8")
+    target = tmp_path / "lineage.json"
+    existing_content = expected_manifest if race_content == "identical" else "different manifest\n"
+
+    def race_link(_source, destination):
+        Path(destination).write_text(existing_content, encoding="utf-8")
+        raise OSError(errno.EOPNOTSUPP, "hard links are unsupported")
+
+    monkeypatch.setattr(cleaned.os, "link", race_link)
+    if refuse:
+        with pytest.raises(ConfigurationError, match="different content"):
+            CleanedTableAdapter(FIXTURE, lineage_path=target)
+    else:
+        repeated = CleanedTableAdapter(FIXTURE, lineage_path=target)
+        repeated.close()
+
+    assert target.read_text(encoding="utf-8") == existing_content
+    assert list(tmp_path.glob(".lineage.json.*.tmp")) == []
+
+
+def test_other_hard_link_errors_do_not_use_the_exclusive_fallback(tmp_path, monkeypatch):
+    def io_error(_source, _target):
+        raise OSError(errno.EIO, "unexpected I/O error")
+
+    monkeypatch.setattr(cleaned.os, "link", io_error)
+    target = tmp_path / "lineage.json"
+
+    with pytest.raises(OSError, match="unexpected I/O error"):
+        CleanedTableAdapter(FIXTURE, lineage_path=target)
+
+    assert not target.exists()
+    assert list(tmp_path.glob(".lineage.json.*.tmp")) == []
 
 
 def test_lineage_output_cannot_be_written_into_the_source_tree(tmp_path):
