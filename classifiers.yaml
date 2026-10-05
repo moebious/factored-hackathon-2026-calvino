@@ -1,0 +1,22 @@
+# Pinned Laya checkpoints (TSD-020). Every checkpoint Calvino may load is listed here
+# with the exact Hub commit and the SHA-256 of its model.safetensors; laya verifies the
+# digest before any weight is parsed. A fine-tuned candidate is added as a new entry by
+# its own pull request, with its run record; the default changes only by T-407 sign-off.
+#
+# base: the multilingual checkpoint of convaiinnovations/laya as the Hub's main served it
+# on 2026-10-04 (the commit behind the committed T-303 tier0 report) [measured]: commit,
+# digest and size (643,835,514 bytes) agree with the Hub's own LFS record and with the
+# local file's hash. Note laya 0.3.24's own "reviewed" pin for this repository is
+# 55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851, an older commit; it is not used here because
+# the evaluation numbers were produced on the commit below.
+default: base
+
+checkpoints:
+  base:
+    name: base
+    slot: multilingual
+    repo: convaiinnovations/laya
+    subfolder: multilingual
+    revision: 7b928d828b7b0e022f929d9bd2e44165aa270148
+    sha256: 9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204
+    laya_version: "0.3.24"
