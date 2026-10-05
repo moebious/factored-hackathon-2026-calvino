@@ -1,9 +1,11 @@
 # Frontend roadmap: phases F1–F3 plus the FE-1 lane
 
 *The order of record for frontend work, transcribed from the team
-checklist (Roadmap UI Calvino). Status moves in the pull request that
-completes each phase — never in a separate sync, never only in a
-browser checkbox. Parent backlog rows: T-207 (Fases 1–2), T-208
+checklist (Roadmap UI Calvino). The interactive page
+[roadmap-checklist.html](roadmap-checklist.html) mirrors this file; what
+merges here overrules its browser checkboxes. Status moves in the pull
+request that completes each phase — never in a separate sync, never only
+in a browser checkbox. Parent backlog rows: T-207 (Fases 1–2), T-208
 (Fase 3), T-304 (F1.5 live deploy). When a phase completes, its PR
 updates this file plus its parent card row per docs/tasks/README.md.*
 

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roadmap UI Calvino · Checklist</title>
+<link rel="icon" href="data:,">
+<style>
+  :root { --bg:#101418; --panel:#171d23; --line:#2a333d; --fg:#e8ecef; --mut:#9aa7b2;
+    --f1:#4da3ff; --f2:#8b7bff; --f3:#3ddc97; --fe:#ffb454; }
+  * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--fg);
+    font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; padding:28px; max-width:1100px; }
+  h1 { font-size:22px; margin:0; } .sub { color:var(--mut); margin:4px 0 16px; font-size:13px; }
+  .sub code { background:#0b0f13; padding:0 5px; border-radius:5px; }
+  .gtotal { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin-bottom:18px; }
+  .bar { height:8px; background:#0b0f13; border-radius:99px; overflow:hidden; margin-top:6px; }
+  .bar > span { display:block; height:100%; background:var(--f3); width:0; transition:width .25s; }
+  .phase { border:1px solid var(--line); border-radius:12px; margin:0 0 18px; overflow:hidden; }
+  .phase > header { padding:10px 14px; display:flex; gap:10px; align-items:center; }
+  .f1 > header { background:rgba(77,163,255,.12); } .f2 > header { background:rgba(139,123,255,.12); }
+  .f3 > header { background:rgba(61,220,151,.10); } .fe > header { background:rgba(255,180,84,.10); }
+  .tag { font-size:11px; font-weight:700; padding:2px 10px; border-radius:99px; }
+  .f1 .tag { background:var(--f1); color:#06121f; } .f2 .tag { background:var(--f2); color:#0d0a1f; }
+  .f3 .tag { background:var(--f3); color:#06231a; } .fe .tag { background:var(--fe); color:#241300; }
+  .pbar { height:6px; background:#0b0f13; border-radius:99px; overflow:hidden; flex:1; }
+  .pbar > span { display:block; height:100%; width:0; }
+  .f1 .pbar > span { background:var(--f1); } .f2 .pbar > span { background:var(--f2); }
+  .f3 .pbar > span { background:var(--f3); } .fe .pbar > span { background:var(--fe); }
+  .pcount { font-size:12px; color:var(--mut); min-width:44px; text-align:right; }
+  ul.tasks { list-style:none; margin:0; padding:6px 14px 12px; }
+  ul.tasks li { display:flex; gap:10px; align-items:flex-start; padding:8px 6px; border-top:1px solid var(--line); }
+  ul.tasks li:first-child { border-top:0; }
+  input[type=checkbox] { width:18px; height:18px; margin-top:2px; accent-color:var(--f3); cursor:pointer; flex:0 0 auto; }
+  .t b { font-size:13.5px; } .t.done b { text-decoration:line-through; color:var(--mut); }
+  .meta { font-size:12px; color:var(--mut); } .meta code { background:#0b0f13; padding:0 5px; border-radius:5px; font-size:11.5px; }
+  .exit { margin:0 14px 12px; font-size:12px; color:var(--mut); border-top:1px dashed var(--line); padding-top:8px; }
+  .exit b { color:var(--fg); }
+  .foot { display:flex; gap:10px; margin-top:6px; }
+  button { background:#222b34; color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px; }
+  button:hover { background:#2a3440; }
+  textarea { width:100%; height:110px; margin-top:10px; background:#0b0f13; color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:8px; font-size:12px; }
+  footer { color:var(--mut); font-size:12px; margin-top:10px; }
+</style>
+</head>
+<body>
+<h1>Roadmap UI Calvino · Checklist</h1>
+<p class="sub">Marca a medida que se completen. El estado se guarda en este navegador (localStorage). Orden de registro: <code>docs/tasks/frontend-roadmap.md</code> — lo que se mergea manda sobre este checklist. Abajo tienes el resumen listo para copiar y pegar en el chat.</p>
+<div class="gtotal"><strong id="gtotal-label">Progreso total: 0/29</strong><div class="bar"><span id="gtotal-bar"></span></div></div>
+<div id="app"></div>
+<div class="foot">
+  <button id="btn-copy" type="button">Generar resumen para el chat</button>
+  <button id="btn-reset" type="button">Desmarcar todo</button>
+</div>
+<textarea id="out" readonly placeholder="Aquí aparecerá el resumen…"></textarea>
+<footer>Reglas: commits ≤15 archivos / 800 líneas · Conventional Commits · 1 worktree por rama · pushes y PRs solo con tu aprobación.</footer>
+<script>
+var PHASES = [
+ { cls:"f1", tag:"FASE 1", name:"Abrir y cimentar", exit:"Salida: pytest + git rules + lint/build verdes · 7 escenarios OK · smoke verde · spec mergeado.", tasks:[
+  { id:"F1.1", t:"Quitar passcode del backend", dep:"—", ver:"pytest + ruff", note:"Handoff listo" },
+  { id:"F1.2", t:"Scripts sin passcode (check_deployment + tests)", dep:"F1.1", ver:"pytest deploy" },
+  { id:"F1.3", t:"Frontend sin passcode", dep:"F1.1", ver:"lint/build" },
+  { id:"F1.4", t:"Docs demo abierto (DECISIONS, NFR-8, README, AGENTS, DEPLOY…)", dep:"F1.1–F1.3", ver:"review" },
+  { id:"F1.5", t:"Deploy + smoke en vivo (mantenedor) [TRACK TEMPRANO INDEPENDIENTE]", dep:"— (deploy va antes que F1.7–F1.10)", ver:"smoke verde", note:"link caído (000): verificar" },
+  { id:"F1.6", t:"Reapilar rama 8604f55 en commits compliant", dep:"F1.1", ver:"hooks + CI" },
+  { id:"F1.7", t:"Higiene: quitar dep ai y attachments, i18n FR-13 (en vuelo local, sin push)", dep:"F1.6", ver:"lint/build" },
+  { id:"F1.8", t:"Reducer de conversación (fricción 6)", dep:"F1.6", ver:"build + escenarios" },
+  { id:"F1.9", t:"vocabulary.ts con fallback crudo (fricción 3)", dep:"F1.6", ver:"build" },
+  { id:"F1.10", t:"Spec TSD-021 premium en proposed", dep:"redacta ya", ver:"review" } ] },
+ { cls:"f2", tag:"FASE 2", name:"Experiencia premium · cero backend", exit:"Salida: demo navegable ES/PT sin tocar service.py ni el smoke.", tasks:[
+  { id:"F2.1", t:"CaseStudy + timeline del caso", dep:"F1.8, F1.9, F1.10", ver:"build + escenarios" },
+  { id:"F2.2", t:"Input adaptativo (registry + decide portados, modo C)", dep:"F1.10, F1.7", ver:"typing manual", note:"base existe (composer #71), falta port registry+decide" },
+  { id:"F2.3", t:"Cards dinámicas + panel caso en cola (fricciones 1, 2a)", dep:"F2.1, F2.2", ver:"UC-4/UC-5" },
+  { id:"F2.4", t:"ChainOfThought fiel al fuente real (D1c)", dep:"F1.9", ver:"build + traza", note:"adaptador local existe, falta port fuente real" },
+  { id:"F2.5", t:"Glassbox con labels + barras vs threshold", dep:"F1.9", ver:"build", note:"línea de threshold espera ola de contrato" },
+  { id:"F2.6", t:"Nivel A coreografiado con copy honesto", dep:"F2.1–F2.5", ver:"demo manual" } ] },
+ { cls:"f3", tag:"FASE 3", name:"Laya como Jev + cierre (condicional)", exit:"Salida: demo en vivo con o sin endpoint según medición. Si Q1 falla: F3.2+F3.3+F3.5+F3.6.", tasks:[
+  { id:"F3.0a", t:"Q1 latencia en el Space (GO si p95 ≤800 ms)", dep:"T-304 (necesita el Space en vivo)", ver:"medición" },
+  { id:"F3.0b", t:"Q2 sonda PT (GO si comparable a ES)", dep:"install local de Laya; no necesita Space en vivo", ver:"medición" },
+  { id:"F3.1", t:"Endpoint POST /api/composer/intent + pool dedicado", dep:"GO Q1/Q2 + F2.2", ver:"pytest offline" },
+  { id:"F3.2", t:"Exponer intent del turno (misma ola)", dep:"salida Fase 2", ver:"pytest + build" },
+  { id:"F3.3", t:"policy_version en TraceStep (misma ola)", dep:"F3.1/F3.2", ver:"pytest + build" },
+  { id:"F3.4", t:"Spike SSE opcional (Nivel B solo si valida)", dep:"F2.6", ver:"spike" },
+  { id:"F3.5", t:"Runbook subida a v3 + re-sintonía contingente", dep:"—", ver:"docs" },
+  { id:"F3.6", t:"Cierre: verificación total, docs, deploy, smoke", dep:"F3.1–F3.5", ver:"todo verde" } ] },
+ { cls:"fe", tag:"OLA FE-1", name:"5 PRs frontend (carril paralelo)", exit:"Un PR por tarea + 2º commit CHANGELOG cada uno. Orden: PR-1 ✅ → PR-4 → PR-2 → PR-3 → PR-5.", tasks:[
+  { id:"PR-1", t:"Voz local (feat/voice-input) — SUBIDO, falta evidencia lint/build", dep:"—", ver:"lint/build + matriz" },
+  { id:"PR-4", t:"Trazabilidad segura (c438b65 + fix i18n 4 líneas)", dep:"—", ver:"lint/build" },
+  { id:"PR-2", t:"Caso local (re-resuelto tras merge voz)", dep:"merge PR-1", ver:"lint/build" },
+  { id:"PR-3", t:"Intent-card (tras merge PR-2)", dep:"merge PR-2", ver:"lint/build" },
+  { id:"PR-5", t:"Stop voz al enviar (tras PR-2)", dep:"merge PR-2", ver:"lint/build" } ] }
+];
+var KEY = "calvino-roadmap-v2";
+// Checks iniciales según merges reales; lo guardado en este navegador manda.
+var DEFAULTS = {"F1.1":true,"F1.2":true,"F1.3":true,"F1.4":true,"F1.6":true,"PR-1":true};
+function load() { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { return {}; } }
+function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+var state = load();
+for (var k in DEFAULTS) { if (!(k in state)) state[k] = DEFAULTS[k]; }
+function render() {
+  var app = document.getElementById("app"); app.innerHTML = "";
+  var total = 0, done = 0;
+  PHASES.forEach(function (ph) {
+    total += ph.tasks.length;
+    var pd = ph.tasks.filter(function (t) { return state[t.id]; }).length; done += pd;
+    var sec = document.createElement("section"); sec.className = "phase " + ph.cls;
+    var pct = Math.round(100 * pd / ph.tasks.length);
+    sec.innerHTML = '<header><span class="tag">' + ph.tag + '</span><strong>' + ph.name + '</strong>' +
+      '<div class="pbar"><span style="width:' + pct + '%"></span></div>' +
+      '<span class="pcount">' + pd + "/" + ph.tasks.length + "</span></header>";
+    var ul = document.createElement("ul"); ul.className = "tasks";
+    ph.tasks.forEach(function (t) {
+      var li = document.createElement("li");
+      var cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = !!state[t.id];
+      cb.setAttribute("aria-label", t.id);
+      cb.onchange = function () { state[t.id] = cb.checked; save(state); render(); };
+      var div = document.createElement("div"); div.className = "t" + (state[t.id] ? " done" : "");
+      div.innerHTML = "<b>" + t.id + " · " + t.t + "</b><div class='meta'>Dep: <code>" + t.dep +
+        "</code> · Verifica: <code>" + t.ver + "</code>" + (t.note ? " · " + t.note : "") + "</div>";
+      li.appendChild(cb); li.appendChild(div); ul.appendChild(li);
+    });
+    sec.appendChild(ul);
+    var ex = document.createElement("p"); ex.className = "exit"; ex.innerHTML = "<b>Salida:</b> " + ph.exit;
+    sec.appendChild(ex); app.appendChild(sec);
+  });
+  document.getElementById("gtotal-label").textContent = "Progreso total: " + done + "/" + total;
+  document.getElementById("gtotal-bar").style.width = Math.round(100 * done / total) + "%";
+}
+document.getElementById("btn-reset").onclick = function () {
+  if (confirm("¿Desmarcar todas las tareas?")) { state = {}; save(state); render(); }
+};
+document.getElementById("btn-copy").onclick = function () {
+  var lines = ["Roadmap UI Calvino — estado:"];
+  PHASES.forEach(function (ph) {
+    lines.push("");
+    lines.push(ph.tag + " " + ph.name + ":");
+    ph.tasks.forEach(function (t) { lines.push((state[t.id] ? "[x]" : "[ ]") + " " + t.id + " " + t.t); });
+  });
+  var ta = document.getElementById("out"); ta.value = lines.join("\n"); ta.select();
+  try { document.execCommand("copy"); } catch (e) {}
+};
+render();
+</script>
+</body>
+</html>
