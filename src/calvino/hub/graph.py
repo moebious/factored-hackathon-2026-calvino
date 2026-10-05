@@ -445,7 +445,7 @@ def build_hub_graph(
                 answer.question_id: answer
                 for answer in deps.loader.classify(state.get("message", ""), workflow_questions())
             }
-            scores = scores_from_answers(answers)
+            scores = scores_from_answers(answers, deps.policy.route.confidence_source)
         except Exception:
             # A failing System 1 leaves nothing to decide on: fail closed to a
             # person, exactly like missing scores inside decide_route.

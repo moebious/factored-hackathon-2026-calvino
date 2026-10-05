@@ -45,7 +45,7 @@ In order; items 1–3 block the submission.
 | 2 | Portuguese coverage: PT scenarios and an evaluation slice (the brief requires ES and PT; the suite has none) | session | — |
 | 3 | Re-run the evaluation after #59: `--suite tier0`, then `--suite all` for the bare-LLM ablation and the judge false-pass rate; finish the gold sheet (18/50) first | maintainer, session | 4 |
 | 4 | Judge key: OpenRouter key with a spending cap (decision 28); agent token for Hetzner | maintainer | — |
-| 5 | Tuning pass on the evaluation findings: the 13 unnecessary escalations and the missed escalation on ADV-002. **It also gates the LLM evaluation:** only 2 of 50 cases reach the agent until live laya stops over-escalating routine Spanish | session | 3 |
+| 5 | Tuning pass on the evaluation findings (**policy v3 is adopted as the default, decision 44**, TSD-026): the 13 unnecessary escalations and the missed escalation on ADV-002. **It also gates the LLM evaluation:** only 2 of 50 cases reach the agent until live laya stops over-escalating routine Spanish | session | 3 |
 | 5b | A judge that answers inside the hub for build/test runs (the NVIDIA `deepseek-v4.1-flash` times out on every criterion); decision 39 proposes the choice | maintainer | — |
 | 6 | Per-language thresholds as `policy/v3.yaml` (decision 33), when the hub reads per-language scores | session | 5 |
 | 7 | Ask the organizers whether the dataset key should be rotated; fix the access key id in the environment (must be 20 characters) | maintainer | — |

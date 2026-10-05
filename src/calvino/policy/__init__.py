@@ -1,6 +1,6 @@
 """Policy engine (TSD-001): hard rules and the versioned thresholds that turn calibrated scores
 into deterministic verdicts. No model calls; thresholds and limits live in the versioned policy
-files (``policy/v2.yaml`` is the default; ``policy/v1.yaml`` stays for replay).
+files (``policy/v3.yaml`` is the default; v1 and v2 stay for replay).
 """
 
 from calvino.policy.config import DEFAULT_POLICY_PATH, Policy, load_policy

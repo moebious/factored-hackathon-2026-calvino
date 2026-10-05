@@ -29,6 +29,8 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-024](TSD-024-cleaned-table-adapter.md): cleaned-table adapter (T-206, implemented)
 - [TSD-025](TSD-025-durable-cases.md): durable cases and process restart recovery (T-401, proposed)
 
-Later tasks write their spec from their task card as the first step, numbered from TSD-026, and wait for the maintainer's approval before any code.
+- [TSD-026](TSD-026-routing-on-separating-signals.md): routing on the signals that separate, policy v3 (measured; adopted)
+
+Later tasks write their spec from their task card as the first step, numbered from TSD-027, and wait for the maintainer's approval before any code.
 
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.

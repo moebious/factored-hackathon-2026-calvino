@@ -22,7 +22,7 @@ from calvino.api.config import ApiSettings, settings_from_env
 from calvino.api.hub import build_demo_hub
 from calvino.classifiers import LayaAnswer
 from calvino.decision_log import DecisionLog
-from calvino.policy import load_policy
+from calvino.policy import DEFAULT_POLICY_PATH, load_policy
 from calvino.tools import CleanedTableAdapter, FakeConfirmationVerifier
 
 CLEANED_FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "cleaned_bank"
@@ -105,9 +105,20 @@ def make_hub_client(tmp_path, monkeypatch):
         settings = ApiSettings(data_dir=tmp_path)
         log = DecisionLog(settings.decisions_log)
         hub = build_demo_hub(
-            loader, settings, load_policy(), log, confirmations=FakeConfirmationVerifier()
+            loader,
+            settings,
+            load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml")),
+            log,
+            confirmations=FakeConfirmationVerifier(),
         )
-        return TestClient(create_app(loader, settings, policy=load_policy(), hub=hub))
+        return TestClient(
+            create_app(
+                loader,
+                settings,
+                policy=load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml")),
+                hub=hub,
+            )
+        )
 
     return build
 
@@ -134,7 +145,7 @@ def test_demo_hub_accepts_an_explicit_adapter_and_fraud_context(tmp_path, monkey
         hub = build_demo_hub(
             ScriptedLoader(route_probabilities()),
             settings,
-            load_policy(),
+            load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml")),
             DecisionLog(settings.decisions_log),
             confirmations=FakeConfirmationVerifier(),
             bank_adapter=adapter,
@@ -330,7 +341,7 @@ def test_only_the_template_agent_gets_the_not_run_judge(tmp_path, monkeypatch):
         hub = build_demo_hub(
             ScriptedLoader(route_probabilities()),
             settings,
-            load_policy(),
+            load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml")),
             DecisionLog(settings.decisions_log),
             confirmations=FakeConfirmationVerifier(),
             **kwargs,

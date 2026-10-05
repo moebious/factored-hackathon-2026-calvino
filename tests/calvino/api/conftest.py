@@ -11,7 +11,7 @@ import pytest
 
 from calvino.api.config import ApiSettings
 from calvino.classifiers import LayaAnswer
-from calvino.policy import load_policy
+from calvino.policy import DEFAULT_POLICY_PATH, load_policy
 
 
 class FakeLoader:
@@ -64,7 +64,7 @@ def fake_loader_factory():
 @pytest.fixture(scope="session")
 def policy():
     """The released policy (v2), loaded exactly as the API loads it."""
-    return load_policy()
+    return load_policy(DEFAULT_POLICY_PATH.with_name("v2.yaml"))
 
 
 @pytest.fixture

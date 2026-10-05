@@ -16,6 +16,7 @@ from calvino.classifiers import LayaAnswer, workflow_questions
 from calvino.classifiers.laya import (
     QUESTION_CLEAR_ENOUGH,
     QUESTION_INJECTION,
+    QUESTION_INTENT,
     QUESTION_NEEDS_HUMAN,
     QUESTION_WORKFLOW_AREA,
 )
@@ -49,13 +50,19 @@ class DemoDecision(BaseModel):
     answers: dict[str, DemoAnswer]
 
 
-def scores_from_answers(answers: dict[str, LayaAnswer]) -> dict[str, float]:
+def scores_from_answers(
+    answers: dict[str, LayaAnswer], confidence_source: str = "min_all"
+) -> dict[str, float]:
     """Map Laya's workflow answers onto the score fields ``decide_route`` reads.
 
     Each score is one specific option's probability, except
     ``workflow_dispute_or_fraud`` (the sum of two workflow-area options) and
     ``confidence``: the minimum calibrated confidence across the answers, the
     most conservative aggregate until the hub defines the real one (T-204).
+    ``confidence_source`` is the policy's choice (``route.confidence_source``): ``min_all`` is
+    the original aggregate, ``workflow_area`` uses the calibrated confidence of the workflow-area
+    answer alone, because the minimum over all five answers is dragged down by the six-option
+    intent question and blocked routine messages by itself (TSD-021).
     A missing question or option means the question set drifted from the
     policy, so this raises instead of guessing a score.
     """
@@ -66,10 +73,16 @@ def scores_from_answers(answers: dict[str, LayaAnswer]) -> dict[str, float]:
             "clear_enough": answers[QUESTION_CLEAR_ENOUGH].probabilities["clear"],
             "injection": answers[QUESTION_INJECTION].probabilities["risky"],
             "workflow_out_of_scope": area["out of scope"],
+            "workflow_stuck_payment": area["stuck payment"],
+            "talk_to_person": answers[QUESTION_INTENT].probabilities["talk to a person"],
             "workflow_dispute_or_fraud": (
                 area["dispute or unrecognised charge"] + area["fraud or stolen access"]
             ),
-            "confidence": min(answer.confidence for answer in answers.values()),
+            "confidence": (
+                answers[QUESTION_WORKFLOW_AREA].confidence
+                if confidence_source == "workflow_area"
+                else min(answer.confidence for answer in answers.values())
+            ),
         }
     except KeyError as error:
         raise ValueError(f"incomplete laya answers: missing {error}") from error
@@ -91,7 +104,7 @@ def run_demo_decision(
     """
     answers_list = loader.classify(text, workflow_questions())
     answers = {answer.question_id: answer for answer in answers_list}
-    scores = scores_from_answers(answers)
+    scores = scores_from_answers(answers, policy.route.confidence_source)
     facts = Facts(
         session_ref=session_ref_for(DEMO_SESSION_TOKEN),
         fraud_signal=False,

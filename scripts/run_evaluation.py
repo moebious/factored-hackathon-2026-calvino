@@ -87,7 +87,7 @@ from calvino.llm import (
     judge_client_from_env,
     load_providers,
 )
-from calvino.policy import load_policy
+from calvino.policy import Policy, load_policy
 from calvino.tools import HmacConfirmationVerifier
 from calvino.verifier.judge import JUDGE_PROMPT_VERSION, OpenAiJudge
 from calvino.verifier.rubric import load_rubric
@@ -176,6 +176,7 @@ def default_hub_factory(
     env: Mapping[str, str],
     llm: LiveLlm | None = None,
     checkpoint: CheckpointRef | None = None,
+    policy: Policy | None = None,
 ) -> HubFactory:
     """The production assembly, timed: Laya in ``TimedLoader``, policy v2.
 
@@ -188,7 +189,7 @@ def default_hub_factory(
     loader = LayaLoader(checkpoint=checkpoint)
     loader.preload()  # fail fast: a missing checkpoint must not surface mid-suite
     fixture_path = settings_from_env(env).bank_fixture
-    policy = load_policy()
+    policy = policy if policy is not None else load_policy()
 
     def factory(data_dir: Path, timer: ModelTimer) -> HubService:
         settings = ApiSettings(data_dir=data_dir, bank_fixture=fixture_path)
@@ -253,6 +254,7 @@ def build_header(
     llm: LiveLlm | None = None,
     llm_priced: bool = True,
     checkpoint: CheckpointRef | None = None,
+    policy: Policy | None = None,
 ) -> RunHeader:
     """Every version and label the run's numbers travel with.
 
@@ -265,7 +267,7 @@ def build_header(
         suite=suite,
         repeats=repeats,
         evidence_label="offline",
-        policy_version=load_policy().version,
+        policy_version=(policy if policy is not None else load_policy()).version,
         playbook_version=load_playbook().version,
         rubric_version=load_rubric().ref,
         judge_prompt_version=JUDGE_PROMPT_VERSION,
@@ -347,6 +349,11 @@ def main(
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--suite", choices=("tier0", "all"), default="tier0")
     parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument(
+        "--policy",
+        default=None,
+        help="policy version to evaluate, e.g. v3 (default: the released default)",
+    )
     parser.add_argument("--cases-dir", type=Path, default=DEFAULT_CASES_DIR)
     parser.add_argument("--scenarios-dir", type=Path, default=DEFAULT_SCENARIOS_DIR)
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
@@ -368,8 +375,11 @@ def main(
 
     cases = load_suite(args.cases_dir, args.scenarios_dir)
     llm = live_llm(values) if hub_factory is None else None
+    policy = load_policy(REPO_ROOT / "policy" / f"{args.policy}.yaml") if args.policy else None
     factory = (
-        hub_factory if hub_factory is not None else default_hub_factory(values, llm, checkpoint)
+        hub_factory
+        if hub_factory is not None
+        else default_hub_factory(values, llm, checkpoint, policy)
     )
     fixture_path = settings_from_env(values).bank_fixture
     fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
@@ -394,6 +404,7 @@ def main(
             llm,
             llm_priced=not runner.unpriced_roles,
             checkpoint=checkpoint,
+            policy=policy,
         ),
         results=results,
         determinism=runner.determinism_findings,
