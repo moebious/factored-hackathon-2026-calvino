@@ -12,7 +12,10 @@ import argparse
 import csv
 import difflib
 import json
+import os
+import stat
 import sys
+import tempfile
 import unicodedata
 from datetime import date
 from pathlib import Path
@@ -269,13 +272,34 @@ def _replacement_reasons(replacements: list[str], reasons: list[str]) -> dict[tu
 
 
 def _append_corrections(path: Path, corrections: list[dict[str, Any]]) -> None:
-    """Append explicit, reasoned replacements to the JSONL correction ledger."""
+    """Append explicit, reasoned replacements atomically to the JSONL ledger."""
     if not corrections:
         return
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as destination:
-        for correction in corrections:
-            destination.write(json.dumps(correction, ensure_ascii=False) + "\n")
+    existing = path.read_text(encoding="utf-8") if path.exists() else ""
+    separator = "" if not existing or existing.endswith("\n") else "\n"
+    additions = "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in corrections)
+    _atomic_write_text(path, existing + separator + additions)
+
+
+def _atomic_write_text(path: Path, content: str) -> None:
+    """Replace one file through a same-directory temporary file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        dir=path.parent, prefix=f".{path.name}.", suffix=".tmp"
+    )
+    temporary_path = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as destination:
+            destination.write(content)
+            destination.flush()
+            os.fsync(destination.fileno())
+        if path.exists():
+            os.chmod(temporary_path, stat.S_IMODE(path.stat().st_mode))
+        os.replace(temporary_path, path)
+    finally:
+        if temporary_path.exists():
+            temporary_path.unlink()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -328,7 +352,7 @@ def main(argv: list[str] | None = None) -> int:
             f"reason: {correction['reason']}"
         )
     if args.apply:
-        args.gold_sheet.write_text(merged, encoding="utf-8")
+        _atomic_write_text(args.gold_sheet, merged)
         _append_corrections(args.correction_ledger, corrections)
         print(f"Applied merge to {args.gold_sheet}.")
         if corrections:

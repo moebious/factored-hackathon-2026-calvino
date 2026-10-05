@@ -219,3 +219,18 @@ def test_replace_argument_requires_matching_reason_and_valid_field():
         importer._replacement_reasons(["gold-001:human_outcome"], [])
     with pytest.raises(ValueError, match="invalid replacement"):
         importer._replacement_reasons(["gold-001:labels.workflow_area"], ["reason"])
+
+
+def test_failed_atomic_replace_preserves_original_gold_file(tmp_path, monkeypatch):
+    gold, worksheet, _ = _files(tmp_path, human_outcome="act_block")
+    original = gold.read_text(encoding="utf-8")
+
+    def fail_replace(source, destination):
+        raise OSError("simulated rename failure")
+
+    monkeypatch.setattr(importer.os, "replace", fail_replace)
+    with pytest.raises(OSError, match="simulated rename failure"):
+        importer.main(["--csv", str(worksheet), "--gold-sheet", str(gold), "--apply"])
+
+    assert gold.read_text(encoding="utf-8") == original
+    assert list(tmp_path.glob(".gold.jsonl.*.tmp")) == []
