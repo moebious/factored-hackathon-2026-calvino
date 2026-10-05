@@ -166,3 +166,35 @@ def test_unknown_fraud_status_refuses_before_consuming_token(
         amount=original.entry.amount,
         currency=original.entry.currency,
     )
+
+
+@pytest.mark.parametrize("missing_field", ["amount", "currency"])
+def test_known_fraud_flag_precedes_missing_confirmation_facts(
+    dataset_env: Env, missing_field: str
+) -> None:
+    session = dataset_env.session("C-MX-001")
+    original = dataset_env.adapter._records["E-MX-002"]
+    token = dataset_env.token("C-MX-001", "request_cancellation", "E-MX-002")
+    dataset_env.adapter._records["E-MX-002"] = original.model_copy(
+        update={
+            "entry": original.entry.model_copy(update={missing_field: None}),
+            "fraud_flagged": True,
+        }
+    )
+
+    error = refused(
+        lambda: dataset_env.tools.request_cancellation(
+            session, "E-MX-002", "fraud-incomplete", token
+        )
+    )
+
+    assert error.rule is Rule.FRAUD_FLAGGED
+    assert dataset_env.adapter.action_log == []
+    dataset_env.verifier.verify_and_consume(
+        token,
+        customer_id="C-MX-001",
+        action="request_cancellation",
+        target_reference="E-MX-002",
+        amount=original.entry.amount,
+        currency=original.entry.currency,
+    )
