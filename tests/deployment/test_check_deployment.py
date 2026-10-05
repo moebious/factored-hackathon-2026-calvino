@@ -285,3 +285,19 @@ def test_a_failing_check_exits_one(monkeypatch, capsys) -> None:
     captured = capsys.readouterr()
     assert code == 1
     assert "FAIL" in captured.out
+
+
+def test_the_backend_only_flag_skips_frontend(monkeypatch, capsys) -> None:
+    responders = _healthy_responders()
+    # The frontend returns 404 (as a backend-only container does at root /)
+    responders[("GET", "/")] = StubResponse(status_code=404)
+
+    def factory(timeout: float) -> StubClient:
+        return StubClient(responders)
+
+    code = cd.main(["--url", BASE, "--backend-only"], client_factory=factory)
+    captured = capsys.readouterr()
+    total = 3 + len(cd.SCENARIOS)
+    assert code == 0
+    assert f"{total}/{total} checks passed" in captured.out
+    assert "frontend served" not in captured.out
