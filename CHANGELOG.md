@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Deployment image packaging and runtime assets (TSD-003, T-304, blocker G1): fixed `.dockerignore` to permit copying `tests/fixtures/bank/synthetic_bank.json`, copied required hub runtime assets (`playbooks/`, `prompts/`, `rubrics/`) into the image so `build_demo_hub` does not throw `FileNotFoundError` (503), and included all declared project dependencies (`duckdb`, `boto3`, `langgraph`, etc.) with PyTorch CPU index.
 
 ### Changed
+- Closed out T-206 (cleaned-table adapter, TSD-024): the read-only DuckDB adapter, nullable source fields, explicit adapter injection, restart-safe lineage, and fail-closed writes are merged (#92, #102) with 45 passing tests.
 - Default policy version updated to Policy v4: `DEFAULT_POLICY_PATH` points to `policy/v4.yaml` with route `min_confidence: 0.50`.
 - README refactored to be durable and evergreen: dynamic point-in-time facts (hardcoded test counts, transient run scores, ephemeral task blockers, and 86 lines of S3 ETL procedures) removed; upgraded the system architecture diagram to visually capture the 4-tier cognitive hierarchy (Systems 1, 1.5, 2, 3), the Gate, and the data flywheel; added an ISO 20022 message contract specification table; streamlined Quick Start and fixed `docker run` to include `CALVINO_CONFIRMATION_KEY`.
 - T-103 is complete for labels, splits, leakage rules, rubric, schema and worksheet tooling; the remaining System 3 gold annotation and agreement report are tracked separately in T-107.

@@ -26,7 +26,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-021](TSD-021-freshness-fixture.md): update-correctness fixture (T-105, proposed)
 - [TSD-022](TSD-022-intent-driven-customer-app.md): intent-driven customer app and visual investigation (T-207, implemented)
 - [TSD-023](TSD-023-operator-console.md): operator workspace and audit timeline (T-302, implemented)
-- [TSD-024](TSD-024-cleaned-table-adapter.md): cleaned-table adapter (T-206, implemented)
+- [TSD-024](TSD-024-cleaned-table-adapter.md): cleaned-table adapter (T-206, implemented; merged in #92, #102)
 - [TSD-025](TSD-025-durable-cases.md): durable cases and process restart recovery (T-401, proposed)
 - [TSD-026](TSD-026-routing-on-separating-signals.md): routing on the signals that separate, policy v3 (measured; adopted)
 - [TSD-027](TSD-027-classifier-evaluation.md): classifier evaluation and thresholds (T-201, proposed)
