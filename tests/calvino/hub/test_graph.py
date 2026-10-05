@@ -264,6 +264,34 @@ def test_out_of_scope_is_honest_and_tool_free(deps_factory, fake_loader_factory)
     assert agent.requests == []
 
 
+def test_cited_reference_anchors_free_text_to_verified_evidence(deps_factory, fake_loader_factory):
+    """Free text naming one entry is explained from a verified read even when
+    Laya scores it out of scope: the reference anchors the turn."""
+    agent = ScriptedAgent([AgentDraft(tool_calls=(ENTRY_CALL,)), AgentDraft(text=GOOD_REPLY)])
+    loader = fake_loader_factory(
+        route_probabilities(
+            workflow_area={
+                "stuck payment": 0.01,
+                "dispute or unrecognised charge": 0.01,
+                "fraud or stolen access": 0.01,
+                "other banking": 0.02,
+                "out of scope": 0.95,
+            }
+        )
+    )
+    deps = deps_factory(loader, agent)
+
+    final, _ = invoke(deps, "ana", "¿Cuál es el estado de mi transferencia E-MX-002?")
+
+    assert final["route"] is Route.AGENTS
+    assert final["rule_id"] == "RT-REF-ANCHORED"
+    assert final["reply"] == GOOD_REPLY
+    assert final["entry_reference"] == "E-MX-002"
+    assert final["card"]["key"] == "payment_status"
+    assert final["card"]["payload"]["entry_reference"] == "E-MX-002"
+    assert [record.rule_id for record in records_of(deps, Stage.CLASSIFIER)] == ["RT-REF-ANCHORED"]
+
+
 def test_asks_for_human_hard_rule_wins(deps_factory, fake_loader_factory):
     """AC-4: an explicit request for a person routes to a human before any
     score, parks the turn on the operator queue, and ends with the case open."""

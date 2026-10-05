@@ -662,13 +662,18 @@ def test_warmup_runs_once_and_is_discarded():
 
 
 def test_disagreeing_repeats_become_findings():
-    """Determinism (AC-8 at suite scale): a flaky loader is reported, not averaged."""
+    """Determinism (AC-8 at suite scale): a flaky loader is reported, not averaged.
+
+    The message names no entry reference on purpose: a cited reference
+    anchors the turn on the agent (RT-REF-ANCHORED), which would park this
+    unclear write at the Gate instead of exercising the flaky route.
+    """
     factory, _, _ = make_factory(FlakyLoader())
     runner = EvaluationRunner(factory, repeats=2)
     case = make_case(
         "T-FLAKY",
         "ana",
-        "Cancela la transferencia E-MX-002",
+        "Cancela mi transferencia pendiente",
         intent="cancel",
         status="Pending",
         seed_record="E-MX-002",
