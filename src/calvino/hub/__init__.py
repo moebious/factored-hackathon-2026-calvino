@@ -57,6 +57,13 @@ from calvino.hub.service import (
 )
 from calvino.hub.sessions import DEFAULT_SESSION_TTL, DEMO_PERSONAS, TrustedSessionIssuer
 from calvino.hub.state import HubStage, HubState
+from calvino.hub.storage import (
+    CaseRecord,
+    CaseStore,
+    MemoryCaseStore,
+    SqliteCaseStore,
+    create_case_store,
+)
 from calvino.hub.template_agent import TemplateAgent
 
 __all__ = [
@@ -72,6 +79,8 @@ __all__ = [
     "WORKFLOW_STATUSES",
     "AgentDraft",
     "AgentRequest",
+    "CaseRecord",
+    "CaseStore",
     "ConfirmationIssuer",
     "FraudContext",
     "HubDependencies",
@@ -80,10 +89,12 @@ __all__ = [
     "HubStage",
     "HubState",
     "LlmAgent",
+    "MemoryCaseStore",
     "OperatorQueueItem",
     "Playbook",
     "PromptSet",
     "ScriptedAgent",
+    "SqliteCaseStore",
     "StatusGuidance",
     "SupportAgent",
     "TemplateAgent",
@@ -91,6 +102,7 @@ __all__ = [
     "TraceStep",
     "TrustedSessionIssuer",
     "build_hub_graph",
+    "create_case_store",
     "load_playbook",
     "load_prompts",
 ]
