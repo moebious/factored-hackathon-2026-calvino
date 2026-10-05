@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import type { AttachmentItem, HubReply, Turn } from "../types";
 import type { CaseStudy, CaseStudyStatus, OperatorQueueItem } from "../types/case-study";
 import { detectIntent } from "../components/intent-driven/intent-engine";
@@ -27,14 +27,114 @@ function deriveCaseTitle(message: string, reply: HubReply | null): string {
   return "Consulta Bancaria";
 }
 
+type ConversationState = {
+  ready: boolean | null;
+  persona: string;
+  personas: string[];
+  turns: Turn[];
+  selected: number | null;
+  busy: boolean;
+  error: string | null;
+};
+
+const initialConversationState: ConversationState = {
+  ready: null,
+  persona: "ana",
+  personas: ["ana", "camilo", "lucia", "dana"],
+  turns: [],
+  selected: null,
+  busy: false,
+  error: null,
+};
+
+type ConversationAction =
+  | { type: "ready"; ready: boolean | null }
+  | { type: "persona"; persona: string }
+  | { type: "personas"; personas: string[] }
+  | { type: "turn-append"; message: string; attachments: AttachmentItem[] }
+  | { type: "turn-reply"; index: number; reply: HubReply }
+  | { type: "turn-error"; index: number; error: string }
+  | { type: "turn-decide"; index: number; reply: HubReply }
+  | { type: "select"; index: number | null }
+  | { type: "busy"; busy: boolean }
+  | { type: "error"; error: string | null };
+
+function conversationReducer(
+  state: ConversationState,
+  action: ConversationAction
+): ConversationState {
+  switch (action.type) {
+    case "ready":
+      return { ...state, ready: action.ready };
+    case "persona":
+      return { ...state, persona: action.persona };
+    case "personas":
+      return { ...state, personas: action.personas };
+    case "turn-append":
+      return {
+        ...state,
+        turns: [
+          ...state.turns,
+          {
+            message: action.message,
+            reply: null,
+            error: null,
+            attachments: action.attachments,
+            decided: false,
+          },
+        ],
+      };
+    case "turn-reply":
+      return {
+        ...state,
+        turns: state.turns.map((turn, idx) =>
+          idx === action.index ? { ...turn, reply: action.reply, error: null } : turn
+        ),
+      };
+    case "turn-error":
+      return {
+        ...state,
+        turns: state.turns.map((turn, idx) =>
+          idx === action.index ? { ...turn, error: action.error } : turn
+        ),
+      };
+    case "turn-decide":
+      return {
+        ...state,
+        turns: state.turns.map((turn, idx) =>
+          idx === action.index ? { ...turn, reply: action.reply, decided: true } : turn
+        ),
+      };
+    case "select":
+      return { ...state, selected: action.index };
+    case "busy":
+      return { ...state, busy: action.busy };
+    case "error":
+      return { ...state, error: action.error };
+    default:
+      return state;
+  }
+}
+
 export function useHubConversation() {
-  const [ready, setReady] = useState<boolean | null>(null);
-  const [persona, setPersona] = useState("ana");
-  const [personas, setPersonas] = useState(["ana", "camilo", "lucia", "dana"]);
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(conversationReducer, initialConversationState);
+  // Synchronous mirror for values an async turn needs between dispatches
+  // (the appended turn's index), which the reducer cannot return.
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const setPersona = useCallback(
+    (persona: string) => dispatch({ type: "persona", persona }),
+    []
+  );
+  const setSelected = useCallback(
+    (index: number | null) => dispatch({ type: "select", index }),
+    []
+  );
+  const setError = useCallback(
+    (error: string | null) => dispatch({ type: "error", error }),
+    []
+  );
 
   // Poll /ready
   useEffect(() => {
@@ -43,9 +143,9 @@ export function useHubConversation() {
       try {
         const response = await fetch("/ready");
         const body = await response.json();
-        if (active) setReady(Boolean(body.ready));
+        if (active) dispatch({ type: "ready", ready: Boolean(body.ready) });
       } catch {
-        if (active) setReady(false);
+        if (active) dispatch({ type: "ready", ready: false });
       }
     };
     poll();
@@ -62,7 +162,7 @@ export function useHubConversation() {
       if (response.ok) {
         const body = await response.json();
         if (Array.isArray(body.personas) && body.personas.length > 0) {
-          setPersonas(body.personas as string[]);
+          dispatch({ type: "personas", personas: body.personas as string[] });
         }
       }
     } catch {
@@ -86,81 +186,51 @@ export function useHubConversation() {
   }, []);
 
   const send = useCallback(
-    async (message: string, asPersona = persona, inputAttachments: AttachmentItem[] = []) => {
-      setBusy(true);
-      setError(null);
+    async (message: string, asPersona = stateRef.current.persona, inputAttachments: AttachmentItem[] = []) => {
+      dispatch({ type: "busy", busy: true });
+      dispatch({ type: "error", error: null });
 
       // Append new turn and immediately capture its target index
-      let targetIndex = 0;
-      setTurns((prev) => {
-        targetIndex = prev.length;
-        return [
-          ...prev,
-          {
-            message,
-            reply: null,
-            error: null,
-            attachments: inputAttachments,
-            decided: false,
-          },
-        ];
-      });
+      const targetIndex = stateRef.current.turns.length;
+      dispatch({ type: "turn-append", message, attachments: inputAttachments });
 
-      setSelected(targetIndex);
+      dispatch({ type: "select", index: targetIndex });
 
       try {
         const reply = await post("/api/hub/message", { persona: asPersona, text: message });
-        setTurns((prev) =>
-          prev.map((turn, idx) =>
-            idx === targetIndex
-              ? { ...turn, reply, error: null }
-              : turn
-          )
-        );
-        setSelected(targetIndex);
+        dispatch({ type: "turn-reply", index: targetIndex, reply });
+        dispatch({ type: "select", index: targetIndex });
       } catch (failure) {
         const detail = failure instanceof Error ? failure.message : "El servicio no responde";
-        setTurns((prev) =>
-          prev.map((turn, idx) =>
-            idx === targetIndex
-              ? { ...turn, error: detail }
-              : turn
-          )
-        );
-        setError(detail);
+        dispatch({ type: "turn-error", index: targetIndex, error: detail });
+        dispatch({ type: "error", error: detail });
       } finally {
-        setBusy(false);
+        dispatch({ type: "busy", busy: false });
       }
     },
-    [persona, post]
+    [post]
   );
 
   const resume = useCallback(
     async (index: number, ref: string, decision: boolean | string) => {
-      setBusy(true);
-      setError(null);
+      dispatch({ type: "busy", busy: true });
+      dispatch({ type: "error", error: null });
       try {
         const reply = await post("/api/hub/resume", { ref, decision });
-        setTurns((prev) =>
-          prev.map((turn, idx) =>
-            idx === index
-              ? { ...turn, reply, decided: true }
-              : turn
-          )
-        );
-        setSelected(index);
+        dispatch({ type: "turn-decide", index, reply });
+        dispatch({ type: "select", index });
       } catch (failure) {
         const detail = failure instanceof Error ? failure.message : "El servicio no responde";
-        setError(detail);
+        dispatch({ type: "error", error: detail });
       } finally {
-        setBusy(false);
+        dispatch({ type: "busy", busy: false });
       }
     },
     [post]
   );
 
   // Derived CaseStudy representations
-  const caseStudies: CaseStudy[] = turns.map((turn, index) => {
+  const caseStudies: CaseStudy[] = state.turns.map((turn, index) => {
     const intent = detectIntent(turn.message);
     const reply = turn.reply;
     const status = deriveCaseStatus(reply, turn.error);
@@ -196,23 +266,23 @@ export function useHubConversation() {
     };
   });
 
-  const selectedReply = selected !== null ? turns[selected]?.reply ?? null : null;
-  const selectedCase = selected !== null ? caseStudies[selected] ?? null : null;
+  const selectedReply = state.selected !== null ? state.turns[state.selected]?.reply ?? null : null;
+  const selectedCase = state.selected !== null ? caseStudies[state.selected] ?? null : null;
 
   return {
-    ready,
-    persona,
-    personas,
+    ready: state.ready,
+    persona: state.persona,
+    personas: state.personas,
     setPersona,
     loadPersonas,
-    turns,
+    turns: state.turns,
     caseStudies,
-    selected,
+    selected: state.selected,
     setSelected,
     selectedReply,
     selectedCase,
-    busy,
-    error,
+    busy: state.busy,
+    error: state.error,
     setError,
     send,
     resume,
@@ -300,4 +370,3 @@ export function useOperatorQueue() {
     resumeCase,
   };
 }
-
