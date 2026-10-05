@@ -245,6 +245,11 @@ Every gap names its blocker; nothing is silently missing.
 - **Portuguese set** — blocker: T-203.
 - **Gold hand-labelling (gold-subset agreement)** — blocker: T-103.
 - **Message-set expansion** — blocker: T-106.
+The frontend opens with a Shapeshift-style morphing composer. It supports
+local attachment previews, browser speech input, spoken replies and an
+evidence rail that renders the hub's verified trace as safe decision steps.
+Attachments are intentionally labeled local until the backend exposes an
+attachment-aware message contract.
 
 ## Start here
 
