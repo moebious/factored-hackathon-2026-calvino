@@ -14,6 +14,7 @@ import difflib
 import json
 import sys
 import unicodedata
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,7 @@ from calvino.data.labels import validate_gold_record  # noqa: E402
 
 DEFAULT_CSV = ROOT / "docs" / "templates" / "T-103-gold-outcome-annotations.csv"
 DEFAULT_GOLD = ROOT / "tests" / "fixtures" / "gold" / "gold-050.jsonl"
+DEFAULT_CORRECTION_LEDGER = ROOT / "reports" / "eval" / "T-103-gold-import-corrections.jsonl"
 
 CSV_FIELDS = (
     "gold_id",
@@ -52,6 +54,11 @@ FACT_FIELDS = {
 }
 BOOL_FIELDS = {"owner", "fraud_flag", "oracle_ambiguous", "oracle_in_scope"}
 OUTCOME_FIELDS = ("human_outcome", "outcome_annotator", "outcome_labelled_at")
+REPLACE_FIELDS = {f"oracle_facts.{field}" for field in FACT_FIELDS.values()} | set(OUTCOME_FIELDS)
+CSV_FIELD_FOR_PATH = {
+    **{f"oracle_facts.{target}": source for source, target in FACT_FIELDS.items()},
+    **{field: field for field in OUTCOME_FIELDS},
+}
 
 
 def _csv_value(column: str, raw: str) -> Any:
@@ -66,18 +73,6 @@ def _csv_value(column: str, raw: str) -> Any:
     return value
 
 
-def _merge_value(target: dict[str, Any], key: str, value: Any, *, label: str) -> bool:
-    """Set a missing value or accept an identical repeat; reject conflicts."""
-    if key in target:
-        if target[key] != value:
-            raise ValueError(
-                f"{label} already contains {target[key]!r}; refusing to replace it with {value!r}"
-            )
-        return False
-    target[key] = value
-    return True
-
-
 def _append_note(record: dict[str, Any], note: str) -> bool:
     """Append a worksheet note once, preserving any existing notes."""
     addition = note.strip()
@@ -90,8 +85,55 @@ def _append_note(record: dict[str, Any], note: str) -> bool:
     return True
 
 
-def prepare_import(csv_path: Path, gold_path: Path) -> tuple[str, str, int]:
+def _merge_annotation_value(
+    target: dict[str, Any],
+    key: str,
+    value: Any,
+    *,
+    gold_id: str,
+    field_path: str,
+    reasons: dict[tuple[str, str], str],
+    used_replacements: set[tuple[str, str]],
+    corrections: list[dict[str, Any]],
+) -> bool:
+    """Merge one supplied value, requiring an explicit reason to replace it."""
+    if key not in target:
+        target[key] = value
+        return True
+    old_value = target[key]
+    if old_value == value:
+        return False
+
+    replacement_key = (gold_id, field_path)
+    reason = reasons.get(replacement_key)
+    if reason is None:
+        raise ValueError(
+            f"{gold_id}.{field_path} already contains {old_value!r}; "
+            f"refusing to replace it with {value!r}"
+        )
+    target[key] = value
+    used_replacements.add(replacement_key)
+    corrections.append(
+        {
+            "gold_id": gold_id,
+            "field": field_path,
+            "old_value": old_value,
+            "new_value": value,
+            "reason": reason,
+            "corrected_at": date.today().isoformat(),
+        }
+    )
+    return True
+
+
+def prepare_import(
+    csv_path: Path,
+    gold_path: Path,
+    *,
+    replacement_reasons: dict[tuple[str, str], str] | None = None,
+) -> tuple[str, str, int, list[dict[str, Any]]]:
     """Validate a worksheet and produce a proposed JSONL merge in memory."""
+    replacement_reasons = replacement_reasons or {}
     original = gold_path.read_text(encoding="utf-8")
     rows: dict[str, dict[str, Any]] = {}
     order: list[str] = []
@@ -119,6 +161,8 @@ def prepare_import(csv_path: Path, gold_path: Path) -> tuple[str, str, int]:
 
     seen: set[str] = set()
     changed_fields = 0
+    corrections: list[dict[str, Any]] = []
+    used_replacements: set[tuple[str, str]] = set()
     for line_number, annotation in enumerate(worksheet_rows, 2):
         gold_id = (annotation.get("gold_id") or "").strip()
         if not gold_id:
@@ -169,18 +213,69 @@ def prepare_import(csv_path: Path, gold_path: Path) -> tuple[str, str, int]:
                     continue
                 value = _csv_value(field, raw)
                 target_field = FACT_FIELDS[field]
-                changed_fields += _merge_value(
-                    facts, target_field, value, label=f"{gold_id}.oracle_facts.{target_field}"
+                field_path = f"oracle_facts.{target_field}"
+                changed_fields += _merge_annotation_value(
+                    facts,
+                    target_field,
+                    value,
+                    gold_id=gold_id,
+                    field_path=field_path,
+                    reasons=replacement_reasons,
+                    used_replacements=used_replacements,
+                    corrections=corrections,
                 )
 
         for field, raw in supplied_outcome.items():
             if raw:
-                changed_fields += _merge_value(record, field, raw, label=f"{gold_id}.{field}")
+                changed_fields += _merge_annotation_value(
+                    record,
+                    field,
+                    raw,
+                    gold_id=gold_id,
+                    field_path=field,
+                    reasons=replacement_reasons,
+                    used_replacements=used_replacements,
+                    corrections=corrections,
+                )
         changed_fields += _append_note(record, annotation.get("notes") or "")
         validate_gold_record(record)
 
+    unused_replacements = set(replacement_reasons) - used_replacements
+    if unused_replacements:
+        gold_id, field = sorted(unused_replacements)[0]
+        raise ValueError(f"--replace {gold_id}:{field} did not change a supplied field")
     rendered = "".join(json.dumps(rows[gold_id], ensure_ascii=False) + "\n" for gold_id in order)
-    return original, rendered, changed_fields
+    return original, rendered, changed_fields, corrections
+
+
+def _replacement_reasons(replacements: list[str], reasons: list[str]) -> dict[tuple[str, str], str]:
+    """Parse paired --replace and --reason options, rejecting ambiguous input."""
+    if len(replacements) != len(reasons):
+        raise ValueError("each --replace requires one corresponding --reason")
+    parsed: dict[tuple[str, str], str] = {}
+    for item, reason in zip(replacements, reasons, strict=True):
+        gold_id, separator, field = item.partition(":")
+        if not separator or not gold_id or field not in REPLACE_FIELDS:
+            raise ValueError(
+                f"invalid replacement {item!r}; field must be one of {sorted(REPLACE_FIELDS)}"
+            )
+        key = (gold_id, field)
+        if key in parsed:
+            raise ValueError(f"duplicate replacement {item!r}")
+        if not reason.strip():
+            raise ValueError(f"replacement {item!r} requires a non-empty reason")
+        parsed[key] = reason.strip()
+    return parsed
+
+
+def _append_corrections(path: Path, corrections: list[dict[str, Any]]) -> None:
+    """Append explicit, reasoned replacements to the JSONL correction ledger."""
+    if not corrections:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as destination:
+        for correction in corrections:
+            destination.write(json.dumps(correction, ensure_ascii=False) + "\n")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -188,6 +283,20 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV)
     parser.add_argument("--gold-sheet", type=Path, default=DEFAULT_GOLD)
+    parser.add_argument("--correction-ledger", type=Path, default=DEFAULT_CORRECTION_LEDGER)
+    parser.add_argument(
+        "--replace",
+        action="append",
+        default=[],
+        metavar="GOLD_ID:FIELD",
+        help="allow replacing one existing annotation field; requires a matching --reason",
+    )
+    parser.add_argument(
+        "--reason",
+        action="append",
+        default=[],
+        help="reason paired by order with each --replace",
+    )
     parser.add_argument(
         "--apply",
         action="store_true",
@@ -195,7 +304,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    original, merged, changed_fields = prepare_import(args.csv, args.gold_sheet)
+    try:
+        replacement_reasons = _replacement_reasons(args.replace, args.reason)
+        original, merged, changed_fields, corrections = prepare_import(
+            args.csv, args.gold_sheet, replacement_reasons=replacement_reasons
+        )
+    except ValueError as error:
+        parser.error(str(error))
     diff = difflib.unified_diff(
         original.splitlines(keepends=True),
         merged.splitlines(keepends=True),
@@ -205,9 +320,19 @@ def main(argv: list[str] | None = None) -> int:
     diff_text = "".join(diff)
     print(diff_text or "No JSONL changes proposed.")
     print(f"Validated worksheet; {changed_fields} new field values.")
+    for correction in corrections:
+        print(
+            "Correction: "
+            f"{correction['gold_id']}.{correction['field']} "
+            f"{correction['old_value']!r} → {correction['new_value']!r}; "
+            f"reason: {correction['reason']}"
+        )
     if args.apply:
         args.gold_sheet.write_text(merged, encoding="utf-8")
+        _append_corrections(args.correction_ledger, corrections)
         print(f"Applied merge to {args.gold_sheet}.")
+        if corrections:
+            print(f"Appended correction ledger {args.correction_ledger}.")
     else:
         print("Preview only; pass --apply to write.")
     return 0

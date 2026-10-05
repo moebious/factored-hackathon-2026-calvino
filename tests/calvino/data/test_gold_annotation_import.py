@@ -168,12 +168,54 @@ def test_import_appends_notes_and_repeat_import_is_idempotent(tmp_path):
         writer.writeheader()
         writer.writerows(rows)
 
-    original, merged, count = importer.prepare_import(worksheet, gold)
+    original, merged, count, corrections = importer.prepare_import(worksheet, gold)
     assert count > 0
+    assert corrections == []
     assert json.loads(merged)["notes"] == "Reviewed as an empty record."
     assert gold.read_text(encoding="utf-8") == original
 
     gold.write_text(merged, encoding="utf-8")
-    repeated_original, repeated_merged, repeated_count = importer.prepare_import(worksheet, gold)
+    repeated_original, repeated_merged, repeated_count, _ = importer.prepare_import(worksheet, gold)
     assert repeated_count == 0
     assert repeated_merged == repeated_original
+
+
+def test_explicit_replacement_requires_reason_and_appends_correction_ledger(tmp_path, capsys):
+    gold, worksheet, _ = _files(tmp_path, status="Pending")
+    replacement = ("gold-test-001", "oracle_facts.status")
+    reason = "Maintainer rechecked the canonical scenario status."
+    ledger = tmp_path / "corrections.jsonl"
+
+    with pytest.raises(ValueError, match="refusing to replace"):
+        importer.prepare_import(worksheet, gold)
+
+    args = [
+        "--csv",
+        str(worksheet),
+        "--gold-sheet",
+        str(gold),
+        "--correction-ledger",
+        str(ledger),
+        "--replace",
+        ":".join(replacement),
+        "--reason",
+        reason,
+        "--apply",
+    ]
+    assert importer.main(args) == 0
+    output = capsys.readouterr().out
+    assert "Correction: gold-test-001.oracle_facts.status" in output
+    correction = json.loads(ledger.read_text(encoding="utf-8"))
+    assert correction["gold_id"] == "gold-test-001"
+    assert correction["field"] == "oracle_facts.status"
+    assert correction["old_value"] == "Pending"
+    assert correction["new_value"] == "Approved"
+    assert correction["reason"] == reason
+    assert json.loads(gold.read_text(encoding="utf-8"))["oracle_facts"]["status"] == "Approved"
+
+
+def test_replace_argument_requires_matching_reason_and_valid_field():
+    with pytest.raises(ValueError, match="one corresponding --reason"):
+        importer._replacement_reasons(["gold-001:human_outcome"], [])
+    with pytest.raises(ValueError, match="invalid replacement"):
+        importer._replacement_reasons(["gold-001:labels.workflow_area"], ["reason"])
