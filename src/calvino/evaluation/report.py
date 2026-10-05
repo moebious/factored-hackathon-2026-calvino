@@ -288,12 +288,32 @@ def _render_language(report: RunReport) -> list[str]:
     lines = ["## Language slices", "", "| Language | Outcome agreement | n |", "|---|---|---|"]
     for name, rate in slices.items():
         lines.append(f"| {name} | {_rate_cell(rate)} | {rate.denominator} |")
+    by_case = {r.case.id: r for r in report.results}
+    pairs = [(by_case[r.case.pair_of], r) for r in report.results if r.case.pair_of in by_case]
+    if not pairs:
+        lines += [
+            "",
+            "Dialect/language flip table: not run: T-203 pairs are absent from this run "
+            "(use `--with-portuguese`). The counterfactual suite stays Tier 1 (T-405).",
+        ]
+        return lines
+    same_route = sum(es.actual_route == pt.actual_route for es, pt in pairs)
+    same_outcome = sum(es.outcome == pt.outcome for es, pt in pairs)
     lines += [
         "",
-        "Dialect/language flip table: runs on whatever message pairs exist; today that is the "
-        "ES set alone, so the PT column is not run: T-203 (the Portuguese set). The "
-        "counterfactual suite stays Tier 1 (T-405).",
+        f"Paired Spanish/Portuguese flip table: {len(pairs)} translated pairs (same facts, only "
+        f"the language differs; synthetic, team-translated). "
+        f"Same route: {same_route}/{len(pairs)}. Same outcome: {same_outcome}/{len(pairs)}.",
+        "",
+        "| Pair | Spanish route | Portuguese route | Same outcome |",
+        "|---|---|---|---|",
     ]
+    for es, pt in pairs:
+        lines.append(
+            f"| {es.case.id} / {pt.case.id} | {es.actual_route} | {pt.actual_route} | "
+            f"{'yes' if es.outcome == pt.outcome else 'no'} |"
+        )
+    lines += ["", "Model-score effects and policy effects are not separated here (T-405)."]
     return lines
 
 

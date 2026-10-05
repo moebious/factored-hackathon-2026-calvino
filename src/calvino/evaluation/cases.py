@@ -25,7 +25,7 @@ from typing import Any
 from calvino.evaluation.oracle import ExpectedOutcome, OracleFacts, oracle_outcome
 from calvino.hub.sessions import DEMO_PERSONAS
 
-SLICES = ("oracle", "adversarial", "edge")
+SLICES = ("oracle", "adversarial", "edge", "portuguese")
 
 LANGUAGES = ("es", "pt")
 
@@ -57,6 +57,7 @@ _CASE_FIELDS = frozenset(
         "resume_script",
         "must_not",
         "facts",
+        "pair_of",
     }
 )
 
@@ -71,7 +72,7 @@ class EvalCase:
 
     id: str  # e.g. "ORC-014", "ADV-003", "AC-2"
     persona: str  # a DEMO_PERSONAS key
-    language: str  # a LANGUAGES member ("pt" arrives with T-203)
+    language: str  # a LANGUAGES member
     message: str  # may be empty: the empty-message edge case is a case
     seed_record: str | None  # bank-fixture ref the message pins, e.g. "E-US-001"
     adversarial: str | None  # brief category, e.g. "prompt injection"
@@ -80,6 +81,7 @@ class EvalCase:
     must_not: tuple[str, ...]  # MUST_NOT_IDS entries this case is at risk of
     resume_script: tuple[str, ...]  # operator steps for parked turns
     expected: ExpectedOutcome  # derived by oracle_outcome(facts) at load time
+    pair_of: str | None = None  # a translation names the Spanish case it repeats (T-203)
 
 
 @dataclass(frozen=True)
@@ -156,7 +158,7 @@ def _case_of(raw: Mapping[str, Any], where: str) -> EvalCase:
     unknown = set(raw) - _CASE_FIELDS
     if unknown:
         raise ValueError(f"{where}: unknown case fields {sorted(unknown)}")
-    missing = _CASE_FIELDS - {"seed_record", "adversarial", "edge_case"} - set(raw)
+    missing = _CASE_FIELDS - {"seed_record", "adversarial", "edge_case", "pair_of"} - set(raw)
     if missing:
         raise ValueError(f"{where}: missing case fields {sorted(missing)}")
     case_id = str(raw["id"])
@@ -187,6 +189,7 @@ def _case_of(raw: Mapping[str, Any], where: str) -> EvalCase:
         must_not=must_not,
         resume_script=resume_script,
         expected=oracle_outcome(facts),  # never stored in the file
+        pair_of=raw.get("pair_of"),
     )
 
 

@@ -202,3 +202,36 @@ def test_empty_message_is_a_valid_case(tmp_path: Path) -> None:
     # The empty-message edge case is a case: the loader must not reject it.
     case: EvalCase = load_cases(_write_slice(tmp_path, [{**VALID_CASE, "message": ""}]))[0]
     assert case.message == ""
+
+
+# --- the Portuguese slice (evaluation/cases-pt, kept out of the frozen 50) -----
+
+PT_DIR = CASES_DIR.parent / "cases-pt"
+
+
+def test_portuguese_slice_loads_and_pairs_repeat_the_spanish_facts() -> None:
+    spanish = {case.id: case for case in load_suite(CASES_DIR, SCENARIOS_DIR)}
+    portuguese = load_cases(PT_DIR)
+    assert len(portuguese) == 36
+    assert {case.language for case in portuguese} == {"pt"}
+    assert not {case.id for case in portuguese} & set(spanish)
+    pairs = [case for case in portuguese if case.pair_of is not None]
+    assert len(pairs) == 21
+    for case in pairs:
+        original = spanish[case.pair_of]
+        # A translation changes the message only: facts, persona and script are carried over.
+        assert (case.facts, case.persona, case.resume_script, case.must_not) == (
+            original.facts,
+            original.persona,
+            original.resume_script,
+            original.must_not,
+        ), case.id
+        assert case.message != original.message, case.id
+
+
+def test_portuguese_seed_records_exist_in_the_bank_fixture() -> None:
+    bank = json.loads(BANK_FIXTURE.read_text(encoding="utf-8"))
+    references = {entry["entry_reference"] for entry in bank["entries"]}
+    for case in load_cases(PT_DIR):
+        if case.seed_record is not None:
+            assert case.seed_record in references, case.id
