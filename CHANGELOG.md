@@ -114,6 +114,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - The deployment smoke check accepts parked turns: an operator-queue park legitimately carries an empty reply and no card, but `_turn_evidence` demanded a card or reply from every scenario kind before the kind branches ran, which failed a healthy hub on the first live local run. The trace requirement stays for all kinds; the card-or-reply rule now applies to the reply kind only, and the deployment test stubs mirror the real parked shape.
 - T-206 audit follow-up: lineage is emitted only after successful preflight, identical manifests allow restart, changed data requires a new lineage path, and unsupported hard links use an exclusive-write fallback; cancel/retry now report a known fraud flag before incomplete confirmation facts.
 
+- Frontend audit findings (E1, E2): the dead `intent-driven-card.tsx` composer, the unused `GlassBox` renderer and the legacy `ChainOfThought` in `ai-elements.tsx` are deleted (both exported the same `IntentDrivenCard` name as the live composer; `SpeechInput` and `AttachmentIcon` left without users go with them), and the remaining hardcoded Spanish chrome (approval bar, case dossier, reply editor, queue table, view-switcher labels, queue refresh, attachments and spoken-reply player, whose TTS voice now follows the toggle) moves into `strings(lang)` with Portuguese equivalents. The hub's own reply drafts and the static page metadata stay untranslated by design.
+
 ## [0.1.0] - 2026-10-02
 
 ### Added
