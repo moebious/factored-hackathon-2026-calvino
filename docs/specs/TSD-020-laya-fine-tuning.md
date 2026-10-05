@@ -149,6 +149,7 @@ training-set fit is labelled as training fit, never as evaluation.
 - Deterministic: the same inputs give byte-identical outputs.
 - The export is not committed (a build artifact). It is uploaded as a
   private Kaggle dataset, and `manifest.json` is copied into the run record.
+- Rows with an unset `workflow_area` are excluded from the workflow-area head; the clarity head still learns from them.
 
 **`notebooks/t202_laya_finetune_kaggle.ipynb`**
 - An adaptation of the vendor notebook. Its header cell credits the source

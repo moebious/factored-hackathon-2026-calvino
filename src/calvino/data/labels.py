@@ -233,12 +233,13 @@ class GoldRecord(BaseModel):
         workflow area leaves it empty by rubric, never guessed.
         """
         if (
-            self.labels.workflow_area is None
-            or self.labels.clear_enough is None
+            self.labels.clear_enough is None
             or self.labels.needs_person is None
             or self.labels.injection is None
         ):
             return False
+        if self.labels.workflow_area is None:
+            return self.labels.clear_enough == BinaryLabel.NO and self.labels.stuck_intent is None
         if self.labels.workflow_area == WorkflowArea.STUCK_PAYMENT:
             return self.labels.stuck_intent is not None
         return True

@@ -217,7 +217,7 @@ marked fields, nothing else:
 
 | Brief / seed field | `labels.*` | `oracle_facts.*` | Review may correct? |
 |---|---|---|---|
-| `brief.intent` (a TSD-013 `INTENTS` value; `none` for empty/garbled) | `stuck_intent` for stuck heads, else `workflow_area` head | `intent` | yes — logged |
+| `brief.intent` (a TSD-013 `INTENTS` value; `none` for empty/garbled) | `stuck_intent` for stuck heads; no workflow-area label for `none` | `intent` | yes — logged |
 | `brief.adversarial_kind` (test supplement only) | `injection` flag | edge handling via facts below | yes — logged |
 | seed status / type | — | `status` (`None` for no-record / complaint seeds) | no |
 | seed kind `other-customer` | — | `owner: false` | no |
@@ -250,9 +250,8 @@ The `none` intent is not synonymous with `out_of_scope`: an empty or
 garbled message has `intent: none`, `ambiguous: true`, `in_scope: true`,
 so the oracle returns `clarify`, matching T-303 EDGE-001 and EDGE-003.
 An explicit out-of-scope request has `intent: none`, `ambiguous: false`,
-`in_scope: false`, so it returns `out_of_scope`. The workflow-area label
-may still be `out of scope` for an unclassifiable empty/garbled message;
-that label is not the oracle disposition.
+`in_scope: false`, so it returns `out_of_scope`. An unclassifiable
+empty/garbled message has no workflow-area label; its area is not guessed.
 
 `needs_person` means the message explicitly requests a person (or belongs
 to a rubric-defined dispute/fraud head), not that the oracle routes the
@@ -264,8 +263,8 @@ turn to a human. Thus an injection can have `injection: yes` and
 These corrections update the merged T-106 defaults and their tests in the
 same implementation change as this table:
 
-- For `brief.intent == "none"`, keep `workflow_area: "out of scope"` as
-  the classifier label, but set `oracle_facts.intent: "none"`,
+- For `brief.intent == "none"`, leave `workflow_area` unset rather than
+  guessing an area, and set `oracle_facts.intent: "none"`,
   `ambiguous: true`, and `in_scope: true`. The oracle must return
   `clarify`, matching EDGE-001/002/003 and ORC-022/023. An explicit
   `out_of_scope` brief remains `in_scope: false` and returns

@@ -87,7 +87,7 @@ STUCK_BRIEF_INTENTS = ("explain", "cancel", "retry", "open_case", "case_status",
 class BriefDefaults:
     """The deterministic defaults one brief intent carries (TSD-019 table)."""
 
-    workflow_area: str
+    workflow_area: str | None
     stuck_intent: str | None
     oracle_intent: str
     in_scope: bool
@@ -113,7 +113,7 @@ BRIEF_DEFAULTS: dict[str, BriefDefaults] = {
     # An unrecognisable empty/garbled message is in-workflow but ambiguous:
     # the oracle clarifies it. Explicit out-of-scope requests use the
     # separate out_of_scope brief above.
-    "none": BriefDefaults("out of scope", None, "none", True),
+    "none": BriefDefaults(None, None, "none", True),
 }
 
 CLEAR_AMBIGUOUS_KINDS = ("wrong_data", "missing_data", "multilingual")
@@ -245,7 +245,7 @@ class MessageLabels(BaseModel):
 
     model_config = {"extra": "forbid"}
 
-    workflow_area: str = Field(min_length=1)
+    workflow_area: str | None = Field(default=None, min_length=1)
     stuck_intent: str | None = None
     clear_enough: bool = True
     needs_person: bool = False

@@ -12,7 +12,7 @@ a guessed intent (`clear_enough = no`).
 
 | Question | Values |
 |---|---|
-| Workflow area | `stuck payment` · `dispute or unrecognised charge` · `fraud or stolen access` · `other banking` · `out of scope` |
+| Workflow area | `stuck payment` · `dispute or unrecognised charge` · `fraud or stolen access` · `other banking` · `out of scope`; unset for unclassifiable messages |
 | Intent within a stuck payment | `status` · `cancel` · `retry` · `open a case` · `case status` · `talk to a person` |
 | Clear enough to act on | `yes` · `no` |
 | Needs a person | `yes` · `no` |
@@ -28,7 +28,9 @@ Binary answers are stored as `yes`/`no`; classifier prompts use neutral keys
 - An exchange-rate discrepancy on a foreign payment is clarify, not fraud.
 - A hostile message about a trivial fee is no escalation on insults alone;
   tone never flips `needs_person` without a qualifying intent.
-- Empty, emoji-only or garbled messages are clarify or refuse, never guess.
+- Empty, emoji-only or garbled messages are clarify or refuse, never guess
+  an intent or workflow area. Leave the workflow area unset and label
+  `clear_enough = no`.
 - Anything outside the workflow gets the honest out-of-scope reply with a
   path to a person; no agent starts.
 
@@ -53,3 +55,15 @@ agreement plus Cohen's kappa on needs-a-person and on oracle outcome vs gold
 outcome, each with n and a note that n=50 gives wide intervals. At this size
 the numbers are descriptive; no promotion gate reads them until the 150–300
 set lands.
+
+
+## Changelog
+
+- 2026-10-05 (v1 clarification): unclassifiable empty, emoji-only and
+  garbled messages have no workflow-area label; the clarity label remains
+  `no`. T-202 excludes these rows from the workflow-area head but includes
+  them for the clarity head. No labelled gold row changes; gold-039–041
+  remain blank pending maintainer annotation. Without a routing reorder,
+  an empty message can still be refused at inference if the workflow-area
+  head predicts out of scope. This risk is accepted, not solved; the next
+  evaluation run must measure it.

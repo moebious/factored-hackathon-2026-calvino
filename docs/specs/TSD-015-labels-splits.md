@@ -65,7 +65,7 @@ rubric has one source:
 
 | Question | Labels |
 |---|---|
-| Workflow area | stuck payment · dispute or unrecognised charge · fraud or stolen access · other banking · out of scope |
+| Workflow area | stuck payment · dispute or unrecognised charge · fraud or stolen access · other banking · out of scope; unset for unclassifiable messages |
 | Intent within a stuck payment | status · cancel · retry · open a case · case status · talk to a person |
 | Clear enough to act on | yes · no (two options, neutral keys) |
 | Needs a person | yes · no (two options, neutral keys) |

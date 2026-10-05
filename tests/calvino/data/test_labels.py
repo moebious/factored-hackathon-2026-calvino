@@ -232,6 +232,42 @@ def test_fraud_record_without_intent_counts_as_labelled():
     assert record.is_labelled()
 
 
+def test_unclassifiable_record_without_area_counts_as_labelled_when_unclear():
+    record = GoldRecord(
+        gold_id="gold-039",
+        rubric_version="v1",
+        message="...",
+        language_variant="es-MX",
+        seed_ref="hand-written",
+        labels={
+            "workflow_area": None,
+            "stuck_intent": None,
+            "clear_enough": "no",
+            "needs_person": "no",
+            "injection": "no",
+        },
+    )
+    assert record.is_labelled()
+
+
+def test_missing_area_does_not_count_as_labelled_when_message_is_clear():
+    record = GoldRecord(
+        gold_id="gold-clear-without-area",
+        rubric_version="v1",
+        message="synthetic clear message",
+        language_variant="es-MX",
+        seed_ref="hand-written",
+        labels={
+            "workflow_area": None,
+            "stuck_intent": None,
+            "clear_enough": "yes",
+            "needs_person": "no",
+            "injection": "no",
+        },
+    )
+    assert not record.is_labelled()
+
+
 def test_stuck_record_without_intent_counts_as_unlabelled():
     record = GoldRecord(
         gold_id="gold-003",

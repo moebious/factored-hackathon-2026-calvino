@@ -211,7 +211,7 @@ def test_defaults_empty_garbled_unclear():
         brief_intent="none", adversarial_kind=None, seed_kind="no_record"
     )
     assert labels.clear_enough is False
-    assert labels.workflow_area == "out of scope"
+    assert labels.workflow_area is None
     assert facts.intent == "none"
     assert facts.ambiguous is True
     assert facts.in_scope is True
