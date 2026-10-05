@@ -292,23 +292,6 @@ class HubService:
             if case.awaiting_ref:
                 self._cases_by_ref[case.awaiting_ref] = updated_case
 
-        self._deps.log.append(
-            DecisionRecord(
-                stage=Stage.HUMAN,
-                session_ref=session_ref_for(thread["token"]),
-                inputs_summary={
-                    "actor_id": actor_id,
-                    "case_ref": case.case_ref if case else ref,
-                    "decision": str(operator_decision),
-                    "justification": justification or "Operator resolved turn",
-                },
-                verdict="approved"
-                if operator_decision is True
-                else ("denied" if operator_decision is False else "resolved"),
-                policy_version="v1",
-                latency_ms=0.0,
-            )
-        )
         return self._reply_of(state, thread["thread_id"], self._turn_trace(seen))
 
     def _logged_count(self) -> int:

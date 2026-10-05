@@ -230,3 +230,45 @@ def test_default_checkpointer_falls_back_to_memory(deps_factory, fake_loader_fac
     reply = service.handle_message("ana", "¿Por qué mi transferencia sigue pendiente?")
 
     assert reply.reply == GOOD_REPLY
+
+
+def test_list_cases_empty_returns_fallback_seeds(deps_factory, fake_loader_factory):
+    """An empty service returns seeded fallback cases for demo reliability (TSD-023)."""
+    service = make_service(deps_factory, fake_loader_factory, ScriptedAgent([]))
+    cases = service.list_cases()
+    assert len(cases) >= 2
+    refs = [c.case_ref for c in cases]
+    assert "CASE-ANA-001" in refs
+    assert "CASE-LUCIA-002" in refs
+
+
+def test_list_cases_tracks_parked_turn(deps_factory, fake_loader_factory):
+    """A parked turn appears in the operator queue with active status."""
+    service = make_service(deps_factory, fake_loader_factory, ScriptedAgent([]))
+    parked = service.handle_message("ana", "Quiero hablar con una persona")
+    assert parked.escalated is True
+
+    cases = service.list_cases()
+    refs = [c.case_ref for c in cases]
+    assert parked.case_ref in refs
+    matched = next(c for c in cases if c.case_ref == parked.case_ref)
+    assert matched.persona == "ana"
+    assert matched.status == "in_investigation"
+
+
+def test_resume_gate_block_raises_value_error(deps_factory, fake_loader_factory):
+    """Safety invariant (decision 37): human operator cannot approve a Gate block."""
+    service = make_service(deps_factory, fake_loader_factory, ScriptedAgent([]))
+    with pytest.raises(ValueError, match="cannot approve action with Gate block"):
+        service.resume("CASE-CARLOS-003", True)
+
+
+def test_resume_fallback_seed_records_audit_log(deps_factory, fake_loader_factory):
+    """Resuming a fallback seed updates status, returns reply, and logs human decision."""
+    service = make_service(deps_factory, fake_loader_factory, ScriptedAgent([]))
+    reply = service.resume("CASE-LUCIA-002", True, actor_id="operator:test-user")
+    assert "approved" in reply.reply.lower()
+
+    cases = service.list_cases()
+    matched = next(c for c in cases if c.case_ref == "CASE-LUCIA-002")
+    assert matched.status == "resolved"
