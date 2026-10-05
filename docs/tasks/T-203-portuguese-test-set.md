@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Wave | 2 |
-| Status | done |
+| Status | done; maintainer sign-off on the review log pending |
 | Branch | `feat/pt-test-set` |
 | Depends on | T-106 |
 | Blocked by | — |
