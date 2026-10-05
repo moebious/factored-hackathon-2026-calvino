@@ -225,25 +225,27 @@ def run_checks(
     base_url: str,
     timeout: float = 300.0,
     interval: float = 5.0,
+    backend_only: bool = False,
     sleep: Callable[[float], None] = time.sleep,
     now: Callable[[], float] = time.monotonic,
 ) -> list[CheckResult]:
     """Every check, in order; all run even when one fails (no retries)."""
     results: list[CheckResult] = []
 
-    start = now()
-    try:
-        response = client.get(f"{base_url}/")
-        served = response.status_code == 200 and FRONTEND_MARKER in response.text
-        detail = (
-            "the frontend is served"
-            if served
-            else f"expected 200 containing {FRONTEND_MARKER!r}, got {response.status_code}"
-        )
-    except httpx.TransportError as error:
-        served = False
-        detail = f"unreachable ({error.__class__.__name__})"
-    results.append(CheckResult("frontend served", served, detail, (now() - start) * 1000.0))
+    if not backend_only:
+        start = now()
+        try:
+            response = client.get(f"{base_url}/")
+            served = response.status_code == 200 and FRONTEND_MARKER in response.text
+            detail = (
+                "the frontend is served"
+                if served
+                else f"expected 200 containing {FRONTEND_MARKER!r}, got {response.status_code}"
+            )
+        except httpx.TransportError as error:
+            served = False
+            detail = f"unreachable ({error.__class__.__name__})"
+        results.append(CheckResult("frontend served", served, detail, (now() - start) * 1000.0))
 
     ok, elapsed, detail = _poll(
         client,
@@ -306,11 +308,22 @@ def main(argv: list[str] | None = None, client_factory: Any = httpx.Client) -> i
     parser.add_argument("--url", required=True, help="the public origin (the Vercel domain)")
     parser.add_argument("--timeout", type=float, default=300.0, help="cold-start budget, seconds")
     parser.add_argument("--interval", type=float, default=5.0, help="poll interval, seconds")
+    parser.add_argument(
+        "--backend-only",
+        action="store_true",
+        help="skip the frontend root marker check when testing the backend API Space directly",
+    )
     args = parser.parse_args(argv)
 
     base_url = str(args.url).rstrip("/")
     with client_factory(timeout=60.0) as client:
-        results = run_checks(client, base_url, timeout=args.timeout, interval=args.interval)
+        results = run_checks(
+            client,
+            base_url,
+            timeout=args.timeout,
+            interval=args.interval,
+            backend_only=args.backend_only,
+        )
 
     for result in results:
         mark = " ok " if result.ok else "FAIL"
