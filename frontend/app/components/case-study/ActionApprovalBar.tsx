@@ -57,16 +57,16 @@ export function ActionApprovalBar({
         <div className="title-group">
           <ShieldCheck size={16} className="approval-icon" />
           <div>
-            <h4>Control de Ejecución Regulada</h4>
+            <h4>{s.approvalBarTitle}</h4>
             <span className="subtitle">
-              {item.target_action ? `Acción: ${item.target_action}` : "Revisión manual requerida"}
+              {item.target_action ? `${s.approvalBarActionPrefix} ${item.target_action}` : s.approvalBarManualReview}
             </span>
           </div>
         </div>
 
         <div className="verdict-tag">
           {item.gate_verdict === "ask" && (
-            <span className="gate-ask-badge">Zona Gris (Gate ASK)</span>
+            <span className="gate-ask-badge">{s.gateAskBadge}</span>
           )}
           {item.gate_verdict === "block" && (
             <span className="gate-block-badge">
@@ -80,17 +80,17 @@ export function ActionApprovalBar({
         <div className="approval-blocked-notice" role="alert">
           <ShieldAlert size={16} />
           <div className="notice-content">
-            <strong>Botones de aprobación deshabilitados por diseño</strong>
+            <strong>{s.approvalBlockedTitle}</strong>
             <p>
-              La política de seguridad bancaria vetó esta acción (<code>{item.reason_rule_id}</code>).
-              Un operador humano no tiene autoridad para anular un bloqueo del Gate (Decisión 37).
+              {s.approvalBlockedBody} (<code>{item.reason_rule_id}</code>).
+              {s.approvalBlockedNoOverride}
             </p>
           </div>
         </div>
       ) : isResolved ? (
         <div className="approval-resolved-notice">
           <CheckCircle2 size={16} />
-          <span>Acción ejecutada y asentada en el registro de auditoría.</span>
+          <span>{s.approvalResolved}</span>
         </div>
       ) : (
         <div className="approval-actions-row">

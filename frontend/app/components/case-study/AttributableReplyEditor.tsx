@@ -66,7 +66,7 @@ export function AttributableReplyEditor({
         </div>
         <div className="operator-signature">
           <UserCheck size={12} />
-          <span>Firma: <strong>operator:demo-agent-01</strong></span>
+          <span>{s.replyEditorSignature} <strong>operator:demo-agent-01</strong></span>
         </div>
       </div>
 
@@ -96,7 +96,7 @@ export function AttributableReplyEditor({
       <div className="editor-footer">
         <div className="audit-provenance-note">
           <ShieldCheck size={13} />
-          <span>Ambos textos (original y editado) se conservan de forma inmutable en el log de auditoría.</span>
+          <span>{s.replyEditorProvenance}</span>
         </div>
 
         <button

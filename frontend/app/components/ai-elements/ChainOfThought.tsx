@@ -56,12 +56,17 @@ export function ChainOfThought({
             </div>
           ) : (
             steps.map((step, index) => (
-              <ReasoningStep
+              <div
                 key={`${step.stage}-${index}`}
-                step={step}
-                isLatest={index === steps.length - 1}
-                lang={lang}
-              />
+                className="trace-step-reveal"
+                style={{ animationDelay: `${Math.min(index, 8) * 70}ms` }}
+              >
+                <ReasoningStep
+                  step={step}
+                  isLatest={index === steps.length - 1}
+                  lang={lang}
+                />
+              </div>
             ))
           )}
         </div>
