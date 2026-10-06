@@ -87,7 +87,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-405](../specs/TSD-033-fairness-and-counterfactuals.md) | Paired language/dialect evidence and policy-impact separation | 3 (thesis) | T-303, T-203 | — | judgment checkpoint | yes | done | maintainer |
 | [T-406](T-406-second-adapter.md) | Two synthetic formats, one unchanged hub/policy | 3 (thesis) | T-206 | — | standard | yes | todo | maintainer |
 | [T-407](T-407-flywheel-turn.md) | One governed offline human-to-model update or rejection | 3 (thesis) | T-103, T-105, T-107, T-201, T-303, T-408 | reviewed labels | judgment checkpoint | yes | todo | maintainer |
-| [T-408](T-408-policy-replay.md) | Offline policy verdict deltas and promotion scorecard | 3 (thesis) | T-201, T-303 | independent safety labels | judgment checkpoint | yes | todo | maintainer |
+| [T-408](../specs/TSD-034-policy-replay-and-scorecard.md) | Offline policy verdict deltas and promotion scorecard | 3 (thesis) | T-201, T-303 | independent safety labels | judgment checkpoint | yes | spec | maintainer |
 | [T-501](T-501-readme-results.md) | README usage and results report | 5 | T-303 | — | standard | yes | todo | maintainer |
 | [T-502](T-502-release.md) | Final changelog and optional submission tag, no milestone backfill | 5 | T-501 | maintainer approval | standard | yes | todo | maintainer |
 | [T-503](T-503-slides.md) | Slides | 5 | T-303 | — | judgment checkpoint | yes | todo | maintainer |
