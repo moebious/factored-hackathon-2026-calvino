@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Cited entry references anchor the route on the agent (decision 47): `calvino.hub.entry_reference` shares its pattern with the template agent's focus, `intake` carries exactly one distinct reference into `Facts.entry_reference`, and `decide_route` emits `RT-REF-ANCHORED` (agents, verified read) instead of letting phrasing-sensitive scores decide out of scope or clarify. Every human verdict (hard rules, dispute/fraud, injection, explicit or scored requests for a person) still wins first; zero or several references behave as before.
 
 ### Fixed
+- T-106 seed pull (TSD-019 P2, decision 49): a customer is claimed only by a usable record, so calibration and test customers no longer lose their in-window records to an earlier train-window one. Adds `pool_counts` and `pull_message_seeds.py --pool-report` (read-only per-cell pool sizes).
 - `scripts/generate_message_set.py --dry-run` no longer crashes without `--briefs` (or `--registry`/`--prompt`): registry and prompt default to the v1 files, and briefs are built from the registry.
 - Deployment image packaging and runtime assets (TSD-003, T-304, blocker G1): fixed `.dockerignore` to permit copying `tests/fixtures/bank/synthetic_bank.json`, copied required hub runtime assets (`playbooks/`, `prompts/`, `rubrics/`) into the image so `build_demo_hub` does not throw `FileNotFoundError` (503), and included all declared project dependencies (`duckdb`, `boto3`, `langgraph`, etc.) with PyTorch CPU index.
 

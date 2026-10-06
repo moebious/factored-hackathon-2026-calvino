@@ -42,6 +42,7 @@ from calvino.data.seed_pull import (  # noqa: E402
     NO_RECORD_NOMINAL,
     SeedShortfall,
     candidates_from_lakehouse,
+    pool_counts,
     pull_seeds,
 )
 from calvino.data.seed_registry import (  # noqa: E402
@@ -214,6 +215,12 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--check-access", action="store_true")
     mode.add_argument("--manifest", action="store_true")
     mode.add_argument("--run", action="store_true")
+    mode.add_argument(
+        "--pool-report",
+        action="store_true",
+        help="read the reviewed manifest's tables and print usable pool sizes per quota "
+        "cell; draws and writes nothing",
+    )
     parser.add_argument("--manifest-digest")
     parser.add_argument("--max-source-bytes", type=int)
     parser.add_argument("--salt-file", type=Path, default=Path("data/message-set-salt-v1"))
@@ -231,7 +238,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--policy", type=Path, default=None)
     parser.add_argument("--rng-seed", type=int, default=20261005)
     args = parser.parse_args(argv)
-    if args.run and (not args.manifest_digest or args.max_source_bytes is None):
+    if (args.run or args.pool_report) and (
+        not args.manifest_digest or args.max_source_bytes is None
+    ):
         print("error=run_requires_reviewed_manifest_and_byte_ceiling", file=sys.stderr)
         return 2
     try:
@@ -264,9 +273,26 @@ def main(argv: list[str] | None = None) -> int:
         gate = dict(policy.gate.allow_amount_limit)
         hard = dict(policy.hard_rules.amount_limit)
         source = S3Lakehouse(s3, bucket, manifest)
-        candidates, skipped = candidates_from_lakehouse(source)  # type: ignore[arg-type]
+        candidates, skipped = candidates_from_lakehouse(
+            source,  # type: ignore[arg-type]
+            gate=gate,
+            hard=hard,
+        )
         for reason, count in sorted(source.skipped.items()):
             skipped[reason] = skipped.get(reason, 0) + count
+        if args.pool_report:
+            print(
+                json.dumps(
+                    {
+                        "pool": pool_counts(candidates, gate=gate, hard=hard),
+                        "skipped": dict(sorted(skipped.items())),
+                        "candidates": len(candidates),
+                        "transferred_bytes": source.transferred,
+                    },
+                    indent=2,
+                )
+            )
+            return 0
         drawn, report = pull_seeds(candidates, gate=gate, hard=hard, rng_seed=args.rng_seed)
         salt = ensure_salt(args.salt_file)
         rows, pointers = build_registry(

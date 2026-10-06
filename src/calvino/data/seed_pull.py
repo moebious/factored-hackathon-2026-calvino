@@ -191,6 +191,9 @@ def _event_day(value: object) -> date | None:
 
 def candidates_from_lakehouse(
     source: LakehouseSource,
+    *,
+    gate: dict[str, float] | None = None,
+    hard: dict[str, float] | None = None,
 ) -> tuple[list[SeedCandidate], dict[str, int]]:
     """Map lakehouse rows to record-backed candidates (no sampling yet).
 
@@ -201,7 +204,30 @@ def candidates_from_lakehouse(
     status, or a missing fraud/SLA flag are skipped and counted -- never
     forced into a split. No-record seeds are nominal (built downstream,
     never pulled), so none appear here.
+
+    One seed per customer, first usable record wins. Given ``gate`` and
+    ``hard``, "usable" is decided here (bucket-and-date AND-condition and
+    the P6 amount margins) *before* the customer is claimed, so a record
+    outside the customer's own window or inside a margin never uses up
+    the customer. Without them the first valid record claims the customer.
+    The early filter is also what keeps memory bounded: the full tables
+    hold millions of rows, almost all of them outside their window.
     """
+
+    def unusable(candidate: SeedCandidate) -> str | None:
+        if gate is None or hard is None:
+            return None
+        if assign_record(candidate.customer_id, candidate.event_date) is None:
+            return "window-mismatch"
+        if (
+            candidate.kind in ("problem_transaction", "clean_transaction")
+            and candidate.amount is not None
+            and candidate.currency is not None
+            and not usable_amount(candidate.amount, candidate.currency, gate, hard)
+        ):
+            return "amount-margin"
+        return None
+
     variants = {}
     for row in source.iter_customers():
         customer_id = row.get("customer_id")
@@ -232,12 +258,6 @@ def candidates_from_lakehouse(
             # Duplicate record ids are refused (counted): one record
             # draws at most once, so the duplicate-draw check holds.
             skipped["transaction:duplicate-id"] += 1
-            continue
-        if customer_id in seen_customers:
-            # First-wins: a second seed from the same customer is
-            # skipped and counted. Last-wins would silently re-point
-            # the draw, so it is forbidden here.
-            skipped["transaction:duplicate-customer"] += 1
             continue
         if status in PROBLEM_TRANSACTION_STATUSES:
             kind = "problem_transaction"
@@ -276,25 +296,32 @@ def candidates_from_lakehouse(
             # it to False would invent a clean negative control.
             skipped["transaction:missing-fraud-flag"] += 1
             continue
+        candidate = SeedCandidate(
+            record_id=record_id,
+            customer_id=customer_id,  # type: ignore[arg-type]
+            event_date=day,
+            kind=kind,
+            country_variant=variant,
+            status=status,  # type: ignore[arg-type]
+            transaction_type=tx_type,
+            amount=float(row["amount"]) if isinstance(row.get("amount"), (int, float)) else None,
+            currency=currency,  # type: ignore[arg-type]
+            fraud_flag=fraud_flag,
+            channel=channel if isinstance(channel, str) else None,
+        )
+        reason = unusable(candidate)
+        if reason is not None:
+            skipped[f"transaction:{reason}"] += 1
+            continue
+        if customer_id in seen_customers:
+            # First-wins among usable records: a second seed from the
+            # same customer is skipped and counted. Last-wins would
+            # silently re-point the draw, so it is forbidden here.
+            skipped["transaction:duplicate-customer"] += 1
+            continue
         seen_record_ids.add(record_id)
         seen_customers.add(customer_id)  # type: ignore[arg-type]
-        candidates.append(
-            SeedCandidate(
-                record_id=record_id,
-                customer_id=customer_id,  # type: ignore[arg-type]
-                event_date=day,
-                kind=kind,
-                country_variant=variant,
-                status=status,  # type: ignore[arg-type]
-                transaction_type=tx_type,
-                amount=float(row["amount"])
-                if isinstance(row.get("amount"), (int, float))
-                else None,
-                currency=currency,  # type: ignore[arg-type]
-                fraud_flag=fraud_flag,
-                channel=channel if isinstance(channel, str) else None,
-            )
-        )
+        candidates.append(candidate)
     for row in source.iter_complaints():
         record_id = row.get("complaint_id")
         customer_id = row.get("customer_id")
@@ -315,10 +342,6 @@ def candidates_from_lakehouse(
         if record_id in seen_record_ids:
             skipped["complaint:duplicate-id"] += 1
             continue
-        if customer_id in seen_customers:
-            # First-wins across tables too: one seed per customer.
-            skipped["complaint:duplicate-customer"] += 1
-            continue
         complaint_status = row.get("status")
         if not isinstance(complaint_status, str) or not complaint_status:
             skipped["complaint:missing-status"] += 1
@@ -332,19 +355,26 @@ def candidates_from_lakehouse(
             # within-SLA default: the case-status grounding needs it.
             skipped["complaint:missing-sla"] += 1
             continue
+        candidate = SeedCandidate(
+            record_id=record_id,
+            customer_id=customer_id,  # type: ignore[arg-type]
+            event_date=day,
+            kind="complaint",
+            country_variant=variant,
+            complaint_status=complaint_status,
+            sla_state="breached" if bool(breached) else "within_sla",
+        )
+        reason = unusable(candidate)
+        if reason is not None:
+            skipped[f"complaint:{reason}"] += 1
+            continue
+        if customer_id in seen_customers:
+            # First-wins across tables too: one seed per customer.
+            skipped["complaint:duplicate-customer"] += 1
+            continue
         seen_record_ids.add(record_id)
         seen_customers.add(customer_id)  # type: ignore[arg-type]
-        candidates.append(
-            SeedCandidate(
-                record_id=record_id,
-                customer_id=customer_id,  # type: ignore[arg-type]
-                event_date=day,
-                kind="complaint",
-                country_variant=variant,
-                complaint_status=complaint_status,
-                sla_state="breached" if bool(breached) else "within_sla",
-            )
-        )
+        candidates.append(candidate)
     return candidates, dict(skipped)
 
 
@@ -454,6 +484,58 @@ def pull_seeds(
             Counter(c.candidate.status or c.candidate.kind for c in drawn[split])
         )
     return drawn, report
+
+
+def pool_counts(
+    candidates: list[SeedCandidate],
+    *,
+    gate: dict[str, float],
+    hard: dict[str, float],
+    quotas: dict[str, dict[str, int]] | None = None,
+) -> dict[str, object]:
+    """Usable pool size per (split, kind, variant) against its quota.
+
+    Diagnostic only: applies the same usability rules as ``pull_seeds``
+    (bucket-and-date AND-condition, P6 amount margins) but draws nothing
+    and raises nothing, so a thin cell is a number, not an abort. ``lost``
+    counts candidates dropped per split and reason, so the cause of a
+    shortfall is visible (window mismatch vs amount margin).
+    """
+    wanted = quotas or {split: dict(kinds) for split, kinds in KIND_QUOTAS.items()}
+    splits = ("train", "calibration", "test")
+    lost: dict[str, Counter[str]] = {split: Counter() for split in splits}
+    pools: Counter[tuple[str, str, str]] = Counter()
+    for candidate in candidates:
+        split = assign_record(candidate.customer_id, candidate.event_date)
+        if split is None:
+            lost[assign_customer(candidate.customer_id)]["window-mismatch"] += 1
+            continue
+        if (
+            candidate.kind in ("problem_transaction", "clean_transaction")
+            and candidate.amount is not None
+            and candidate.currency is not None
+            and not usable_amount(candidate.amount, candidate.currency, gate, hard)
+        ):
+            lost[split]["amount-margin"] += 1
+            continue
+        pools[(split, candidate.kind, candidate.country_variant)] += 1
+    cells = []
+    for split in splits:
+        for kind, quota in wanted.get(split, {}).items():
+            targets = _variant_targets(quota)
+            for variant in VARIANTS:
+                have = pools[(split, kind, variant)]
+                cells.append(
+                    {
+                        "split": split,
+                        "kind": kind,
+                        "variant": variant,
+                        "have": have,
+                        "need": targets[variant],
+                        "short": max(0, targets[variant] - have),
+                    }
+                )
+    return {"cells": cells, "lost": {split: dict(lost[split]) for split in splits}}
 
 
 def _variant_targets(quota: int) -> dict[str, int]:

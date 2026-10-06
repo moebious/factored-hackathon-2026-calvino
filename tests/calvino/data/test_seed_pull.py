@@ -487,3 +487,47 @@ def test_band_for_only_banded_transactions():
         == "over_gate"
     )
     assert sp.band_for(sp.SeedCandidate("r", "c", DAY_OF["test"], "complaint", "CO"), GATE) is None
+
+
+def test_pool_counts_reports_thin_cells_without_raising():
+    """The diagnostic names each cell's have/need and why records were lost."""
+    train_ids = bucket_ids("train", 3, "pool")
+    cal_ids = bucket_ids("calibration", 1, "pool")
+    customers = customer_rows([(cid, "MX") for cid in train_ids + cal_ids])
+    transactions = [
+        txn_row("p-ok", train_ids[0], DAY_OF["train"], amount=4000.0),
+        txn_row("p-margin", train_ids[1], DAY_OF["train"], amount=8000.0),
+        # A calibration customer whose record sits in the train window.
+        txn_row("p-window", cal_ids[0], DAY_OF["train"], amount=4000.0),
+    ]
+    candidates, _ = sp.candidates_from_lakehouse(FakeLakehouse(customers, transactions))
+    report = sp.pool_counts(
+        candidates,
+        quotas={"train": {"problem_transaction": 3}, "calibration": {}, "test": {}},
+        gate=GATE,
+        hard=HARD,
+    )
+    mx = next(c for c in report["cells"] if c["variant"] == "MX")
+    assert (mx["have"], mx["need"], mx["short"]) == (1, 1, 0)
+    co = next(c for c in report["cells"] if c["variant"] == "CO")
+    assert co["short"] == 1
+    assert report["lost"]["train"] == {"amount-margin": 1}
+    assert report["lost"]["calibration"] == {"window-mismatch": 1}
+
+
+def test_out_of_window_record_does_not_claim_the_customer():
+    """A customer's earlier out-of-window record no longer hides the usable one."""
+    cal_id = bucket_ids("calibration", 1, "claim")[0]
+    customers = customer_rows([(cal_id, "MX")])
+    transactions = [
+        txn_row("early", cal_id, DAY_OF["train"], amount=4000.0),
+        txn_row("later", cal_id, DAY_OF["calibration"], amount=4000.0),
+        txn_row("later-2", cal_id, DAY_OF["calibration"], amount=4100.0),
+    ]
+    source = FakeLakehouse(customers, transactions)
+    candidates, skipped = sp.candidates_from_lakehouse(source, gate=GATE, hard=HARD)
+    assert [c.record_id for c in candidates] == ["later"]
+    assert skipped == {"transaction:window-mismatch": 1, "transaction:duplicate-customer": 1}
+    # Without the gate tables the first valid record still claims the customer.
+    legacy, _ = sp.candidates_from_lakehouse(source)
+    assert [c.record_id for c in legacy] == ["early"]
