@@ -39,6 +39,7 @@ One spec per work stream and pull request: interfaces, data models, behaviour, t
 - [TSD-033](TSD-033-fairness-and-counterfactuals.md): fairness and counterfactual evaluation (T-405, proposed)
 - [TSD-034](TSD-034-policy-replay-and-scorecard.md): offline policy replay and promotion scorecard (T-408, proposed)
 - [TSD-035](TSD-035-iso20022-exchange.md): governed ISO 20022 bank-action exchange (T-604, proposed)
+- [TSD-036](TSD-036-guest-sandbox.md): guest sandbox sessions for persona-agnostic customer app (T-409, proposed)
 
-Later tasks write their spec from their task card as the first step, numbered from TSD-036, and wait for the maintainer's approval before any code.
+Later tasks write their spec from their task card as the first step, numbered from TSD-037, and wait for the maintainer's approval before any code.
 **Implementing a spec:** start the session with the prompt template in [tasks/README.md](../tasks/README.md#session-prompt-template). [AGENTS.md](../../AGENTS.md) holds every rule (branches, commits, tests, data, pushing). If a spec is wrong or incomplete, propose a change to the spec rather than diverging from it.
