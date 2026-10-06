@@ -105,8 +105,6 @@ def test_report_counts_incomplete_model_proposal_rows_separately():
     assert "- Model-drafted proposal rows reviewed: 31/32" in body
 
 
-
-
 def test_loader_keeps_invalid_rows_in_unscored_denominator(tmp_path):
     path = tmp_path / "gold.jsonl"
     path.write_text(
