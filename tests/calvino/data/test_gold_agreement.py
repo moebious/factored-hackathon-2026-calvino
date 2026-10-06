@@ -1,6 +1,6 @@
 """Tests for the T-107 gold/oracle consistency report.
 
-Fixtures are synthetic, maintainer-entered examples; this module never
+Fixtures are synthetic, explicitly entered examples; this module never
 proposes or writes values into the committed gold sheet.
 """
 
@@ -69,46 +69,40 @@ def _gold_row(
     return validate_gold_record(data)
 
 
-def test_existing_fifty_rows_load_and_are_reported_unscored():
+def test_existing_fifty_rows_load_and_are_reported_scored():
     rows = report.load_gold_sheet(GOLD_SHEET)
     assert len(rows) == 50
     assert all(row.record is not None for row in rows)
-    assert all(not row.record.has_complete_outcome_annotation() for row in rows if row.record)
-    body = report.render_report(rows, run_date="2026-10-04", git_sha="test")
+    assert all(row.record.has_complete_outcome_annotation() for row in rows if row.record)
+    body = report.render_report(rows, run_date="2026-10-05", git_sha="test")
     assert body.startswith("# T-107 gold/oracle consistency report")
-    assert "- Classifier labels complete: 18/50" in body
+    assert "- Classifier labels complete: 50/50" in body
     assert "- Existing maintainer-only classifier labels: 18" in body
-    assert "- Model-drafted proposal rows reviewed: 0/32" in body
+    assert "- Model-drafted proposal rows reviewed: 32/32" in body
     assert "Claude Sonnet 5.5 (`claude-sonnet-5-5`)" in body
     assert "anchoring risk" in body
-    assert "scored 0/50" in body
-    assert "gold-001" in body
-    assert "oracle_facts, human_outcome, outcome_annotator, outcome_labelled_at" in body
+    assert "scored 50/50" in body
+    # Outcome provenance stays visible: the annotator line names the drafter.
+    assert "mimo-v2.6-flash-free" in body
+    assert "None." in body  # no unscored rows and no disagreements left
 
 
-def test_report_counts_completed_model_proposal_rows_separately():
+def test_report_counts_incomplete_model_proposal_rows_separately():
+    """Only rows whose five labels are all present count as complete."""
     rows = list(report.load_gold_sheet(GOLD_SHEET))
     row = rows[1]
     assert row.record is not None
     rows[1] = row.record.model_copy(
         update={
-            "labels": GoldLabels.model_validate(
-                {
-                    "workflow_area": "stuck payment",
-                    "stuck_intent": "status",
-                    "clear_enough": "yes",
-                    "needs_person": "no",
-                    "injection": "no",
-                }
-            ),
-            "annotator": "maintainer-test",
-            "labelled_at": "2026-10-05",
+            "labels": GoldLabels(),
+            "annotator": "",
+            "labelled_at": "",
         }
     )
 
     body = report.render_report(tuple(rows), run_date="2026-10-05", git_sha="test")
-    assert "- Classifier labels complete: 19/50" in body
-    assert "- Model-drafted proposal rows reviewed: 1/32" in body
+    assert "- Classifier labels complete: 49/50" in body
+    assert "- Model-drafted proposal rows reviewed: 31/32" in body
 
 
 def test_loader_keeps_invalid_rows_in_unscored_denominator(tmp_path):
@@ -188,8 +182,8 @@ def test_cli_writes_report_and_blank_template_to_requested_paths(tmp_path, capsy
         ]
     )
     assert result == 0
-    assert "scored 0/50" in capsys.readouterr().out
-    assert "scored 0/50" in output.read_text(encoding="utf-8")
+    assert "scored 50/50" in capsys.readouterr().out
+    assert "scored 50/50" in output.read_text(encoding="utf-8")
     assert template.exists()
     assert disagreements.exists()
 
@@ -269,3 +263,41 @@ def test_disagreement_ledger_adds_pending_rows_and_preserves_maintainer_resoluti
     resolved = path.read_text(encoding="utf-8")
     assert "rubric gap" in resolved
     assert resolved.count("gold-test-003") == 1
+
+
+def test_report_and_ledger_name_the_outcome_drafter_and_never_claim_maintainer_entered(
+    tmp_path,
+) -> None:
+    """Decision 47: outcome provenance travels with the values, never falsified.
+
+    The report must say who annotated the outcomes and must not assert that
+    oracle facts and human outcomes are maintainer-entered once they are not.
+    """
+    rows = report.load_gold_sheet(GOLD_SHEET)
+    body = report.render_report(rows, run_date="2026-10-05", git_sha="test")
+    assert "maintainer-entered annotations" not in body
+    assert "outcome annotator named above" in body
+    assert "decision 47" in body
+    assert "not inter-annotator agreement or independent validation" in body
+
+    scored = report._scored_outcomes(
+        (
+            _gold_row(
+                "gold-test-004",
+                intent="explain",
+                ambiguous=False,
+                status="Pending",
+                owner=True,
+                amount_band="under_gate",
+                fraud_flag=False,
+                in_scope=True,
+                human_outcome="explain",
+            ),
+        )
+    )
+    path = tmp_path / "disagreements.md"
+    report.update_disagreement_log(scored, path)
+    ledger = path.read_text(encoding="utf-8")
+    assert "maintainer-entered annotations" not in ledger
+    assert "outcome_annotator" in ledger
+    assert "decision 47" in ledger

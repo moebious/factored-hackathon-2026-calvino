@@ -13,8 +13,9 @@
 
 **Goal.** Complete the first 50 maintainer-reviewed gold cases and publish
 the single-annotator consistency report. This is a System 3 task. Disclosed
-model drafts may inform classifier labels only; a maintainer must review
-and enter every final value.
+model drafts inform classifier labels and, under decision 47, the oracle
+facts and human outcomes; a maintainer must review and explicitly approve
+every final value, and each value keeps its drafter named.
 
 **Inputs.** `tests/fixtures/gold/gold-050.jsonl`, the classifier-label
 worksheet at `docs/templates/T-107-gold-classifier-labels.csv`, the
@@ -34,7 +35,9 @@ disagreement ledger at `reports/eval/T-103-gold-disagreements.md`.
   labels are recorded as maintainer-only; all 32 model-drafted proposals
   receive explicit maintainer review. No values are guessed or auto-filled.
 - Every row has complete, valid oracle facts and a rubric-based human
-  outcome entered by the maintainer in the specified review order.
+  outcome written in the specified review order by the drafter named in
+  `outcome_annotator`, explicitly reviewed by the maintainer
+  (decision 47).
 - The classifier-label worksheet preserves all existing labels. Its
   importer previews by default and applies only explicit maintainer values.
 - The report states the completeness count and `scored n/50`, numerator
@@ -45,6 +48,11 @@ disagreement ledger at `reports/eval/T-103-gold-disagreements.md`.
   (`claude-sonnet-5-5`) in Claude Code on 2026-10-05, and disclose prior
   exposure and anchoring risk. They do not claim blind or independent
   human labels.
+- The same three artifacts name `mimo-v2.6-flash-free` (OpenCode,
+  2026-10-05) as the drafter of the oracle facts and human outcomes
+  (decision 47) and state that the agreement figure is that drafter's
+  consistency with the hand-written table, not independent maintainer
+  consistency.
 - The maintainer reviews and classifies every disagreement as a rubric
   gap, oracle mapping bug, or label slip, and records its resolution.
 - Gold annotations remain held out from training and calibration. No

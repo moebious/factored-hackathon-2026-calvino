@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | accepted; model-drafted classifier proposals require maintainer review (2026-10-05) |
+| Status | accepted; model-drafted classifier proposals and model-drafted outcome annotations require maintainer review (2026-10-05, decision 47) |
 | Branch | `feat/t107-gold-annotation` |
 | Depends on | TSD-015 (gold schema and rubric), TSD-019 (agreement contract) |
 | Task | [T-107](../tasks/T-107-gold-annotation.md) |
@@ -29,8 +29,11 @@ contains no completed outcome annotations.
 - No dataset transcript or customer record is used or added.
 - The maintainer supplies or explicitly approves all final classifier
   labels. The tool does not fill defaults or choose labels.
-- Model drafts apply only to classifier labels. Oracle facts and human
-  outcomes remain maintainer-entered; no model suggests or infers them.
+- Model drafts apply to classifier labels and, under decision 47, to
+  oracle facts and human outcomes. Every value names its drafter
+  (`annotator`, `outcome_annotator`); outcomes become gold only after
+  explicit maintainer review, and no report presents them as
+  maintainer-entered, blind or independent.
 
 ## Classifier-label worksheet
 
@@ -92,18 +95,24 @@ limit and reports only complete, valid outcome annotations. The
 disagreement ledger retains maintainer classifications and resolutions.
 Both artifacts disclose the classifier-label provenance split, the
 proposal model identity/version and the anchoring caveat.
-Oracle facts and human outcomes are separate maintainer-entered annotations.
+Oracle facts and human outcomes name their drafter in
+`outcome_annotator` and carry decision 47's caveat: one drafter's rubric
+application against the hand-written table, not independent maintainer
+consistency.
 
 ## Done when
 
 - The maintainer has reviewed all 50 classifier-label rows.
 - All 50 rows have complete, valid nominal oracle facts and human
-  outcomes entered in the TSD-015 review order.
+  outcomes written in the TSD-015 review order by the drafter named in
+  `outcome_annotator` and explicitly reviewed by the maintainer.
 - A preview shows no unintended changes before either importer is applied.
 - The report shows `50/50` complete classifier-label rows and `scored
   50/50` outcomes, with all disagreements reviewed and recorded.
 - Every final classifier label is entered or explicitly approved by the
   maintainer. The report states the 18/32 provenance split and anchoring
   caveat; it does not claim independent human annotation.
-- No oracle facts or human outcomes are model-drafted. No customer records
-  or dataset transcripts are added.
+- Every oracle fact and human outcome names its drafter and has explicit
+  maintainer review (decision 47); the report names the outcome drafter
+  and does not present the agreement as independent human consistency. No
+  customer records or dataset transcripts are added.

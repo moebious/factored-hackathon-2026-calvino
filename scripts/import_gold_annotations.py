@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview or apply maintainer-entered T-103 CSV outcome annotations.
+"""Preview or apply reviewed T-103 CSV outcome annotations.
 
 The importer merges only optional oracle facts and human outcome metadata.
 It validates the full result, refuses conflicting overwrites, and never
