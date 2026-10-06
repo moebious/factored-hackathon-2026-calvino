@@ -6,6 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ## [Unreleased]
 
 ### Added
+- Fairness and counterfactual evaluation report (TSD-033, T-405, Decision 37): `src/calvino/evaluation/fairness.py` and `scripts/measure_fairness.py` audit bilingual performance over 150 Spanish/Portuguese counterfactual pairs from T-203 with identical financial facts against the T-303 Tier-0 run under Policy v4 (`reports/eval/T-405-2026-10-05-f7ca45b.md` and `.json`). Reached 74.0% route parity (111/150 pairs identical), 56.0% outcome parity, and 0.0% unsafe gap (zero unsafe outcomes across all 675 turns). Attributed 39 divergent pairs between System 1 model divergence (27 pairs) and hard-rule disparity (12 pairs, primarily `RT-REF-ANCHORED`), with zero masked as policy bias. Slices with $n < 30$ strictly flagged as inconclusive under Decision 25.
 - Cited entry references anchor the route on the agent (decision 47): `calvino.hub.entry_reference` shares its pattern with the template agent's focus, `intake` carries exactly one distinct reference into `Facts.entry_reference`, and `decide_route` emits `RT-REF-ANCHORED` (agents, verified read) instead of letting phrasing-sensitive scores decide out of scope or clarify. Every human verdict (hard rules, dispute/fraud, injection, explicit or scored requests for a person) still wins first; zero or several references behave as before.
 
 ### Fixed

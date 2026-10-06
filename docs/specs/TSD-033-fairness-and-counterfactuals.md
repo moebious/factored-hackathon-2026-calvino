@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented |
 | Branch | `feat/fairness-tests` |
 | Task | [T-405](../tasks/T-405-fairness-tests.md) |
 | Depends on | TSD-013 (Evaluation harness), TSD-032 (Portuguese test set) |

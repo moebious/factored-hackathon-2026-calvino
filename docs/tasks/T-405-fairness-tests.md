@@ -20,4 +20,4 @@
 
 **Done when.** results carry pair counts and group denominators, investigate unexplained model-driven flips, flag small groups as inconclusive and report policy-driven ES/PT differences separately. Decision 25's lines remain hypotheses, not automatic promotion gates until the evidence is adequately powered.
 
-**Specification:** [TSD-033](../specs/TSD-033-fairness-and-counterfactuals.md) (proposed).
+**Specification:** [TSD-033](../specs/TSD-033-fairness-and-counterfactuals.md) (implemented).
