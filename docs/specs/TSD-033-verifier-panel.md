@@ -31,9 +31,9 @@ A candidate write action qualifies for specialist panel review if it belongs to 
 
 ```python
 class RiskTier(StrEnum):
-    LOW = "low"          # Read-only explanation / clarification (cascade only)
-    MEDIUM = "medium"    # Routine status change or standard retry under gate limit
-    HIGH = "high"        # Consequential write: cancellation, retry above threshold, or disputed investigation
+    LOW = "low"  # Read-only explanation / clarification (cascade only)
+    MEDIUM = "medium"  # Routine status change or standard retry under gate limit
+    HIGH = "high"  # Consequential write: cancellation, retry above threshold, or disputed investigation
 ```
 
 ### Risk Tier Derivation
