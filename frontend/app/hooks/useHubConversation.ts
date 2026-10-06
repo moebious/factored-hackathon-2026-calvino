@@ -57,7 +57,8 @@ type ConversationAction =
   | { type: "turn-decide"; index: number; reply: HubReply }
   | { type: "select"; index: number | null }
   | { type: "busy"; busy: boolean }
-  | { type: "error"; error: string | null };
+  | { type: "error"; error: string | null }
+  | { type: "reset" };
 
 function conversationReducer(
   state: ConversationState,
@@ -111,6 +112,14 @@ function conversationReducer(
       return { ...state, busy: action.busy };
     case "error":
       return { ...state, error: action.error };
+    case "reset":
+      return {
+        ...state,
+        turns: [],
+        selected: null,
+        error: null,
+        busy: false,
+      };
     default:
       return state;
   }
@@ -185,8 +194,30 @@ export function useHubConversation() {
     return payload as HubReply;
   }, []);
 
+  const getGuestId = useCallback((): string => {
+    if (typeof window === "undefined") return "server-guest";
+    let id = window.sessionStorage.getItem("calvino_guest_id");
+    if (!id) {
+      id = "g-" + Math.random().toString(36).substring(2, 10);
+      window.sessionStorage.setItem("calvino_guest_id", id);
+    }
+    return id;
+  }, []);
+
+  const resetConversation = useCallback(() => {
+    if (typeof window !== "undefined") {
+      const newId = "g-" + Math.random().toString(36).substring(2, 10);
+      window.sessionStorage.setItem("calvino_guest_id", newId);
+    }
+    dispatch({ type: "reset" });
+  }, []);
+
   const send = useCallback(
-    async (message: string, asPersona = stateRef.current.persona, inputAttachments: AttachmentItem[] = []) => {
+    async (
+      message: string,
+      asPersona?: string,
+      inputAttachments: AttachmentItem[] = []
+    ) => {
       dispatch({ type: "busy", busy: true });
       dispatch({ type: "error", error: null });
 
@@ -197,7 +228,16 @@ export function useHubConversation() {
       dispatch({ type: "select", index: targetIndex });
 
       try {
-        const reply = await post("/api/hub/message", { persona: asPersona, text: message });
+        const payload: { text: string; persona?: string; guest_id?: string } = {
+          text: message,
+        };
+        if (asPersona) {
+          payload.persona = asPersona;
+        } else {
+          payload.guest_id = getGuestId();
+        }
+
+        const reply = await post("/api/hub/message", payload);
         dispatch({ type: "turn-reply", index: targetIndex, reply });
         dispatch({ type: "select", index: targetIndex });
       } catch (failure) {
@@ -208,7 +248,7 @@ export function useHubConversation() {
         dispatch({ type: "busy", busy: false });
       }
     },
-    [post]
+    [post, getGuestId]
   );
 
   const resume = useCallback(
@@ -286,6 +326,7 @@ export function useHubConversation() {
     setError,
     send,
     resume,
+    resetConversation,
   };
 }
 
