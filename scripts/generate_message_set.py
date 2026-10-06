@@ -15,7 +15,9 @@ Typical invocations (keys loaded from outside every worktree)::
     set -a; source "$CALVINO_ENV_FILE"; set +a
     uv run python scripts/generate_message_set.py --split train \\
         --registry evaluation/message-set/v1/seeds.train.jsonl \\
-        --briefs /tmp/briefs.train.jsonl --out /tmp/train.jsonl
+        --out /tmp/train.jsonl
+    # briefs are built from the registry; inspect or pin them first with
+    #     --briefs-out /tmp/briefs.train.jsonl --dry-run
     uv run python scripts/generate_message_set.py --split test \\
         --merge-hand-written evaluation/message-set/v1/test-hand-written.jsonl
 """
@@ -34,6 +36,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
+from calvino.data.message_briefs import (  # noqa: E402
+    BriefReport,
+    build_plain_briefs,
+    build_rewording_briefs,
+    validate_briefs,
+)
 from calvino.data.message_set import (  # noqa: E402
     MessageLabels,
     MessageOracleFacts,
@@ -55,6 +63,7 @@ from calvino.policy.config import load_policy  # noqa: E402
 SET_VERSION = "v1"
 DEFAULT_SALT_FILE = Path("data/message-set-salt-v1")
 DEFAULT_POINTER_LOG = Path("data/message-set-seed-log.jsonl")
+DEFAULT_MESSAGE_DIR = Path("evaluation/message-set/v1")
 
 LANGUAGE_BY_COUNTRY = {"MX": "es-MX", "CO": "es-CO", "AR": "es-AR"}
 
@@ -108,6 +117,8 @@ def build_brief_markdown(seed: SeedRow, brief: dict) -> str:
     ]
     if brief.get("adversarial_kind"):
         lines.append(f"adversarial_kind: {brief['adversarial_kind']}")
+    if brief.get("edge_kind"):
+        lines.append(f"edge_kind: {brief['edge_kind']}")
     if brief.get("parent_message"):
         lines.append(f"parent_message: {brief['parent_message']}")
     fact_bits = []
@@ -123,6 +134,30 @@ def build_brief_markdown(seed: SeedRow, brief: dict) -> str:
         fact_bits.append(f"sla_state={facts.sla_state}")
     lines.append(f"seed_facts: {'; '.join(fact_bits) or 'none (no record)'}")
     return "\n".join(lines)
+
+
+def build_briefs(
+    split: str, seeds: list[SeedRow], parent_messages: dict[str, str] | None = None
+) -> BriefReport:
+    """Briefs from the registry alone (P1 composition), no file or key needed.
+
+    Rewording seeds take their parent's brief, so the base slice is built
+    first; a registry without rewordings simply has no supplement briefs.
+    """
+    report = build_plain_briefs(split, seeds)
+    if split == "test":
+        parents = {brief["seed_key"]: brief for brief in report.briefs}
+        supplement = build_rewording_briefs(seeds, parents, parent_messages)
+        report.briefs.extend(supplement.briefs)
+        report.shortfalls.extend(supplement.shortfalls)
+        report.unassigned += supplement.unassigned
+    report.shortfalls.extend(validate_briefs(report.briefs))
+    return report
+
+
+def load_parent_messages(path: Path) -> dict[str, str]:
+    """seed_key -> drafted text from a message JSONL, for rewording briefs."""
+    return {row.seed_key: row.message for row in read_jsonl(path, MessageRow)}
 
 
 def draft_message(
@@ -307,7 +342,17 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--split", choices=("train", "calibration", "test"), required=True)
     parser.add_argument("--registry", type=Path, help="seeds.{split}.jsonl to draft from")
-    parser.add_argument("--briefs", type=Path, help="JSONL of {seed_key, intent, ...} briefs")
+    parser.add_argument(
+        "--briefs",
+        type=Path,
+        help="JSONL of {seed_key, intent, ...} briefs; built from the registry when omitted",
+    )
+    parser.add_argument("--briefs-out", type=Path, help="write the built briefs here")
+    parser.add_argument(
+        "--parent-messages",
+        type=Path,
+        help="drafted test base messages, so rewording briefs carry the parent text",
+    )
     parser.add_argument("--prompt", type=Path, help="the versioned prompt markdown")
     parser.add_argument("--prompt-version", default=SET_VERSION)
     parser.add_argument("--out", type=Path, help="where to write message JSONL")
@@ -349,18 +394,40 @@ def main(argv: list[str] | None = None) -> int:
                     handle.write(row.model_dump_json() + "\n")
         return 0
 
-    for required in ("registry", "briefs", "prompt", "out"):
-        if getattr(args, required) is None and not args.dry_run:
-            print(f"--{required} is required without --dry-run", file=sys.stderr)
-            return 2
-    seeds = read_jsonl(args.registry, SeedRow)
+    if args.out is None and not args.dry_run and args.briefs_out is None:
+        print("--out is required without --dry-run", file=sys.stderr)
+        return 2
+    registry_path = args.registry or DEFAULT_MESSAGE_DIR / f"seeds.{args.split}.jsonl"
+    prompt_name = "test-v1.md" if args.split == "test" else "train-v1.md"
+    prompt_path = args.prompt or DEFAULT_MESSAGE_DIR / "prompts" / prompt_name
+    seeds = read_jsonl(registry_path, SeedRow)
     briefs = {}
-    with args.briefs.open(encoding="utf-8") as handle:
-        for line in handle:
-            if line.strip():
-                row = json.loads(line)
-                briefs[row["seed_key"]] = row
-    system_prompt = args.prompt.read_text(encoding="utf-8")
+    if args.briefs is not None:
+        with args.briefs.open(encoding="utf-8") as handle:
+            for line in handle:
+                if line.strip():
+                    row = json.loads(line)
+                    briefs[row["seed_key"]] = row
+    else:
+        parent_messages = (
+            load_parent_messages(args.parent_messages) if args.parent_messages else None
+        )
+        report = build_briefs(args.split, seeds, parent_messages)
+        briefs = {brief["seed_key"]: brief for brief in report.briefs}
+        print(
+            f"built {len(report.briefs)} briefs for {len(seeds)} {args.split} seeds "
+            f"({report.unassigned} seeds without a quota slot)"
+        )
+        for shortfall in report.shortfalls:
+            print(f"SHORTFALL: {shortfall}", file=sys.stderr)
+        if args.briefs_out is not None:
+            with args.briefs_out.open("w", encoding="utf-8") as handle:
+                for brief in report.briefs:
+                    handle.write(json.dumps(brief, ensure_ascii=False) + "\n")
+            print(f"wrote briefs to {args.briefs_out}")
+        if args.out is None and not args.dry_run:
+            return 0
+    system_prompt = prompt_path.read_text(encoding="utf-8")
 
     client = None
     if not args.dry_run:

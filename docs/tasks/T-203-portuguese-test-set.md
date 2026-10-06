@@ -3,7 +3,8 @@
 | | |
 |---|---|
 | Wave | 2 |
-| Branch | `data/pt-test-set` |
+| Status | done; maintainer sign-off on the review log pending |
+| Branch | `feat/pt-test-set` |
 | Depends on | T-106 |
 | Blocked by | — |
 | Model | standard model |
@@ -22,4 +23,4 @@
 
 **Done when.** translated held-out pairs and directly written cases cover the workflow's routes and high-risk boundaries, have reviewed labels, are never used for training or calibration, and their synthetic provenance and limitations are documented. T-405 reports paired model and policy effects separately.
 
-**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
+**Specification:** [TSD-032](../specs/TSD-032-portuguese-test-set.md) (implemented).

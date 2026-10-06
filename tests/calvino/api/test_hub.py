@@ -176,7 +176,7 @@ def test_message_explain_returns_reply_card_and_trace(make_hub_client):
     assert body["card"]["payload"]["status"] == "Declined"
     assert body["trace"], "the glass box reads the trace"
     assert body["trace"][0]["stage"] == "classifier"
-    assert body["trace"][0]["rule_id"] == "RT-ACT"
+    assert body["trace"][0]["rule_id"] == "RT-REF-ANCHORED"
     assert [step["stage"] for step in body["trace"]] == ["classifier", "verifier"]
 
 

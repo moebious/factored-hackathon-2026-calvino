@@ -64,20 +64,22 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-106](T-106-message-set.md) | Disjoint training/calibration/test messages; reuse the frozen oracle contract | 1 | T-103; T-107 for gold-subset agreement | LLM provider keys (`not run`: keyed generation + sample reviews deferred to post-submission) | standard + maintainer review | no | todo | maintainer |
 | [T-107](T-107-gold-annotation.md) | Maintainer gold annotation and agreement report | 1 | T-103 | — | judgment checkpoint | no | todo | maintainer |
 | [T-201](T-201-classifier-evaluation.md) | Base/calibrated/fine-tuned Laya versus simpler baselines; threshold frontier | 2 | T-005, T-106, T-202 for final comparison; T-107 for reviewed gold metrics | `not run`: needs T-106 messages | judgment checkpoint | no | spec | maintainer |
-| [T-202](T-202-laya-fine-tuning.md) | Reproducible open-weight Laya specialisation | 2 (thesis) | T-106 | GPU (maintainer runs the notebook) | judgment checkpoint | yes | todo | maintainer |
-| [T-203](T-203-portuguese-test-set.md) | Translated held-out pairs and directly written Portuguese cases | 2 | T-106 | — | standard | yes | todo | maintainer |
+| [T-202](T-202-laya-fine-tuning.md) | Reproducible open-weight Laya specialisation | 2 (thesis) | T-106 | GPU (maintainer runs the notebook) | judgment checkpoint | yes | done (run 1) | maintainer |
+| [T-203](../specs/TSD-032-portuguese-test-set.md) | Translated held-out pairs and directly written Portuguese cases | 2 | T-106 | — | standard | yes | done (maintainer sign-off on review log pending) | maintainer |
 | [T-204](T-204-calvino-hub.md) | Calvino hub | 2 | T-001, T-002, T-004, T-005 | — | judgment checkpoint | no | done | maintainer |
 | [T-205](T-205-customer-app.md) | Customer app with Laya cards | 2 | T-003 | — | standard | yes | done | maintainer |
-| [T-206](T-206-workflow-tools.md) | Full cleaned-table adapter for the existing workflow tools | 2 | T-002, T-101, T-102 | — | standard | yes | doing | maintainer |
+| [T-206](T-206-workflow-tools.md) | Full cleaned-table adapter for the existing workflow tools | 2 | T-002, T-101, T-102 | — | standard | yes | done (#92, #102) | maintainer |
 | [T-207](T-207-intent-driven-customer-app.md) | Intent-driven customer experience and visual investigation | 2 | T-205, T-003 | — | standard | yes | done (#85) | maintainer |
 | [T-208](../specs/TSD-029-human-request-hard-rule.md) | Hard rule for an explicit request for a person: coverage and false hits | 2 | T-106, T-001 | — | judgment checkpoint | yes | done | maintainer |
 | [T-209](../specs/TSD-030-route-confidence-aggregation.md) | What the route's `confidence` score is computed from | 2 | T-106, T-201 | — | judgment checkpoint | yes | done | maintainer |
-| [T-301](T-301-support-agent.md) | Bounded generative support agent with governed tools and policy retrieval | 3 | T-204, T-206 | LLM provider keys | standard | no | todo | maintainer |
+| [T-301](T-301-support-agent.md) | Bounded generative support agent with governed tools and policy retrieval | 3 | T-204, T-206 | — | standard | no | done | maintainer |
 | [T-302](../specs/TSD-023-operator-console.md) | Full operator workspace, attributable reply/notes edits and audit timeline | 3 | T-204 | — | standard | yes | done | maintainer |
 
 | [T-303](T-303-end-to-end-evaluation.md) | Actual-system evaluation, protected measurements and honest failure accounting | 3 | T-301, T-203 for final run; T-107 for gold-subset agreement | provider keys for protected measurements (`not run`: full runs incl. ablation and false-pass rate deferred; tier-0 offline report stands) | judgment checkpoint | no | doing | maintainer |
 | [T-304](T-304-deploy-demo.md) | Deploy the demo | 3 | T-003, T-205, T-204 | hosting accounts (maintainer) | standard | yes | doing | maintainer |
 | [T-305](T-305-gradio-demo-adapter.md) | Gradio decision-only emergency fallback, not the full app | fallback | T-005 | free Space (maintainer) | standard | yes | spec | maintainer |
+| [T-306](T-306-frontend-deployment.md) | Frontend deployment and live interface execution | 3 | T-205, T-207, T-304 | Vercel deployment / maintainer run | standard | yes | doing | maintainer |
+| [T-307](T-307-deployment-smoke-check-and-persistence.md) | Deployment smoke-check verification and persistence testing | 3 | T-304, T-306, T-401 | — | standard | yes | doing | maintainer |
 | [T-401](../specs/TSD-025-durable-cases.md) | Parked turn and case-reference resume across restart | 3 | T-204, T-302 | — | standard | yes | done | maintainer |
 | [T-402](T-402-verifier-panel.md) | Offline risk-tiered pre-execution veto comparison; runtime claim separately gated | 3 (thesis) | T-004, T-303 | labelled cases | judgment checkpoint | yes | todo | maintainer |
 | [T-403](T-403-coworker-agent.md) | Coworker agent, only after measured operator need | future | T-302 | measured need | standard | yes | deferred | maintainer |
@@ -103,7 +105,7 @@ The rule for T-101 is pre-registered; its status moves to `doing` when the analy
 ```
 Wave 0:  T-000 ─► T-001 · T-002 · T-003 · T-004 · T-005          (no data needed)
 Wave 1:  T-101 (done) ─► T-103 (done) ─► T-106 ; T-107 (gold review) ; T-104 ; T-102 (done) ─► T-105 (done)
-Wave 2:  T-106 ─► T-202 ─► T-201 ; T-208 · T-209 ; T-203 ; T-204 · T-205 (done) ─► T-207 ; T-206 (doing: local implementation)
+Wave 2:  T-106 ─► T-202 ─► T-201 ; T-208 · T-209 ; T-203 (done) ; T-204 · T-205 (done) ─► T-207 ; T-206 (done #92, #102)
 Wave 3:  T-301 · T-302 ─► T-401 ; T-303 ─► T-402 · T-405 · T-603 · T-408 ─► T-407
          T-206 ─► T-406 · T-604 ; T-304 (full public demo)
 Wave 5:  T-501 · T-502 · T-503 · T-504 · T-505 (submission)

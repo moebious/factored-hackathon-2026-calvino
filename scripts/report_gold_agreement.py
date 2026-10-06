@@ -203,7 +203,7 @@ def update_disagreement_log(outcomes: tuple[ScoredOutcome, ...], path: Path) -> 
             "these as blind or independent human annotations. Oracle facts "
             "and human outcomes are annotated by the party named in "
             "`outcome_annotator`, which must name the drafter "
-            "(decision 47).\n\n"
+            "(decision 48).\n\n"
             "| gold_id | oracle_outcome | human_outcome | classification | "
             "rationale | resolution | reviewer | reviewed_at |\n"
             "|---|---|---|---|---|---|---|---|\n",
@@ -274,7 +274,7 @@ def render_report(
         "label independence. Do not describe these as blind or independent "
         "human annotations. Oracle facts and human outcomes are annotated "
         "by the outcome annotator named above, which must name the drafter "
-        "(decision 47); agreement is consistency between that annotator and "
+        "(decision 48); agreement is consistency between that annotator and "
         "the table over the same facts, not inter-annotator agreement or "
         "independent validation.",
         "",

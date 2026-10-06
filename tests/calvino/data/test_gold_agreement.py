@@ -105,6 +105,8 @@ def test_report_counts_incomplete_model_proposal_rows_separately():
     assert "- Model-drafted proposal rows reviewed: 31/32" in body
 
 
+
+
 def test_loader_keeps_invalid_rows_in_unscored_denominator(tmp_path):
     path = tmp_path / "gold.jsonl"
     path.write_text(
@@ -268,7 +270,7 @@ def test_disagreement_ledger_adds_pending_rows_and_preserves_maintainer_resoluti
 def test_report_and_ledger_name_the_outcome_drafter_and_never_claim_maintainer_entered(
     tmp_path,
 ) -> None:
-    """Decision 47: outcome provenance travels with the values, never falsified.
+    """Decision 48: outcome provenance travels with the values, never falsified.
 
     The report must say who annotated the outcomes and must not assert that
     oracle facts and human outcomes are maintainer-entered once they are not.
@@ -277,7 +279,7 @@ def test_report_and_ledger_name_the_outcome_drafter_and_never_claim_maintainer_e
     body = report.render_report(rows, run_date="2026-10-05", git_sha="test")
     assert "maintainer-entered annotations" not in body
     assert "outcome annotator named above" in body
-    assert "decision 47" in body
+    assert "decision 48" in body
     assert "not inter-annotator agreement or independent validation" in body
 
     scored = report._scored_outcomes(
@@ -300,4 +302,4 @@ def test_report_and_ledger_name_the_outcome_drafter_and_never_claim_maintainer_e
     ledger = path.read_text(encoding="utf-8")
     assert "maintainer-entered annotations" not in ledger
     assert "outcome_annotator" in ledger
-    assert "decision 47" in ledger
+    assert "decision 48" in ledger

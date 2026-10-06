@@ -43,6 +43,8 @@ from calvino.api.loader import SystemOneLoader
 from calvino.classifiers import workflow_questions
 from calvino.decision_log import DecisionLog
 from calvino.hub.agent import AgentRequest, SupportAgent
+from calvino.hub.empty_input import has_content
+from calvino.hub.entry_reference import extract_entry_references
 from calvino.hub.human_request import detects_human_request
 from calvino.hub.playbook import Playbook, StatusGuidance, load_playbook
 from calvino.hub.sessions import TrustedSessionIssuer
@@ -391,11 +393,15 @@ def build_hub_graph(
         fraud_signal = (
             deps.fraud_context.is_flagged(session) if deps.fraud_context is not None else False
         )
+        # Exactly one cited entry anchors the turn on it (zero or several:
+        # no anchor, the scores decide as before).
+        cited = extract_entry_references(state.get("message", ""))
         return {
             "facts": Facts(
                 session_ref=state.get("session_ref", ""),
                 fraud_signal=fraud_signal,
                 asks_for_human=asks_for_human,
+                entry_reference=cited[0] if len(cited) == 1 else None,
                 # The demo has no real auth, regulator or vulnerability
                 # signals; the fields stay inert until a bank core feeds them.
                 auth_failures=0,
@@ -424,6 +430,20 @@ def build_hub_graph(
 
     def classify(state: HubState, config: RunnableConfig) -> dict[str, Any]:
         """Laya answers -> calibrated scores -> ``decide_route``; the record is logged."""
+        if not has_content(state.get("message", "")):
+            # HR-EMPTY-INPUT (DESIGN 6.1): nothing to classify, so ask before Laya guesses.
+            log_decision(
+                state,
+                stage=Stage.HARD_RULES,
+                rule_id="HR-EMPTY-INPUT",
+                verdict=Route.CLARIFY.value,
+                inputs_summary={"reason": "message has no letter or digit"},
+            )
+            return {
+                "route": Route.CLARIFY,
+                "rule_id": "HR-EMPTY-INPUT",
+                "stage": HubStage.CLARIFY,
+            }
         try:
             answers = {
                 answer.question_id: answer

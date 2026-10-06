@@ -152,3 +152,31 @@ def test_write_creates_both_files_and_never_overwrites(tmp_path: Path):
     assert load_run_record(json_path) == record
     with pytest.raises(FileExistsError, match="never overwritten"):
         write_run_record(record, tmp_path)
+
+
+def test_the_loop_settings_are_required_and_validated():
+    data = fixture_data()
+    del data["configuration"]["loop"]
+    with pytest.raises(ValidationError, match="loop"):
+        FineTuneRunRecord.model_validate(data)
+    with pytest.raises(ValidationError):
+        make(configuration__loop__loss="something else")
+    with pytest.raises(ValidationError):
+        make(configuration__loop__sigma_start=0)
+
+
+def test_markdown_records_the_loop_settings_the_notebook_fixes_in_code():
+    markdown = render_markdown(load_run_record(FIXTURE))
+    assert "| Loss | policy gradient + soft cross-entropy (cross-entropy weight 1) |" in markdown
+    assert "| Exploration noise | 0.4 to 0.1 |" in markdown
+    assert "| Reward weights (spherical / RPS) | 0.75 / 1 |" in markdown
+    assert "| Sequence lengths (item / head) | 1024 / 256 |" in markdown
+    assert "| Temperature hold-out | min(400, 10% of items), chosen by message |" in markdown
+
+
+def test_markdown_says_laya_temperatures_are_not_calvinos_calibration():
+    markdown = render_markdown(load_run_record(FIXTURE))
+    assert "choice 1.180" in markdown and "not Calvino's calibration" in markdown
+    data = fixture_data()
+    data["training"]["laya_temperatures"] = {}
+    assert "laya's own temperatures" not in render_markdown(FineTuneRunRecord.model_validate(data))

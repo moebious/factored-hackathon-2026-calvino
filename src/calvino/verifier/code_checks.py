@@ -230,6 +230,12 @@ def check_amounts_dates_merchants(text: str, evidence: Evidence) -> CriterionVer
         # Quoted spans that are amounts or dates were already checked above.
         if not name or _NUMBER_RE.fullmatch(name.replace(".", "").replace(",", "")):
             continue
+        if (
+            any(name.casefold() in words for words in _STATUS_WORDS.values())
+            or name.upper() in _CURRENCY_TOKENS
+            or _ISO_DATE_RE.fullmatch(name) is not None
+        ):
+            continue
         if not any(name.casefold() in merchant.casefold() for merchant in evidence.merchants):
             unmatched.append(name)
     if unmatched:

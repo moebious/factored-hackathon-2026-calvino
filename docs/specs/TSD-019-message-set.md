@@ -368,7 +368,7 @@ Illustrative shape only, not an annotation for an existing gold row:
 ```
 
 `oracle_facts` and `human_outcome` are direct annotations by the party
-named in `outcome_annotator` — the maintainer, or under decision 47 the
+named in `outcome_annotator` — the maintainer, or under decision 48 the
 disclosed drafter whose values the maintainer reviews. They must not be
 copied from each other or auto-filled from the message-set
 brief→labels defaults. `null` is allowed only for nullable `OracleFacts`
@@ -395,7 +395,7 @@ model-drafted proposals from Claude Sonnet 5.5 (`claude-sonnet-5-5`) in
 Claude Code on 2026-10-05. The maintainer saw the proposals before review,
 which creates anchoring risk and reduces label independence. Do not claim
 blind or independent human annotation. They also disclose outcome
-provenance (decision 47): `oracle_facts` and `human_outcome` were drafted
+provenance (decision 48): `oracle_facts` and `human_outcome` were drafted
 by `mimo-v2.6-flash-free` (OpenCode) on 2026-10-05 and maintainer-reviewed,
 so the agreement figure is one drafter's consistency with the table and is
 never presented as independent maintainer consistency.

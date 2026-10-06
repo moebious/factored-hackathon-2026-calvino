@@ -29,7 +29,7 @@ Calvino replaces the unconstrained agent with a **governed 4-tier cognitive hier
 * **System 2 (Bounded Support Agent — Contained Language)**: Open LLM (Qwen 3.6-35B on Hetzner) strictly restricted to drafting explanations from verified tool facts. The agent has no authorization to act on its own. All drafted text passes through the financial verifier cascade (`customer-answer@2`: deterministic code checks and judge veto) before reaching the customer.
 * **System 3 (Humans — Accountable Authority)**: Human operators approve gray-zone actions (`interrupt()`), manage durable case files, and resolve edge cases. Human decisions generate gold labels for the offline data flywheel.
 
-**Gold-label review status `[measured]`:** the first 50 classifier-label rows include 18 maintainer-only labels and 32 model-drafted proposal rows that require explicit maintainer review. The proposals were drafted with Claude Sonnet 5.5 (`claude-sonnet-5-5`) in Claude Code on 2026-10-05. The maintainer saw the proposals before review, which creates anchoring risk and reduces label independence; do not describe the resulting labels as blind or independent human annotations. Only values the maintainer explicitly accepts or corrects become gold labels. Oracle facts and human outcomes for these 50 rows were drafted by `mimo-v2.6-flash-free` (OpenCode) on 2026-10-05 and are maintainer-reviewed (decision 47); they are not blind or independent human annotations, and the agreement figure is that drafter's consistency with the hand-written TSD-013 table, not independent maintainer consistency.
+**Gold-label review status `[measured]`:** the first 50 classifier-label rows include 18 maintainer-only labels and 32 model-drafted proposal rows that require explicit maintainer review. The proposals were drafted with Claude Sonnet 5.5 (`claude-sonnet-5-5`) in Claude Code on 2026-10-05. The maintainer saw the proposals before review, which creates anchoring risk and reduces label independence; do not describe the resulting labels as blind or independent human annotations. Only values the maintainer explicitly accepts or corrects become gold labels. Oracle facts and human outcomes for these 50 rows were drafted by `mimo-v2.6-flash-free` (OpenCode) on 2026-10-05 and are maintainer-reviewed (decision 48); they are not blind or independent human annotations, and the agreement figure is that drafter's consistency with the hand-written TSD-013 table, not independent maintainer consistency.
 
 ---
 
@@ -244,7 +244,8 @@ What this does not say:
 
 | Item | Status |
 |---|---|
-| Fine-tuned Laya (T-202) and the base/calibrated/fine-tuned comparison (T-201) | `not run`: needs the T-106 training split (never generated) and a GPU run |
+| Fine-tuned Laya run 1 (T-202) | `done`: executed on Kaggle (2× T4 GPUs), published to `kevago/calvino-laya-ft@t202-run1`, provenance recorded in `reports/finetune/`. Fit did not meet Rule R threshold (25% < 90%), so comparison is open under T-201. |
+| Base/calibrated/fine-tuned comparison (T-201) | `not run`: comparison suite pending per TSD-027 |
 | Keyed T-106 message set (train, calibration, test) | `not run`: generation keys and review were deferred; only the registries, tooling and 20 hand-written test rows exist |
 | Gold-subset agreement (T-103) | `not run`: the gold sheet is unfilled |
 | Policy replay scorecard (T-408) | `not run`: needs T-201 |

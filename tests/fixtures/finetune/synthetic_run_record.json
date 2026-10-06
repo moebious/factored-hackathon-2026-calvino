@@ -13,6 +13,22 @@
     "grad_accum": 4,
     "grad_clip": 1.0,
     "group_size": 4,
+    "loop": {
+      "cross_entropy_weight": 1.0,
+      "gradient_checkpointing": true,
+      "head_max_len": 256,
+      "holdout_fraction_percent": 10,
+      "holdout_max_items": 400,
+      "loss": "policy gradient + soft cross-entropy",
+      "max_len": 1024,
+      "max_tokens_per_batch": 4096,
+      "mixed_precision": "fp16",
+      "reward_weight_rps": 1.0,
+      "reward_weight_spherical": 0.75,
+      "sigma_end": 0.1,
+      "sigma_start": 0.4,
+      "torch_seed_base": 42
+    },
     "lr_encoder": 2.5e-05,
     "lr_head": 0.0001,
     "micro_batch": 8,
@@ -23,10 +39,19 @@
   },
   "data": {
     "counts": {
-      "needs_human": {"can handle automatically": 500, "human needed": 100},
-      "workflow_area": {"fraud or stolen access": 30, "stuck payment": 480, "out of scope": 90}
+      "needs_human": {
+        "can handle automatically": 500,
+        "human needed": 100
+      },
+      "workflow_area": {
+        "fraud or stolen access": 30,
+        "out of scope": 90,
+        "stuck payment": 480
+      }
     },
-    "excluded": {"review fail": 3},
+    "excluded": {
+      "review fail": 3
+    },
     "exporter_git_sha": "abc1234",
     "input_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
     "question_schema_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
@@ -44,11 +69,26 @@
     "transformers_version": "4.57.6"
   },
   "leakage_guard": [
-    {"check": "wrong-split", "passed": true},
-    {"check": "text-overlap", "passed": true},
-    {"check": "shared-keys", "passed": true},
-    {"check": "portuguese-row", "passed": true},
-    {"check": "unknown-label", "passed": true}
+    {
+      "check": "wrong-split",
+      "passed": true
+    },
+    {
+      "check": "text-overlap",
+      "passed": true
+    },
+    {
+      "check": "shared-keys",
+      "passed": true
+    },
+    {
+      "check": "portuguese-row",
+      "passed": true
+    },
+    {
+      "check": "unknown-label",
+      "passed": true
+    }
   ],
   "notebook": "notebooks/t202_laya_finetune_kaggle.ipynb",
   "notes": "SYNTHETIC FIXTURE: no run happened and every value is made up for the tests.",
@@ -61,8 +101,21 @@
   "run": 1,
   "run_date": "2026-10-20",
   "training": {
-    "loss_per_epoch": [0.9, 0.6, 0.45, 0.4],
-    "train_fit": {"needs_human": 0.97, "workflow_area": 0.95},
+    "laya_temperatures": {
+      "choice": 1.18,
+      "noul": 1.2,
+      "score": 1.2
+    },
+    "loss_per_epoch": [
+      0.9,
+      0.6,
+      0.45,
+      0.4
+    ],
+    "train_fit": {
+      "needs_human": 0.97,
+      "workflow_area": 0.95
+    },
     "wall_time_seconds": 420.0
   }
 }

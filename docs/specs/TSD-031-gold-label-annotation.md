@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | accepted; model-drafted classifier proposals and model-drafted outcome annotations require maintainer review (2026-10-05, decision 47) |
+| Status | accepted; model-drafted classifier proposals and model-drafted outcome annotations require maintainer review (2026-10-05, decision 48) |
 | Branch | `feat/t107-gold-annotation` |
 | Depends on | TSD-015 (gold schema and rubric), TSD-019 (agreement contract) |
 | Task | [T-107](../tasks/T-107-gold-annotation.md) |
@@ -29,7 +29,7 @@ contains no completed outcome annotations.
 - No dataset transcript or customer record is used or added.
 - The maintainer supplies or explicitly approves all final classifier
   labels. The tool does not fill defaults or choose labels.
-- Model drafts apply to classifier labels and, under decision 47, to
+- Model drafts apply to classifier labels and, under decision 48, to
   oracle facts and human outcomes. Every value names its drafter
   (`annotator`, `outcome_annotator`); outcomes become gold only after
   explicit maintainer review, and no report presents them as
@@ -96,7 +96,7 @@ disagreement ledger retains maintainer classifications and resolutions.
 Both artifacts disclose the classifier-label provenance split, the
 proposal model identity/version and the anchoring caveat.
 Oracle facts and human outcomes name their drafter in
-`outcome_annotator` and carry decision 47's caveat: one drafter's rubric
+`outcome_annotator` and carry decision 48's caveat: one drafter's rubric
 application against the hand-written table, not independent maintainer
 consistency.
 
@@ -113,6 +113,6 @@ consistency.
   maintainer. The report states the 18/32 provenance split and anchoring
   caveat; it does not claim independent human annotation.
 - Every oracle fact and human outcome names its drafter and has explicit
-  maintainer review (decision 47); the report names the outcome drafter
+  maintainer review (decision 48); the report names the outcome drafter
   and does not present the agreement as independent human consistency. No
   customer records or dataset transcripts are added.
