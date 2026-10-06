@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Report T-107's single-annotator consistency with the TSD-013 oracle.
 
-The tool validates only maintainer-entered annotations. It never infers or
-suggests values. Frozen model-prediction agreement is outside this report.
+The tool validates only annotations explicitly entered in the worksheet.
+It never infers or suggests values. Frozen model-prediction agreement is
+outside this report.
 """
 
 from __future__ import annotations
@@ -200,7 +201,9 @@ def update_disagreement_log(outcomes: tuple[ScoredOutcome, ...], path: Path) -> 
             "were seen before review, creating "
             "anchoring risk and reducing label independence. Do not describe "
             "these as blind or independent human annotations. Oracle facts "
-            "and human outcomes remain separate maintainer-entered annotations.\n\n"
+            "and human outcomes are annotated by the party named in "
+            "`outcome_annotator`, which must name the drafter "
+            "(decision 48).\n\n"
             "| gold_id | oracle_outcome | human_outcome | classification | "
             "rationale | resolution | reviewer | reviewed_at |\n"
             "|---|---|---|---|---|---|---|---|\n",
@@ -269,8 +272,11 @@ def render_report(
         "Claude Code on 2026-10-05. The maintainer saw the proposals before "
         "review, creating anchoring risk and reducing "
         "label independence. Do not describe these as blind or independent "
-        "human annotations. Oracle facts and human outcomes are separate "
-        "maintainer-entered annotations.",
+        "human annotations. Oracle facts and human outcomes are annotated "
+        "by the outcome annotator named above, which must name the drafter "
+        "(decision 48); agreement is consistency between that annotator and "
+        "the table over the same facts, not inter-annotator agreement or "
+        "independent validation.",
         "",
         "This is not an independent benchmark or a real-world oracle error bound. "
         "It does not measure T-106 defaults, message labels or model predictions.",

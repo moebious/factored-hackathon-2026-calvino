@@ -108,8 +108,8 @@ def test_filled_record_counts_as_labelled():
     assert record.is_labelled()
 
 
-def test_existing_gold_sheet_rows_remain_valid_without_outcome_fields():
-    """The additive report schema must preserve all current rows."""
+def test_existing_gold_sheet_rows_remain_valid_with_outcome_fields():
+    """The reviewed gold rows validate under the additive report schema."""
     rows = [
         json.loads(line)
         for line in GOLD_SHEET.read_text(encoding="utf-8").splitlines()
@@ -117,9 +117,9 @@ def test_existing_gold_sheet_rows_remain_valid_without_outcome_fields():
     ]
     assert len(rows) == 50
     records = [validate_gold_record(row) for row in rows]
-    assert all(record.oracle_facts is None for record in records)
-    assert all(record.human_outcome is None for record in records)
-    assert all(not record.has_complete_outcome_annotation() for record in records)
+    assert all(record.oracle_facts is not None for record in records)
+    assert all(record.human_outcome is not None for record in records)
+    assert all(record.has_complete_outcome_annotation() for record in records)
 
 
 def test_gold_outcome_fields_are_optional_but_require_complete_metadata_for_scoring():

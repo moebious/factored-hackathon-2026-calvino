@@ -367,8 +367,10 @@ Illustrative shape only, not an annotation for an existing gold row:
 }
 ```
 
-`oracle_facts` and `human_outcome` are direct maintainer annotations. They
-must not be copied from each other or auto-filled from the message-set
+`oracle_facts` and `human_outcome` are direct annotations by the party
+named in `outcome_annotator` — the maintainer, or under decision 48 the
+disclosed drafter whose values the maintainer reviews. They must not be
+copied from each other or auto-filled from the message-set
 brief→labels defaults. `null` is allowed only for nullable `OracleFacts`
 fields such as `status`; missing required fields block scoring rather than
 triggering inference. Supplying either outcome field for scoring also
@@ -392,8 +394,11 @@ provenance: 18 existing labels are maintainer-only and 32 rows were
 model-drafted proposals from Claude Sonnet 5.5 (`claude-sonnet-5-5`) in
 Claude Code on 2026-10-05. The maintainer saw the proposals before review,
 which creates anchoring risk and reduces label independence. Do not claim
-blind or independent human annotation. Oracle facts and human outcomes
-are separate maintainer-entered annotations.
+blind or independent human annotation. They also disclose outcome
+provenance (decision 48): `oracle_facts` and `human_outcome` were drafted
+by `mimo-v2.6-flash-free` (OpenCode) on 2026-10-05 and maintainer-reviewed,
+so the agreement figure is one drafter's consistency with the table and is
+never presented as independent maintainer consistency.
 
 T-103 implements the additive `GoldRecord` schema and blank annotation
 sheet under TSD-015. T-107 owns the maintainer's annotations and runs the

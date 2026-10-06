@@ -56,7 +56,8 @@ PR changes nothing marked this way without a new entry here.
   existing labels are maintainer-only; 32 proposals were seen before
   review, so reports state that Claude Sonnet 5.5 (`claude-sonnet-5-5`)
   drafted them in Claude Code on 2026-10-05, plus the anchoring risk.
-  Oracle facts and human outcomes remain maintainer-entered. The
+  Oracle facts and human outcomes are model-drafted with the drafter
+  named and maintainer-reviewed (decision 48). The
   same rubric version scales to the 150–300 DESIGN-7 set.
 - **P6 — leakage rules home (proposed — maintainer confirms at spec
   review).** All five rules are worded and tested under T-103; T-106's spec
@@ -358,8 +359,10 @@ model-drafted proposals for classifier labels only; each final classifier
 label requires explicit maintainer review. The current proposals were
 drafted with Claude Sonnet 5.5 (`claude-sonnet-5-5`) in Claude Code on
 2026-10-05. They were seen before review, so the report must state the
-anchoring risk. Model proposals must not supply or infer `oracle_facts`
-or `human_outcome`; those remain maintainer-entered.
+anchoring risk. Model proposals must not be auto-filled into
+`oracle_facts` or `human_outcome`; under decision 48 those fields may be
+model-drafted with the drafter named in `outcome_annotator` and explicit
+maintainer review.
 
 The implementation adds:
 

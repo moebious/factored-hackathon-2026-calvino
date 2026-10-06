@@ -143,9 +143,11 @@ def test_template_contains_all_rows_and_preserves_existing_labels():
     gold = ROOT / "tests" / "fixtures" / "gold" / "gold-050.jsonl"
     original = gold.read_text(encoding="utf-8")
     before, proposed, changed, complete = importer.prepare_import(template, gold)
+    # The blank starting sheet is idempotent against the reviewed gold file: it
+    # proposes no change and cannot overwrite any of the 50 reviewed rows.
     assert before == original == proposed
     assert changed == 0
-    assert complete == 18
+    assert complete == 50
 
 
 def test_default_csv_is_an_ignored_working_copy():
