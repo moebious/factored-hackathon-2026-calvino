@@ -1,0 +1,150 @@
+{
+  "complaint_tight": {
+    "calibration": false,
+    "test": false,
+    "train": false
+  },
+  "considered": {
+    "calibration": 18924,
+    "test": 18254,
+    "train": 94841
+  },
+  "drawn": {
+    "calibration": 234,
+    "test": 234,
+    "train": 570
+  },
+  "drawn_kinds": {
+    "calibration": {
+      "clean_transaction": 29,
+      "complaint": 24,
+      "other_customer": 10,
+      "problem_transaction": 171
+    },
+    "test": {
+      "clean_transaction": 30,
+      "complaint": 24,
+      "other_customer": 10,
+      "problem_transaction": 170
+    },
+    "train": {
+      "clean_transaction": 57,
+      "complaint": 60,
+      "other_customer": 26,
+      "problem_transaction": 427
+    }
+  },
+  "drawn_status_mix": {
+    "calibration": {
+      "Approved": 30,
+      "Declined": 113,
+      "Pending": 43,
+      "Reversed": 24,
+      "complaint": 24
+    },
+    "test": {
+      "Approved": 30,
+      "Declined": 116,
+      "Pending": 41,
+      "Reversed": 23,
+      "complaint": 24
+    },
+    "train": {
+      "Approved": 60,
+      "Declined": 292,
+      "Pending": 103,
+      "Reversed": 55,
+      "complaint": 60
+    }
+  },
+  "drawn_variants": {
+    "calibration": {
+      "AR": 78,
+      "CO": 78,
+      "MX": 78
+    },
+    "test": {
+      "AR": 78,
+      "CO": 78,
+      "MX": 78
+    },
+    "train": {
+      "AR": 190,
+      "CO": 190,
+      "MX": 190
+    }
+  },
+  "excluded": {},
+  "gate_table_hash": "3568de6ef0129007",
+  "manifest_digest": "2dbeadd667dcde8b9405ab6acb86989603e1927f59e669d604b44b5a67573490",
+  "nominal_no_record": {
+    "calibration": 6,
+    "test": 6,
+    "train": 30
+  },
+  "notes": [],
+  "policy_version": "v4",
+  "pool_status_mix": {
+    "calibration": {
+      "Approved": 18376,
+      "Declined": 328,
+      "Pending": 109,
+      "Reversed": 62,
+      "complaint": 49
+    },
+    "test": {
+      "Approved": 17746,
+      "Declined": 285,
+      "Pending": 107,
+      "Reversed": 59,
+      "complaint": 57
+    },
+    "train": {
+      "Approved": 91825,
+      "Declined": 1523,
+      "Pending": 620,
+      "Reversed": 332,
+      "complaint": 541
+    }
+  },
+  "quotas": {
+    "calibration": {
+      "clean_transaction": 30,
+      "complaint": 24,
+      "problem_transaction": 180
+    },
+    "test": {
+      "clean_transaction": 30,
+      "complaint": 24,
+      "problem_transaction": 180
+    },
+    "train": {
+      "clean_transaction": 60,
+      "complaint": 60,
+      "problem_transaction": 450
+    }
+  },
+  "rng_seed": 20261005,
+  "salt_version": "salt-v1",
+  "set_version": "v1",
+  "skipped": {
+    "complaint:duplicate-customer": 5742,
+    "complaint:outside-category": 53515,
+    "complaint:unexpected-status": 802,
+    "complaint:window-mismatch": 6389,
+    "transaction:amount-margin": 591459,
+    "transaction:duplicate-customer": 1376435,
+    "transaction:non-stuck-type": 223555,
+    "transaction:window-mismatch": 2102187
+  },
+  "usable": {
+    "calibration": 18924,
+    "test": 18254,
+    "train": 94841
+  },
+  "usable_complaints": {
+    "calibration": 49,
+    "test": 57,
+    "train": 541
+  }
+}
