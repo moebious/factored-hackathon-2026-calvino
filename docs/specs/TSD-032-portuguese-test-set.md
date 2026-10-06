@@ -66,12 +66,43 @@ Cases are stored in `evaluation/cases-pt/portuguese.json` under the `slice: "por
    - `comply_with_injection`: Prompt injection attacks formulated in Portuguese.
    - `fabricated_record`: Inquiries regarding non-existent transactions.
 
+## Review, provenance and limits
+
+- `evaluation/cases-pt/review-log.md` holds a verdict (`accepted` or `corrected`, with the
+  reason) for every case, and an empty maintainer sign-off column. The first pass was a
+  model read (Claude Sonnet 5.5, 2026-10-05), not a native speaker and not the maintainer.
+  It found about 40 pairs matching a different Spanish request than the one they cite and
+  corrected 64 rows in all.
+- `evaluation/cases-pt/datasheet.md` documents synthetic provenance, the three variants,
+  the 50-distinct-facts limit, the small over-gate (9) and fraud (20) counts, and that the
+  message-set test split is not yet translated.
+- The 150 pairs are 50 sources in three variants. Reports use 50 as the count of distinct
+  facts and call group results inconclusive when the denominator is small (decision 37).
+
 ## Verification & Acceptance Criteria
 
-1. **Schema & Contract Conformance**:
-   - `tests/calvino/evaluation/test_cases.py` validates that all entries in `evaluation/cases-pt/portuguese.json` deserialize into valid `EvalCase` instances with non-null `facts`.
-   - `pair_of` references must correspond to existing Spanish case identifiers.
-2. **Deterministic Evaluation Runner**:
-   - Running `python scripts/run_evaluation.py --suite tier0 --with-portuguese` executes all Portuguese cases end-to-end through the hub and outputs the paired flip table.
-3. **No Test Leakage**:
-   - `finetune_guard` verifies that no message from `evaluation/cases-pt/` is present in any training or calibration split.
+All enforced in `tests/calvino/evaluation/test_cases.py`:
+
+1. **Contract.** Every case loads as an `EvalCase`; there are 175 (150 paired, 25 direct),
+   all `pt`, none sharing an id with a Spanish case.
+2. **Pair fidelity.** Facts, persona, resume script and `must_not` equal the source's; the
+   message differs (except language-neutral edge cases) and cites the same entry references;
+   each of the 50 sources has exactly three variants.
+3. **Fact integrity.** A case's status agrees with the bank fixture for its seed record;
+   seed records exist; no BRL, `R$`, pix, boleto or CPF.
+4. **Coverage floors.** At least 5 cases for each of seven intents and for the injection,
+   over-gate, fraud-flagged, not-owner, ambiguous and out-of-scope boundaries, and all three
+   `must_not` kinds appear. A route below its floor fails the suite.
+5. **Review.** Every case id has a verdict in the review log; every `corrected` row has a
+   reason; the datasheet carries the provenance phrases.
+6. **No leakage.** No Portuguese message appears in the message-set or fine-tuning fixture
+   text; the fine-tuning guard also compares against `evaluation/cases-pt/`
+   (`tests/calvino/data/test_finetune_guard.py`).
+7. **Runner.** `scripts/run_evaluation.py --suite tier0 --with-portuguese` runs the slice
+   and prints the paired flip table. T-405 splits model and policy flips.
+
+## Open at close
+
+Maintainer sign-off on the review log, a native-speaker pass, and translating the
+message-set test split once T-106's keyed generation produces its text. None blocks T-303 or
+T-405; each is stated as a limitation in the datasheet.

@@ -9,7 +9,9 @@ ids, unlabelled AC scenarios). No hub, no models, no network.
 
 from __future__ import annotations
 
+import collections
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -209,6 +211,10 @@ def test_empty_message_is_a_valid_case(tmp_path: Path) -> None:
 PT_DIR = CASES_DIR.parent / "cases-pt"
 
 
+def _entry_refs(message: str) -> set[str]:
+    return set(re.findall(r"E-[A-Z]{2}-\d{3}", message))
+
+
 def test_portuguese_slice_loads_and_pairs_repeat_the_spanish_facts() -> None:
     spanish = {case.id: case for case in load_suite(CASES_DIR, SCENARIOS_DIR)}
     portuguese = load_cases(PT_DIR)
@@ -230,6 +236,8 @@ def test_portuguese_slice_loads_and_pairs_repeat_the_spanish_facts() -> None:
         ), case.id
         if original.message and original.edge_case not in ("garbled message", "symbols only"):
             assert case.message != original.message, case.id
+        # The translation keeps the request meaning, so it cites the same entries.
+        assert _entry_refs(case.message) == _entry_refs(original.message), case.id
 
 
 def test_portuguese_seed_records_exist_in_the_bank_fixture() -> None:
@@ -238,3 +246,78 @@ def test_portuguese_seed_records_exist_in_the_bank_fixture() -> None:
     for case in load_cases(PT_DIR):
         if case.seed_record is not None:
             assert case.seed_record in references, case.id
+
+
+def test_portuguese_slice_has_no_brazilian_features() -> None:
+    forbidden = re.compile(r"\bBRL\b|R\$|\bpix\b|boleto|\bCPF\b", re.IGNORECASE)
+    for case in load_cases(PT_DIR):
+        assert not forbidden.search(case.message), case.id
+
+
+def test_portuguese_seed_facts_agree_with_the_bank_fixture() -> None:
+    bank = json.loads(BANK_FIXTURE.read_text(encoding="utf-8"))
+    status = {entry["entry_reference"]: entry["status"] for entry in bank["entries"]}
+    for case in load_cases(PT_DIR):
+        if case.seed_record is not None and case.facts.status is not None:
+            assert case.facts.status == status[case.seed_record], case.id
+
+
+def test_each_spanish_source_has_three_portuguese_variants() -> None:
+    portuguese = load_cases(PT_DIR)
+    counts = collections.Counter(case.pair_of for case in portuguese if case.pair_of)
+    assert set(counts.values()) == {3}
+    sources = {case.id for case in load_suite(CASES_DIR, SCENARIOS_DIR)}
+    assert set(counts) == sources
+
+
+# Coverage floors (TSD-032): a route or boundary below its floor is not evidence.
+PT_ROUTE_FLOOR = 5
+PT_BOUNDARY_FLOOR = 5
+
+
+def test_portuguese_slice_covers_every_route_and_boundary() -> None:
+    facts = [case.facts for case in load_cases(PT_DIR)]
+    intents = collections.Counter(f.intent for f in facts)
+    for intent in ("explain", "cancel", "retry", "open_case", "case_status", "human", "none"):
+        assert intents[intent] >= PT_ROUTE_FLOOR, intent
+    assert intents["manipulation"] >= PT_BOUNDARY_FLOOR
+    assert sum(f.amount_band == "over_gate" for f in facts) >= PT_BOUNDARY_FLOOR
+    assert sum(bool(f.fraud_flag) for f in facts) >= PT_BOUNDARY_FLOOR
+    assert sum(not f.owner for f in facts) >= PT_BOUNDARY_FLOOR
+    assert sum(f.ambiguous for f in facts) >= PT_BOUNDARY_FLOOR
+    assert sum(not f.in_scope for f in facts) >= PT_BOUNDARY_FLOOR
+    must_not = {item for case in load_cases(PT_DIR) for item in case.must_not}
+    assert {"cross_customer_disclosure", "comply_with_injection", "fabricated_record"} <= must_not
+
+
+def test_every_portuguese_case_has_a_review_verdict() -> None:
+    rows = [
+        [cell.strip() for cell in line.strip("|\n").split("|")]
+        for line in (PT_DIR / "review-log.md").read_text(encoding="utf-8").splitlines()
+        if line.startswith("| PT-")
+    ]
+    assert {row[0] for row in rows} == {case.id for case in load_cases(PT_DIR)}
+    assert len(rows) == len(load_cases(PT_DIR))
+    for row in rows:
+        assert row[2] in {"accepted", "corrected"}, row[0]
+        assert row[2] != "corrected" or row[3], row[0]
+
+
+def test_portuguese_messages_are_not_in_any_training_or_calibration_text() -> None:
+    portuguese = {case.message for case in load_cases(PT_DIR) if len(case.message) > 12}
+    roots = [
+        REPO_ROOT / "evaluation" / "message-set",
+        REPO_ROOT / "tests" / "fixtures" / "finetune",
+    ]
+    for root in roots:
+        for path in root.rglob("*"):
+            if path.is_file() and path.suffix in {".json", ".jsonl", ".csv", ".md"}:
+                text = path.read_text(encoding="utf-8")
+                for message in portuguese:
+                    assert message not in text, (path.name, message)
+
+
+def test_portuguese_provenance_is_documented() -> None:
+    sheet = (PT_DIR / "datasheet.md").read_text(encoding="utf-8").lower()
+    for phrase in ("synthetic", "not native-speaker reviewed", "limitations", "test only"):
+        assert phrase in sheet, phrase

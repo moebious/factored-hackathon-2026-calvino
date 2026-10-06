@@ -1,0 +1,150 @@
+{
+  "task": "T-301",
+  "date": "2026-10-05",
+  "agent_model": "Qwen/Qwen3.6-35B-A3B-FP8",
+  "judge_mode": "mock",
+  "results": [
+    {
+      "language": "es",
+      "message": "¿Por qué mi transferencia E-MX-002 sigue pendiente?",
+      "draft": "Su transferencia con referencia E-MX-002 se encuentra en estado Pending porque ha sido aceptada pero aún no liquidada, por lo que el dinero no ha llegado al beneficiario. El registro muestra un monto de 5000.00 MXN con fecha de registro 2026-06-10 y fecha de valor 2026-06-11, mientras que el beneficiario no está registrado. El siguiente paso esperado es la liquidación en la fecha de valor y puede solicitar la cancelación si lo desea.",
+      "generation_time_seconds": 80.22813105583191,
+      "verification_time_seconds": 0.056371212005615234,
+      "passed": true,
+      "code_checks_passed": true,
+      "verdicts": [
+        {
+          "criterion_id": "amounts-dates-merchants-match",
+          "checker": "code",
+          "passed": true,
+          "reason": "every stated amount, date and merchant matches"
+        },
+        {
+          "criterion_id": "stated-status-matches-record",
+          "checker": "code",
+          "passed": true,
+          "reason": "every stated status matches the bank's record"
+        },
+        {
+          "criterion_id": "claimed-actions-read-back",
+          "checker": "code",
+          "passed": true,
+          "reason": "every claimed action was confirmed by a read-back"
+        },
+        {
+          "criterion_id": "no-other-customer-data",
+          "checker": "code",
+          "passed": true,
+          "reason": "no other customer's data appears in the reply"
+        },
+        {
+          "criterion_id": "reply-in-customer-language",
+          "checker": "code",
+          "passed": true,
+          "reason": "reply is in es"
+        },
+        {
+          "criterion_id": "no-money-movement-promise",
+          "checker": "code",
+          "passed": true,
+          "reason": "no refund, credit or guarantee is promised"
+        },
+        {
+          "criterion_id": "factual-claims-grounded",
+          "checker": "judge",
+          "passed": true,
+          "reason": "mock judge: no scripted verdict"
+        },
+        {
+          "criterion_id": "question-fully-answered",
+          "checker": "judge",
+          "passed": true,
+          "reason": "mock judge: no scripted verdict"
+        },
+        {
+          "criterion_id": "no-invented-policy",
+          "checker": "judge",
+          "passed": true,
+          "reason": "mock judge: no scripted verdict"
+        },
+        {
+          "criterion_id": "next-step-valid-and-clear",
+          "checker": "judge",
+          "passed": true,
+          "reason": "mock judge: no scripted verdict"
+        }
+      ]
+    },
+    {
+      "language": "pt",
+      "message": "Por que minha transferência E-MX-002 continua pendente?",
+      "draft": "A transferência E-MX-002 encontra-se no estado Pending, o que significa que foi aceite mas ainda não foi liquidada, pelo que o dinheiro não chegou ao beneficiário. O registo indica um valor de 5000.00 MXN, com data de registo 2026-06-10 e data de valor 2026-06-11. O próximo passo esperado é a liquidação na data de valor, sem que possamos garantir um horário específico para esse processo.",
+      "generation_time_seconds": 102.75232100486755,
+      "verification_time_seconds": 0.018439054489135742,
+      "passed": true,
+      "code_checks_passed": true,
+      "verdicts": [
+        {
+          "criterion_id": "amounts-dates-merchants-match",
+          "checker": "code",
+          "passed": true,
+          "reason": "every stated amount, date and merchant matches"
+        },
+        {
+          "criterion_id": "stated-status-matches-record",
+          "checker": "code",
+          "passed": true,
+          "reason": "every stated status matches the bank's record"
+        },
+        {
+          "criterion_id": "claimed-actions-read-back",
+          "checker": "code",
+          "passed": true,
+          "reason": "every claimed action was confirmed by a read-back"
+        },
+        {
+          "criterion_id": "no-other-customer-data",
+          "checker": "code",
+          "passed": true,
+          "reason": "no other customer's data appears in the reply"
+        },
+        {
+          "criterion_id": "reply-in-customer-language",
+          "checker": "code",
+          "passed": true,
+          "reason": "reply is in pt"
+        },
+        {
+          "criterion_id": "no-money-movement-promise",
+          "checker": "code",
+          "passed": true,
+          "reason": "no refund, credit or guarantee is promised"
+        },
+        {
+          "criterion_id": "factual-claims-grounded",
+          "checker": "judge",
+          "passed": true,
+          "reason": "mock judge: no scripted verdict"
+        },
+        {
+          "criterion_id": "question-fully-answered",
+          "checker": "judge",
+          "passed": true,
+          "reason": "mock judge: no scripted verdict"
+        },
+        {
+          "criterion_id": "no-invented-policy",
+          "checker": "judge",
+          "passed": true,
+          "reason": "mock judge: no scripted verdict"
+        },
+        {
+          "criterion_id": "next-step-valid-and-clear",
+          "checker": "judge",
+          "passed": true,
+          "reason": "mock judge: no scripted verdict"
+        }
+      ]
+    }
+  ]
+}
