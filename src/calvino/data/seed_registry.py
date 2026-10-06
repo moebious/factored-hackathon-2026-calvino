@@ -21,6 +21,7 @@ no dataset. The salt in tests is a fixed non-secret string.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import secrets
@@ -282,6 +283,93 @@ def build_nominal_seeds(
         seeds.append(seed)
         pointers.append(pointer)
     return seeds, pointers
+
+
+REWORDING_COUNT = 40
+REWORDING_PARENT_KINDS = ("problem_transaction", "clean_transaction")
+
+
+def select_rewording_parents(
+    test_seeds: list[SeedRow], eligible_keys: set[str], count: int = REWORDING_COUNT
+) -> list[SeedRow]:
+    """Deterministic parents for the test supplement, spread over variants.
+
+    Only record-backed base test seeds with a brief (``eligible_keys``)
+    qualify, so every rewording can inherit its parent's intent. The
+    spread is even across MX/CO/AR (remainder to MX, then CO), ordered by
+    a hash of the seed key so the choice never depends on file order.
+    """
+    pool = {variant: [] for variant in ("MX", "CO", "AR")}
+    for seed in test_seeds:
+        if seed.split == "test" and seed.kind in REWORDING_PARENT_KINDS:
+            if seed.seed_key in eligible_keys:
+                pool[seed.country_variant].append(seed)
+    base, remainder = divmod(count, 3)
+    picked: list[SeedRow] = []
+    for index, variant in enumerate(("MX", "CO", "AR")):
+        need = base + (1 if index < remainder else 0)
+        ordered = sorted(
+            pool[variant], key=lambda s: hashlib.sha256(s.seed_key.encode()).hexdigest()
+        )
+        if len(ordered) < need:
+            raise SystemExit(f"rewording parents: test/{variant} has {len(ordered)}, need {need}")
+        picked.extend(ordered[:need])
+    return picked
+
+
+def build_rewording_seeds(
+    parents: list[SeedRow],
+    parent_pointers: dict[str, PointerEntry],
+    *,
+    salt: str,
+    set_version: str = SET_VERSION,
+) -> tuple[list[SeedRow], list[PointerEntry]]:
+    """Fresh-key rewording seeds (TSD-019 seed-reuse rule, L4).
+
+    Each rewording is a NEW seed: kind ``rewording``, role ``rewording-1``,
+    its own key, ``parent_seed_key`` recorded, and the parent's facts,
+    customer hash and event date copied unchanged (a linked pair inside
+    test is by design). The pointer's record id is the parent's with a
+    ``#rewording-1`` suffix, so the duplicate-draw check on record ids
+    does not mistake a rewording for its parent being drawn twice.
+    """
+    rows: list[SeedRow] = []
+    pointers: list[PointerEntry] = []
+    for parent in parents:
+        parent_pointer = parent_pointers[parent.seed_key]
+        record_id = f"{parent_pointer.record_id}#rewording-1"
+        seed_key = derive_seed_key(
+            salt=salt,
+            set_version=set_version,
+            split="test",
+            kind="rewording",
+            record_id=record_id,
+            role="rewording-1",
+        )
+        rows.append(
+            SeedRow.model_validate(
+                {
+                    **parent.model_dump(),
+                    "seed_key": seed_key,
+                    "kind": "rewording",
+                    "parent_seed_key": parent.seed_key,
+                }
+            )
+        )
+        pointers.append(
+            PointerEntry(
+                seed_key=seed_key,
+                set_version=set_version,
+                salt_version=SALT_VERSION,
+                split="test",
+                kind="rewording",
+                record_id=record_id,
+                role="rewording-1",
+                customer_id=parent_pointer.customer_id,
+                customer_hash=parent.customer_hash,
+            )
+        )
+    return rows, pointers
 
 
 def write_seeds_jsonl(path: Path, seeds: list[SeedRow]) -> int:

@@ -187,3 +187,55 @@ def test_ensure_salt_creates_once_and_reloads(
     assert len(first) == 64
     assert (tmp_path / "salt-v1").stat().st_mode & 0o077 == 0
     assert sr.ensure_salt(tmp_path / "salt-v1") == first
+
+
+def test_rewording_seeds_get_fresh_keys_and_link_to_their_parent():
+    """A rewording is a new seed: own key and role, the parent's facts and customer."""
+    from calvino.data import seed_registry as sr
+    from calvino.data.message_set import SeedRow
+
+    parents = []
+    pointers = {}
+    for variant in ("MX", "CO", "AR"):
+        for index in range(15):
+            key = f"v1-{variant}{index:02d}"
+            parents.append(
+                SeedRow.model_validate(
+                    {
+                        "seed_key": key,
+                        "split": "test",
+                        "prompt_id": "test-v1",
+                        "kind": "problem_transaction",
+                        "customer_hash": f"{variant}{index:014d}",
+                        "country_variant": variant,
+                        "record_facts": {"kind": "problem_transaction", "status": "Pending"},
+                        "event_date": "2026-02-10",
+                        "policy_version": "v2",
+                    }
+                )
+            )
+            pointers[key] = sr.PointerEntry(
+                seed_key=key,
+                set_version="v1",
+                salt_version="salt-v1",
+                split="test",
+                kind="problem_transaction",
+                record_id=f"TRX-{key}",
+                role="base",
+                customer_id=f"CLI-{key}",
+                customer_hash=f"{variant}{index:014d}",
+            )
+    picked = sr.select_rewording_parents(parents, {p.seed_key for p in parents})
+    assert len(picked) == 40
+    assert [s.country_variant for s in picked].count("MX") == 14
+    rows, new_pointers = sr.build_rewording_seeds(picked, pointers, salt="s")
+    assert len({row.seed_key for row in rows}) == 40
+    assert not {row.seed_key for row in rows} & {p.seed_key for p in parents}
+    for row, parent, pointer in zip(rows, picked, new_pointers, strict=True):
+        assert row.kind == "rewording" and row.parent_seed_key == parent.seed_key
+        assert row.customer_hash == parent.customer_hash
+        assert row.record_facts == parent.record_facts
+        assert pointer.record_id.endswith("#rewording-1")
+    # Deterministic: the same inputs give the same keys.
+    again, _ = sr.build_rewording_seeds(picked, pointers, salt="s")
+    assert [r.seed_key for r in again] == [r.seed_key for r in rows]
