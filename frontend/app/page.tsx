@@ -29,10 +29,6 @@ export default function Home() {
 
   const {
     ready,
-    persona,
-    personas,
-    setPersona,
-    loadPersonas,
     turns,
     selected,
     setSelected,
@@ -42,6 +38,7 @@ export default function Home() {
     setError,
     send,
     resume,
+    resetConversation,
   } = useHubConversation();
 
   const s = strings(lang);
@@ -58,7 +55,7 @@ export default function Home() {
       const currentAttachments = [...attachments];
       setText("");
       setAttachments([]);
-      void send(msg, persona, currentAttachments);
+      void send(msg, undefined, currentAttachments);
     }
   };
 
@@ -120,20 +117,19 @@ export default function Home() {
             </button>
           </div>
           <span className="topbar-divider" />
-          <label className="persona-select">
-            <span>{s.profile}</span>
-            <select
-              value={persona}
-              onChange={(e) => setPersona(e.target.value)}
-              onFocus={loadPersonas}
-            >
-              {personas.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <button
+            type="button"
+            className="session-reset-btn"
+            onClick={resetConversation}
+            title={s.newSession}
+          >
+            <RotateCcw size={13} />
+            <span>{s.newSession}</span>
+          </button>
+          <div className="sandbox-badge">
+            <Sparkles size={13} className="text-mint" />
+            <span>{s.sandboxSession}</span>
+          </div>
         </div>
       </header>
 
@@ -154,7 +150,7 @@ export default function Home() {
           <nav className="scenario-strip" aria-label={s.scenarios}>
             <div className="section-label">
               <span>{s.tryRoute}</span>
-              <small>{s.guidedDemo}</small>
+              <small>{s.guidedScenariosTitle || s.guidedDemo}</small>
             </div>
             <div className="scenario-scroll">
               {SCENARIOS.map((scenario) => (
@@ -164,7 +160,6 @@ export default function Home() {
                   className="scenario-chip"
                   disabled={busy}
                   onClick={() => {
-                    setPersona(scenario.persona);
                     void send(scenario.message, scenario.persona);
                   }}
                 >

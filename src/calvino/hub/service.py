@@ -192,14 +192,26 @@ class HubService:
             return list(DEFAULT_FALLBACK_CASES)
         return [_record_to_queue_item(c) for c in stored]
 
-    def handle_message(self, persona: str, text: str) -> HubReply:
-        """Run one customer turn on the persona's thread."""
-        thread_id = f"persona-{persona}"
-        token, session_ref = self._deps.issuer.issue(persona)
+    def handle_message(
+        self,
+        persona: str | None = None,
+        text: str = "",
+        guest_id: str | None = None,
+    ) -> HubReply:
+        """Run one customer turn on the persona or isolated guest thread (TSD-036)."""
+        effective_persona = persona or "ana"
+        if persona is not None:
+            thread_id = f"persona-{persona}"
+            token, session_ref = self._deps.issuer.issue(persona)
+        else:
+            effective_guest = guest_id or "default"
+            thread_id = f"guest-{effective_guest}"
+            token, session_ref = self._deps.issuer.issue_customer()
+
         self._threads[thread_id] = {"thread_id": thread_id, "token": token}
         seen = self._logged_count()
         state = self._graph.invoke(
-            {"persona": persona, "session_ref": session_ref, "message": text},
+            {"persona": effective_persona, "session_ref": session_ref, "message": text},
             config={"configurable": {"thread_id": thread_id, "session_token": token}},
         )
         return self._reply_of(state, thread_id, self._turn_trace(seen))

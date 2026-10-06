@@ -31,6 +31,9 @@ DEMO_PERSONAS: Mapping[str, str] = {
     "dana": "C-US-001",
 }
 
+# The default synthetic sandbox customer for unauthenticated public guest chat (TSD-036).
+SANDBOX_DEFAULT_CUSTOMER_ID = "C-MX-001"
+
 
 class TrustedSessionIssuer:
     """Maps demo personas to sessions; the only source of ``Session`` objects."""
@@ -67,6 +70,25 @@ class TrustedSessionIssuer:
         moment = now or datetime.now(UTC)
         self._sessions[token] = Session(
             customer_id=self._personas[persona],
+            expires_at=moment + self._session_ttl,
+        )
+        return token, session_ref_for(token)
+
+    def issue_customer(
+        self,
+        customer_id: str = SANDBOX_DEFAULT_CUSTOMER_ID,
+        now: datetime | None = None,
+    ) -> tuple[str, str]:
+        """Issue an opaque session for a sandbox customer without requiring a named persona.
+
+        Part of TSD-036 guest sandbox support.
+        """
+        token = self._token_factory()
+        while token in self._sessions:
+            token = self._token_factory()
+        moment = now or datetime.now(UTC)
+        self._sessions[token] = Session(
+            customer_id=customer_id,
             expires_at=moment + self._session_ttl,
         )
         return token, session_ref_for(token)

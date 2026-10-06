@@ -407,3 +407,40 @@ def test_hub_resume_enforces_idempotency_on_double_resume(make_hub_client):
         )
         assert res2.status_code == 403
         assert "already resolved" in res2.json()["detail"]
+
+
+def test_hub_message_guest_without_persona(make_hub_client):
+    """A customer message without persona uses the sandbox guest session (TSD-036)."""
+    with make_hub_client() as client:
+        response = client.post(
+            "/api/hub/message",
+            json={
+                "text": "Mi pago E-MX-002 sigue pendiente, ¿qué pasa?",
+                "guest_id": "guest-test-1",
+            },
+        )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["route"] == "agents"
+    assert "5000.00 MXN" in body["reply"]
+    assert body["card"] is not None
+    assert body["card"]["key"] == "payment_status"
+    assert body["card"]["payload"]["entry_reference"] == "E-MX-002"
+
+
+def test_hub_message_isolated_guest_threads(make_hub_client):
+    """Two different guest IDs use isolated threads without cross-contamination (TSD-036)."""
+    with make_hub_client() as client:
+        r1 = client.post(
+            "/api/hub/message",
+            json={"text": "Tengo un problema", "guest_id": "visitor-alpha"},
+        )
+        assert r1.status_code == 200
+
+        r2 = client.post(
+            "/api/hub/message",
+            json={"text": "Mi pago E-MX-002 sigue pendiente", "guest_id": "visitor-beta"},
+        )
+        assert r2.status_code == 200
+        assert "5000.00 MXN" in r2.json()["reply"]
+        assert r2.json()["card"]["payload"]["entry_reference"] == "E-MX-002"

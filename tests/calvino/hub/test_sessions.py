@@ -73,3 +73,13 @@ def test_empty_personas_are_rejected() -> None:
 
 def test_personas_lists_the_demo_sign_ins() -> None:
     assert make_issuer().personas() == ("maria", "juan")
+
+
+def test_issue_customer_for_sandbox_guest() -> None:
+    issuer = make_issuer()
+    token, session_ref = issuer.issue_customer(now=NOW)
+    assert token == "tok-0"
+    assert session_ref == session_ref_for(token)
+    session = issuer.resolve(token, now=NOW)
+    assert session is not None
+    assert session.customer_id == "C-MX-001"

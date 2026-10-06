@@ -35,6 +35,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .language-switch button { color: var(--dim); border: 0; background: none; padding: .35rem .4rem; font: 11px var(--font-mono); }
 .language-switch button.active { color: var(--mint); }
 .topbar-divider { height: 20px; border-left: 1px solid var(--line); }
+.session-reset-btn { color: var(--dim); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: .3rem .6rem; font: 11px var(--font-mono); display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; transition: color .2s, border-color .2s, background .2s; }
+.session-reset-btn:hover { color: var(--ink); border-color: var(--line-strong); background: rgba(255,255,255,.05); }
+.sandbox-badge { color: var(--mint); background: rgba(181,243,110,.08); border: 1px solid rgba(181,243,110,.25); border-radius: 999px; padding: .25rem .6rem; font: 11px var(--font-mono); display: inline-flex; align-items: center; gap: .35rem; }
 .persona-select, .passcode-field { color: var(--dim); display: flex; align-items: center; gap: .4rem; font: 11px var(--font-mono); }
 .persona-select select, .passcode-field input { color: var(--ink); border: 0; background: transparent; outline: 0; min-width: 58px; }
 .passcode-field { border-bottom: 1px solid var(--line-strong); padding: .25rem 0; }

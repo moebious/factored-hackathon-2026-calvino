@@ -10,6 +10,9 @@ export const STRINGS = {
     tagline:
       "Respuestas verificadas contra los datos del banco. Nada en esta pantalla es texto generado libremente.",
     persona: "Persona de demo",
+    sandboxSession: "Demo Sandbox",
+    newSession: "Nueva sesión",
+    guidedScenariosTitle: "Escenarios guiados (Evaluación)",
     inputPlaceholder: "Escribe tu mensaje…",
     send: "Enviar",
     sending: "Enviando…",
@@ -217,6 +220,9 @@ export const STRINGS = {
     tagline:
       "Respostas verificadas contra os dados do banco. Nada nesta tela é texto gerado livremente.",
     persona: "Persona de demonstração",
+    sandboxSession: "Demo Sandbox",
+    newSession: "Nova sessão",
+    guidedScenariosTitle: "Cenários guiados (Avaliação)",
     inputPlaceholder: "Escreva sua mensagem…",
     send: "Enviar",
     sending: "Enviando…",
