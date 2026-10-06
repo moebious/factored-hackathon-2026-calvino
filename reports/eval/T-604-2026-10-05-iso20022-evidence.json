@@ -1,0 +1,46 @@
+{
+  "task": "T-604",
+  "date": "2026-10-05",
+  "outbound_schema": "urn:iso:std:iso:20022:tech:xsd:camt.056.001.08",
+  "inbound_schema": "urn:iso:std:iso:20022:tech:xsd:camt.029.001.09",
+  "total_cases": 4,
+  "all_passed": true,
+  "cases": [
+    {
+      "case_id": "ISO-001",
+      "type": "accepted_cancellation",
+      "target_reference": "E-MX-002",
+      "amount": "5000.00",
+      "currency": "MXN",
+      "schema_outbound": "urn:iso:std:iso:20022:tech:xsd:camt.056.001.08",
+      "schema_inbound": "urn:iso:std:iso:20022:tech:xsd:camt.029.001.09",
+      "bank_outcome": "accepted",
+      "bank_reason": "CUST",
+      "passed": true
+    },
+    {
+      "case_id": "ISO-002",
+      "type": "rejected_by_bank",
+      "target_reference": "E-MX-REJECTED",
+      "amount": "12000.00",
+      "currency": "MXN",
+      "schema_outbound": "urn:iso:std:iso:20022:tech:xsd:camt.056.001.08",
+      "schema_inbound": "urn:iso:std:iso:20022:tech:xsd:camt.029.001.09",
+      "bank_outcome": "rejected",
+      "bank_reason": "LEGL",
+      "passed": true
+    },
+    {
+      "case_id": "ISO-003",
+      "type": "readback_tamper_guard",
+      "target_reference": "E-MX-TAMPERED",
+      "passed": true
+    },
+    {
+      "case_id": "ISO-004",
+      "type": "correlation_mismatch_guard",
+      "target_reference": "E-MX-002",
+      "passed": true
+    }
+  ]
+}
