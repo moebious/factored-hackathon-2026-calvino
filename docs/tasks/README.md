@@ -97,7 +97,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-601](T-601-ag-ui-console.md) | AG-UI endpoint and CopilotKit console | future | measured integration need | — | standard | yes | deferred | maintainer |
 | [T-602](T-602-verifier-streaming.md) | Live verifier streaming | future | T-601 | — | standard | yes | deferred | maintainer |
 | [T-603](T-603-verifier-lab.md) | Frozen financial-verifier benchmark, human-authored rubric revisions | 3 (thesis) | T-303 | reviewed labels | judgment checkpoint | yes | todo | maintainer |
-| [T-604](T-604-iso20022-xml.md) | One governed action through mock ISO 20022 middleware and read-back | 3 (thesis) | T-206 | selected message profile | judgment checkpoint | yes | todo | maintainer |
+| [T-604](../specs/TSD-035-iso20022-exchange.md) | One governed action through mock ISO 20022 middleware and read-back | 3 (thesis) | T-206 | selected message profile | judgment checkpoint | yes | done | maintainer |
 
 The rule for T-101 is pre-registered; its status moves to `doing` when the analysis starts.
 
