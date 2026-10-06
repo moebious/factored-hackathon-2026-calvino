@@ -84,7 +84,7 @@ Owner: **maintainer** (the core system and delivery). The data analyst has left 
 | [T-402](T-402-verifier-panel.md) | Offline risk-tiered pre-execution veto comparison; runtime claim separately gated | 3 (thesis) | T-004, T-303 | labelled cases | judgment checkpoint | yes | todo | maintainer |
 | [T-403](T-403-coworker-agent.md) | Coworker agent, only after measured operator need | future | T-302 | measured need | standard | yes | deferred | maintainer |
 | [T-404](T-404-analytics-tab.md) | Interactive manager tab; metrics stay in reports | future | T-303 | measured need | standard | yes | deferred | maintainer |
-| [T-405](T-405-fairness-tests.md) | Paired language/dialect evidence and policy-impact separation | 3 (thesis) | T-303, T-203 | — | judgment checkpoint | yes | todo | maintainer |
+| [T-405](../specs/TSD-033-fairness-and-counterfactuals.md) | Paired language/dialect evidence and policy-impact separation | 3 (thesis) | T-303, T-203 | — | judgment checkpoint | yes | spec | maintainer |
 | [T-406](T-406-second-adapter.md) | Two synthetic formats, one unchanged hub/policy | 3 (thesis) | T-206 | — | standard | yes | todo | maintainer |
 | [T-407](T-407-flywheel-turn.md) | One governed offline human-to-model update or rejection | 3 (thesis) | T-103, T-105, T-107, T-201, T-303, T-408 | reviewed labels | judgment checkpoint | yes | todo | maintainer |
 | [T-408](T-408-policy-replay.md) | Offline policy verdict deltas and promotion scorecard | 3 (thesis) | T-201, T-303 | independent safety labels | judgment checkpoint | yes | todo | maintainer |
