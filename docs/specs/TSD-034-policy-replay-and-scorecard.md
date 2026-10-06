@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | implemented |
 | Branch | `feat/policy-replay` |
 | Task | [T-408](../tasks/T-408-policy-replay.md) |
 | Depends on | TSD-001 (Policy engine), TSD-013 (Evaluation harness), TSD-030 (Policy v4) |
@@ -41,6 +41,7 @@ Provide a deterministic offline policy replay engine and an auditable promotion 
 @dataclass(frozen=True)
 class VerdictTransition:
     """One verdict transition for a decision record."""
+
     case_id: str
     decision_id: str
     decision_kind: str  # "route" | "gate"
@@ -53,17 +54,21 @@ class VerdictTransition:
     is_flip: bool
     customer_impact: str
 
+
 @dataclass(frozen=True)
 class TransitionMatrix:
     """Aggregate matrix of verdict transitions."""
+
     decision_kind: str
     transitions: dict[tuple[str, str], int]  # (baseline_verdict, candidate_verdict) -> count
     total_records: int
     total_flips: int
 
+
 @dataclass(frozen=True)
 class PromotionScorecard:
     """Auditable policy promotion evaluation scorecard."""
+
     run_date: str
     git_sha: str
     baseline_policy_path: str

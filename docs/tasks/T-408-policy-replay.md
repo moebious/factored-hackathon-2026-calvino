@@ -20,4 +20,4 @@
 
 **Done when.** unchanged inputs under the same policy replay identically; a candidate policy produces an exact, reproducible flip list and any reviewed unsafe regression is a blocking finding. Failures and missing evidence are reported, not treated as zero unsafe outcomes. The output is an offline promotion artifact, not a live switchboard.
 
-**Specification:** [TSD-034](../specs/TSD-034-policy-replay-and-scorecard.md) (proposed).
+**Specification:** [TSD-034](../specs/TSD-034-policy-replay-and-scorecard.md) (implemented).
