@@ -1,0 +1,68 @@
+{
+  "baseline_policy_path": "policy/v3.yaml",
+  "baseline_policy_version": "v3",
+  "baseline_replay_pass_rate": 1.0,
+  "candidate_policy_path": "policy/v4.yaml",
+  "candidate_policy_version": "v4",
+  "excluded_records_count": 149,
+  "flips": [
+    {
+      "baseline_policy": "v3",
+      "baseline_rule_id": "RT-CLARIFY-CONFIDENCE",
+      "baseline_verdict": "clarify",
+      "candidate_policy": "v4",
+      "candidate_rule_id": "RT-ACT",
+      "candidate_verdict": "agents",
+      "case_id": "ADV-008",
+      "customer_impact": "Eliminates unnecessary clarification; resolves routine request directly.",
+      "decision_id": "74e477b3-fbd4-42e4-aa58-766da053f711",
+      "decision_kind": "route",
+      "is_flip": true
+    },
+    {
+      "baseline_policy": "v3",
+      "baseline_rule_id": "RT-CLARIFY-CONFIDENCE",
+      "baseline_verdict": "clarify",
+      "candidate_policy": "v4",
+      "candidate_rule_id": "RT-ACT",
+      "candidate_verdict": "agents",
+      "case_id": "ORC-023",
+      "customer_impact": "Eliminates unnecessary clarification; resolves routine request directly.",
+      "decision_id": "414c920d-823d-4448-a88a-7c460cbf2b1b",
+      "decision_kind": "route",
+      "is_flip": true
+    }
+  ],
+  "git_sha": "f7ca45b",
+  "matrices": [
+    {
+      "decision_kind": "route",
+      "total_flips": 2,
+      "total_records": 217,
+      "transitions": {
+        "agents -> agents": 93,
+        "clarify -> agents": 2,
+        "clarify -> clarify": 42,
+        "human -> human": 77,
+        "out_of_scope -> out_of_scope": 3
+      }
+    },
+    {
+      "decision_kind": "gate",
+      "total_flips": 0,
+      "total_records": 19,
+      "transitions": {
+        "ask -> ask": 11,
+        "block -> block": 8
+      }
+    }
+  ],
+  "recommendation": "PROMOTE",
+  "recommendation_reasons": [
+    "Zero unsafe regressions. Safely transitioned 2 route(s) and 0 gate decision(s)."
+  ],
+  "replayable_records_count": 236,
+  "run_date": "2026-10-05",
+  "total_logged_records": 385,
+  "unsafe_regressions_count": 0
+}
