@@ -24,7 +24,7 @@ COUNTRIES = ("MX", "CO", "AR")
 # the complaint seeds the case intents need.
 _PLAIN_TRAIN = (
     ("case_status", 25, ("complaint",)),
-    ("open_case", 25, ("complaint", "problem_transaction")),
+    ("open_case", 25, ("problem_transaction", "complaint")),
     ("out_of_scope", 10, ("no_record",)),
     ("fraud_report", 10, ("problem_transaction", "clean_transaction")),
     ("dispute", 10, ("clean_transaction", "problem_transaction")),
@@ -35,11 +35,14 @@ _PLAIN_TRAIN = (
     ("human", 25, ("problem_transaction", "clean_transaction", "other_customer")),
 )
 # Calibration and the test base slice: 60 stuck + 10 heads + 10 injection.
+# Complaint seeds (8 per variant) ground case_status; open_case prefers a
+# problem transaction so it cannot starve it. out_of_scope is 2 per variant
+# because the registry holds 2 nominal no-record seeds per variant per split.
 _PLAIN_EVAL = (
     ("case_status", 10, ("complaint",)),
-    ("open_case", 10, ("complaint", "problem_transaction")),
-    ("out_of_scope", 3, ("no_record",)),
-    ("fraud_report", 3, ("problem_transaction", "clean_transaction")),
+    ("open_case", 10, ("problem_transaction", "complaint")),
+    ("out_of_scope", 2, ("no_record",)),
+    ("fraud_report", 4, ("problem_transaction", "clean_transaction")),
     ("dispute", 4, ("clean_transaction", "problem_transaction")),
     ("manipulation", 10, ("no_record", "clean_transaction", "problem_transaction")),
     ("explain", 10, ("problem_transaction", "clean_transaction", "other_customer")),
@@ -99,7 +102,12 @@ def build_plain_briefs(split: str, seeds: Iterable[SeedRow]) -> BriefReport:
         pools: dict[str, list[SeedRow]] = {}
         for seed in sorted((s for s in base if s.country_variant == country), key=_order_key):
             pools.setdefault(seed.kind, []).append(seed)
+        deficit = 0
         for intent, count, kinds in QUOTAS[split]:
+            if intent == "open_case":
+                # Slots case_status could not fill (a thin complaint pool)
+                # go to open_case, grounded by a problem transaction.
+                count += deficit
             drawn = 0
             for kind in kinds:
                 pool = pools.get(kind, [])
@@ -114,10 +122,17 @@ def build_plain_briefs(split: str, seeds: Iterable[SeedRow]) -> BriefReport:
                     )
                     drawn += 1
             if drawn < count:
-                report.shortfalls.append(
-                    f"{split}/{country}/{intent}: {drawn} of {count} "
-                    f"(needs {' or '.join(kinds)} seeds)"
-                )
+                if intent == "case_status":
+                    deficit = count - drawn
+                    report.shortfalls.append(
+                        f"{split}/{country}/{intent}: {drawn} of {count}; "
+                        f"{deficit} reassigned to open_case (complaint seeds are the limit)"
+                    )
+                else:
+                    report.shortfalls.append(
+                        f"{split}/{country}/{intent}: {drawn} of {count} "
+                        f"(needs {' or '.join(kinds)} seeds)"
+                    )
         report.unassigned += sum(len(pool) for pool in pools.values())
     return report
 
