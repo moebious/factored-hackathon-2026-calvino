@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Wave | Core thesis evidence (decision 37) |
-| Branch | `eval/fairness` |
+| Branch | `feat/fairness-tests` |
 | Depends on | T-303, T-203 |
 | Blocked by | — |
 | Model | standard model |
@@ -20,4 +20,4 @@
 
 **Done when.** results carry pair counts and group denominators, investigate unexplained model-driven flips, flag small groups as inconclusive and report policy-driven ES/PT differences separately. Decision 25's lines remain hypotheses, not automatic promotion gates until the evidence is adequately powered.
 
-**First step:** turn this card into a full specification in `docs/specs/` (next free TSD number), with interfaces, tests and done criteria, and get the maintainer's approval before implementing.
+**Specification:** [TSD-033](../specs/TSD-033-fairness-and-counterfactuals.md) (implemented).
