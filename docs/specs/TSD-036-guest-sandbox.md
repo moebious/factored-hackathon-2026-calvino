@@ -36,9 +36,13 @@ The demo operates as an **unauthenticated guest sandbox**:
 ```python
 SANDBOX_DEFAULT_CUSTOMER_ID = "C-MX-001"  # Ana's rich dataset profile in synthetic_bank.json
 
+
 class TrustedSessionIssuer:
     ...
-    def issue_guest(self, guest_id: str, customer_id: str = SANDBOX_DEFAULT_CUSTOMER_ID) -> tuple[str, str]:
+
+    def issue_guest(
+        self, guest_id: str, customer_id: str = SANDBOX_DEFAULT_CUSTOMER_ID
+    ) -> tuple[str, str]:
         """Issue an opaque session token and hashed ref for a sandbox guest."""
 ```
 
@@ -46,6 +50,7 @@ class TrustedSessionIssuer:
 ```python
 class HubService:
     ...
+
     def handle_message(
         self,
         text: str,
@@ -53,7 +58,7 @@ class HubService:
         guest_id: str | None = None,
     ) -> HubReply:
         """Handle a customer turn.
-        
+
         If persona is provided, runs on thread f"persona-{persona}" (legacy/guided scenario).
         If guest_id is provided (or generated), runs on isolated thread f"guest-{guest_id}".
         """

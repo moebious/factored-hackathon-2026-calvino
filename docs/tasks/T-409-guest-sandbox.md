@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | proposed |
+| Status | done |
 | Branch | `feat/guest-sandbox` |
 | Spec | [TSD-036](../specs/TSD-036-guest-sandbox.md) |
 | Depends on | T-205, T-207, T-304 |
