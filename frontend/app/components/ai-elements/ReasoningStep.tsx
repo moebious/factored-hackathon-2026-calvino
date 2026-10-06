@@ -65,21 +65,36 @@ export function ReasoningStep({
           <div className="scores-grid">
             {Object.entries(step.scores).map(([metric, value]) => {
               const exceedsThreshold = threshold !== null && value >= threshold;
+              const metricLabel = s.scoreMetrics?.[metric] || metric.replace(/_/g, " ");
+              const isDangerMetric = metric === "injection" && value > 0.05;
+              const isConfidenceMetric = metric === "confidence";
               return (
                 <div key={metric} className="score-row">
                   <div className="score-meta">
-                    <span className="metric-name">{metric.replace(/_/g, " ")}</span>
-                    <span className="metric-val">{formatPercent(value)}</span>
+                    <span className="metric-name" title={metric}>
+                      {metricLabel}
+                    </span>
+                    <span className={`metric-val ${isDangerMetric ? "text-coral font-bold" : ""}`}>
+                      {formatPercent(value)}
+                    </span>
                   </div>
                   <div className="score-bar-track">
                     <div
-                      className={`score-bar-fill ${exceedsThreshold ? "threshold-alert" : ""}`}
-                      style={{ width: `${Math.min(100, value * 100)}%` }}
+                      className={`score-bar-fill ${
+                        isDangerMetric
+                          ? "threshold-alert"
+                          : exceedsThreshold
+                          ? "threshold-ok"
+                          : isConfidenceMetric
+                          ? "confidence-fill"
+                          : ""
+                      }`}
+                      style={{ width: `${Math.min(100, Math.max(0, value * 100))}%` }}
                     />
                     {threshold !== null && (
                       <div
                         className="score-threshold-line"
-                        style={{ left: `${threshold * 100}%` }}
+                        style={{ left: `${Math.min(100, Math.max(0, threshold * 100))}%` }}
                         title={`${s.threshold}: ${formatPercent(threshold)}`}
                       />
                     )}

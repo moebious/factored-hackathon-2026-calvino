@@ -49,6 +49,13 @@ export default function Home() {
     }
   }, []);
 
+  // Reactive Human-in-the-Loop Intercept: Automatically open evidence rail when an action requires human intervention
+  useEffect(() => {
+    if (selectedCase?.pendingAction && !selectedCase.pendingAction.decided) {
+      setTraceOpen(true);
+    }
+  }, [selectedCase?.pendingAction]);
+
   const handleSend = () => {
     if (text.trim() && !busy) {
       const msg = text.trim();
@@ -58,6 +65,17 @@ export default function Home() {
       void send(msg, undefined, currentAttachments);
     }
   };
+
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  useEffect(() => {
+    if (ready !== true) {
+      const interval = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [ready]);
 
   if (ready !== true) {
     return (
@@ -72,6 +90,11 @@ export default function Home() {
           <em>{s.warmupHeadline2}</em>
         </h1>
         <p>{ready === null ? s.warmupChecking : s.warmupLoading}</p>
+        <div className="warmup-meta-pill">
+          <code>{s.warmupCheckpoint}</code>
+          <span>•</span>
+          <span>{elapsedSeconds}s {s.warmupSecondsElapsed}</span>
+        </div>
         <div className="loading-line">
           <span />
         </div>

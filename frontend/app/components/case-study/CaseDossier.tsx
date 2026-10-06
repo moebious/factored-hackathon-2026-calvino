@@ -50,6 +50,23 @@ export function CaseDossier({
         <CaseStatusBadge status={status} lang={lang} />
       </div>
 
+      {/* Reactive Human-in-the-Loop Intercept Banner */}
+      {pendingAction && !pendingAction.decided && pendingAction.ref && (
+        <div className="pending-intercept-banner" role="alert">
+          <div className="pending-intercept-icon">
+            <Sparkles size={16} />
+          </div>
+          <div className="pending-intercept-content">
+            <strong>
+              {pendingAction.type === "operator_queue"
+                ? s.pendingOperatorAlert
+                : s.pendingActionAlert}
+            </strong>
+            <span>{s.bankReference}: <code>{pendingAction.ref}</code></span>
+          </div>
+        </div>
+      )}
+
       {/* Customer prompt / Intent detected */}
       <div className="dossier-section dossier-prompt">
         <span className="section-label">{s.customerRequest}</span>

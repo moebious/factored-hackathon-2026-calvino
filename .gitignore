@@ -238,6 +238,7 @@ node_modules/
 .next/
 out/
 frontend/dist/
+*.tsbuildinfo
 
 # Runtime outputs
 decisions.jsonl
