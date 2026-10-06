@@ -45,10 +45,11 @@ class DemoDecideRequest(BaseModel):
 
 
 class HubMessageRequest(BaseModel):
-    """One customer turn: a demo persona and their message (TSD-010)."""
+    """One customer turn: a demo persona or sandbox guest and their message (TSD-010, TSD-036)."""
 
-    persona: str = Field(min_length=1)
     text: str = Field(min_length=1, max_length=MAX_DEMO_TEXT_CHARS)
+    persona: str | None = Field(default=None, max_length=64)
+    guest_id: str | None = Field(default=None, max_length=64)
 
 
 class HubResumeRequest(BaseModel):
@@ -212,7 +213,11 @@ def create_app(
         try:
             # The turn classifies, calls tools and verifies: all blocking.
             return await anyio.to_thread.run_sync(
-                lambda: service.handle_message(payload.persona, payload.text)
+                lambda: service.handle_message(
+                    persona=payload.persona,
+                    text=payload.text,
+                    guest_id=payload.guest_id,
+                )
             )
         except KeyError as error:
             # An unknown persona fails closed at the issuer.
